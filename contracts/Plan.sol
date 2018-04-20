@@ -1,4 +1,4 @@
-pragma solidity ^0.4.22;
+pragma solidity ^0.4.18;
 
 /** @title Contains all the metadata required for a subscription plan */
 
