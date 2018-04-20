@@ -2,7 +2,7 @@ pragma solidity ^0.4.0;
 
 import "./Plan.sol";
 
-/** @title Contains all the data required for a user's active subscription. */
+/** @title Contains all the data required for a user's active subscription */
 
 contract Subscription {
 
