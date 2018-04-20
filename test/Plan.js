@@ -135,10 +135,11 @@ contract('Plan', function(accounts) {
 
   });
 
-  /*
+  
   it("should not be able to terminate the plan from a date in the past", async function() {
 
     let past = new Date(Date.now() - (60*60*1000)).valueOf();
+    past = past/1000;
 
     try {
       await instance.terminatePlan(past);
@@ -152,7 +153,7 @@ contract('Plan', function(accounts) {
     }
     
   });
-  */
+  
 
   it("should not be able to terminate the plan as another user", async function () {
 

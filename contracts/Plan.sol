@@ -33,7 +33,6 @@ contract Plan {
     function terminatePlan(uint _terminationDate)
         isOwner
         external {
-        // @TODO 
         require(_terminationDate >= block.timestamp);
         require(terminationDate == 0); // If it's already been set then we don't want it to be modified
         terminationDate = _terminationDate;
