@@ -112,6 +112,8 @@ contract('Plan', function(accounts) {
   it("should be able to terminate the plan as the owner", async function() {
 
     let now = Date.now();
+    now = parseInt(now/1000);
+
     await instance.terminatePlan(now);
 
     let terminationDate = await instance.terminationDate.call(); 
@@ -122,6 +124,8 @@ contract('Plan', function(accounts) {
   it("should not be able to terminate the plan multiple times", async function() {
 
     let now = Date.now();
+    now = parseInt(now/1000);
+
     await instance.terminatePlan(now);
 
     try {
@@ -134,12 +138,11 @@ contract('Plan', function(accounts) {
     }
 
   });
-
   
   it("should not be able to terminate the plan from a date in the past", async function() {
 
     let past = new Date(Date.now() - (60*60*1000)).valueOf();
-    past = past/1000;
+    past = parseInt(past/1000);
 
     try {
       await instance.terminatePlan(past);
@@ -153,12 +156,12 @@ contract('Plan', function(accounts) {
     }
     
   });
-  
 
   it("should not be able to terminate the plan as another user", async function () {
 
     let now = Date.now();
-  
+    now = now/1000;
+
     try {
       await instance.terminatePlan(now, { from: accounts[1] });
 

@@ -43,7 +43,7 @@ contract Plan {
     */
 
     /** @dev This is the constructor function for creating a new plan
-      * @param _owner the address which owns this contracts and to which a payment will be made.
+      * @param _owner the address which owns this contract and to which a payment will be made.
       * @param _name a front-end displaying name for the product
       * @param _interval after how many days should a customer be charged
       * @param _amount how much should the consumer be charged (in cents)
@@ -66,11 +66,19 @@ contract Plan {
 
     }
 
+    /** @dev Updates the owner in case they want to receive funds in another address
+      * @param _owner the address which they want to update it to
+    */
+
     function setOwner(address _owner) 
         isOwner
         public {
         owner = _owner;
     }
+
+    /** @dev Updates the name of the product (visible to the user)
+      * @param _name the name which they want to update it to
+    */
 
     function setName(string _name) 
         isOwner
@@ -78,17 +86,46 @@ contract Plan {
         name = _name;
     }
 
+    /** @dev Updates the description of the product (visible to the user)
+      * @param _description the description which they want to update it to
+    */
+
     function setDescription(string _description) 
         isOwner
         public {
         description = _description;
     }
 
+    /** @dev Updates the identifier of the product (not visible to the user)
+      * @param _identifier the identifier which they want to update it to
+    */
+
     function setIdentifier(string _identifier) 
         isOwner
         public {
         identifier = _identifier;
     }
+
+    /** @dev Get the interval for the plan
+     */
+
+    function getInterval()
+        public
+        view 
+        returns (uint _interval) {
+        return interval;
+    }
+
+    /** @dev Get the amount for the plan
+     */
+
+    function getAmount()
+        public
+        view 
+        returns (uint _amount) {
+        return amount;
+    }
+     
 
     /**
       * Internal functions
