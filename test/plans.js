@@ -1,6 +1,5 @@
 import assertRevert from './helpers/assertRevert.js';
-
-var abi = require('ethereumjs-abi')
+import abi from 'ethereumjs-abi';
 
 var Plans = artifacts.require("./Plans.sol");
 
@@ -59,6 +58,13 @@ contract('Plans', function(accounts) {
       assert.equal(savedPlan[5], 30);
       assert.equal(savedPlan[6], 10);
       assert.equal(savedPlan[7], "{}");
+  });
+
+  it("should not be able to create an invalid plan", async function() {
+      await assertRevert(instance.createPlan(0x0, "test.identifier", "", "", 30, 10, ""));
+      await assertRevert(instance.createPlan(accounts[0], "", "", "", 30, 10, ""));
+      await assertRevert(instance.createPlan(accounts[0], "test.identifier", "", "", 0, 10, ""));
+      await assertRevert(instance.createPlan(accounts[0], "test.identifier", "", "", 30, 0, ""));
   });
 
   it("should be able to update the owner of a plan", async function() {
@@ -132,7 +138,8 @@ contract('Plans', function(accounts) {
     let now = Date.now();
     now = parseInt(now/1000);
 
-    await instance.terminatePlan(planHash, now);
+    let termination = await instance.terminatePlan(planHash, now);
+    assert.equal(termination.logs[0].args.terminationDate, now);
 
     let terminationDate = await instance.getPlanTerminationDate(planHash);
     assert.equal(terminationDate, now);
@@ -149,7 +156,6 @@ contract('Plans', function(accounts) {
 
     await instance.terminatePlan(planHash, now);
     await assertRevert(instance.terminatePlan(planHash, secondDate));
-
   });
   
   it("should not be able to terminate the plan from a date in the past", async function() {

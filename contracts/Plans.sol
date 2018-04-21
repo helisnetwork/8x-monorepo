@@ -8,9 +8,9 @@ contract Plans {
 
         address owner; // The vendor
 
-        string name; // Name of this plan (required)
-        string identifier; // Product indentifier (hidden to user but required)
-        string description; // Optional description (visible to user)
+        string identifier; // Product indentifier
+        string name; // Name of this plan
+        string description; // Description of the product
 
         uint terminationDate; // Epoch time for when the plan is terminated by the vendor. Cannot be modified once set.
         uint interval; // Measured in days (required). Cannot be modified once set.
@@ -25,6 +25,8 @@ contract Plans {
     mapping (bytes32 => Plan) public plans; // A mapping containing all the plans
 
     event Created(bytes32 identifier);
+    event Updated(bytes32 identifier);
+    event Terminated(bytes32 identifier, uint terminationDate);
 
     /**
       * Modifiers
@@ -38,6 +40,11 @@ contract Plans {
     modifier isOwnerOfPlan(bytes32 _plan) {
         require(msg.sender == plans[_plan].owner);
         _;
+    }
+
+    modifier shouldEmitChanges(bytes32 _plan) {
+        _;
+        emit Updated(_plan);
     }
 
     /**
@@ -55,6 +62,7 @@ contract Plans {
         require(_terminationDate >= block.timestamp);
         require(plans[_plan].terminationDate == 0); // If it's already been set then we don't want it to be modified
         plans[_plan].terminationDate = _terminationDate;
+        emit Terminated(_plan, _terminationDate);
     }
 
     /**
@@ -74,18 +82,23 @@ contract Plans {
     */
 
     function createPlan(
-        address _owner,
-        string _identifier,
+        address _owner, // Required
+        string _identifier, // Required
         string _name,
         string _description,
-        uint _interval,
-        uint _amount,
+        uint _interval, // Required
+        uint _amount, // Required
         string _data
     )
 
         public
         returns (bytes32 _newPlanHash)
     {
+
+        require(_owner != 0x0);
+        require(bytes(_identifier).length > 0);
+        require(_interval > 0);
+        require(_amount > 0);
 
         Plan memory newPlan = Plan({
             owner: _owner, 
@@ -155,6 +168,7 @@ contract Plans {
 
     function setPlanOwner(bytes32 _plan, address _owner) 
         isOwnerOfPlan(_plan)
+        shouldEmitChanges(_plan)
         public {
         plans[_plan].owner = _owner;
     }
@@ -166,6 +180,7 @@ contract Plans {
 
     function setPlanName(bytes32 _plan, string _name) 
         isOwnerOfPlan(_plan)
+        shouldEmitChanges(_plan)
         public {
         plans[_plan].name = _name;
     }
@@ -177,6 +192,7 @@ contract Plans {
 
     function setPlanDescription(bytes32 _plan, string _description) 
         isOwnerOfPlan(_plan)
+        shouldEmitChanges(_plan)
         public {
         plans[_plan].description = _description;
     }
@@ -188,6 +204,7 @@ contract Plans {
 
     function setPlanData(bytes32 _plan, string _data) 
         isOwnerOfPlan(_plan)
+        shouldEmitChanges(_plan)
         public {
         plans[_plan].data = _data;
     }
