@@ -1,6 +1,6 @@
 pragma solidity ^0.4.0;
 
-import "./Plan.sol";
+import "./Plans.sol";
 
 /** @title Contains all the data required for a user's active subscription */
 
@@ -21,7 +21,7 @@ contract Subscription {
 
     Payment[] public payments;
 
-    Plan public PLAN_CONTRACT;
+    Plans public PLAN_CONTRACT;
 
     /**
       * Modifiers
@@ -35,13 +35,13 @@ contract Subscription {
       * Public functions
     */
 
-    /** @dev This is the constructor function for creating a new subscription
-      * @param _owner the address which owns this contract (will be the user in this case)
-      * @param _startDate the date from which this subscription should start
-      * @param _plan a reference to the plan they would like to subscribe to
+    /** dev This is the constructor function for creating a new subscription
+      * param _owner the address which owns this contract (will be the user in this case)
+      * param _startDate the date from which this subscription should start
+      * param _plan a reference to the plan they would like to subscribe to
     */
 
-    function Subscription(
+    /*function Subscription(
         address _owner,
         uint _startDate,
         address _plan
@@ -51,11 +51,15 @@ contract Subscription {
 
         owner = _owner;
         startDate = _startDate;
-        PLAN_CONTRACT = Plan(_plan);
+        PLAN_CONTRACT = Plans(_plan);
 
         // Although the plan owner can't update the interval or amount we want to be sure that it doesn't change by using a referenced value
         interval = PLAN_CONTRACT.getInterval();
         amount = PLAN_CONTRACT.getAmount();
+    }*/
+
+    function Subscription() public {
+        owner = msg.sender;
     }
 
     /**
