@@ -60,7 +60,7 @@ contract('Plans', function(accounts) {
       assert.equal(savedPlan[7], "{}");
   });
 
-  it("should not be able to create a plan with empty details", async function() {
+  it("should not be able to create a plan without required details", async function() {
       await assertRevert(instance.createPlan(0x0, "test.identifier", "", "", 30, 10, ""));
       await assertRevert(instance.createPlan(accounts[0], "", "", "", 30, 10, ""));
       await assertRevert(instance.createPlan(accounts[0], "test.identifier", "", "", 0, 10, ""));
