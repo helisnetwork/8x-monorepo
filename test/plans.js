@@ -1,5 +1,5 @@
 import assertRevert from './helpers/assertRevert.js';
-import abi from 'ethereumjs-abi';
+import keccak from './helpers/keccak.js';
 
 var Plans = artifacts.require("./Plans.sol");
 
@@ -24,10 +24,10 @@ contract('Plans', function(accounts) {
 
   it("should have the correct computed hash", async function() {
 
-      let computedHash = "0x" + abi.soliditySHA3(
+      let computedHash = keccak(
         ["address", "string"],
         [accounts[0], incrementalIdentifier]
-      ).toString('hex');
+      )
 
       assert.equal(planHash, computedHash);
 
