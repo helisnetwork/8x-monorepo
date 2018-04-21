@@ -1,3 +1,5 @@
+import assertRevert from './helpers/assertRevert.js';
+
 var Plan = artifacts.require("./Plan.sol");
 
 contract('Plan', function(accounts) {
@@ -32,14 +34,7 @@ contract('Plan', function(accounts) {
 
   it("should be not be able to update the owner as another user", async function () {
 
-      try {
-        await instance.setOwner(accounts[1], { from: accounts[1] });
-
-        assert.fail('Expected revert not received');
-      } catch (error) {
-        const revertFound = error.message.search('revert') >= 0;
-        assert(revertFound, `Expected "revert", got ${error} instead`);
-      }
+      await assertRevert(instance.setOwner(accounts[1], {from: accounts[1]}));
 
   });
 
@@ -54,15 +49,7 @@ contract('Plan', function(accounts) {
 
   it("should be not be able to update the name as another user", async function () {
 
-    try {
-      await instance.setName("Another test", { from: accounts[1] });
-
-      assert.fail('Expected revert not received');
-    } catch (error) {
-      const revertFound = error.message.search('revert') >= 0;
-      assert(revertFound, `Expected "revert", got ${error} instead`);
-    }
-
+    await assertRevert(instance.setName("Another test", {from: accounts[1]}));
   });
 
   it("should be able to update the description", async function() {
@@ -76,14 +63,7 @@ contract('Plan', function(accounts) {
 
   it("should be not be able to update the description as another user", async function () {
 
-    try {
-      await instance.setDescription("Test description", { from: accounts[1] });
-
-      assert.fail('Expected revert not received');
-    } catch (error) {
-      const revertFound = error.message.search('revert') >= 0;
-      assert(revertFound, `Expected "revert", got ${error} instead`);
-    }
+    await assertRevert(instance.setDescription("Test description", {from: accounts[1]}));
 
   });
 
@@ -98,14 +78,7 @@ contract('Plan', function(accounts) {
 
   it("should be not be able to update the identifier as another user", async function () {
 
-    try {
-      await instance.setIdentifier("test.identifier", { from: accounts[1] });
-
-      assert.fail('Expected revert not received');
-    } catch (error) {
-      const revertFound = error.message.search('revert') >= 0;
-      assert(revertFound, `Expected "revert", got ${error} instead`);
-    }
+    await assertRevert(instance.setIdentifier("test.identifier", {from: accounts[1]}));
 
   });
 
@@ -126,16 +99,11 @@ contract('Plan', function(accounts) {
     let now = Date.now();
     now = parseInt(now/1000);
 
-    await instance.terminatePlan(now);
+    let secondDate = new Date(Date.now() + (60*60*1000)).valueOf();
+    secondDate = parseInt(secondDate/1000);
 
-    try {
-      let secondDate = new Date(Date.now() + (60*60*1000)).valueOf();
-      await instance.terminatePlan(secondDate);
-      assert.fail('Expected revert not received');
-    } catch (error) {
-      const revertFound = error.message.search('revert') >= 0;
-      assert(revertFound, `Expected "revert", got ${error} instead`);
-    }
+    await instance.terminatePlan(now);
+    await assertRevert(instance.terminatePlan(secondDate));
 
   });
   
@@ -144,17 +112,8 @@ contract('Plan', function(accounts) {
     let past = new Date(Date.now() - (60*60*1000)).valueOf();
     past = parseInt(past/1000);
 
-    try {
-      await instance.terminatePlan(past);
-      let terminationDate = await instance.terminationDate.call(); 
-      console.log(terminationDate);
-      console.log(past);
-      assert.fail('Expected revert not received');
-    } catch (error) {
-      const revertFound = error.message.search('revert') >= 0;
-      assert(revertFound, `Expected "revert", got ${error} instead`);
-    }
-    
+    await assertRevert(instance.terminatePlan(past));
+
   });
 
   it("should not be able to terminate the plan as another user", async function () {
@@ -162,15 +121,8 @@ contract('Plan', function(accounts) {
     let now = Date.now();
     now = now/1000;
 
-    try {
-      await instance.terminatePlan(now, { from: accounts[1] });
-
-      assert.fail('Expected revert not received');
-    } catch (error) {
-      const revertFound = error.message.search('revert') >= 0;
-      assert(revertFound, `Expected "revert", got ${error} instead`);
-    }
-
+    await assertRevert(instance.terminatePlan(now, {from: accounts[1]}));
+    
   });
 
 });
