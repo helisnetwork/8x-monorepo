@@ -60,11 +60,15 @@ contract('Plans', function(accounts) {
       assert.equal(savedPlan[7], "{}");
   });
 
-  it("should not be able to create an invalid plan", async function() {
+  it("should not be able to create a plan with empty details", async function() {
       await assertRevert(instance.createPlan(0x0, "test.identifier", "", "", 30, 10, ""));
       await assertRevert(instance.createPlan(accounts[0], "", "", "", 30, 10, ""));
       await assertRevert(instance.createPlan(accounts[0], "test.identifier", "", "", 0, 10, ""));
       await assertRevert(instance.createPlan(accounts[0], "test.identifier", "", "", 30, 0, ""));
+  });
+
+  it("should not be able to create a plan with the same identifier", async function() {
+      await assertRevert(instance.createPlan(accounts[0], incrementalIdentifier, "", "", 30, 10, ""));
   });
 
   it("should be able to update the owner of a plan", async function() {

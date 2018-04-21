@@ -100,6 +100,9 @@ contract Plans {
         require(_interval > 0);
         require(_amount > 0);
 
+        bytes32 newPlanHash = keccak256(_owner, _identifier);
+        require(plans[newPlanHash].owner == 0x0);
+
         Plan memory newPlan = Plan({
             owner: _owner, 
             identifier: _identifier, 
@@ -111,7 +114,6 @@ contract Plans {
             data: _data
         });
 
-        bytes32 newPlanHash = keccak256(_owner, _identifier);
         plans[newPlanHash] = newPlan;
 
         emit Created(newPlanHash);
