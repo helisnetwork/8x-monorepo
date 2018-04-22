@@ -3,6 +3,7 @@ pragma solidity ^0.4.3;
 import "./base/Ownable.sol";
 
 /** @title Contains all the metadata required for a subscription plan. */
+/** @author Kerman Kohli - <kerman@TBD.com> */
 
 contract Plans is Ownable {
 

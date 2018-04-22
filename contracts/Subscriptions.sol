@@ -4,6 +4,7 @@ import "./Plans.sol";
 import "./base/Ownable.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
+/** @author Kerman Kohli - <kerman@TBD.com> */
 
 contract Subscriptions is Ownable {
 
