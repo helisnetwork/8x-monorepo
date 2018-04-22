@@ -1,10 +1,11 @@
 pragma solidity ^0.4.3;
 
 import "./Plans.sol";
+import "./base/Ownable.sol";
 
 /** @title Contains all the data required for a user's active subscription */
 
-contract Subscriptions {
+contract Subscriptions is Ownable {
 
     struct Subscription {
 
@@ -22,8 +23,6 @@ contract Subscriptions {
 
     }
 
-    address public owner; // Multi-sig wallet or DAO will be in control of this.
-
     mapping (bytes32 => Subscription) public subscriptions; // A mapping containing all the plans
 
     Plans public PLAN_CONTRACT;
@@ -35,11 +34,6 @@ contract Subscriptions {
     /**
       * Modifiers
     */
-
-    modifier isOwnerOfContract {
-        require(msg.sender == owner);
-        _;
-    }
 
     modifier isOwnerOfSubscription(bytes32 _subscription) {
         require(msg.sender == subscriptions[_subscription].owner);
@@ -126,19 +120,9 @@ contract Subscriptions {
     */
 
     function setPlan(address _plan) 
-        isOwnerOfContract
+        onlyOwner
         public {
         PLAN_CONTRACT = Plans(_plan);
-    }
-
-    /** @dev Updates the owner of the contract itself
-      * @param _owner the address which they want to update it to
-    */
-
-    function setOwner(address _owner) 
-        isOwnerOfContract
-        public {
-        owner = _owner;
     }
 
     /** @dev Updates the data field which can be used to store anything extra

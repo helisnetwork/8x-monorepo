@@ -1,8 +1,10 @@
 pragma solidity ^0.4.3;
 
+import "./base/Ownable.sol";
+
 /** @title Contains all the metadata required for a subscription plan */
 
-contract Plans {
+contract Plans is Ownable {
 
     struct Plan {
 
@@ -20,8 +22,6 @@ contract Plans {
 
     }
 
-    address public owner; // Multi-sig wallet or DAO will be in control of this.
-
     mapping (bytes32 => Plan) public plans; // A mapping containing all the plans
 
     event Created(bytes32 identifier);
@@ -31,11 +31,6 @@ contract Plans {
     /**
       * Modifiers
     */
-
-    modifier isOwnerOfContract {
-        require(msg.sender == owner);
-        _;
-    }
 
     modifier isOwnerOfPlan(bytes32 _plan) {
         require(msg.sender == plans[_plan].owner);
@@ -126,16 +121,6 @@ contract Plans {
         return newPlanHash;
     }
 
-    /** @dev Updates the owner of the contract itself
-      * @param _owner the address which they want to update it to
-    */
-
-    function setOwner(address _owner) 
-        isOwnerOfContract
-        public {
-        owner = _owner;
-    }
-
     /** @dev Updates the plan's owner in case they want to receive funds in another address
       * @param _plan is the hash of the user's address + identifier
       * @param _owner the address which they want to update it to
@@ -145,7 +130,9 @@ contract Plans {
         isOwnerOfPlan(_plan)
         shouldEmitChanges(_plan)
         public {
-        plans[_plan].owner = _owner;
+        if (_owner != address(0)) {
+            plans[_plan].owner = _owner;
+        }
     }
 
     /** @dev Updates the name of the product (visible to the user)

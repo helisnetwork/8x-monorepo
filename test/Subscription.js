@@ -45,12 +45,6 @@ contract('Subscriptions', function(accounts) {
         assert.equal(owner, accounts[0]);
         console.log("Contract owner is: " + owner);
     });
-    
-    it("should not be able to change the owner of the contract as another user", async function() {
-
-        await assertRevert(subscriptionContract.setOwner(accounts[1], {from: accounts[1]}));
-    
-    });
 
     it("should not be able to change the plan of the contract as another user", async function() {
 

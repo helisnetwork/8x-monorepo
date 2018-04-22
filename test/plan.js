@@ -35,12 +35,6 @@ contract('Plans', function(accounts) {
     
   });
 
-  it("should not be able to change the owner of the contract as another user", async function() {
-
-    await assertRevert(planContract.setOwner(accounts[1], {from: accounts[1]}));
-    
-  });
-
   it("should be able to create a new plan correctly", async function() {
 
       let savedPlan = await planContract.getPlan.call(planHash)
