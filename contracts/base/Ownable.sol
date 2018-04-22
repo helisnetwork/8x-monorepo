@@ -18,15 +18,15 @@ contract Ownable {
     * account.
     */
     function Ownable() public {
-      owner = msg.sender;
+        owner = msg.sender;
     }
 
     /**
     * @dev Throws if called by any account other than the owner.
     */
     modifier onlyOwner() {
-      require(msg.sender == owner);
-      _;
+        require(msg.sender == owner);
+        _;
     }
 
     /**
@@ -34,9 +34,9 @@ contract Ownable {
     * @param newOwner The address to transfer ownership to.
     */
     function transferOwnership(address newOwner) public onlyOwner {
-      require(newOwner != address(0));
-      emit OwnershipTransferred(owner, newOwner);
-      owner = newOwner;
+        require(newOwner != address(0));
+        emit OwnershipTransferred(owner, newOwner);
+        owner = newOwner;
     }
 
 }
