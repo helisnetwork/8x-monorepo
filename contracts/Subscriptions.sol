@@ -3,23 +3,23 @@ pragma solidity ^0.4.3;
 import "./Plans.sol";
 import "./base/Ownable.sol";
 
-/** @title Contains all the data required for a user's active subscription */
+/** @title Contains all the data required for a user's active subscription. */
 
 contract Subscriptions is Ownable {
 
     struct Subscription {
 
-        address owner; // The owner of the subscription. Cannot be modified once set (unlike the plan).
+        address owner;
 
-        bytes32 planHash; // Plan indentifier
+        bytes32 planHash;
 
-        uint startDate; // When the subscription starts
-        uint terminationDate; // Epoch time for when the plan is terminated by the vendor
+        uint startDate;
+        uint terminationDate;
 
-        uint interval; // Measured in days (required). Cannot be modified once set.
-        uint amount; // Measured in cents (required). Cannot be modified once set.
+        uint interval;
+        uint amount;
 
-        string data; // Optional data that a user may want to include
+        string data;
 
     }
 
@@ -70,11 +70,11 @@ contract Subscriptions is Ownable {
         PLAN_CONTRACT = Plans(_plan);
     }
 
-    /** dev This is the function for creating a new subscription
-      * @param _owner the address which owns this contract (will be the user in this case)
-      * @param _startDate the date from which this subscription should start
-      * @param _planHash a reference to the plan they would like to subscribe to
-      * @param _data any extra data they'd like to store
+    /** dev This is the function for creating a new subscription.
+      * @param _owner the address which owns this contract (will be the user in this case).
+      * @param _startDate the date from which this subscription should start.
+      * @param _planHash a reference to the plan they would like to subscribe to.
+      * @param _data any extra data they'd like to store.
     */
 
     function createSubscription(
@@ -95,8 +95,8 @@ contract Subscriptions is Ownable {
         bytes32 newSubscriptionHash = keccak256(_owner, _planHash);
 
         require(subscriptions[newSubscriptionHash].owner == 0x0);
-        require(planInterval > 0); // If an invalid hash isn't provided then it will be 0
-        require(planAmount > 0); // If an invalid hash isn't provided then it will be 0
+        require(planInterval > 0); // If an invalid hash isn't provided then it will be 0.
+        require(planAmount > 0); // If an invalid hash isn't provided then it will be 0.
 
         Subscription memory newSubscription = Subscription({
             owner: _owner, 
@@ -115,8 +115,8 @@ contract Subscriptions is Ownable {
         return newSubscriptionHash;
     }
 
-    /** @dev Updates the contract plan
-      * @param _plan the address which they want to update it to
+    /** @dev Updates the contract plan.
+      * @param _plan the address which they want to update it to.
     */
 
     function setPlan(address _plan) 
@@ -125,9 +125,9 @@ contract Subscriptions is Ownable {
         PLAN_CONTRACT = Plans(_plan);
     }
 
-    /** @dev Updates the data field which can be used to store anything extra
-      * @param _subscription is the hash of the user's address + identifier
-      * @param _data the data which they want to update it to
+    /** @dev Updates the data field which can be used to store anything extra.
+      * @param _subscription is the hash of the user's address + identifier.
+      * @param _data the data which they want to update it to.
     */
 
     function setSubscriptionData(bytes32 _subscription, string _data) 
@@ -137,8 +137,8 @@ contract Subscriptions is Ownable {
         subscriptions[_subscription].data = _data;
     }
 
-     /** @dev Get the termination date for the subscription
-      * @param _subscription is the hash of the user's address + identifier
+     /** @dev Get the termination date for the subscription.
+      * @param _subscription is the hash of the user's address + identifier.
     */
 
     function getSubscriptionTerminationDate(bytes32 _subscription)
@@ -148,8 +148,8 @@ contract Subscriptions is Ownable {
         return subscriptions[_subscription].terminationDate;
     }
     
-    /** @dev Get the extra data for the plan
-      * @param _subscription is the hash of the user's address + identifier
+    /** @dev Get the extra data for the plan.
+      * @param _subscription is the hash of the user's address + identifier.
     */
 
     function getSubscriptionData(bytes32 _subscription)
