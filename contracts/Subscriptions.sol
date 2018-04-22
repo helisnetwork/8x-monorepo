@@ -18,7 +18,7 @@ contract Subscriptions {
         uint interval; // Measured in days (required). Cannot be modified once set.
         uint amount; // Measured in cents (required). Cannot be modified once set.
 
-        string data; // Optional data that a vendor may want to include
+        string data; // Optional data that a user may want to include
 
     }
 
@@ -119,18 +119,6 @@ contract Subscriptions {
         isOwnerOfContract
         public {
         owner = _owner;
-    }
-
-    /** @dev Updates the subscription's owner in case they want to receive funds in another address
-      * @param _subscription is the hash of the user's address + identifier
-      * @param _owner the address which they want to update it to
-    */
-
-    function setSubscriptionOwner(bytes32 _subscription, address _owner) 
-        isOwnerOfSubscription(_subscription)
-        shouldEmitChanges(_subscription)
-        public {
-        subscriptions[_subscription].owner = _owner;
     }
 
     /**
