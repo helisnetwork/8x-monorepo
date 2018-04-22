@@ -131,6 +131,18 @@ contract Subscriptions {
         owner = _owner;
     }
 
+    /** @dev Updates the data field which can be used to store anything extra
+      * @param _subscription is the hash of the user's address + identifier
+      * @param _data the data which they want to update it to
+    */
+
+    function setSubscriptionData(bytes32 _subscription, string _data) 
+        isOwnerOfSubscription(_subscription)
+        shouldEmitChanges(_subscription)
+        public {
+        subscriptions[_subscription].data = _data;
+    }
+
      /** @dev Get the termination date for the subscription
       * @param _subscription is the hash of the user's address + identifier
     */
@@ -140,6 +152,17 @@ contract Subscriptions {
         view 
         returns (uint _terminationDate) {
         return subscriptions[_subscription].terminationDate;
+    }
+    
+    /** @dev Get the extra data for the plan
+      * @param _subscription is the hash of the user's address + identifier
+    */
+
+    function getSubscriptionData(bytes32 _subscription)
+        public
+        view 
+        returns (string _data) {
+        return subscriptions[_subscription].data;
     }
 
     /**

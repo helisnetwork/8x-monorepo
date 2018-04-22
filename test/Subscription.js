@@ -52,6 +52,21 @@ contract('Subscriptions', function(accounts) {
     
     });
 
+    it("should be able to update the data of a plan", async function() {
+
+        await subscriptionContract.setSubscriptionData(subscriptionHash, "{hey: there}");
+    
+        let data = await subscriptionContract.getSubscriptionData(subscriptionHash);
+        assert.equal(data, "{hey: there}");
+        
+    });
+
+    it("should be not be able to update the data of a plan as another user", async function () {
+
+        await assertRevert(subscriptionContract.setSubscriptionData(subscriptionHash, "{hey: there}", {from: accounts[1]}));
+
+    });
+
     it("should be able to terminate the subscription as the owner", async function() {
 
         let now = Date.now();
