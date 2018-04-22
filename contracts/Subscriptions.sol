@@ -121,6 +121,16 @@ contract Subscriptions {
         return newSubscriptionHash;
     }
 
+    /** @dev Updates the contract plan
+      * @param _plan the address which they want to update it to
+    */
+
+    function setPlan(address _plan) 
+        isOwnerOfContract
+        public {
+        PLAN_CONTRACT = Plans(_plan);
+    }
+
     /** @dev Updates the owner of the contract itself
       * @param _owner the address which they want to update it to
     */

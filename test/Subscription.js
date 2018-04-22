@@ -52,6 +52,14 @@ contract('Subscriptions', function(accounts) {
     
     });
 
+    it("should not be able to change the plan of the contract as another user", async function() {
+
+        let newPlanContract = await Plans.new();
+        let newPlan = await newPlanContract.createPlan(accounts[1], "test.identifier", "Test", "Description", 30, 10, "{}", {from: accounts[1]});
+        await assertRevert(subscriptionContract.setPlan(accounts[1], {from: accounts[1]}));
+    
+    });
+
     it("should be able to update the data of a plan", async function() {
 
         await subscriptionContract.setSubscriptionData(subscriptionHash, "{hey: there}");
