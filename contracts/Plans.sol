@@ -69,6 +69,9 @@ contract Plans {
       * Public functions
     */
 
+    /** @dev Constructor function
+    */
+
     function Plans() public {
         owner = msg.sender;
     }
@@ -119,38 +122,6 @@ contract Plans {
         emit Created(newPlanHash);
 
         return newPlanHash;
-    }
-
-
-    /** @dev Retrieve a plan from the plans mapping by providing an identifier
-      * @param _plan is the hash of the user's address + identifier
-    */
-
-    function getPlan(bytes32 _plan)
-        view
-        public
-        returns (
-            address _owner,
-            string _identifier,
-            string _name,
-            string _description,
-            uint _terminationDate,
-            uint _interval,
-            uint _amount,
-            string _data
-        )
-    {
-        Plan storage plan = plans[_plan];
-        return (
-            plan.owner,
-            plan.identifier,
-            plan.name,
-            plan.description,
-            plan.terminationDate,
-            plan.interval,
-            plan.amount,
-            plan.data
-        );
     }
 
     /** @dev Updates the owner of the contract itself
@@ -211,6 +182,37 @@ contract Plans {
         plans[_plan].data = _data;
     }
 
+    /** @dev Retrieve a plan from the plans mapping by providing an identifier
+      * @param _plan is the hash of the user's address + identifier
+    */
+
+    function getPlan(bytes32 _plan)
+        view
+        public
+        returns (
+            address _owner,
+            string _identifier,
+            string _name,
+            string _description,
+            uint _terminationDate,
+            uint _interval,
+            uint _amount,
+            string _data
+        )
+    {
+        Plan storage plan = plans[_plan];
+        return (
+            plan.owner,
+            plan.identifier,
+            plan.name,
+            plan.description,
+            plan.terminationDate,
+            plan.interval,
+            plan.amount,
+            plan.data
+        );
+    }
+
     /** @dev Get the owner for the plan
       * @param _plan is the hash of the user's address + identifier
     */
@@ -220,6 +222,17 @@ contract Plans {
         view 
         returns (address _owner) {
         return plans[_plan].owner;
+    }
+
+     /** @dev Get the identifier for the plan
+      * @param _plan is the hash of the user's address + identifier
+    */
+
+    function getPlanIdentifier(bytes32 _plan)
+        public
+        view 
+        returns (string _identifier) {
+        return plans[_plan].identifier;
     }
 
     /** @dev Get the description for the plan
@@ -233,7 +246,7 @@ contract Plans {
         return plans[_plan].description;
     }
 
-     /** @dev Get the name for the plan
+    /** @dev Get the name for the plan
       * @param _plan is the hash of the user's address + identifier
     */
 

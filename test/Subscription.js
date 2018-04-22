@@ -1,31 +1,44 @@
+import assertRevert from './helpers/assertRevert.js';
+import keccak from './helpers/keccak.js';
+
 var Plans = artifacts.require("./Plans.sol");
-var Subscription = artifacts.require("./Subscription.sol");
+var Subscriptions = artifacts.require("./Subscriptions.sol");
 
-contract('Subscription', function(accounts) {
+contract('Subscriptions', function(accounts) {
 
-    /*let subscription;
-    let plan;
+    let planContract;
+    let planHash;
 
-    let initialStart = Date.now();
-    initialStart = parseInt(initialStart/1000);
+    let subscriptionContract;
+    let subscriptionHash;
 
-    beforeEach(async function() {
-        plan = await Plan.new(accounts[1], "Test", 30, 10);
-        subscription = await Subscription.new(accounts[0], initialStart, plan.address);
+    before(async function() {
+        planContract = await Plans.deployed();
+        subscriptionContract = await Subscriptions.new(planContract.address);
+
+        let newPlan = await planContract.createPlan(accounts[0], "test.identifier", "Test", "Description", 30, 10, "{}");
+        planHash = newPlan.logs[0].args.identifier;
     });
 
-    it("should be able to intialise correctly", async function() {
-        let owner = await subscription.owner.call();
-        let startDate = await subscription.startDate.call();
-        let planContract = await subscription.PLAN_CONTRACT.call();
-        let interval = await subscription.interval.call();
-        let amount = await subscription.amount.call();
+    beforeEach(async function() {    
 
-        assert.equal(owner, accounts[0]);
-        assert.equal(startDate, initialStart);
-        assert.equal(planContract, plan.address);
-        assert.equal(interval, 30);
-        assert.equal(amount, 10);
-    });*/
+        let now = Date.now();
+        now = now/1000;
+
+        let newSubscription = await subscriptionContract.createSubscription(accounts[0], planHash, now, "{}");
+        subscriptionHash = newSubscription.logs[0].args.identifier;
+          
+    });
+
+    it("should have the correct computed hash", async function() {
+
+        let computedHash = keccak(
+          ["address", "bytes32"],
+          [accounts[0], planHash]
+        )
+        
+        assert.equal(subscriptionHash, computedHash);
+  
+    });
 
 });

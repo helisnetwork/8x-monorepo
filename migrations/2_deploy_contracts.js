@@ -1,12 +1,9 @@
 var Plans = artifacts.require("./Plans.sol");
-//var Subscription = artifacts.require("./Subscription.sol");
+var Subscriptions = artifacts.require("./Subscriptions.sol");
 
-module.exports = function(deployer) {
+module.exports = async function(deployer) {
   
-  deployer.deploy(Plans);
-  
-  /*.then(() => {
-    return deployer.deploy(Subscription)
-  });*/
+  await deployer.deploy(Plans);
+  await deployer.deploy(Subscriptions, 0);
 
 };
