@@ -1,24 +1,7 @@
-/*
+pragma solidity 0.4.21;
 
-  Copyright 2017 ZeroEx Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-
-*/
-pragma solidity 0.4.11;
-
-import "./base/Token.sol";
-import "./base/Ownable.sol";
+import "./base/token/ERC20.sol";
+import "./base/ownership/Ownable.sol";
 
 /** @title TokenTransferProxy - Transfers tokens on behalf of contracts that have been approved via decentralized governance. */
 /** @author Amir Bandeali - <amir@0xProject.com>, Will Warren - <will@0xProject.com> */
@@ -63,7 +46,8 @@ contract TransferProxy is Ownable {
     {
         authorized[target] = true;
         authorities.push(target);
-        LogAuthorizedAddressAdded(target, msg.sender);
+
+        emit LogAuthorizedAddressAdded(target, msg.sender);
     }
 
     /** @dev Removes authorizion of an address.
@@ -83,7 +67,8 @@ contract TransferProxy is Ownable {
                 break;
             }
         }
-        LogAuthorizedAddressRemoved(target, msg.sender);
+
+        emit LogAuthorizedAddressRemoved(target, msg.sender);
     }
 
     /** @dev Calls into ERC20 Token contract, invoking transferFrom.
@@ -103,7 +88,7 @@ contract TransferProxy is Ownable {
         onlyAuthorized
         returns (bool)
     {
-        return Token(token).transferFrom(from, to, value);
+        return ERC20(token).transferFrom(from, to, value);
     }
 
     /*

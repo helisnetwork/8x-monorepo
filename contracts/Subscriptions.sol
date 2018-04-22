@@ -1,7 +1,7 @@
-pragma solidity ^0.4.3;
+pragma solidity ^0.4.21;
 
 import "./Plans.sol";
-import "./base/Ownable.sol";
+import "./base/ownership/Ownable.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@TBD.com> */
@@ -51,11 +51,13 @@ contract Subscriptions is Ownable {
     */
 
     function terminateSubscription(bytes32 _subscription, uint _terminationDate)
-        isOwnerOfSubscription(_subscription)
-        external {
+        external
+        isOwnerOfSubscription(_subscription) {
         require(_terminationDate >= block.timestamp);
         require(subscriptions[_subscription].terminationDate == 0); // If it's already been set then we don't want it to be modified
+
         subscriptions[_subscription].terminationDate = _terminationDate;
+
         emit Terminated(_subscription, _terminationDate);
     }
 
@@ -121,8 +123,8 @@ contract Subscriptions is Ownable {
     */
 
     function setPlan(address _plan) 
-        onlyOwner
-        public {
+        public 
+        onlyOwner {
         PLAN_CONTRACT = Plans(_plan);
     }
 
@@ -132,9 +134,9 @@ contract Subscriptions is Ownable {
     */
 
     function setSubscriptionData(bytes32 _subscription, string _data) 
+        public
         isOwnerOfSubscription(_subscription)
-        shouldEmitChanges(_subscription)
-        public {
+        shouldEmitChanges(_subscription) {
         subscriptions[_subscription].data = _data;
     }
 

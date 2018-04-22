@@ -1,6 +1,6 @@
-pragma solidity ^0.4.3;
+pragma solidity ^0.4.21;
 
-import "./base/Ownable.sol";
+import "./base/ownership/Ownable.sol";
 
 /** @title Contains all the metadata required for a subscription plan. */
 /** @author Kerman Kohli - <kerman@TBD.com> */
@@ -53,8 +53,8 @@ contract Plans is Ownable {
     */
 
     function terminatePlan(bytes32 _plan, uint _terminationDate)
-        isOwnerOfPlan(_plan)
-        external {
+        external
+        isOwnerOfPlan(_plan) {
         require(_terminationDate >= block.timestamp);
         require(plans[_plan].terminationDate == 0); // If it's already been set then we don't want it to be modified.
         plans[_plan].terminationDate = _terminationDate;
@@ -90,7 +90,6 @@ contract Plans is Ownable {
         uint _amount, // Required
         string _data
     )
-
         public
         returns (bytes32 _newPlanHash)
     {
@@ -127,9 +126,9 @@ contract Plans is Ownable {
     */
 
     function setPlanOwner(bytes32 _plan, address _owner) 
+        public
         isOwnerOfPlan(_plan)
-        shouldEmitChanges(_plan)
-        public {
+        shouldEmitChanges(_plan) {
         if (_owner != address(0)) {
             plans[_plan].owner = _owner;
         }
@@ -141,9 +140,9 @@ contract Plans is Ownable {
     */
 
     function setPlanName(bytes32 _plan, string _name) 
+        public
         isOwnerOfPlan(_plan)
-        shouldEmitChanges(_plan)
-        public {
+        shouldEmitChanges(_plan) {
         plans[_plan].name = _name;
     }
 
@@ -153,9 +152,9 @@ contract Plans is Ownable {
     */
 
     function setPlanDescription(bytes32 _plan, string _description) 
+        public
         isOwnerOfPlan(_plan)
-        shouldEmitChanges(_plan)
-        public {
+        shouldEmitChanges(_plan) {
         plans[_plan].description = _description;
     }
 
@@ -165,9 +164,9 @@ contract Plans is Ownable {
     */
 
     function setPlanData(bytes32 _plan, string _data) 
+        public
         isOwnerOfPlan(_plan)
-        shouldEmitChanges(_plan)
-        public {
+        shouldEmitChanges(_plan) {
         plans[_plan].data = _data;
     }
 
