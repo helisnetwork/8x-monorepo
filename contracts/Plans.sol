@@ -80,8 +80,10 @@ contract Plans {
       * @param _owner the address which owns this contract and to which a payment will be made
       * @param _identifier a way to uniquely identify a product for each vendor
       * @param _name a front-end displaying name for the product
+      * @param _description a front-end displaying description for the product
       * @param _interval after how many days should a customer be charged
       * @param _amount how much should the consumer be charged (in cents)
+      * @param _data any extra data they'd like to store
     */
 
     function createPlan(

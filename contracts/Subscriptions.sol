@@ -55,6 +55,15 @@ contract Subscriptions {
       * External functions
     */
 
+    function terminateSubscription(bytes32 _subscription, uint _terminationDate)
+        isOwnerOfSubscription(_subscription)
+        external {
+        require(_terminationDate >= block.timestamp);
+        require(subscriptions[_subscription].terminationDate == 0); // If it's already been set then we don't want it to be modified
+        subscriptions[_subscription].terminationDate = _terminationDate;
+        emit Terminated(_subscription, _terminationDate);
+    }
+
     /**
       * Public functions
     */
@@ -68,9 +77,10 @@ contract Subscriptions {
     }
 
     /** dev This is the function for creating a new subscription
-      * param _owner the address which owns this contract (will be the user in this case)
-      * param _startDate the date from which this subscription should start
-      * param _plan a reference to the plan they would like to subscribe to
+      * @param _owner the address which owns this contract (will be the user in this case)
+      * @param _startDate the date from which this subscription should start
+      * @param _planHash a reference to the plan they would like to subscribe to
+      * @param _data any extra data they'd like to store
     */
 
     function createSubscription(
@@ -83,7 +93,7 @@ contract Subscriptions {
         returns (bytes32 _newSubscriptionHash)
     {
         require(_owner != 0x0);
-        require(_startDate >= now);
+        require(_startDate >= block.timestamp);
 
         uint planInterval = PLAN_CONTRACT.getPlanInterval(_planHash);
         uint planAmount = PLAN_CONTRACT.getPlanAmount(_planHash);
@@ -119,6 +129,17 @@ contract Subscriptions {
         isOwnerOfContract
         public {
         owner = _owner;
+    }
+
+     /** @dev Get the termination date for the subscription
+      * @param _subscription is the hash of the user's address + identifier
+    */
+
+    function getSubscriptionTerminationDate(bytes32 _subscription)
+        public
+        view 
+        returns (uint _terminationDate) {
+        return subscriptions[_subscription].terminationDate;
     }
 
     /**
