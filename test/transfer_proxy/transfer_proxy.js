@@ -10,7 +10,7 @@ contract('TransferProxy', function(accounts) {
         transferProxyContract = await TransferProxy.deployed();
     });
 
-    describe("while adding an authorized address", () => { 
+    describe("when adding an authorized address", () => { 
 
         it("should throw if not called by the owner", async function() {
             // Accounts[1] shouldn't be able to add Accounts[1] since it's not authorized
@@ -32,7 +32,7 @@ contract('TransferProxy', function(accounts) {
 
     });
 
-    describe("while removing an authorized address", () => { 
+    describe("when removing an authorized address", () => { 
 
         it("should throw if not called by the owner", async function() {
             // Accounts[1] shouldn't be able to remove Accounts[0] since it's not authorized
@@ -54,7 +54,7 @@ contract('TransferProxy', function(accounts) {
 
     });
 
-    describe("while getting authorized addresses", async function() {
+    describe("when getting authorized addresses", async function() {
 
         it("should be able to return all the authorized addresses", async function() {
             // @TODO: Change this to 1 once you add the deploy script
