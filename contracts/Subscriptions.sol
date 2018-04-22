@@ -8,7 +8,7 @@ contract Subscriptions {
 
     struct Subscription {
 
-        address owner; // The vendor
+        address owner; // The owner of the subscription. Cannot be modified once set (unlike the plan).
 
         bytes32 planHash; // Plan indentifier
 
