@@ -1,4 +1,4 @@
-pragma solidity 0.4.21;
+pragma solidity ^0.4.21;
 
 import "./base/token/ERC20.sol";
 import "./base/ownership/Ownable.sol";

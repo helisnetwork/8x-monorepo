@@ -1,4 +1,4 @@
-import assertRevert from './helpers/assertRevert.js';
+import assertRevert from './helpers/assert_revert.js';
 import keccak from './helpers/keccak.js';
 
 var Plans = artifacts.require("./Plans.sol");

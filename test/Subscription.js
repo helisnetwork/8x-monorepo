@@ -1,4 +1,4 @@
-import assertRevert from './helpers/assertRevert.js';
+import assertRevert from './helpers/assert_revert.js';
 import keccak from './helpers/keccak.js';
 
 var Plans = artifacts.require("./Plans.sol");
@@ -43,7 +43,6 @@ contract('Subscriptions', function(accounts) {
 
         let owner = await subscriptionContract.owner.call();
         assert.equal(owner, accounts[0]);
-        console.log("Contract owner is: " + owner);
     });
 
     it("should not be able to change the plan of the contract as another user", async function() {
