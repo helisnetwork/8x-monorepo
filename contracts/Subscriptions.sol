@@ -29,10 +29,27 @@ contract Subscriptions {
     Plans public PLAN_CONTRACT;
 
     event Created(bytes32 identifier);
+    event Updated(bytes32 identifier);
+    event Terminated(bytes32 identifier, uint terminationDate);
 
     /**
       * Modifiers
     */
+
+    modifier isOwnerOfContract {
+        require(msg.sender == owner);
+        _;
+    }
+
+    modifier isOwnerOfSubscription(bytes32 _subscription) {
+        require(msg.sender == subscriptions[_subscription].owner);
+        _;
+    }
+
+    modifier shouldEmitChanges(bytes32 _subscription) {
+        _;
+        emit Updated(_subscription);
+    }
 
     /**
       * External functions
@@ -92,6 +109,28 @@ contract Subscriptions {
         emit Created(newSubscriptionHash);
 
         return newSubscriptionHash;
+    }
+
+    /** @dev Updates the owner of the contract itself
+      * @param _owner the address which they want to update it to
+    */
+
+    function setOwner(address _owner) 
+        isOwnerOfContract
+        public {
+        owner = _owner;
+    }
+
+    /** @dev Updates the subscription's owner in case they want to receive funds in another address
+      * @param _subscription is the hash of the user's address + identifier
+      * @param _owner the address which they want to update it to
+    */
+
+    function setSubscriptionOwner(bytes32 _subscription, address _owner) 
+        isOwnerOfSubscription(_subscription)
+        shouldEmitChanges(_subscription)
+        public {
+        subscriptions[_subscription].owner = _owner;
     }
 
     /**
