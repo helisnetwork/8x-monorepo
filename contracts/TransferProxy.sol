@@ -4,7 +4,7 @@ import "./base/token/ERC20.sol";
 import "./Authorizable.sol";
 
 /** @title TokenTransferProxy - Transfers tokens on behalf of contracts that have been approved via decentralized governance. */
-/** @author Amir Bandeali - <amir@0xProject.com>, Will Warren - <will@0xProject.com> */
+/** @author Originally adapted from ZeroEx (0x): Amir Bandeali - <amir@0xProject.com>, Will Warren - <will@0xProject.com> */
 
 contract TransferProxy is Authorizable {
 
