@@ -8,7 +8,7 @@ module.exports = function(deployer) {
 
     deployer.deploy(EightExToken)
         .then(() => {
-            return deployer.deploy(Authorizable);
+            return deployer.deploy(Authorizable); // TODO: Should not deploy to main net.
         }).then(() => {
             return deployer.deploy(TransferProxy);
         }).then(() => {
