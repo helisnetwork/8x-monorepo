@@ -4,7 +4,7 @@ import "./base/ownership/Ownable.sol";
 
 contract Collectable is Ownable {
 
-    function getBalanceAndAmountDueFromSubscription(bytes _subscription) 
+    function getBalanceAndAmountDueFromSubscription(bytes32 _subscription) 
         public
         returns (uint _balance, uint _amount);
 
