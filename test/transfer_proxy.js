@@ -36,7 +36,6 @@ contract('TransferProxy', function(accounts) {
         await transferProxyContract.transferFrom(tokenContract.address, accounts[1], accounts[2], 1000, {from: accounts[0]});
 
         let balance = await tokenContract.balanceOf(accounts[2]);
-        console.log(balance);
         assert.equal(balance.toNumber(), 1000);
 
     });
