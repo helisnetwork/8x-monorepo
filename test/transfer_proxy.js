@@ -1,4 +1,4 @@
-import assertRevert from '../helpers/assert_revert.js';
+import assertRevert from './helpers/assert_revert.js';
 
 var TransferProxy = artifacts.require("./TransferProxy.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");

@@ -1,8 +1,8 @@
 pragma solidity ^0.4.21;
 
-import "./base/ownership/Ownable.sol";
+import "./Authorizable.sol";
 
-contract Collectable is Ownable {
+contract Collectable is Authorizable {
 
     function isValidSubscription(bytes32 _subscription) 
         view
@@ -19,7 +19,8 @@ contract Collectable is Ownable {
         public
         returns (uint _amount);
 
-    function subscriptionOwnerDoesntHaveEnoughFunds(bytes32 _subscription)
+    // @TODO: Implement
+    /*function subscriptionOwnerDoesntHaveEnoughFunds(bytes32 _subscription)
         public
-        returns (bool _cancelled);
+        returns (bool _cancelled);*/
 }

@@ -32,7 +32,7 @@ contract Executor is Ownable {
         uint ownerBalance = collectableContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
         uint amountDue = collectableContract.getAmountDueFromSubscription(_subscriptionIdentifier);
 
-        if (ownerBalance < amountDue){ // Check whether the subscriber even has enough money
+        if (ownerBalance < amountDue) { // Check whether the subscriber even has enough money
 
         } else {
            
