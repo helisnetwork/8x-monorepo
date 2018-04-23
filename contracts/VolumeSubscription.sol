@@ -79,11 +79,28 @@ contract VolumeSubscription is Collectable {
       * Interface functions
     */
 
-    function getBalanceAndAmountDueFromSubscription(bytes32 _subscription)
-        public 
-        returns (uint _balance, uint _amount) 
+    function isValidSubscription(bytes32 _subscription) 
+        view
+        public
+        returns (bool _success)
     {
-        return (getSubscriptionOwner(_subscription).balance, getSubscriptionAmount(_subscription));
+        return (getSubscriptionTerminationDate(_subscription) == 0);
+    }
+
+    function getSubscriptionOwnerBalance(bytes32 _subscription)
+        view
+        public
+        returns (uint _balance)
+    {
+        return getSubscriptionOwner(_subscription).balance;
+    }
+
+    function getAmountDueFromSubscription(bytes32 _subscription)
+        view
+        public 
+        returns (uint _amount) 
+    {
+        return getSubscriptionAmount(_subscription);
     }
 
     /**
