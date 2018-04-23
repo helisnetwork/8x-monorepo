@@ -3,16 +3,16 @@ pragma solidity ^0.4.21;
 import "./base/token/StandardToken.sol";
 import "./base/ownership/Ownable.sol";
 
-contract ETXToken is StandardToken, Ownable {
+contract EightExToken is StandardToken, Ownable {
     
     uint8 constant public decimals = 18;
     uint public totalSupply = 10**27; // 1 billion tokens, 18 decimal places
     string constant public name = "8x Protocol Token";
-    string constant public symbol = "ZRX";
+    string constant public symbol = "8X";
 
     uint constant MAX_UINT = 2**256 - 1;
 
-    function ETXToken() public {
+    function EightExToken() public {
         balances[msg.sender] = totalSupply;
     }
 

@@ -1,7 +1,7 @@
 import assertRevert from '../helpers/assert_revert.js';
 
 var TransferProxy = artifacts.require("./TransferProxy.sol");
-var ETXToken = artifacts.require("./ETXToken.sol");
+var EightExToken = artifacts.require("./EightExToken.sol");
 
 contract('TransferProxy', function(accounts) {
 
@@ -10,7 +10,7 @@ contract('TransferProxy', function(accounts) {
 
     before(async function() {
         transferProxyContract = await TransferProxy.deployed();
-        tokenContract = await ETXToken.deployed();
+        tokenContract = await EightExToken.deployed();
     });
 
     it("should throw if an unauthorized address tries to transfer tokens", async function(){
