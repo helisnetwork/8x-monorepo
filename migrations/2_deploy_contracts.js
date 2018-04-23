@@ -1,5 +1,5 @@
 var Plans = artifacts.require("./Plans.sol");
-var Subscriptions = artifacts.require("./Subscriptions.sol");
+var VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
 var TransferProxy = artifacts.require("./TransferProxy.sol");
 
 module.exports = function(deployer) {
@@ -8,6 +8,6 @@ module.exports = function(deployer) {
         .then(() => {
             return deployer.deploy(Plans);
         }).then(() => {
-            return deployer.deploy(Subscriptions, 0);
+            return deployer.deploy(VolumeSubscription);
         })
 };

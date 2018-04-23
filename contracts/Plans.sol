@@ -65,11 +65,6 @@ contract Plans is Ownable {
       * Public functions
     */
 
-    /** @dev Constructor function */
-
-    function Plans() public {
-        owner = msg.sender;
-    }
 
     /** @dev This is the function for creating a new plan.
       * @param _owner the address which owns this contract and to which a payment will be made.
