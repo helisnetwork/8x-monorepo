@@ -81,7 +81,8 @@ contract VolumeSubscription is Collectable {
 
     function getBalanceAndAmountDueFromSubscription(bytes32 _subscription)
         public 
-        returns (uint _balance, uint _amount) {
+        returns (uint _balance, uint _amount) 
+    {
         return (getSubscriptionOwner(_subscription).balance, getSubscriptionAmount(_subscription));
     }
 
@@ -96,7 +97,8 @@ contract VolumeSubscription is Collectable {
 
     function terminatePlan(bytes32 _plan, uint _terminationDate)
         external
-        isOwnerOfPlan(_plan) {
+        isOwnerOfPlan(_plan) 
+    {
         require(_terminationDate >= block.timestamp);
         require(plans[_plan].terminationDate == 0); // If it's already been set then we don't want it to be modified.
         plans[_plan].terminationDate = _terminationDate;
@@ -110,7 +112,8 @@ contract VolumeSubscription is Collectable {
 
     function terminateSubscription(bytes32 _subscription, uint _terminationDate)
         external
-        isOwnerOfSubscription(_subscription) {
+        isOwnerOfSubscription(_subscription) 
+    {
         require(_terminationDate >= block.timestamp);
         require(subscriptions[_subscription].terminationDate == 0); // If it's already been set then we don't want it to be modified
 
@@ -240,7 +243,8 @@ contract VolumeSubscription is Collectable {
     function setPlanName(bytes32 _plan, string _name) 
         public
         isOwnerOfPlan(_plan)
-        shouldEmitPlanChanges(_plan) {
+        shouldEmitPlanChanges(_plan) 
+    {
         plans[_plan].name = _name;
     }
 
@@ -252,7 +256,8 @@ contract VolumeSubscription is Collectable {
     function setPlanDescription(bytes32 _plan, string _description) 
         public
         isOwnerOfPlan(_plan)
-        shouldEmitPlanChanges(_plan) {
+        shouldEmitPlanChanges(_plan) 
+    {
         plans[_plan].description = _description;
     }
 
@@ -264,7 +269,8 @@ contract VolumeSubscription is Collectable {
     function setPlanData(bytes32 _plan, string _data) 
         public
         isOwnerOfPlan(_plan)
-        shouldEmitPlanChanges(_plan) {
+        shouldEmitPlanChanges(_plan) 
+    {
         plans[_plan].data = _data;
     }
 
@@ -318,7 +324,8 @@ contract VolumeSubscription is Collectable {
     function getPlanOwner(bytes32 _plan)
         public
         view 
-        returns (address _owner) {
+        returns (address _owner) 
+    {
         return plans[_plan].owner;
     }
 
@@ -329,7 +336,8 @@ contract VolumeSubscription is Collectable {
     function getPlanIdentifier(bytes32 _plan)
         public
         view 
-        returns (string _identifier) {
+        returns (string _identifier) 
+    {
         return plans[_plan].identifier;
     }
 
@@ -340,7 +348,8 @@ contract VolumeSubscription is Collectable {
     function getPlanDescription(bytes32 _plan)
         public
         view 
-        returns (string _description) {
+        returns (string _description)
+    {
         return plans[_plan].description;
     }
 
@@ -351,7 +360,8 @@ contract VolumeSubscription is Collectable {
     function getPlanName(bytes32 _plan)
         public
         view 
-        returns (string _name) {
+        returns (string _name) 
+    {
         return plans[_plan].name;
     }
 
@@ -362,7 +372,8 @@ contract VolumeSubscription is Collectable {
     function getPlanTerminationDate(bytes32 _plan)
         public
         view 
-        returns (uint _terminationDate) {
+        returns (uint _terminationDate) 
+    {
         return plans[_plan].terminationDate;
     }
     
@@ -373,7 +384,8 @@ contract VolumeSubscription is Collectable {
     function getPlanInterval(bytes32 _plan)
         public
         view 
-        returns (uint _interval) {
+        returns (uint _interval) 
+    {
         return plans[_plan].interval;
     }
 
@@ -384,7 +396,8 @@ contract VolumeSubscription is Collectable {
     function getPlanAmount(bytes32 _plan)
         public
         view 
-        returns (uint _amount) {
+        returns (uint _amount) 
+    {
         return plans[_plan].amount;
     }
 
@@ -395,7 +408,8 @@ contract VolumeSubscription is Collectable {
     function getPlanData(bytes32 _plan)
         public
         view 
-        returns (string _data) {
+        returns (string _data) 
+    {
         return plans[_plan].data;
     }
 
@@ -437,7 +451,8 @@ contract VolumeSubscription is Collectable {
     function getSubscriptionOwner(bytes32 _subscription)
         public
         view 
-        returns (address _owner) {
+        returns (address _owner) 
+    {
         return subscriptions[_subscription].owner;
     }
 
@@ -448,7 +463,8 @@ contract VolumeSubscription is Collectable {
     function getSubscriptionPlanHash(bytes32 _subscription)
         public
         view 
-        returns (bytes32 _planHash) {
+        returns (bytes32 _planHash) 
+    {
         return subscriptions[_subscription].planHash;
     }
 
@@ -459,7 +475,8 @@ contract VolumeSubscription is Collectable {
     function getSubscriptionStartDate(bytes32 _subscription)
         public
         view 
-        returns (uint _startDate) {
+        returns (uint _startDate) 
+    {
         return subscriptions[_subscription].startDate;
     }
 
@@ -470,7 +487,8 @@ contract VolumeSubscription is Collectable {
     function getSubscriptionNextPaymentDate(bytes32 _subscription)
         public
         view 
-        returns (uint _nextPaymentDue) {
+        returns (uint _nextPaymentDue) 
+    {
         return subscriptions[_subscription].nextPaymentDate;
     }
 
@@ -481,7 +499,8 @@ contract VolumeSubscription is Collectable {
     function getSubscriptionTerminationDate(bytes32 _subscription)
         public
         view 
-        returns (uint _terminationDate) {
+        returns (uint _terminationDate) 
+    {
         return subscriptions[_subscription].terminationDate;
     }
 
@@ -492,7 +511,8 @@ contract VolumeSubscription is Collectable {
     function getSubscriptionInterval(bytes32 _subscription)
         public
         view 
-        returns (uint _interval) {
+        returns (uint _interval) 
+    {
         return subscriptions[_subscription].interval;
     }
 
@@ -503,7 +523,8 @@ contract VolumeSubscription is Collectable {
     function getSubscriptionAmount(bytes32 _subscription)
         public
         view 
-        returns (uint _amount) {
+        returns (uint _amount) 
+    {
         return subscriptions[_subscription].amount;
     }
     
@@ -514,7 +535,8 @@ contract VolumeSubscription is Collectable {
     function getSubscriptionData(bytes32 _subscription)
         public
         view 
-        returns (string _data) {
+        returns (string _data) 
+    {
         return subscriptions[_subscription].data;
     }
 
