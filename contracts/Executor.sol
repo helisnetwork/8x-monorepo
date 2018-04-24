@@ -26,7 +26,7 @@ contract Executor is Ownable {
     function collectPayment(address _subscriptionContract, bytes32 _subscriptionIdentifier)
         public {
 
-        Collectable collectableContract = Collectable(_subscriptionContract);
+        /*Collectable collectableContract = Collectable(_subscriptionContract);
         require(collectableContract.isValidSubscription(_subscriptionIdentifier)); // Check if the subscription hasn't been cancelled
 
         uint ownerBalance = collectableContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
@@ -36,7 +36,7 @@ contract Executor is Ownable {
 
         } else {
            
-        }
+        }*/
     }
 
 }
