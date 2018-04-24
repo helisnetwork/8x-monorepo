@@ -7,7 +7,7 @@ contract('Authorizable', function(accounts) {
     let authorizableContract;
 
     before(async function() {
-        authorizableContract = await Authorizable.new();
+        authorizableContract = await Authorizable.new({from: accounts[0]});
     });
 
     describe("when adding an authorized address", () => { 

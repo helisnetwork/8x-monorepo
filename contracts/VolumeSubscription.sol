@@ -76,31 +76,38 @@ contract VolumeSubscription is Collectable {
     }
 
     /**
-      * Interface functions
+      * Collectable interface functions
     */
 
     function isValidSubscription(bytes32 _subscription) 
-        view
         public
+        view
         returns (bool _success)
     {
         return (getSubscriptionTerminationDate(_subscription) == 0);
     }
 
     function getSubscriptionOwnerBalance(bytes32 _subscription)
-        view
         public
+        view
         returns (uint _balance)
     {
         return getSubscriptionOwner(_subscription).balance;
     }
 
     function getAmountDueFromSubscription(bytes32 _subscription) 
-        view
         public 
+        view
         returns (uint _amount) 
     {
         return getSubscriptionAmount(_subscription);
+    }
+
+    function subscriptionOwnerDoesntHaveEnoughFunds(bytes32 _subscription) public onlyAuthorized        
+    {
+        subscriptions[_subscription].terminationDate = block.timestamp;
+
+        emit TerminatedSubscription(_subscription, block.timestamp);
     }
 
     /**
@@ -118,7 +125,9 @@ contract VolumeSubscription is Collectable {
     {
         require(_terminationDate >= block.timestamp);
         require(plans[_plan].terminationDate == 0); // If it's already been set then we don't want it to be modified.
+
         plans[_plan].terminationDate = _terminationDate;
+
         emit TerminatedPlan(_plan, _terminationDate);
     }
 

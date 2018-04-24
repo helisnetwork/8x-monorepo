@@ -19,8 +19,6 @@ contract Collectable is Authorizable {
         public
         returns (uint _amount);
 
-    // @TODO: Implement
-    /*function subscriptionOwnerDoesntHaveEnoughFunds(bytes32 _subscription)
-        public
-        returns (bool _cancelled);*/
+    function subscriptionOwnerDoesntHaveEnoughFunds(bytes32 _subscription) onlyAuthorized public;
+
 }

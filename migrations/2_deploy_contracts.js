@@ -4,11 +4,8 @@ var EightExToken = artifacts.require("./EightExToken.sol");
 var Authorizable = artifacts.require("./Authorizable.sol");
 
 module.exports = function(deployer) {
-
-    deployer.deploy(EightExToken)
-        .then(() => {
-            return deployer.deploy(TransferProxy);
-        }).then(() => {
-            return deployer.deploy(VolumeSubscription);
-        })
+    deployer.deploy(EightExToken);
+    deployer.deploy(TransferProxy); 
+    deployer.deploy(VolumeSubscription);
+        
 };
