@@ -26,7 +26,7 @@ contract VolumeSubscription is Collectable {
     struct Subscription {
 
         address owner;
-
+        
         bytes32 planHash;
 
         uint startDate;

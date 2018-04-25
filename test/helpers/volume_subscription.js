@@ -1,4 +1,4 @@
-const newPlan = async function(contract, account, identifier = Math.random().toString(36)) {
+const newPlan = async function(contract, account, identifier) {
 
     let newPlan = await contract.createPlan(account, identifier, "Test", "Description", 30, 10, "{}", {from: account});
     let planHash = newPlan.logs[0].args.identifier;
@@ -6,12 +6,12 @@ const newPlan = async function(contract, account, identifier = Math.random().toS
     return planHash;
 }
 
-const newSubscription = async function(contract, account) {
+const newSubscription = async function(contract, account, identifier) {
 
     let now = Date.now();
     now = now/1000;
 
-    let planHash = await newPlan(contract, account);
+    let planHash = await newPlan(contract, account, identifier);
 
     let newSubscription = await contract.createSubscription(account, planHash, now, "{}", {from: account});
     let subscriptionHash = newSubscription.logs[0].args.identifier;
@@ -19,12 +19,12 @@ const newSubscription = async function(contract, account) {
     return subscriptionHash;
 }
 
-const newSubscriptionFull = async function(contract, account) {
+const newSubscriptionFull = async function(contract, account, identifier) {
 
     let now = Date.now();
     now = now/1000;
 
-    let planHash = await newPlan(contract, account);
+    let planHash = await newPlan(contract, account, identifier);
 
     let newSubscription = await contract.createSubscription(account, planHash, now, "{}", {from: account});
     let subscriptionHash = newSubscription.logs[0].args.identifier;

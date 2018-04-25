@@ -19,6 +19,14 @@ contract Executor is Ownable {
       * Public functions
     */
 
+    function setTransferProxy(address _proxyAddress)
+      public
+      onlyOwner
+    {
+        transferProxy = TransferProxy(_proxyAddress);
+    }
+    
+
     /** @dev Collect the payment due from the subscriber.
       * _subscriptionContract is the contract where the details exist (adheres to Collectable contract interface).
       * _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
@@ -26,17 +34,17 @@ contract Executor is Ownable {
     function collectPayment(address _subscriptionContract, bytes32 _subscriptionIdentifier)
         public {
 
-        /*Collectable collectableContract = Collectable(_subscriptionContract);
+        Collectable collectableContract = Collectable(_subscriptionContract);
         require(collectableContract.isValidSubscription(_subscriptionIdentifier)); // Check if the subscription hasn't been cancelled
 
         uint ownerBalance = collectableContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
         uint amountDue = collectableContract.getAmountDueFromSubscription(_subscriptionIdentifier);
 
-        if (ownerBalance < amountDue) { // Check whether the subscriber even has enough money
-
-        } else {
-           
-        }*/
+        if (ownerBalance >= amountDue) { // Check whether the subscriber even has enough money
+            transferProxy.
+        } else { // Control flow for if they don't have enough
+            collectableContract.subscriptionOwnerDoesntHaveEnoughFunds(_subscriptionIdentifier);
+        }
     }
 
 }

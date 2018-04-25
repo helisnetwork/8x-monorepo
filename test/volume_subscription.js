@@ -33,7 +33,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to terminate as an authorized address", async function() {
 
-            let subscriptionHash = await newSubscription(contract, accounts[0]);
+            let subscriptionHash = await newSubscription(contract, accounts[0], "collect.terminate.authorized");
 
             let now = Date.now();
             now = parseInt(now/1000);
@@ -50,14 +50,14 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be not be able to terminate as an unauthorized address", async function() {
             
-            let subscriptionHash = await newSubscription(contract, accounts[0]);
+            let subscriptionHash = await newSubscription(contract, accounts[0], "collect.terminate.unauthorized");
             await assertRevert(contract.subscriptionOwnerDoesntHaveEnoughFunds(subscriptionHash, {from: accounts[1]}));
             
         });
 
         it("should be able to determine a valid subscription", async function() {
 
-            let subscriptionHash = await newSubscription(contract, accounts[0]);
+            let subscriptionHash = await newSubscription(contract, accounts[0], "collect.isValid");
             let isValid = await contract.isValidSubscription(subscriptionHash);
             
             assert(isValid);
@@ -66,7 +66,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to determine an invalid subscription", async function() {
 
-            let subscriptionHash = await newSubscription(contract, accounts[0]);
+            let subscriptionHash = await newSubscription(contract, accounts[0], "collect.not.isValid");
 
             await contract.addAuthorizedAddress(accounts[1]);
             await contract.subscriptionOwnerDoesntHaveEnoughFunds(subscriptionHash, {from: accounts[1]});
@@ -78,7 +78,7 @@ contract('VolumeSubscription', function(accounts) {
         });
         it("should be able to get the correct amount", async function() {
 
-            let subscriptionHash = await newSubscription(contract, accounts[0]);
+            let subscriptionHash = await newSubscription(contract, accounts[0], "collect.amount.correct");
             let amount = await contract.getAmountDueFromSubscription(subscriptionHash);
 
             assert.equal(amount.toNumber(), 10);
@@ -93,12 +93,12 @@ contract('VolumeSubscription', function(accounts) {
 
     it("should have the correct computed plan hash", async function() {
 
-        let planHash = await newPlan(contract, accounts[0], "test.identifier.1");
+        let planHash = await newPlan(contract, accounts[0], "check.hash");
         let planIdentifier = await contract.getPlanIdentifier(planHash);
 
         let computedHash = keccak(
           ["address", "string"],
-          [accounts[0], "test.identifier.1"]
+          [accounts[0], "check.hash"]
         )
 
         assert.equal(planHash, computedHash);
@@ -109,11 +109,11 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to create a new plan correctly", async function() {
 
-            let planHash = await newPlan(contract, accounts[0], "test.identifier.2");
+            let planHash = await newPlan(contract, accounts[0], "create");
             let savedPlan = await contract.getPlan.call(planHash)
 
             assert.equal(savedPlan[0], accounts[0]);
-            assert.equal(savedPlan[1], "test.identifier.2");
+            assert.equal(savedPlan[1], "create");
             assert.equal(savedPlan[2], "Test");
             assert.equal(savedPlan[3], "Description");
             assert.equal(savedPlan[4], 0);
@@ -145,7 +145,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update as the owner", async function() {
 
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.update.owner");
 
             await contract.setPlanOwner(planHash, accounts[1], {from: accounts[0]});
 
@@ -161,7 +161,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be not be able to update the owner as another user", async function () {
 
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.update.otherUser");
             await assertRevert(contract.setPlanOwner(planHash, accounts[1], {from: accounts[1]}));
 
         });
@@ -172,7 +172,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update as the owner", async function() {
             
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.name.owner");
 
             let savedPlan = await contract.getPlan.call(planHash)
 
@@ -185,7 +185,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be not be able to update as another user", async function () {
 
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.name.otherUser");
             await assertRevert(contract.setPlanName(planHash, "Another test", {from: accounts[1]}));
             
         });
@@ -196,7 +196,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update as the owner", async function() {
 
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.description.owner");
 
             await contract.setPlanDescription(planHash, "Test description");
 
@@ -207,7 +207,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be not be able to update as another user", async function () {
 
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.description.otherUser");
 
             await assertRevert(contract.setPlanDescription(planHash, "Test description", {from: accounts[1]}));
 
@@ -219,7 +219,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update as the owner", async function() {
 
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.data.owner");
 
             await contract.setPlanData(planHash, "{hey: there}");
         
@@ -230,7 +230,7 @@ contract('VolumeSubscription', function(accounts) {
         
         it("should be not be able to update as another user", async function () {
         
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.data.otherUser");
 
             await assertRevert(contract.setPlanData(planHash, "{hey: there}", {from: accounts[1]}));
         
@@ -242,7 +242,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to terminate as the owner", async function() {
 
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.terminate.owner");
 
             let now = Date.now();
             now = parseInt(now/1000);
@@ -257,7 +257,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should not be able to terminate multiple times", async function() {
 
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.terminate.multiple");
 
             let now = Date.now();
             now = parseInt(now/1000);
@@ -272,7 +272,7 @@ contract('VolumeSubscription', function(accounts) {
         
         it("should not be able to terminate from a date in the past", async function() {
 
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.terminate.past");
 
             let past = new Date(Date.now() - (60*60*1000)).valueOf();
             past = parseInt(past/1000);
@@ -283,7 +283,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should not be able to terminate as another user", async function () {
 
-            let planHash = await newPlan(contract, accounts[0]);
+            let planHash = await newPlan(contract, accounts[0], "plan.terminate.otherUser");
 
             let now = Date.now();
             now = now/1000;
@@ -298,7 +298,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update as the owner", async function() {
 
-            let subscriptionHash = await newSubscription(contract, accounts[0]);
+            let subscriptionHash = await newSubscription(contract, accounts[0], "subscription.data.owner");
             await contract.setSubscriptionData(subscriptionHash, "{hey: there}", {from: accounts[0]});
         
             let data = await contract.getSubscriptionData(subscriptionHash);
@@ -308,7 +308,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be not be able to update as another user", async function () {
 
-            let subscriptionHash = await newSubscription(contract, accounts[0]);
+            let subscriptionHash = await newSubscription(contract, accounts[0], "subscription.data.otherUser");
             await assertRevert(contract.setSubscriptionData(subscriptionHash, "{hey: there}", {from: accounts[1]}));
 
         });
@@ -321,12 +321,14 @@ contract('VolumeSubscription', function(accounts) {
 
    it("should have the correct computed subscription hash", async function() {
 
-        let hashes = await newSubscriptionFull(contract, accounts[0]);
+        let hashes = await newSubscriptionFull(contract, accounts[0], "check.hash");
 
         let computedHash = keccak(
         ["address", "bytes32"],
         [accounts[0], hashes[0]]
         );
+
+        console.log(hashes, computedHash);
 
         assert.equal(hashes[1], computedHash);
 
@@ -336,7 +338,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to terminate as the owner", async function() {
 
-            let subscriptionHash = await newSubscription(contract, accounts[0])
+            let subscriptionHash = await newSubscription(contract, accounts[0], "subscription.terminate.owner");
 
             let now = Date.now();
             now = parseInt(now/1000);
@@ -351,7 +353,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should not be able to terminate multiple times", async function() {
         
-            let subscriptionHash = await newSubscription(contract, accounts[0]);
+            let subscriptionHash = await newSubscription(contract, accounts[0], "subscription.terminate.multiple");
 
             let now = Date.now();
             now = parseInt(now/1000);
@@ -365,7 +367,7 @@ contract('VolumeSubscription', function(accounts) {
         
         it("should not be able to terminate from a date in the past", async function() {
         
-            let subscriptionHash = await newSubscription(contract, accounts[0])
+            let subscriptionHash = await newSubscription(contract, accounts[0], "subscription.terminate.past");
 
             let past = new Date(Date.now() - (60*60*1000)).valueOf();
             past = parseInt(past/1000);
@@ -376,7 +378,7 @@ contract('VolumeSubscription', function(accounts) {
         
         it("should not be able to terminate as another user", async function () {
         
-            let subscriptionHash = await newSubscription(contract, accounts[0])
+            let subscriptionHash = await newSubscription(contract, accounts[0], "subscription.terminate.otherUser");
 
             let now = Date.now();
             now = now/1000;
