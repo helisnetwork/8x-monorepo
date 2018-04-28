@@ -1,4 +1,4 @@
-# 8x-protocol
+# 8x Protocol
 
 ## What is it?
 
