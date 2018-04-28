@@ -18,11 +18,28 @@ contract('VolumeSubscription', function(accounts) {
       * General
     **/
 
-    it("should be able to intialise the plan contract correctly", async function() {
+    describe("basic tests", () => {
 
-        let owner = await contract.owner.call();
-        assert.equal(owner, accounts[0]);
-      
+        it("should be able to intialise the plan contract correctly", async function() {
+
+            let owner = await contract.owner.call();
+            assert.equal(owner, accounts[0]);
+        
+        });
+
+        it("should have the correct computed subscription hash", async function() {
+
+            let hashes = await newSubscriptionFull(contract, accounts[0], "check.hash");
+    
+            let computedHash = keccak(
+            ["address", "bytes32"],
+            [accounts[0], hashes[0]]
+            );
+        
+            assert.equal(hashes[1], computedHash);
+    
+        });
+
     });
 
     /**
@@ -76,6 +93,7 @@ contract('VolumeSubscription', function(accounts) {
             assert(!isValid);
             
         });
+        
         it("should be able to get the correct amount", async function() {
 
             let subscriptionHash = await newSubscription(contract, accounts[0], "collect.amount.correct");
@@ -90,20 +108,6 @@ contract('VolumeSubscription', function(accounts) {
     /**
       * Plan
     **/
-
-    it("should have the correct computed plan hash", async function() {
-
-        let planHash = await newPlan(contract, accounts[0], "check.hash");
-        let planIdentifier = await contract.getPlanIdentifier(planHash);
-
-        let computedHash = keccak(
-          ["address", "string"],
-          [accounts[0], "check.hash"]
-        )
-
-        assert.equal(planHash, computedHash);
-
-    });
 
     describe("when creating a new plan", () => {
 
@@ -318,21 +322,6 @@ contract('VolumeSubscription', function(accounts) {
     /**
       * Subscription
     **/
-
-   it("should have the correct computed subscription hash", async function() {
-
-        let hashes = await newSubscriptionFull(contract, accounts[0], "check.hash");
-
-        let computedHash = keccak(
-        ["address", "bytes32"],
-        [accounts[0], hashes[0]]
-        );
-
-        console.log(hashes, computedHash);
-
-        assert.equal(hashes[1], computedHash);
-
-    });
 
     describe("when terminating a subscription", () => {
 

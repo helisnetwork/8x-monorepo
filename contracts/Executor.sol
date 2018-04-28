@@ -41,7 +41,7 @@ contract Executor is Ownable {
         uint amountDue = collectableContract.getAmountDueFromSubscription(_subscriptionIdentifier);
 
         if (ownerBalance >= amountDue) { // Check whether the subscriber even has enough money
-            transferProxy.
+
         } else { // Control flow for if they don't have enough
             collectableContract.subscriptionOwnerDoesntHaveEnoughFunds(_subscriptionIdentifier);
         }

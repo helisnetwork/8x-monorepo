@@ -54,7 +54,7 @@ contract('Authorizable', function(accounts) {
 
     });
 
-    describe("when getting authorized addresses", async function() {
+    describe("when getting authorized addresses", () => {
 
         it("should be able to return all the authorized addresses", async function() {
             // @TODO: Change this to 1 once you add the deploy script
