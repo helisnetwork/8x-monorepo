@@ -10,6 +10,7 @@ contract VolumeSubscription is Collectable {
     struct Plan {
 
         address owner;
+        address tokenAddress;
 
         string identifier;
         string name;
@@ -26,6 +27,7 @@ contract VolumeSubscription is Collectable {
     struct Subscription {
 
         address owner;
+        address tokenAddress;
         
         bytes32 planHash;
 
@@ -87,6 +89,23 @@ contract VolumeSubscription is Collectable {
         return (getSubscriptionTerminationDate(_subscription) == 0);
     }
 
+    function getSubscriptionTokenAddress(bytes32 _subscription)
+        view
+        public
+        returns (address _address)
+    {
+        return getSubscriptionTokenAddress(_subscription);
+    }
+
+    function getSubscriptionFromToAddresses(bytes32 _subscription)
+        view
+        public
+        returns (address _from, address _to)
+    {
+        bytes32 planHash = getSubscriptionPlanHash(_subscription);
+        return (getSubscriptionOwner(_subscription), getPlanOwner(planHash));
+    }
+
     function getSubscriptionOwnerBalance(bytes32 _subscription)
         public
         view
@@ -103,7 +122,7 @@ contract VolumeSubscription is Collectable {
         return getSubscriptionAmount(_subscription);
     }
 
-    function subscriptionOwnerDoesntHaveEnoughFunds(bytes32 _subscription) public onlyAuthorized        
+    function terminateSubscriptionDueToInsufficientFunds(bytes32 _subscription) public onlyAuthorized        
     {
         subscriptions[_subscription].terminationDate = block.timestamp;
 
@@ -164,6 +183,7 @@ contract VolumeSubscription is Collectable {
 
     function createPlan(
         address _owner, // Required
+        address _tokenAddress, // Required
         string _identifier, // Required
         string _name,
         string _description,
@@ -176,6 +196,7 @@ contract VolumeSubscription is Collectable {
     {
 
         require(_owner != 0x0);
+        require(_tokenAddress != 0x0);
         require(bytes(_identifier).length > 0);
         require(_interval > 0);
         require(_amount > 0);
@@ -185,6 +206,7 @@ contract VolumeSubscription is Collectable {
 
         Plan memory newPlan = Plan({
             owner: _owner, 
+            tokenAddress: _tokenAddress,
             identifier: _identifier, 
             name: _name, 
             description: _description, 
@@ -220,17 +242,20 @@ contract VolumeSubscription is Collectable {
         require(_owner != 0x0);
         require(_startDate >= block.timestamp);
 
+        address planTokenAddress = getPlanTokenAddress(_planHash);
         uint planInterval = getPlanInterval(_planHash);
         uint planAmount = getPlanAmount(_planHash);
 
         bytes32 newSubscriptionHash = keccak256(_owner, _planHash);
 
         require(subscriptions[newSubscriptionHash].owner == 0x0);
+        require(planTokenAddress != 0x0);
         require(planInterval > 0); // If an invalid hash isn't provided then it will be 0.
         require(planAmount > 0); // If an invalid hash isn't provided then it will be 0.
 
         Subscription memory newSubscription = Subscription({
             owner: _owner, 
+            tokenAddress: planTokenAddress,
             planHash: _planHash, 
             startDate: _startDate, 
             nextPaymentDate: 0,
@@ -353,6 +378,18 @@ contract VolumeSubscription is Collectable {
         returns (address _owner) 
     {
         return plans[_plan].owner;
+    }
+
+    /** @dev Get the token address for the plan.
+      * @param _plan is the hash of the user's address + identifier.
+    */
+
+    function getPlanTokenAddress(bytes32 _plan)
+        public
+        view 
+        returns (address _owner) 
+    {
+        return plans[_plan].tokenAddress;
     }
 
      /** @dev Get the identifier for the plan.

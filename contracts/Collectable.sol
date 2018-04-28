@@ -9,6 +9,16 @@ contract Collectable is Authorizable {
         public
         returns (bool _success);
 
+    function getSubscriptionTokenAddress(bytes32 _subscription)
+        view
+        public
+        returns (address _address);
+
+    function getSubscriptionFromToAddresses(bytes32 _subscription)
+        view
+        public
+        returns (address _from, address _to);
+
     function getSubscriptionOwnerBalance(bytes32 _subscription)
         view
         public
@@ -19,6 +29,6 @@ contract Collectable is Authorizable {
         public
         returns (uint _amount);
 
-    function subscriptionOwnerDoesntHaveEnoughFunds(bytes32 _subscription) onlyAuthorized public;
+    function terminateSubscriptionDueToInsufficientFunds(bytes32 _subscription) onlyAuthorized public;
 
 }

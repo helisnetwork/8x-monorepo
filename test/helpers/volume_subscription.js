@@ -1,20 +1,20 @@
-const newPlan = async function(contract, account, identifier) {
+const newPlan = async function(contract, token, account, identifier) {
 
     //await new Promise(resolve => setTimeout(resolve, 1000));
 
-    let newPlan = await contract.createPlan(account, identifier, "Test", "Description", 30, 10, "{}", {from: account});
+    let newPlan = await contract.createPlan(account, token, identifier, "Test", "Description", 30, 10, "{}", {from: account});
     let planHash = newPlan.logs[0].args.identifier;
 
     return planHash;
 }
 
-const newSubscription = async function(contract, account, identifier) {
+const newSubscription = async function(contract, token, account, identifier) {
 
 
     let now = Date.now();
     now = now/1000;
 
-    let planHash = await newPlan(contract, account, identifier);
+    let planHash = await newPlan(contract, token, account, identifier);
 
     let newSubscription = await contract.createSubscription(account, planHash, now, "{}", {from: account});
     let subscriptionHash = newSubscription.logs[0].args.identifier;
@@ -22,13 +22,13 @@ const newSubscription = async function(contract, account, identifier) {
     return subscriptionHash;
 }
 
-const newSubscriptionFull = async function(contract, account, identifier) {
+const newSubscriptionFull = async function(contract, token, account, identifier) {
 
 
     let now = Date.now();
     now = now/1000;
 
-    let planHash = await newPlan(contract, account, identifier);
+    let planHash = await newPlan(contract, token, account, identifier);
 
     let newSubscription = await contract.createSubscription(account, planHash, now, "{}", {from: account});
     let subscriptionHash = newSubscription.logs[0].args.identifier;

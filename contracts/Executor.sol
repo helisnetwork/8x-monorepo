@@ -32,18 +32,28 @@ contract Executor is Ownable {
       * _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
     */
     function collectPayment(address _subscriptionContract, bytes32 _subscriptionIdentifier)
-        public {
+        public
+        returns (bool _success)
+    {
 
         Collectable collectableContract = Collectable(_subscriptionContract);
         require(collectableContract.isValidSubscription(_subscriptionIdentifier)); // Check if the subscription hasn't been cancelled
+
+        address tokenAddress = collectableContract.getSubscriptionTokenAddress(_subscriptionIdentifier);
+
+        address from;
+        address to;
+        (from, to) = collectableContract.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
         uint ownerBalance = collectableContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
         uint amountDue = collectableContract.getAmountDueFromSubscription(_subscriptionIdentifier);
 
         if (ownerBalance >= amountDue) { // Check whether the subscriber even has enough money
-
+            transferProxy.transferFrom(tokenAddress, from, to, amountDue);
+            return true;
         } else { // Control flow for if they don't have enough
-            collectableContract.subscriptionOwnerDoesntHaveEnoughFunds(_subscriptionIdentifier);
+            collectableContract.terminateSubscriptionDueToInsufficientFunds(_subscriptionIdentifier);
+            return false;
         }
     }
 
