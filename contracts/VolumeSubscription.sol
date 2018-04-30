@@ -94,7 +94,7 @@ contract VolumeSubscription is Collectable {
         public
         returns (address _address)
     {
-        return getSubscriptionTokenAddress(_subscription);
+        return subscriptions[_subscription].tokenAddress;
     }
 
     function getSubscriptionFromToAddresses(bytes32 _subscription)
@@ -615,7 +615,7 @@ contract VolumeSubscription is Collectable {
         internal
         returns (uint _timetstamp) 
     {
-        return currentTimetamp();
+        return block.timestamp;
     }
 
     /**

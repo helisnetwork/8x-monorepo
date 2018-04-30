@@ -13,7 +13,7 @@ contract MockVolumeSubscription is VolumeSubscription {
       *
     */
 
-    function currentTimetamp() 
+    function currentTimestamp() 
         internal
         returns (uint _timetstamp) 
     {

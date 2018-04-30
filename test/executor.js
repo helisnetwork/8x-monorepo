@@ -2,7 +2,7 @@ import assertRevert from './helpers/assert_revert.js';
 import keccak from './helpers/keccak.js';
 import { newSubscription, newSubscriptionFull, newPlan } from './helpers/volume_subscription.js';
 
-var VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
+var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
 var Executor = artifacts.require("./Executor.sol");
 var TransferProxy = artifacts.require("./TransferProxy.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
@@ -24,7 +24,7 @@ contract('Executor', function(accounts) {
 
     before(async function() {
 
-        subscriptionContract = await VolumeSubscription.new({from: firstAccount});
+        subscriptionContract = await MockVolumeSubscription.new({from: firstAccount});
         executorContract = await Executor.new({from: firstAccount});
         proxyContract = await TransferProxy.new({from: firstAccount});
         tokenContract = await EightExToken.new({from: firstAccount});
@@ -52,6 +52,8 @@ contract('Executor', function(accounts) {
     describe("when the company is eligible to collect a payment", () => {
 
         it("should be able to collect it", async function() {
+
+            let allowance = await tokenContract.allowance(thirdAccount, proxyContract.address);
 
             // @TODO (MAJOR) - Should not allow user to create subscription directly. It should route through the executor.
 
