@@ -101,7 +101,7 @@ contract('VolumeSubscription', function(accounts) {
 
             let subscriptionHash = await newSubscription(contract, token.address, accounts[0], "collect.amount.correct");
             let amount = await contract.getAmountDueFromSubscription(subscriptionHash);
-
+            console.log(amount.toNumber());
             assert.equal(amount.toNumber(), 10);
 
         });
