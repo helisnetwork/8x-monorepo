@@ -124,9 +124,9 @@ contract VolumeSubscription is Collectable {
 
     function terminateSubscriptionDueToInsufficientFunds(bytes32 _subscription) public onlyAuthorized        
     {
-        subscriptions[_subscription].terminationDate = block.timestamp;
+        subscriptions[_subscription].terminationDate = currentTimetamp();
 
-        emit TerminatedSubscription(_subscription, block.timestamp);
+        emit TerminatedSubscription(_subscription, currentTimetamp());
     }
 
     /**
@@ -142,7 +142,7 @@ contract VolumeSubscription is Collectable {
         external
         isOwnerOfPlan(_plan) 
     {
-        require(_terminationDate >= block.timestamp);
+        require(_terminationDate >= currentTimetamp());
         require(plans[_plan].terminationDate == 0); // If it's already been set then we don't want it to be modified.
 
         plans[_plan].terminationDate = _terminationDate;
@@ -159,7 +159,7 @@ contract VolumeSubscription is Collectable {
         external
         isOwnerOfSubscription(_subscription) 
     {
-        require(_terminationDate >= block.timestamp);
+        require(_terminationDate >= currentTimetamp());
         require(subscriptions[_subscription].terminationDate == 0); // If it's already been set then we don't want it to be modified
 
         subscriptions[_subscription].terminationDate = _terminationDate;
@@ -240,7 +240,7 @@ contract VolumeSubscription is Collectable {
         returns (bytes32 _newSubscriptionHash)
     {
         require(_owner != 0x0);
-        require(_startDate >= block.timestamp);
+        require(_startDate >= currentTimetamp());
 
         address planTokenAddress = getPlanTokenAddress(_planHash);
         uint planInterval = getPlanInterval(_planHash);
@@ -606,6 +606,17 @@ contract VolumeSubscription is Collectable {
     /**
       * Internal functions
     */
+
+    /** @dev Current timestamp returned via a function in order for mocks in tests
+      *
+    */
+
+    function currentTimetamp() 
+        internal
+        returns (uint _timetstamp) 
+    {
+        return currentTimetamp();
+    }
 
     /**
       * Private functions

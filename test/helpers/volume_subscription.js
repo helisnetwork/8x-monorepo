@@ -1,6 +1,9 @@
 const newPlan = async function(contract, token, account, identifier) {
 
-    //await new Promise(resolve => setTimeout(resolve, 1000));
+    let now = Date.now();
+    now = now/1000;
+
+    await contract.setTime(now);
 
     let newPlan = await contract.createPlan(account, token, identifier, "Test", "Description", 30, 10, "{}", {from: account});
     let planHash = newPlan.logs[0].args.identifier;
@@ -9,8 +12,7 @@ const newPlan = async function(contract, token, account, identifier) {
 }
 
 const newSubscription = async function(contract, token, account, identifier) {
-
-
+    
     let now = Date.now();
     now = now/1000;
 

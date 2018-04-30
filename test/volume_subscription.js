@@ -2,7 +2,7 @@ import assertRevert from './helpers/assert_revert.js';
 import keccak from './helpers/keccak.js';
 import { newSubscription, newSubscriptionFull, newPlan } from './helpers/volume_subscription.js';
 
-var VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
+var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
 
 contract('VolumeSubscription', function(accounts) {
@@ -12,7 +12,7 @@ contract('VolumeSubscription', function(accounts) {
 
     before(async function() {
 
-        contract = await VolumeSubscription.new({from: accounts[0]});
+        contract = await MockVolumeSubscription.new({from: accounts[0]});
         token = await EightExToken.new({from: accounts[0]});
         
     });
@@ -58,13 +58,18 @@ contract('VolumeSubscription', function(accounts) {
             let now = Date.now();
             now = parseInt(now/1000);
 
+            // When creating a new subscription this already happens but we want to be extra sure 
+            // that the values align and to eliminate any time differences taken when running the tests
+    
+            await contract.setTime(now);
+
             await contract.addAuthorizedAddress(accounts[0]);
 
             let termination = await contract.terminateSubscriptionDueToInsufficientFunds(subscriptionHash, {from: accounts[0]});
             assert.equal(termination.logs[0].args.terminationDate, now);
         
             let terminationDate = await contract.getSubscriptionTerminationDate(subscriptionHash);
-            assert.equal(terminationDate, now);
+            assert.equal(terminationDate.toNumber(), now);
             
         });
 
@@ -101,7 +106,7 @@ contract('VolumeSubscription', function(accounts) {
 
             let subscriptionHash = await newSubscription(contract, token.address, accounts[0], "collect.amount.correct");
             let amount = await contract.getAmountDueFromSubscription(subscriptionHash);
-            console.log(amount.toNumber());
+
             assert.equal(amount.toNumber(), 10);
 
         });
@@ -282,8 +287,8 @@ contract('VolumeSubscription', function(accounts) {
 
             let planHash = await newPlan(contract, token.address, accounts[0], "plan.terminate.past");
 
-            let past = new Date(Date.now() - (60*60*1000)).valueOf();
-            past = parseInt(past/1000);
+            let now = Date.now();
+            let past = parseInt(now/1000) - 60;
 
             await assertRevert(contract.terminatePlan(planHash, past));
 
@@ -362,8 +367,8 @@ contract('VolumeSubscription', function(accounts) {
         
             let subscriptionHash = await newSubscription(contract, token.address, accounts[0], "subscription.terminate.past");
 
-            let past = new Date(Date.now() - (60*60*1000)).valueOf();
-            past = parseInt(past/1000);
+            let now = Date.now();
+            let past = parseInt(now/1000) - 60;
         
             await assertRevert(contract.terminateSubscription(subscriptionHash, past));
         
