@@ -205,11 +205,11 @@ contract VolumeSubscription is Collectable {
         require(plans[newPlanHash].owner == 0x0);
 
         Plan memory newPlan = Plan({
-            owner: _owner, 
+            owner: _owner,
             tokenAddress: _tokenAddress,
-            identifier: _identifier, 
-            name: _name, 
-            description: _description, 
+            identifier: _identifier,
+            name: _name,
+            description: _description,
             terminationDate: 0,
             interval: _interval,
             amount: _amount,
@@ -254,10 +254,10 @@ contract VolumeSubscription is Collectable {
         require(planAmount > 0); // If an invalid hash isn't provided then it will be 0.
 
         Subscription memory newSubscription = Subscription({
-            owner: _owner, 
+            owner: _owner,
             tokenAddress: planTokenAddress,
-            planHash: _planHash, 
-            startDate: _startDate, 
+            planHash: _planHash,
+            startDate: _startDate,
             nextPaymentDate: 0,
             terminationDate: 0,
             interval: planInterval,
