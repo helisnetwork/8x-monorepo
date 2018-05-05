@@ -1,30 +1,32 @@
 pragma solidity ^0.4.18;
 
 import "./Authorizable.sol";
+import "./EightExToken.sol";
+import "./base/math/SafeMath.sol";
 
 /** @title Stake Contract - processors stake their tokens in this smart contract in order to claim transactions */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
 contract StakeContract is Authorizable {
 
-    mapping (address => uint) totalStaked;
-    mapping (address => uint) lockedUpStake;
+    using SafeMath for uint;
 
-    address public tokenContract;
-
-    /**
-      * Modifiers
-    */
-
-    modifier onlyStakeOwner() {
-
-        // @TODO: Implementation
-        _;
+    struct Stake {
+        uint lockedUp;
+        uint total;
     }
+
+    mapping (address => Stake) stakes;
+
+    EightExToken public tokenContract;
 
     /**
       * Public functions
     */
+
+    function StakeContract(address _tokenAddress) public {
+        tokenContract = EightExToken(_tokenAddress);
+    }
 
     /** @dev When the processor claims a transaction their tokens are staked.
       * @param _staker is the processors who is staking thier tokens.
@@ -34,8 +36,8 @@ contract StakeContract is Authorizable {
         public
         onlyAuthorized
     {
-
-        // @TODO: Implementation
+        require(getAvailableStake(_staker) >= _amount);
+        stakes[_staker].lockedUp.add(_amount);
 
     }
 
@@ -48,7 +50,9 @@ contract StakeContract is Authorizable {
         onlyAuthorized
     {
 
-        // @TODO: Implementation
+        // Ensure that they can't unstake more than they actually have
+        require(stakes[_staker].lockedUp >= _amount);
+        stakes[_staker].lockedUp.sub(_amount);
 
     }
 
@@ -60,9 +64,15 @@ contract StakeContract is Authorizable {
         public
         onlyAuthorized
     {
-        
-        // @TODO: Implementation
+        // Make sure than an authorized address can't slash more tokens then they actually have locked up.
+        require(stakes[_staker].lockedUp >= _amount);
 
+        // Reduce the total amount first
+        stakes[_staker].total.sub(_amount);
+        stakes[_staker].lockedUp.sub(_amount);
+
+        // @TODO: Actually slash the tokens somehow?
+        
     }
     
     /** @dev Check how many tokens the processor has available to stake at this moment.
@@ -71,9 +81,10 @@ contract StakeContract is Authorizable {
     function getAvailableStake(address _staker)
         public
         view
+        returns (uint _available)
     {
 
-        // @TODO: Implementation
+        return stakes[_staker].total.sub(stakes[_staker].lockedUp);
 
     }
 
@@ -82,10 +93,13 @@ contract StakeContract is Authorizable {
     */ 
     function withdrawStake(uint _amount) 
         public
-        onlyStakeOwner 
     {
 
-        // @TODO: Implementation
+        // Check that they're not taking out more than they actually have.
+        require(getAvailableStake(msg.sender) >= _amount);
+
+        stakes[msg.sender].total.sub(_amount);
+        tokenContract.transfer(msg.sender, _amount);
         
     }
 

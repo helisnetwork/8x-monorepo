@@ -18,12 +18,12 @@ contract('StakeContract', function(accounts) {
 
     before(async function() {
 
-        stakeContract = await StakeContract.new({from: firstAccount});
         tokenContract = await EightExToken.new({from: firstAccount});
+        stakeContract = await StakeContract.new(tokenContract.address, {from: firstAccount});
 
         // Add executor as as authorized to proxy contract
         // Add executor as as authorized to subscription contract
-        await stakeContract.addAuthorizedAddress(executorContract.address, {from: firstAccount});
+        await stakeContract.addAuthorizedAddress(firstAccount, {from: firstAccount});
 
         // Transfer tokens to third account
         await tokenContract.transfer(thirdAccount, 100, {from: firstAccount});
@@ -72,7 +72,7 @@ contract('StakeContract', function(accounts) {
 
         });
 
-        it("should be able to slash tokens", async function() {
+        it("should be able to slash a staked amount of tokens", async function() {
 
             await assertRevert(stakeContract.slashTokens(thirdAccount, 50, {from: firstAccount}));
         
@@ -85,6 +85,12 @@ contract('StakeContract', function(accounts) {
         it("should throw if the user tries to withdraw staked tokens", async function() {
 
             await assertRevert(stakeContract.withdrawStake(50, {from: firstAccount}));
+    
+        });
+
+        it("should throw if the user tries to unstake more tokens than they have staked", async function() {
+
+            await assertRevert(stakeContract.unstakeTokens(100, {from: firstAccount}));
     
         });
         
