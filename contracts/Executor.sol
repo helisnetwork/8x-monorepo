@@ -28,8 +28,8 @@ contract Executor is Ownable {
     
 
     /** @dev Collect the payment due from the subscriber.
-      * _subscriptionContract is the contract where the details exist (adheres to Collectable contract interface).
-      * _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
+      * @param _subscriptionContract is the contract where the details exist (adheres to Collectable contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
     */
     function collectPayment(address _subscriptionContract, bytes32 _subscriptionIdentifier)
         public
