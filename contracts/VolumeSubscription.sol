@@ -124,9 +124,9 @@ contract VolumeSubscription is Collectable {
 
     function terminateSubscriptionDueToInsufficientFunds(bytes32 _subscription) public onlyAuthorized        
     {
-        subscriptions[_subscription].terminationDate = currentTimetamp();
+        subscriptions[_subscription].terminationDate = currentTimestamp();
 
-        emit TerminatedSubscription(_subscription, currentTimetamp());
+        emit TerminatedSubscription(_subscription, currentTimestamp());
     }
 
     /**
@@ -142,7 +142,7 @@ contract VolumeSubscription is Collectable {
         external
         isOwnerOfPlan(_plan) 
     {
-        require(_terminationDate >= currentTimetamp());
+        require(_terminationDate >= currentTimestamp());
         require(plans[_plan].terminationDate == 0); // If it's already been set then we don't want it to be modified.
 
         plans[_plan].terminationDate = _terminationDate;
@@ -159,7 +159,7 @@ contract VolumeSubscription is Collectable {
         external
         isOwnerOfSubscription(_subscription) 
     {
-        require(_terminationDate >= currentTimetamp());
+        require(_terminationDate >= currentTimestamp());
         require(subscriptions[_subscription].terminationDate == 0); // If it's already been set then we don't want it to be modified
 
         subscriptions[_subscription].terminationDate = _terminationDate;
@@ -240,7 +240,7 @@ contract VolumeSubscription is Collectable {
         returns (bytes32 _newSubscriptionHash)
     {
         require(_owner != 0x0);
-        require(_startDate >= currentTimetamp());
+        require(_startDate >= currentTimestamp());
 
         address planTokenAddress = getPlanTokenAddress(_planHash);
         uint planInterval = getPlanInterval(_planHash);
@@ -611,7 +611,7 @@ contract VolumeSubscription is Collectable {
       *
     */
 
-    function currentTimetamp() 
+    function currentTimestamp() 
         internal
         returns (uint _timetstamp) 
     {

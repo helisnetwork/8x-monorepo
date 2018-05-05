@@ -63,7 +63,7 @@ contract('VolumeSubscription', function(accounts) {
     
             await contract.setTime(now);
 
-            await contract.addAuthorizedAddress(accounts[0]);
+            await contract.addAuthorizedAddress(accounts[0], {from: accounts[0]});
 
             let termination = await contract.terminateSubscriptionDueToInsufficientFunds(subscriptionHash, {from: accounts[0]});
             assert.equal(termination.logs[0].args.terminationDate, now);
@@ -93,7 +93,7 @@ contract('VolumeSubscription', function(accounts) {
 
             let subscriptionHash = await newSubscription(contract, token.address, accounts[0], "collect.not.isValid");
 
-            await contract.addAuthorizedAddress(accounts[1]);
+            await contract.addAuthorizedAddress(accounts[1], {from: accounts[0]});
             await contract.terminateSubscriptionDueToInsufficientFunds(subscriptionHash, {from: accounts[1]});
 
             let isValid = await contract.isValidSubscription(subscriptionHash);
@@ -356,8 +356,7 @@ contract('VolumeSubscription', function(accounts) {
             let now = Date.now();
             now = parseInt(now/1000);
         
-            let secondDate = new Date(Date.now() + (60*60*1000)).valueOf();
-            secondDate = parseInt(secondDate/1000);
+            let secondDate = parseInt(now/1000)+60;
         
             await contract.terminateSubscription(subscriptionHash, now);
             await assertRevert(contract.terminateSubscription(subscriptionHash, secondDate));

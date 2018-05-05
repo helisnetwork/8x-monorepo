@@ -1,7 +1,7 @@
 const newPlan = async function(contract, token, account, identifier) {
 
     let now = Date.now();
-    now = now/1000;
+    now = parseInt(now/1000);
 
     await contract.setTime(now);
 
@@ -12,11 +12,11 @@ const newPlan = async function(contract, token, account, identifier) {
 }
 
 const newSubscription = async function(contract, token, account, identifier) {
-    
-    let now = Date.now();
-    now = now/1000;
 
     let planHash = await newPlan(contract, token, account, identifier);
+
+    let now = Date.now();
+    now = parseInt(now/1000);
 
     let newSubscription = await contract.createSubscription(account, planHash, now, "{}", {from: account});
     let subscriptionHash = newSubscription.logs[0].args.identifier;
@@ -26,11 +26,10 @@ const newSubscription = async function(contract, token, account, identifier) {
 
 const newSubscriptionFull = async function(contract, token, account, identifier) {
 
+    let planHash = await newPlan(contract, token, account, identifier);
 
     let now = Date.now();
-    now = now/1000;
-
-    let planHash = await newPlan(contract, token, account, identifier);
+    now = parseInt(now/1000);
 
     let newSubscription = await contract.createSubscription(account, planHash, now, "{}", {from: account});
     let subscriptionHash = newSubscription.logs[0].args.identifier;
