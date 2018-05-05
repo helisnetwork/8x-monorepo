@@ -16,10 +16,10 @@ contract StakeContract is Authorizable {
       * Modifiers
     */
 
-    modifier onlyStakeOwner {
+    modifier onlyStakeOwner() {
 
         // @TODO: Implementation
-
+        _;
     }
 
     /**
@@ -56,7 +56,7 @@ contract StakeContract is Authorizable {
       * @param _staker is the processors who's tokens need to be slashed.
       * @param _amount is how many tokens need to be slashed.
     */ 
-    function slashStake(address _staker, uint _amount)
+    function slashTokens(address _staker, uint _amount)
         public
         onlyAuthorized
     {
@@ -80,7 +80,7 @@ contract StakeContract is Authorizable {
     /** @dev Withdraw your stake from the stake contract.
       * @param _amount is how much you would like to withdraw (that's available)..
     */ 
-    function withdrawStake(uint amount) 
+    function withdrawStake(uint _amount) 
         public
         onlyStakeOwner 
     {
