@@ -16,7 +16,7 @@ contract StakeContract is Authorizable {
       * Modifiers
     */
 
-    modifier onlyStakeOwner(address _staker) {
+    modifier onlyStakeOwner {
 
         // @TODO: Implementation
 
@@ -26,7 +26,37 @@ contract StakeContract is Authorizable {
       * Public functions
     */
 
-    function slashStake(address _staker, uint amount)
+    /** @dev When the processor claims a transaction their tokens are staked.
+      * @param _staker is the processors who is staking thier tokens.
+      * @param _amount is how much they would like to stake;
+    */
+    function stakeTokens(address _staker, uint _amount) 
+        public
+        onlyAuthorized
+    {
+
+        // @TODO: Implementation
+
+    }
+
+    /** @dev When the processor executes a transaction their tokens are unstaked.
+      * @param _staker is the processors who is staking thier tokens.
+      * @param _amount is how much they would like to unstake;
+    */   
+    function unstakeTokens(address _staker, uint _amount)
+        public
+        onlyAuthorized
+    {
+
+        // @TODO: Implementation
+
+    }
+
+    /** @dev When the processor doesn't execute a transaction they claimed their tokens are slashed.
+      * @param _staker is the processors who's tokens need to be slashed.
+      * @param _amount is how many tokens need to be slashed.
+    */ 
+    function slashStake(address _staker, uint _amount)
         public
         onlyAuthorized
     {
@@ -35,6 +65,9 @@ contract StakeContract is Authorizable {
 
     }
     
+    /** @dev Check how many tokens the processor has available to stake at this moment.
+      * @param _staker is the processor who you would like to return the total available for.
+    */ 
     function getAvailableStake(address _staker)
         public
         view
@@ -44,9 +77,12 @@ contract StakeContract is Authorizable {
 
     }
 
-    function withdrawStake(address _staker, uint amount) 
+    /** @dev Withdraw your stake from the stake contract.
+      * @param _amount is how much you would like to withdraw (that's available)..
+    */ 
+    function withdrawStake(uint amount) 
         public
-        onlyStakeOwner(_staker) 
+        onlyStakeOwner 
     {
 
         // @TODO: Implementation
