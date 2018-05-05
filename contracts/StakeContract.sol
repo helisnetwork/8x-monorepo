@@ -37,7 +37,7 @@ contract StakeContract is Authorizable {
         onlyAuthorized
     {
         require(getAvailableStake(_staker) >= _amount);
-        stakes[_staker].lockedUp.add(_amount);
+        stakes[_staker].lockedUp += _amount;
 
     }
 
@@ -52,7 +52,7 @@ contract StakeContract is Authorizable {
 
         // Ensure that they can't unstake more than they actually have
         require(stakes[_staker].lockedUp >= _amount);
-        stakes[_staker].lockedUp.sub(_amount);
+        stakes[_staker].lockedUp -= _amount;
 
     }
 
@@ -68,8 +68,8 @@ contract StakeContract is Authorizable {
         require(stakes[_staker].lockedUp >= _amount);
 
         // Reduce the total amount first
-        stakes[_staker].total.sub(_amount);
-        stakes[_staker].lockedUp.sub(_amount);
+        stakes[_staker].total -= _amount;
+        stakes[_staker].lockedUp -= _amount;
 
         // @TODO: Actually slash the tokens somehow?
         
@@ -84,8 +84,24 @@ contract StakeContract is Authorizable {
         returns (uint _available)
     {
 
-        return stakes[_staker].total.sub(stakes[_staker].lockedUp);
+        return (stakes[_staker].total - stakes[_staker].lockedUp);
 
+    }
+
+    // @TODO: Try to use ERC223 or something instead.
+    /** @dev Top up your stake once you've given the stakeContract approval to transfer your funds.
+      * @param _amount is how much you would like to withdraw (that's available).
+    */ 
+    function topUpStake(uint _amount)
+        public
+        returns (bool _success)
+    {  
+        if (tokenContract.transferFrom(msg.sender, address(this), _amount)) {
+            stakes[msg.sender].total += _amount;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /** @dev Withdraw your stake from the stake contract.
@@ -98,7 +114,7 @@ contract StakeContract is Authorizable {
         // Check that they're not taking out more than they actually have.
         require(getAvailableStake(msg.sender) >= _amount);
 
-        stakes[msg.sender].total.sub(_amount);
+        stakes[msg.sender].total -= _amount;
         tokenContract.transfer(msg.sender, _amount);
         
     }

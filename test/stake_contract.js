@@ -14,8 +14,6 @@ contract('StakeContract', function(accounts) {
     let thirdAccount = accounts[2]; // Staker
     let fourthAccount = accounts[3]; // Random malicious dude
 
-    let planHash;
-
     before(async function() {
 
         tokenContract = await EightExToken.new({from: firstAccount});
@@ -28,15 +26,18 @@ contract('StakeContract', function(accounts) {
         // Transfer tokens to third account
         await tokenContract.transfer(thirdAccount, 100, {from: firstAccount});
 
-        // Stake tokens in contract
-        await tokenContract.transfer(stakeContract.address, 100, {from: thirdAccount});
+        // Give approval of tokens to contract
+        await tokenContract.approve(stakeContract.address, 100, {from: thirdAccount});
+
+        // Top up the balance
+        let status = await stakeContract.topUpStake(100, {from: thirdAccount});
 
     });
 
     it("should be able to return the correct amount of available tokens", async function() {
 
-        let availableAmount = await stakeContract.getAvailableStake(thirdAccount.address);
-        assert.equal(availableAmount, 100);
+        let availableAmount = await stakeContract.getAvailableStake(thirdAccount, {from: thirdAccount});
+        assert.equal(availableAmount.toNumber(), 100);
 
     });
 
@@ -51,8 +52,8 @@ contract('StakeContract', function(accounts) {
         it("should be able to stake tokens in the contract and show the correct available balance", async function() {
 
             await stakeContract.stakeTokens(thirdAccount, 100, {from: firstAccount});
-            let availableAmount = await stakeContract.getAvailableStake(thirdAccount.address);
-            assert.equal(availableAmount, 0);
+            let availableAmount = await stakeContract.getAvailableStake(thirdAccount);
+            assert.equal(availableAmount.toNumber(), 0);
 
         });
 
@@ -68,13 +69,13 @@ contract('StakeContract', function(accounts) {
 
         it("should not be able to slash unstaked tokens", async function() {
 
-            await assertRevert(stakeContract.slashTokens(thirdAccount, 100, {from: firstAccount}));
+            await assertRevert(stakeContract.slashTokens(thirdAccount, 150, {from: firstAccount}));
 
         });
 
         it("should be able to slash a staked amount of tokens", async function() {
 
-            await assertRevert(stakeContract.slashTokens(thirdAccount, 50, {from: firstAccount}));
+            await stakeContract.slashTokens(thirdAccount, 50, {from: firstAccount});
         
         });
 
@@ -90,7 +91,7 @@ contract('StakeContract', function(accounts) {
 
         it("should throw if the user tries to unstake more tokens than they have staked", async function() {
 
-            await assertRevert(stakeContract.unstakeTokens(100, {from: firstAccount}));
+            await assertRevert(stakeContract.unstakeTokens(thirdAccount, 100, {from: firstAccount}));
     
         });
         
@@ -103,8 +104,8 @@ contract('StakeContract', function(accounts) {
         it("should be able to unstake a user's tokens from an authorized address", async function() {
     
             await stakeContract.unstakeTokens(thirdAccount, 50, {from: firstAccount});
-            let availableAmount = await stakeContract.getAvailableStake(thirdAccount.address);
-            assert.equal(availableAmount, 50);
+            let availableAmount = await stakeContract.getAvailableStake(thirdAccount);
+            assert.equal(availableAmount.toNumber(), 50);
     
         });
 
@@ -121,7 +122,7 @@ contract('StakeContract', function(accounts) {
 
         it('should be able to withdraw all the available tokens they have', async function() {
 
-            await assertRevert(stakeContract.withdrawStake(50, {from: thirdAccount}));
+            await stakeContract.withdrawStake(50, {from: thirdAccount});
 
         });
 
