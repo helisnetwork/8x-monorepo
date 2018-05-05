@@ -12,6 +12,7 @@ contract('StakeContract', function(accounts) {
     let firstAccount = accounts[0]; // Admin role
     let secondAccount = accounts[1]; // Authorized address that can slash tokens
     let thirdAccount = accounts[2]; // Staker
+    let fourthAccount = accounts[3]; // Random malicious dude
 
     let planHash;
 
@@ -32,57 +33,91 @@ contract('StakeContract', function(accounts) {
 
     });
 
-    it("should be able to return the correct amount of staked tokens", async function() {
+    it("should be able to return the correct amount of available tokens", async function() {
 
-        // @TODO: Implementation
-
-    });
-
-    it("should throw when trying to stake on behalf of someone else", async function() {
-
-        // @TODO: Implementation
+        let availableAmount = await stakeContract.getAvailableStake(thirdAccount.address);
+        assert.equal(availableAmount, 100);
 
     });
 
-    it("should be able to stake tokens in the contract and show the correct available balance", async function() {
+    describe("when staking tokens", () => {
 
-        // @TODO: Implementation
+        it("should throw when trying to stake as an unauthorized address", async function() {
+
+            await assertRevert(stakeContract.stakeTokens(thirdAccount, 50, {from: fourthAccount}));
+
+        });
+
+        it("should be able to stake tokens in the contract and show the correct available balance", async function() {
+
+            await stakeContract.stakeTokens(thirdAccount, 100, {from: firstAccount});
+            let availableAmount = await stakeContract.getAvailableStake(thirdAccount.address);
+            assert.equal(availableAmount, 0);
+
+        });
 
     });
 
-    it("should throw if an unauthorized address tries to slash tokens", async function() {
+    describe("when slashing tokens", () => {
 
-        // @TODO: Implementation
+        it("should throw if an unauthorized address tries to slash tokens", async function() {
+
+            await assertRevert(stakeContract.slashTokens(thirdAccount, 50, {from: fourthAccount}));
+
+        });
+
+        it("should not be able to slash unstaked tokens", async function() {
+
+            await assertRevert(stakeContract.slashTokens(thirdAccount, 100, {from: firstAccount}));
+
+        });
+
+        it("should be able to slash tokens", async function() {
+
+            await assertRevert(stakeContract.slashTokens(thirdAccount, 50, {from: firstAccount}));
+        
+        });
 
     });
 
-    it("should throw if the user tries to withdraw staked tokens", async function() {
+    describe('when unstaking tokens', () => {
 
-        // @TODO: Implementation
+        it("should throw if the user tries to withdraw staked tokens", async function() {
 
-    });
+            await assertRevert(stakeContract.withdrawStake(50, {from: firstAccount}));
     
-    it("should throw when an unauthorized address treis to unstake a user's tokens", async function() {
-
-        // @TODO: Implementation
+        });
+        
+        it("should throw when an unauthorized address tries to unstake a user's tokens", async function() {
+    
+            await assertRevert(stakeContract.unstakeTokens(thirdAccount, 50, {from: fourthAccount}));
+    
+        });
+    
+        it("should be able to unstake a user's tokens from an authorized address", async function() {
+    
+            await stakeContract.unstakeTokens(thirdAccount, 50, {from: firstAccount});
+            let availableAmount = await stakeContract.getAvailableStake(thirdAccount.address);
+            assert.equal(availableAmount, 50);
+    
+        });
 
     });
 
-    it("should be able to unstake a user's tokens from an authorized address", async function() {
+    describe("when withdrawing tokens", () => {
 
-        // @TODO: Implementation
 
-    });
+        it("should throw if a user tries to withdraw more tokens then they have staked", async function() {
 
-    it("should throw if a user tries to withdraw more tokens then they have staked", async function() {
+            await assertRevert(stakeContract.withdrawStake(100, {from: thirdAccount}));
 
-        // @TODO: Implementation
+        });
 
-    });
+        it('should be able to withdraw all the available tokens they have', async function() {
 
-    it('should be able to withdraw all the available tokens they have', async function() {
+            await assertRevert(stakeContract.withdrawStake(50, {from: thirdAccount}));
 
-        // @TODO: Implementation
+        });
 
     });
 
