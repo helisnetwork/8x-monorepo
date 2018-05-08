@@ -4,11 +4,11 @@ import keccak from './helpers/keccak.js';
 import { newSubscription } from './helpers/volume_subscription.js';
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
-var TransactionRegistry = artifacts.require('./TransactionRegistry.sol');
+var MockTransactionRegistry = artifacts.require('./tests/MockTransactionRegistry.sol');
 var EightExToken = artifacts.require("./EightExToken.sol");
 
 
-contract('TransactionRegistry', function(accounts) {
+contract('MockTransactionRegistry', function(accounts) {
 
     let txRegistryContract;
     let subscriptionContract;
@@ -16,7 +16,7 @@ contract('TransactionRegistry', function(accounts) {
 
     before(async function() {
 
-        txRegistryContract = await TransactionRegistry.new({from: accounts[0]});
+        txRegistryContract = await MockTransactionRegistry.new({from: accounts[0]});
         subscriptionContract = await MockVolumeSubscription.new({from: accounts[0]});
         tokenContract = await EightExToken.new({from: accounts[0]});
 
@@ -57,7 +57,7 @@ contract('TransactionRegistry', function(accounts) {
 
         it("should not be able to create with invalid details", async function() {
 
-            let subscriptionHash = await newSubscription(contract, tokenContract.address, accounts[0], "payment.invalid.details", {from: accounts[0]});
+            let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "payment.invalid.details", {from: accounts[0]});
 
             await assertRevert(txRegistryContract.createNewPayment("abc", subscriptionContract.address, future, 400, {from: accounts[0]}));
             await assertRevert(txRegistryContract.createNewPayment(subscriptionHash, subscriptionContract.address, now - 1000, 400, {from: accounts[0]}));
@@ -67,14 +67,14 @@ contract('TransactionRegistry', function(accounts) {
 
         it("should not be able to create as an unauthorized address", async function() {
 
-            let subscriptionHash = await newSubscription(contract, tokenContract.address, accounts[0], "payment.valid");
+            let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "payment.valid");
             await assertRevert(txRegistryContract.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[1]})); 
 
         });
 
         it("should be able to create a valid new payment", async function() {
 
-            let subscriptionHash = await newSubscription(contract, tokenContract.address, accounts[0], "payment.valid");
+            let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "payment.valid");
             let result = await txRegistryContract.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[0]});
             assert(result);
 
