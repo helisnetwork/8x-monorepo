@@ -20,6 +20,8 @@ contract TransactionRegistry is Authorizable {
 
     mapping (bytes32 => Payment) public payments;
 
+    uint public multiplier;
+
     /**
       * Modifiers
     */
@@ -27,6 +29,13 @@ contract TransactionRegistry is Authorizable {
     /**
       * Public functions
     */
+
+    /** @dev Set a multiplier for how many tokens you need in order to claim proportional to the payments.
+      * @param _amount is the multiplier that would like to be set.
+    */
+    function setMultiplier(uint _amount) public onlyOwner {
+        multiplier = _amount;
+    } 
 
 
     /** @dev Create a new payment object when a user intially subscribes to a plan.

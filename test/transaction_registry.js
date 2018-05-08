@@ -25,6 +25,25 @@ contract('TransactionRegistry', function(accounts) {
 
     });
 
+    describe("basic tests", () => {
+
+        it("should throw if someone other than the owner tries to set the multiplier", async function() {
+
+            await assertRevert(txRegistryContract.setMultiplier(2, {from: accounts[1]}));
+
+        });
+
+        it("should be able to set the multiplier as the owner", async function() {
+
+            await txRegistryContract.setMultiplier(1, {from: accounts[0]});
+
+            let multiplier = await txRegistryContract.multiplier.call();
+            assert.equal(multiplier, 1);
+
+        })
+
+    })
+
     describe("when creating a new payment", () => {
 
         let now = Date.now();
@@ -53,7 +72,7 @@ contract('TransactionRegistry', function(accounts) {
 
         });
 
-        it ("should be able to create a valid new payment", async function() {
+        it("should be able to create a valid new payment", async function() {
 
             let subscriptionHash = await newSubscription(contract, tokenContract.address, accounts[0], "payment.valid");
             let result = await txRegistryContract.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[0]});
