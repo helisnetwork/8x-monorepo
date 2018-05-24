@@ -8,8 +8,6 @@
     "babel-register": "^6.23.0"
   },
   "dependencies": {
-    "ethereumjs-abi": "^0.6.5",
-    "react-mailchimp-subscribe": "^2.0.2",
-    "reactjs-popup": "^1.1.1"
+    "ethereumjs-abi": "^0.6.5"
   }
 }
