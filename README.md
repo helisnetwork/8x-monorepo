@@ -22,13 +22,13 @@ The protocol is still at an early stage although majority of the architecture ha
 
 Below are the technical things required to create a MVP of the protocol:
 
-# To-Think
+### To-Think
 - Design architecture for how the TransactionRegistry is going to work in relation to an upgradeable and modular architecture.
 - Think about how service nodes are rewarded for finding bad actors (people who don't execute on their subscriptions on time). Subsequently, we need to record how long it took them to actually execute the transaction the first time so they're bounded by that SLA (if that's the right term) in the future too.
 - Have a strategy for how changes to a multiplier will be handled to existing stakes in subscriptions.
 - Determine whether the Collectable interface is needed in the first place and whether the logic for handling each type of contract should be in the executor itself. Can't think of an exact use case of how the Collectable interface might be restrictive but still worth thinking about neverthless.
 
-# To-Do
+### To-Do
 - Change implementation of Volume Subscription so that a new subscription can only be created by the executor (so it can be added the transaction registry).
 - Finish off the implementation of Exector.sol and its tests.
 - Implement transaction registy.
@@ -38,7 +38,7 @@ Below are the technical things required to create a MVP of the protocol:
 - Optimize the type of ints used. Right now every int is uint256 which isn't too good.
 - Create a Donation subscription interface with the accompanying tests.
 
-# To-Check
+### To-Check
 
 - Check for integer overflows and underflows.
 - Check for re-entry attacks.
@@ -46,7 +46,7 @@ Below are the technical things required to create a MVP of the protocol:
 - Check all failing test cases are implemented.
 - Check return values are within the range we expect them to be.
 
-# To-Celebrate
+### To-Celebrate
 - ~~Create mocks to facilitate the testing of more complex time logic.~~
 - ~~Ensure tests run consistently (this is something to do with the calculation of time). Checkout https://github.com/trufflesuite/truffle/issues/920#issuecomment-385022886 for more information.~~
 
