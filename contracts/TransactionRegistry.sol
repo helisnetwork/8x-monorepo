@@ -40,7 +40,7 @@ contract TransactionRegistry is Authorizable {
 
     /** @dev Create a new payment object when a user intially subscribes to a plan.
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectable contract interface).
-      * @param _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
+      * @param _subscriptionIdentifier is the identifier o f that customer's subscription with it's relevant details.
       * @param _duedate is when the payment is meant to be paid by.
       * @param _stake is how much the processors has staked in order to have the right to execute the transaction.
     */

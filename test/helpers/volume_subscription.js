@@ -5,7 +5,7 @@ const newPlan = async function(contract, token, account, identifier) {
 
     await contract.setTime(now);
 
-    let newPlan = await contract.createPlan(account, token, identifier, "Test", "Description", 30, 10, "{}", {from: account});
+    let newPlan = await contract.createPlan(account, token, identifier, "Test", "Description", 30, 10, 0, "{}", {from: account});
     let planHash = newPlan.logs[0].args.identifier;
 
     return planHash;

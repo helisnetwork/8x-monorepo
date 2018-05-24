@@ -67,7 +67,7 @@ contract('MockTransactionRegistry', function(accounts) {
 
         it("should not be able to create as an unauthorized address", async function() {
 
-            let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "payment.valid");
+            let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "payment.invalid");
             await assertRevert(txRegistryContract.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[1]})); 
 
         });

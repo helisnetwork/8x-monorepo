@@ -19,6 +19,7 @@ contract VolumeSubscription is Collectable {
         uint terminationDate;
         uint interval;
         uint amount;
+        uint fee;
 
         string data;
 
@@ -34,12 +35,8 @@ contract VolumeSubscription is Collectable {
         uint startDate;
         uint nextPaymentDate;
         uint terminationDate;
-        
-        uint interval;
-        uint amount;
 
         string data;
-
     }
 
     mapping (bytes32 => Plan) public plans;
@@ -119,7 +116,17 @@ contract VolumeSubscription is Collectable {
         view
         returns (uint _amount) 
     {
-        return getSubscriptionAmount(_subscription);
+        bytes32 planHash = getSubscriptionPlanHash(_subscription);
+        return plans[planHash].amount;
+    }
+
+    function getSubscriptionFee(bytes32 _subscription) 
+        public 
+        view
+        returns (uint _fee) 
+    {
+        bytes32 planHash = getSubscriptionPlanHash(_subscription);
+        return plans[planHash].fee;
     }
 
     function terminateSubscriptionDueToInsufficientFunds(bytes32 _subscription) public onlyAuthorized        
@@ -189,17 +196,21 @@ contract VolumeSubscription is Collectable {
         string _description,
         uint _interval, // Required
         uint _amount, // Required
+        uint _fee, // Required
         string _data
     )
         public
         returns (bytes32 _newPlanHash)
     {
 
+        // @TODO: Check for overflows and underflows
         require(_owner != 0x0);
         require(_tokenAddress != 0x0);
         require(bytes(_identifier).length > 0);
         require(_interval > 0);
         require(_amount > 0);
+        require(_fee >= 0);
+        require(_fee <= _amount); // Make sure that fee is at the most equal to but never greater than the amount
 
         bytes32 newPlanHash = keccak256(_owner, _identifier);
         require(plans[newPlanHash].owner == 0x0);
@@ -213,6 +224,7 @@ contract VolumeSubscription is Collectable {
             terminationDate: 0,
             interval: _interval,
             amount: _amount,
+            fee: _fee,
             data: _data
         });
 
@@ -239,19 +251,17 @@ contract VolumeSubscription is Collectable {
         public
         returns (bytes32 _newSubscriptionHash)
     {
+        // @TODO: Check for overflows and underflows
+        
         require(_owner != 0x0);
         require(_startDate >= currentTimestamp());
 
         address planTokenAddress = getPlanTokenAddress(_planHash);
-        uint planInterval = getPlanInterval(_planHash);
-        uint planAmount = getPlanAmount(_planHash);
 
         bytes32 newSubscriptionHash = keccak256(_owner, _planHash);
 
         require(subscriptions[newSubscriptionHash].owner == 0x0);
         require(planTokenAddress != 0x0);
-        require(planInterval > 0); // If an invalid hash isn't provided then it will be 0.
-        require(planAmount > 0); // If an invalid hash isn't provided then it will be 0.
 
         Subscription memory newSubscription = Subscription({
             owner: _owner,
@@ -260,8 +270,6 @@ contract VolumeSubscription is Collectable {
             startDate: _startDate,
             nextPaymentDate: 0,
             terminationDate: 0,
-            interval: planInterval,
-            amount: planAmount,
             data: _data
         });
 
@@ -352,6 +360,7 @@ contract VolumeSubscription is Collectable {
             uint _terminationDate,
             uint _interval,
             uint _amount,
+            uint _fee,
             string _data
         )
     {
@@ -364,6 +373,7 @@ contract VolumeSubscription is Collectable {
             plan.terminationDate,
             plan.interval,
             plan.amount,
+            plan.fee,
             plan.data
         );
     }
@@ -501,8 +511,8 @@ contract VolumeSubscription is Collectable {
             subscription.startDate,
             subscription.nextPaymentDate,
             subscription.terminationDate,
-            subscription.interval,
-            subscription.amount,
+            plans[_planHash].interval,
+            plans[_planHash].amount,
             subscription.data
         );
     }
@@ -565,30 +575,6 @@ contract VolumeSubscription is Collectable {
         returns (uint _terminationDate) 
     {
         return subscriptions[_subscription].terminationDate;
-    }
-
-    /** @dev Get the interval of the subscription.
-      * @param _subscription is the hash of the user's address + identifier.
-    */
-
-    function getSubscriptionInterval(bytes32 _subscription)
-        public
-        view 
-        returns (uint _interval) 
-    {
-        return subscriptions[_subscription].interval;
-    }
-
-    /** @dev Get the amount of the subscription.
-      * @param _subscription is the hash of the user's address + identifier.
-    */
-
-    function getSubscriptionAmount(bytes32 _subscription)
-        public
-        view 
-        returns (uint _amount) 
-    {
-        return subscriptions[_subscription].amount;
     }
     
     /** @dev Get the extra data for the plan.

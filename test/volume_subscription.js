@@ -121,7 +121,8 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to create a new plan correctly", async function() {
 
-            let planHash = await newPlan(contract, token.address, accounts[0], "create");
+            let newPlan = await contract.createPlan(accounts[0], token.address, "create", "Test", "Description", 30, 10, 5, "{}");
+            let planHash = newPlan.logs[0].args.identifier;
             let savedPlan = await contract.getPlan.call(planHash)
 
             assert.equal(savedPlan[0], accounts[0]);
@@ -129,26 +130,31 @@ contract('VolumeSubscription', function(accounts) {
             assert.equal(savedPlan[2], "Test");
             assert.equal(savedPlan[3], "Description");
             assert.equal(savedPlan[4], 0);
-            assert.equal(savedPlan[5], 30);
-            assert.equal(savedPlan[6], 10);
-            assert.equal(savedPlan[7], "{}");
+            assert.equal(savedPlan[5], 30); // Check the interval
+            assert.equal(savedPlan[6], 10); // Check the amount
+            assert.equal(savedPlan[7], 5); // Check the fee
+            assert.equal(savedPlan[8], "{}");
         });
 
         it("should not be able to create a plan without required details", async function() {
 
-            await assertRevert(contract.createPlan(0x0, token.address, "test.identifier", "", "", 30, 10, ""));
-            await assertRevert(contract.createPlan(accounts[0], token.address, "", "", "", 30, 10, ""));
-            await assertRevert(contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 0, 10, ""));
-            await assertRevert(contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 30, 0, ""));
-            await assertRevert(contract.createPlan(accounts[0], 0x0, "test.identifier", "", "", 30, 10, ""));
+            await assertRevert(contract.createPlan(0x0, token.address, "test.identifier", "", "", 30, 10, 0, ""));
+            await assertRevert(contract.createPlan(accounts[0], token.address, "", "", "", 30, 10, 0, ""));
+            await assertRevert(contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 0, 10, 0, ""));
+            await assertRevert(contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 30, 0, 0, ""));
+            await assertRevert(contract.createPlan(accounts[0], 0x0, "test.identifier", "", "", 30, 10, 0, ""));
+        });
+
+        it("should not be able to create a plan where the fee is more than the amount", async function() {
+
+            await assertRevert(contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 30, 10, 100, ""));
 
         });
 
         it("should not be able to create a plan with the same identifier", async function() {
 
-            await contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 30, 10, "");
-            await assertRevert(contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 30, 10, ""));
-
+            await contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 30, 10, 0, "");
+            await assertRevert(contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 30, 10, 0, ""));
 
         });
 

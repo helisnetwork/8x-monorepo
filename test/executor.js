@@ -41,7 +41,7 @@ contract('Executor', function(accounts) {
         await tokenContract.transfer(thirdAccount, 100, {from: firstAccount});
 
         // Create a plan that costs $100/month
-        let newPlan = await subscriptionContract.createPlan(secondAccount, tokenContract.address, "test", "product", "n/a", 30, 100, "", {from: secondAccount});
+        let newPlan = await subscriptionContract.createPlan(secondAccount, tokenContract.address, "test", "product", "n/a", 30, 100, 10, "", {from: secondAccount});
         planHash = newPlan.logs[0].args.identifier;
 
         // Make the user give permission to the proxy to transfer tokens on it's behalf
@@ -70,6 +70,7 @@ contract('Executor', function(accounts) {
             let planOwnerAfterBalance = await tokenContract.balanceOf(secondAccount);
             let userAfterBalance = await tokenContract.balanceOf(thirdAccount);
 
+            // @TODO: This should be for the actual fee itself from the subscription
             assert.equal(1, collectorAfterBalance.toNumber()); // The collector should get their 1% cut
             assert.equal(99, planOwnerAfterBalance.toNumber()); // The plan owner should get the remaining sum
             assert.equal(0, userAfterBalance.toNumber()); // The end user should have no tokens left

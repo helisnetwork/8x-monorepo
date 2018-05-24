@@ -28,6 +28,11 @@ contract Collectable is Authorizable {
         view
         public
         returns (uint _amount);
+    
+    function getSubscriptionFee(bytes32 _subscription)
+        view
+        public
+        returns (uint _fee);
 
     function terminateSubscriptionDueToInsufficientFunds(bytes32 _subscription) onlyAuthorized public;
 
