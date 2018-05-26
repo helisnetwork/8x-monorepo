@@ -22,6 +22,11 @@ contract PaymentsRegistry is Authorizable {
     
     uint public multiplier;
 
+    event PaymentCreated(bytes32 _subscriptionIdentifer);
+    event PaymentProcessed(bytes32 _subscriptionIdentifer);
+    event PaymentClaimantRemoved(bytes32 _subscriptionIdentifer);
+    event PaymentCancelled(bytes32 _subscriptionIdentifer);
+
     /**
       * Public functions
     */
@@ -39,7 +44,7 @@ contract PaymentsRegistry is Authorizable {
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectable contract interface).
       * @param _subscriptionIdentifier is the identifier o f that customer's subscription with it's relevant details.
       * @param _duedate is when the payment is meant to be paid by.
-      * @param _stake is how much the processors has staked in order to have the right to execute the transaction.
+      * @param _stake is how much the processors has staked in order to have the right to process the transaction.
     */
     function createNewPayment(
         bytes32 _subscriptionIdentifier, 
@@ -56,12 +61,12 @@ contract PaymentsRegistry is Authorizable {
 
     }
 
-    /** @dev Executed the payment
+    /** @dev Process the payment
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
       * @param _duedate is the date for the next billing cycle. This is to set by the executor.
-      * @param _stake is how many 8x tokens are required to execute.
+      * @param _stake is how many 8x tokens are required to process.
     */
-    function executePayment(
+    function processPayment(
         bytes32 _subscriptionIdentifier, 
         uint _duedate, 
         uint _stake
