@@ -7,7 +7,6 @@ var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.s
 var MockTransactionRegistry = artifacts.require('./tests/MockTransactionRegistry.sol');
 var EightExToken = artifacts.require("./EightExToken.sol");
 
-
 contract('MockTransactionRegistry', function(accounts) {
 
     let txRegistryContract;
@@ -40,7 +39,8 @@ contract('MockTransactionRegistry', function(accounts) {
             let multiplier = await txRegistryContract.multiplier.call();
             assert.equal(multiplier, 1);
 
-        })
+        });
+    
 
     })
 
@@ -48,12 +48,6 @@ contract('MockTransactionRegistry', function(accounts) {
 
         let now = Date.now();
         let future = parseInt(now/1000) + (30*24*60*60);
-
-        it("should not be able to create with an invalid subscriptions", async function() {
-
-            await assertRevert(txRegistryContract.createNewPayment("abc", subscriptionContract.address, future, 400, {from: accounts[0]}));
-
-        });
 
         it("should not be able to create with invalid details", async function() {
 
@@ -82,18 +76,74 @@ contract('MockTransactionRegistry', function(accounts) {
 
     });
 
-    describe("when claiming a payment", () => {
-
-
-    });
-
     describe("when executing a payment", () => {
 
+        it("should throw if being called from an unauthorized address", async function() {
+
+
+
+        });
+        
+        it("should not able to execute for a subscription that doesn't exist", async function() {
+
+
+
+        });
+
+        it("should not be able to set the duedate in the past", async function() {
+
+
+
+        });
+
+        it("should throw if trying to execute before the payment is due", async function() {
+
+
+
+        });
+
+        it('should return false if executing a payment after the specified execution period', async function() {
+
+
+
+        });
+
+        it("should be able to execute correctly", async function() {
+
+            
+
+        });
 
     });
 
-    describe("when updating for a future payment", () => {
+    describe("when removing a claimant", () => {
+    
+        it("should throw if being called from an unuthorized address", async function() {
 
+            
+
+        });
+
+        it("should be able to remove a claimant", async function() {
+
+
+        });
+    
+    });
+
+    describe("when cancelling a payment", ()=> {
+
+        it('should throw if being called from an unauthorized address', async function() {
+
+
+
+        });
+
+        it("should be able to cancel a payment", async function() {
+
+
+
+        });
 
     });
 

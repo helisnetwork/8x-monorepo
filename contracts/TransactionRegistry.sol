@@ -12,19 +12,15 @@ contract TransactionRegistry is Authorizable {
 
         uint duedate;
         uint lastPaymentDate;
+        uint stake;
 
         address claimant;
-        uint stake;
-        uint claimDate;
+        uint executionPeriod;
     }
 
     mapping (bytes32 => Payment) public payments;
-
+    
     uint public multiplier;
-
-    /**
-      * Modifiers
-    */
 
     /**
       * Public functions
@@ -34,9 +30,10 @@ contract TransactionRegistry is Authorizable {
       * @param _amount is the multiplier that would like to be set.
     */
     function setMultiplier(uint _amount) public onlyOwner {
-        multiplier = _amount;
-    } 
 
+        // @TODO: Implementation
+
+    } 
 
     /** @dev Create a new payment object when a user intially subscribes to a plan.
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectable contract interface).
@@ -59,38 +56,49 @@ contract TransactionRegistry is Authorizable {
 
     }
 
-    /** @dev Claim a payment to execute later on.
-      * @param _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
-    */
-    function claimPayment(bytes32 _subscriptionIdentifier) public onlyAuthorized {
-
-        // @TODO: Implementation
-
-    }
-
     /** @dev Executed the payment
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
+      * @param _duedate is the date for the next billing cycle. This is to set by the executor.
+      * @param _stake is how many 8x tokens are required to execute.
     */
-    function executePayment(bytes32 _subscriptionIdentifier) public onlyAuthorized {
-
-        // @TODO: Implementation
-
-    }
-
-    /** @dev This function resets the payment details for the next payment cycle. 
-             The reason for this being another funct */
-    function updateForNextPayment(
+    function executePayment(
         bytes32 _subscriptionIdentifier, 
         uint _duedate, 
         uint _stake
     ) 
         public 
-        onlyAuthorized 
+        onlyAuthorized
         returns (bool _success)
     {
 
         // @TODO: Implementation
 
     }
-    
+
+    /** @dev Allows a claimant to cancel their responsibility to process a transaction
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
+    */
+    function removeClaimant(bytes32 _subscriptionIdentifier) 
+        public
+        onlyAuthorized
+        returns (bool _sucess)
+    {
+
+        // @TODO: Implementation
+
+    }
+
+    /** @dev A payment was cancelled by the business or user
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
+    */
+    function cancelPayment(bytes32 _subscriptionIdentifier)
+        public
+        onlyAuthorized
+        returns (bool _sucess)
+    {
+
+        // @TODO: Implementation
+
+    }
+
 }
