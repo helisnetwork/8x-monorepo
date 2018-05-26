@@ -131,7 +131,7 @@ contract('MockTransactionRegistry', function(accounts) {
     
     });
 
-    describe("when cancelling a payment", ()=> {
+    describe("when cancelling a payment", () => {
 
         it('should throw if being called from an unauthorized address', async function() {
 
