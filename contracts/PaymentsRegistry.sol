@@ -86,7 +86,7 @@ contract PaymentsRegistry is Authorizable {
     function removeClaimant(bytes32 _subscriptionIdentifier) 
         public
         onlyAuthorized
-        returns (bool _sucess)
+        returns (bool _success)
     {
 
         // @TODO: Implementation
@@ -104,6 +104,21 @@ contract PaymentsRegistry is Authorizable {
 
         // @TODO: Implementation
 
+    }
+
+    function getPaymentInformation(bytes32 _subscriptionIdenitifer)
+        public
+        view
+        returns (
+            address subscriptionContract,
+            uint duedate,
+            uint lastPaymentDate,
+            uint stake,
+            address claimant,
+            uint executionPeriod
+        )
+    {
+        
     }
 
 }
