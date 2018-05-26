@@ -4,23 +4,23 @@ import keccak from './helpers/keccak.js';
 import { newSubscription } from './helpers/volume_subscription.js';
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
-var MockTransactionRegistry = artifacts.require('./tests/MockTransactionRegistry.sol');
+var MockPaymentsRegistry= artifacts.require('./tests/MockPaymentsRegistry.sol');
 var EightExToken = artifacts.require("./EightExToken.sol");
 
-contract('MockTransactionRegistry', function(accounts) {
+contract('MockPaymentsRegistry', function(accounts) {
 
-    let txRegistryContract;
+    let paymentsRegistry;
     let subscriptionContract;
     let tokenContract;
 
     before(async function() {
 
-        txRegistryContract = await MockTransactionRegistry.new({from: accounts[0]});
+        paymentsRegistry = await MockPaymentsRegistry.new({from: accounts[0]});
         subscriptionContract = await MockVolumeSubscription.new({from: accounts[0]});
         tokenContract = await EightExToken.new({from: accounts[0]});
 
         // Add accounts[0] as an authorized address
-        await txRegistryContract.addAuthorizedAddress(accounts[0], {from: accounts[0]});
+        await paymentsRegistry.addAuthorizedAddress(accounts[0], {from: accounts[0]});
 
     });
 
@@ -28,15 +28,15 @@ contract('MockTransactionRegistry', function(accounts) {
 
         it("should throw if someone other than the owner tries to set the multiplier", async function() {
 
-            await assertRevert(txRegistryContract.setMultiplier(2, {from: accounts[1]}));
+            await assertRevert(paymentsRegistry.setMultiplier(2, {from: accounts[1]}));
 
         });
 
         it("should be able to set the multiplier as the owner", async function() {
 
-            await txRegistryContract.setMultiplier(1, {from: accounts[0]});
+            await paymentsRegistry.setMultiplier(1, {from: accounts[0]});
 
-            let multiplier = await txRegistryContract.multiplier.call();
+            let multiplier = await paymentsRegistry.multiplier.call();
             assert.equal(multiplier, 1);
 
         });
@@ -53,23 +53,23 @@ contract('MockTransactionRegistry', function(accounts) {
 
             let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "payment.invalid.details", {from: accounts[0]});
 
-            await assertRevert(txRegistryContract.createNewPayment("abc", subscriptionContract.address, future, 400, {from: accounts[0]}));
-            await assertRevert(txRegistryContract.createNewPayment(subscriptionHash, subscriptionContract.address, now - 1000, 400, {from: accounts[0]}));
-            await assertRevert(txRegistryContract.createNewPayment(subscriptionHash, subscriptionContract.address, future, 0, {from: accounts[0]}));
+            await assertRevert(paymentsRegistry.createNewPayment("abc", subscriptionContract.address, future, 400, {from: accounts[0]}));
+            await assertRevert(paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, now - 1000, 400, {from: accounts[0]}));
+            await assertRevert(paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, future, 0, {from: accounts[0]}));
 
         });
 
         it("should not be able to create as an unauthorized address", async function() {
 
             let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "payment.invalid");
-            await assertRevert(txRegistryContract.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[1]})); 
+            await assertRevert(paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[1]})); 
 
         });
 
         it("should be able to create a valid new payment", async function() {
 
             let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "payment.valid");
-            let result = await txRegistryContract.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[0]});
+            let result = await paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[0]});
             assert(result);
 
         });
