@@ -56,7 +56,7 @@ contract('MockPaymentsRegistry', function(accounts) {
 
         it("should not be able to create with invalid details", async function() {
 
-            let subscriptionHash = await subscriptionContract.newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.invalid.details", {from: accounts[0]});
+            let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.invalid.details", {from: accounts[0]});
 
             await assertRevert(paymentsRegistry.createNewPayment("abc", subscriptionContract.address, future, 400, {from: accounts[0]}));
             await assertRevert(paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, now - 1000, 400, {from: accounts[0]}));
@@ -66,14 +66,14 @@ contract('MockPaymentsRegistry', function(accounts) {
 
         it("should not be able to create as an unauthorized address", async function() {
 
-            let subscriptionHash = await subscriptionContract.newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.unauthorized");
+            let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.unauthorized");
             await assertRevert(paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[1]})); 
 
         });
 
         it("should be able to create a valid new payment", async function() {
 
-            let subscriptionHash = await subscriptionContract.newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.valid");
+            let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.valid");
             let result = await paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[0]});
             assert(result);
 
@@ -87,7 +87,7 @@ contract('MockPaymentsRegistry', function(accounts) {
         let result;
 
         before(async function() {
-            subscriptionHash = await subscriptionContract.newSubscription(subscriptionContract, tokenContract.address, accounts[0], "process.valid");
+            subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "process.valid");
             result = await paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, oneMonthLater, 400, {from: accounts[0]});
         });
         
@@ -127,7 +127,7 @@ contract('MockPaymentsRegistry', function(accounts) {
 
             // @TODO: We need to make sure that the claimant is set and the execution period is calculated properly.
             // @TODO: Check for the success return parameter.
-            assert(result._sucess);
+            assert(result._success);
 
         });
 
@@ -158,19 +158,19 @@ contract('MockPaymentsRegistry', function(accounts) {
         let result;
 
         before(async function() {
-            subscriptionHash = await subscriptionContract.newSubscription(subscriptionContract, tokenContract.address, accounts[0], "remove");
+            subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "remove");
             result = await paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, oneMonthLater, 400, {from: accounts[0]});
         });
     
         it("should throw if being called from an unuthorized address", async function() {
 
-            await assertRevert(paymentsRegistry.removeClaimant(subscriptionContract, {from: accounts[1]}));
+            await assertRevert(paymentsRegistry.removeClaimant(subscriptionHash, {from: accounts[1]}));
 
         });
 
         it("should be able to remove a claimant", async function() {
 
-            await paymentsRegistry.removeClaimant(subscriptionContract, {from: accounts[0]});
+            await paymentsRegistry.removeClaimant(subscriptionHash, {from: accounts[0]});
             // @TODO: Check the logs for the claimant removed log event.
 
         });
@@ -183,9 +183,10 @@ contract('MockPaymentsRegistry', function(accounts) {
         let result;
 
         before(async function() {
-            subscriptionHash = await subscriptionContract.newSubscription(subscriptionContract, tokenContract.address, accounts[0], "cancel");
+            subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "cancel");
             result = await paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, oneMonthLater, 400, {from: accounts[0]});
         });
+
         it('should throw if being called from an unauthorized address', async function() {
 
             await assertRevert(paymentsRegistry.cancelPayment(subscriptionHash, {from: accounts[1]}));
