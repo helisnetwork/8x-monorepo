@@ -180,7 +180,9 @@ contract('MockPaymentsRegistry', function(accounts) {
 
         it("should be able to cancel a payment", async function() {
 
-            await paymentsRegistry.cancelPayment(subscriptionHash, {from: accounts[0]});
+            let result = await paymentsRegistry.cancelPayment(subscriptionHash, {from: accounts[0]});
+            // @TODO: Check for the success return parameter.
+            assert(result);
 
         });
 
