@@ -25,7 +25,7 @@ contract Executor is Ownable {
     {
         transferProxy = TransferProxy(_proxyAddress);
     }
-    
+
 
     /** @dev Collect the payment due from the subscriber.
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectable contract interface).
@@ -35,7 +35,7 @@ contract Executor is Ownable {
         public
         returns (bool _success)
     {
-        
+
         Collectable collectableContract = Collectable(_subscriptionContract);
         require(collectableContract.isValidSubscription(_subscriptionIdentifier) == true); // Check if the subscription hasn't been cancelled
 

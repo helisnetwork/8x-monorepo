@@ -12,7 +12,7 @@ contract EightExToken is StandardToken, Ownable {
 
     uint constant MAX_UINT = 2**256 - 1;
 
-    constructor() public {
+    function EightExToken() public {
         balances[msg.sender] = totalSupply;
     }
 

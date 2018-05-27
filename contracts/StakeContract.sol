@@ -24,7 +24,7 @@ contract StakeContract is Authorizable {
       * Public functions
     */
 
-    constructor(address _tokenAddress) public {
+    function StakeContract(address _tokenAddress) public {
         tokenContract = EightExToken(_tokenAddress);
     }
 

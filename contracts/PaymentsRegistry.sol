@@ -19,7 +19,7 @@ contract PaymentsRegistry is Authorizable {
     }
 
     mapping (bytes32 => Payment) public payments;
-    
+
     uint public multiplier;
 
     event PaymentCreated(bytes32 _subscriptionIdentifer);
@@ -38,7 +38,7 @@ contract PaymentsRegistry is Authorizable {
 
         // @TODO: Implementation
 
-    } 
+    }
 
     /** @dev Create a new payment object when a user intially subscribes to a plan.
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectable contract interface).
@@ -47,11 +47,11 @@ contract PaymentsRegistry is Authorizable {
       * @param _stake is how much the processors has staked in order to have the right to process the transaction.
     */
     function createNewPayment(
-        bytes32 _subscriptionIdentifier, 
+        bytes32 _subscriptionIdentifier,
         address _subscriptionContract,
         uint _duedate,
         uint _stake)
-    
+
         public
         onlyAuthorized
         returns (bool _success)
@@ -67,11 +67,11 @@ contract PaymentsRegistry is Authorizable {
       * @param _stake is how many 8x tokens are required to process.
     */
     function processPayment(
-        bytes32 _subscriptionIdentifier, 
-        uint _duedate, 
+        bytes32 _subscriptionIdentifier,
+        uint _duedate,
         uint _stake
-    ) 
-        public 
+    )
+        public
         onlyAuthorized
         returns (bool _success)
     {
@@ -83,7 +83,7 @@ contract PaymentsRegistry is Authorizable {
     /** @dev Allows a claimant to cancel their responsibility to process a transaction
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
     */
-    function removeClaimant(bytes32 _subscriptionIdentifier) 
+    function removeClaimant(bytes32 _subscriptionIdentifier)
         public
         onlyAuthorized
         returns (bool _success)
@@ -118,7 +118,7 @@ contract PaymentsRegistry is Authorizable {
             uint executionPeriod
         )
     {
-        
+
     }
 
 }
