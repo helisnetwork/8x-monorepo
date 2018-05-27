@@ -4,7 +4,7 @@ import "./Authorizable.sol";
 
 contract Collectable is Authorizable {
 
-    function isValidSubscription(bytes32 _subscription) 
+    function isValidSubscription(bytes32 _subscription)
         view
         public
         returns (bool _success);
@@ -24,11 +24,11 @@ contract Collectable is Authorizable {
         public
         returns (uint _balance);
 
-    function getAmountDueFromSubscription(bytes32 _subscription) 
+    function getAmountDueFromSubscription(bytes32 _subscription)
         view
         public
         returns (uint _amount);
-    
+
     function getSubscriptionFee(bytes32 _subscription)
         view
         public
