@@ -212,7 +212,7 @@ contract VolumeSubscription is Collectable {
         require(_fee >= 0);
         require(_fee <= _amount); // Make sure that fee is at the most equal to but never greater than the amount
 
-        bytes32 newPlanHash = keccak256(_owner, _identifier);
+        bytes32 newPlanHash = keccak256(abi.encodePacked(_owner, _identifier));
         require(plans[newPlanHash].owner == 0x0);
 
         Plan memory newPlan = Plan({
@@ -258,7 +258,7 @@ contract VolumeSubscription is Collectable {
 
         address planTokenAddress = getPlanTokenAddress(_planHash);
 
-        bytes32 newSubscriptionHash = keccak256(_owner, _planHash);
+        bytes32 newSubscriptionHash = keccak256(abi.encodePacked(_owner, _planHash));
 
         require(subscriptions[newSubscriptionHash].owner == 0x0);
         require(planTokenAddress != 0x0);
