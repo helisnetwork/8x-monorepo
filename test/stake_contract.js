@@ -76,7 +76,7 @@ contract('StakeContract', function(accounts) {
         it("should be able to slash a staked amount of tokens", async function() {
 
             await stakeContract.slashTokens(thirdAccount, 50, {from: firstAccount});
-        
+
         });
 
     });
@@ -86,27 +86,27 @@ contract('StakeContract', function(accounts) {
         it("should throw if the user tries to withdraw staked tokens", async function() {
 
             await assertRevert(stakeContract.withdrawStake(50, {from: firstAccount}));
-    
+
         });
 
         it("should throw if the user tries to unstake more tokens than they have staked", async function() {
 
             await assertRevert(stakeContract.unstakeTokens(thirdAccount, 100, {from: firstAccount}));
-    
+
         });
-        
+
         it("should throw when an unauthorized address tries to unstake a user's tokens", async function() {
-    
+
             await assertRevert(stakeContract.unstakeTokens(thirdAccount, 50, {from: fourthAccount}));
-    
+
         });
-    
+
         it("should be able to unstake a user's tokens from an authorized address", async function() {
-    
+
             await stakeContract.unstakeTokens(thirdAccount, 50, {from: firstAccount});
             let availableAmount = await stakeContract.getAvailableStake(thirdAccount);
             assert.equal(availableAmount.toNumber(), 50);
-    
+
         });
 
     });

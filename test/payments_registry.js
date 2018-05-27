@@ -46,7 +46,7 @@ contract('MockPaymentsRegistry', function(accounts) {
             assert.equal(multiplier, 1);
 
         });
-    
+
 
     })
 
@@ -67,7 +67,7 @@ contract('MockPaymentsRegistry', function(accounts) {
         it("should not be able to create as an unauthorized address", async function() {
 
             let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.unauthorized");
-            await assertRevert(paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[1]})); 
+            await assertRevert(paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[1]}));
 
         });
 
@@ -90,7 +90,7 @@ contract('MockPaymentsRegistry', function(accounts) {
             subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "process.valid");
             result = await paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, oneMonthLater, 400, {from: accounts[0]});
         });
-        
+
         it("should not able to execute for a subscription that doesn't exist", async function() {
 
             await assertRevert(paymentsRegistry.processPayment("abc", twoMonthsLater, 400, {from: accounts[0]}));
@@ -161,7 +161,7 @@ contract('MockPaymentsRegistry', function(accounts) {
             subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "remove");
             result = await paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, oneMonthLater, 400, {from: accounts[0]});
         });
-    
+
         it("should throw if being called from an unuthorized address", async function() {
 
             await assertRevert(paymentsRegistry.removeClaimant(subscriptionHash, {from: accounts[1]}));
@@ -174,7 +174,7 @@ contract('MockPaymentsRegistry', function(accounts) {
             // @TODO: Check the logs for the claimant removed log event.
 
         });
-    
+
     });
 
     describe("when cancelling a payment", () => {
