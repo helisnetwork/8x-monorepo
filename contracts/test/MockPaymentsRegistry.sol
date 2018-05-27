@@ -13,9 +13,10 @@ contract MockPaymentsRegistry is PaymentsRegistry {
       *
     */
 
-    function currentTimestamp() 
+    function currentTimestamp()
         internal
-        returns (uint _timetstamp) 
+        view
+        returns (uint _timetstamp)
     {
         return currentTime;
     }
@@ -23,7 +24,7 @@ contract MockPaymentsRegistry is PaymentsRegistry {
     /** @dev Set the time in the contract
       *
     */
-    
+
     function setTime(uint _time)
         public
     {
@@ -33,7 +34,7 @@ contract MockPaymentsRegistry is PaymentsRegistry {
     /** @dev Turn back the time in the contract
       *
     */
-    
+
     function turnBackTime(uint _seconds)
         public
     {

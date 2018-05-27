@@ -350,8 +350,8 @@ contract VolumeSubscription is Collectable {
     */
 
     function getPlan(bytes32 _plan)
-        view
         public
+        view
         returns (
             address _owner,
             string _identifier,
@@ -491,8 +491,8 @@ contract VolumeSubscription is Collectable {
     */
 
     function getSubscription(bytes32 _subscription)
-        view
         public
+        view
         returns (
             address _owner,
             bytes32 _planHash,
@@ -599,6 +599,7 @@ contract VolumeSubscription is Collectable {
 
     function currentTimestamp()
         internal
+        view
         returns (uint _timetstamp)
     {
         return block.timestamp;
