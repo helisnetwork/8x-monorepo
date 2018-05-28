@@ -77,7 +77,7 @@ contract Authorizable is Ownable {
     /** @dev Gets all authorized addresses.
       * @return Array of authorized addresses.
     */
-    
+
     function getAuthorizedAddresses()
         public
         constant

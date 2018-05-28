@@ -14,7 +14,7 @@ contract('VolumeSubscription', function(accounts) {
 
         contract = await MockVolumeSubscription.new({from: accounts[0]});
         token = await EightExToken.new({from: accounts[0]});
-        
+
     });
 
     /**
@@ -27,20 +27,20 @@ contract('VolumeSubscription', function(accounts) {
 
             let owner = await contract.owner.call();
             assert.equal(owner, accounts[0]);
-        
+
         });
 
         it("should have the correct computed subscription hash", async function() {
 
             let hashes = await newSubscriptionFull(contract, token.address, accounts[0], "check.hash");
-    
+
             let computedHash = keccak(
             ["address", "bytes32"],
             [accounts[0], hashes[0]]
             );
-        
+
             assert.equal(hashes[1], computedHash);
-    
+
         });
 
     });
@@ -58,33 +58,33 @@ contract('VolumeSubscription', function(accounts) {
             let now = Date.now();
             now = parseInt(now/1000);
 
-            // When creating a new subscription this already happens but we want to be extra sure 
+            // When creating a new subscription this already happens but we want to be extra sure
             // that the values align and to eliminate any time differences taken when running the tests
-    
+
             await contract.setTime(now);
 
             await contract.addAuthorizedAddress(accounts[0], {from: accounts[0]});
 
             let termination = await contract.terminateSubscriptionDueToInsufficientFunds(subscriptionHash, {from: accounts[0]});
             assert.equal(termination.logs[0].args.terminationDate, now);
-        
+
             let terminationDate = await contract.getSubscriptionTerminationDate(subscriptionHash);
             assert.equal(terminationDate.toNumber(), now);
-            
+
         });
 
         it("should be not be able to terminate as an unauthorized address", async function() {
-            
+
             let subscriptionHash = await newSubscription(contract, token.address, accounts[0], "collect.terminate.unauthorized");
             await assertRevert(contract.terminateSubscriptionDueToInsufficientFunds(subscriptionHash, {from: accounts[1]}));
-            
+
         });
 
         it("should be able to determine a valid subscription", async function() {
 
             let subscriptionHash = await newSubscription(contract, token.address, accounts[0], "collect.isValid");
             let isValid = await contract.isValidSubscription(subscriptionHash);
-            
+
             assert(isValid);
 
         });
@@ -97,11 +97,11 @@ contract('VolumeSubscription', function(accounts) {
             await contract.terminateSubscriptionDueToInsufficientFunds(subscriptionHash, {from: accounts[1]});
 
             let isValid = await contract.isValidSubscription(subscriptionHash);
-            
+
             assert(!isValid);
-            
+
         });
-        
+
         it("should be able to get the correct amount", async function() {
 
             let subscriptionHash = await newSubscription(contract, token.address, accounts[0], "collect.amount.correct");
@@ -175,7 +175,7 @@ contract('VolumeSubscription', function(accounts) {
 
             owner = await contract.getPlanOwner(planHash);
             assert.equal(owner, accounts[0]);
-        
+
         });
 
         it("should be not be able to update the owner as another user", async function () {
@@ -184,29 +184,29 @@ contract('VolumeSubscription', function(accounts) {
             await assertRevert(contract.setPlanOwner(planHash, accounts[1], {from: accounts[1]}));
 
         });
-    
+
     });
 
     describe("when updating the name of a plan", () => {
 
         it("should be able to update as the owner", async function() {
-            
+
             let planHash = await newPlan(contract, token.address, accounts[0], "plan.name.owner");
 
             let savedPlan = await contract.getPlan.call(planHash)
 
             await contract.setPlanName(planHash, "Another test", {from: accounts[0]});
 
-            let name = await contract.getPlanName(planHash); 
+            let name = await contract.getPlanName(planHash);
             assert.equal(name, "Another test");
-        
+
         });
 
         it("should be not be able to update as another user", async function () {
 
             let planHash = await newPlan(contract, token.address, accounts[0], "plan.name.otherUser");
             await assertRevert(contract.setPlanName(planHash, "Another test", {from: accounts[1]}));
-            
+
         });
 
     });
@@ -221,7 +221,7 @@ contract('VolumeSubscription', function(accounts) {
 
             let description = await contract.getPlanDescription(planHash);
             assert.equal(description, "Test description");
-        
+
         });
 
         it("should be not be able to update as another user", async function () {
@@ -241,18 +241,18 @@ contract('VolumeSubscription', function(accounts) {
             let planHash = await newPlan(contract, token.address, accounts[0], "plan.data.owner");
 
             await contract.setPlanData(planHash, "{hey: there}");
-        
+
             let data = await contract.getPlanData(planHash);
             assert.equal(data, "{hey: there}");
-            
+
         });
-        
+
         it("should be not be able to update as another user", async function () {
-        
+
             let planHash = await newPlan(contract, token.address, accounts[0], "plan.data.otherUser");
 
             await assertRevert(contract.setPlanData(planHash, "{hey: there}", {from: accounts[1]}));
-        
+
         });
 
     });
@@ -271,7 +271,7 @@ contract('VolumeSubscription', function(accounts) {
 
             let terminationDate = await contract.getPlanTerminationDate(planHash);
             assert.equal(terminationDate, now);
-          
+
         });
 
         it("should not be able to terminate multiple times", async function() {
@@ -288,7 +288,7 @@ contract('VolumeSubscription', function(accounts) {
             await assertRevert(contract.terminatePlan(planHash, secondDate));
 
         });
-        
+
         it("should not be able to terminate from a date in the past", async function() {
 
             let planHash = await newPlan(contract, token.address, accounts[0], "plan.terminate.past");
@@ -308,9 +308,9 @@ contract('VolumeSubscription', function(accounts) {
             now = now/1000;
 
             await assertRevert(contract.terminatePlan(planHash, now, {from: accounts[1]}));
-          
+
         });
-    
+
     });
 
     describe("when updating the data of a subscription", () => {
@@ -319,10 +319,10 @@ contract('VolumeSubscription', function(accounts) {
 
             let subscriptionHash = await newSubscription(contract, token.address, accounts[0], "subscription.data.owner");
             await contract.setSubscriptionData(subscriptionHash, "{hey: there}", {from: accounts[0]});
-        
+
             let data = await contract.getSubscriptionData(subscriptionHash);
             assert.equal(data, "{hey: there}");
-            
+
         });
 
         it("should be not be able to update as another user", async function () {
@@ -346,48 +346,48 @@ contract('VolumeSubscription', function(accounts) {
 
             let now = Date.now();
             now = parseInt(now/1000);
-        
+
             let termination = await contract.terminateSubscription(subscriptionHash, now);
             assert.equal(termination.logs[0].args.terminationDate, now);
-        
+
             let terminationDate = await contract.getSubscriptionTerminationDate(subscriptionHash);
             assert.equal(terminationDate, now);
-            
+
         });
 
         it("should not be able to terminate multiple times", async function() {
-        
+
             let subscriptionHash = await newSubscription(contract, token.address, accounts[0], "subscription.terminate.multiple");
 
             let now = Date.now();
             now = parseInt(now/1000);
-        
+
             let secondDate = parseInt(now/1000)+60;
-        
+
             await contract.terminateSubscription(subscriptionHash, now);
             await assertRevert(contract.terminateSubscription(subscriptionHash, secondDate));
         });
-        
+
         it("should not be able to terminate from a date in the past", async function() {
-        
+
             let subscriptionHash = await newSubscription(contract, token.address, accounts[0], "subscription.terminate.past");
 
             let now = Date.now();
             let past = parseInt(now/1000) - 60;
-        
+
             await assertRevert(contract.terminateSubscription(subscriptionHash, past));
-        
+
         });
-        
+
         it("should not be able to terminate as another user", async function () {
-        
+
             let subscriptionHash = await newSubscription(contract, token.address, accounts[0], "subscription.terminate.otherUser");
 
             let now = Date.now();
             now = now/1000;
-        
+
             await assertRevert(contract.terminateSubscription(subscriptionHash, now, {from: accounts[1]}));
-            
+
         });
 
     });
