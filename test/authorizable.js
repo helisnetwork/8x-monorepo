@@ -10,7 +10,7 @@ contract('Authorizable', function(accounts) {
         authorizableContract = await Authorizable.new({from: accounts[0]});
     });
 
-    describe("when adding an authorized address", () => { 
+    describe("when adding an authorized address", () => {
 
         it("should throw if not called by the owner", async function() {
             // Accounts[1] shouldn't be able to add Accounts[1] since it's not authorized
@@ -32,7 +32,7 @@ contract('Authorizable', function(accounts) {
 
     });
 
-    describe("when removing an authorized address", () => { 
+    describe("when removing an authorized address", () => {
 
         it("should throw if not called by the owner", async function() {
             // Accounts[1] shouldn't be able to remove Accounts[0] since it's not authorized
@@ -62,7 +62,7 @@ contract('Authorizable', function(accounts) {
             assert.equal(initialCount.length, 0);
 
             await authorizableContract.addAuthorizedAddress(accounts[0], {from: accounts[0]});
-            
+
             let secondCount = await authorizableContract.getAuthorizedAddresses();
             assert.equal(secondCount.length, 1);
 

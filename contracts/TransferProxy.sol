@@ -31,5 +31,5 @@ contract TransferProxy is Authorizable {
     {
         return ERC20(token).transferFrom(from, to, value);
     }
-    
+
 }

@@ -24,7 +24,7 @@ contract StakeContract is Authorizable {
       * Public functions
     */
 
-    function StakeContract(address _tokenAddress) public {
+    constructor(address _tokenAddress) public {
         tokenContract = EightExToken(_tokenAddress);
     }
 
@@ -32,7 +32,7 @@ contract StakeContract is Authorizable {
       * @param _staker is the processors who is staking thier tokens.
       * @param _amount is how much they would like to stake;
     */
-    function stakeTokens(address _staker, uint _amount) 
+    function stakeTokens(address _staker, uint _amount)
         public
         onlyAuthorized
     {
@@ -44,7 +44,7 @@ contract StakeContract is Authorizable {
     /** @dev When the processor executes a transaction their tokens are unstaked.
       * @param _staker is the processors who is staking thier tokens.
       * @param _amount is how much they would like to unstake;
-    */   
+    */
     function unstakeTokens(address _staker, uint _amount)
         public
         onlyAuthorized
@@ -59,7 +59,7 @@ contract StakeContract is Authorizable {
     /** @dev When the processor doesn't execute a transaction they claimed their tokens are slashed.
       * @param _staker is the processors who's tokens need to be slashed.
       * @param _amount is how many tokens need to be slashed.
-    */ 
+    */
     function slashTokens(address _staker, uint _amount)
         public
         onlyAuthorized
@@ -72,12 +72,12 @@ contract StakeContract is Authorizable {
         stakes[_staker].lockedUp -= _amount;
 
         // @TODO: Actually slash the tokens somehow?
-        
+
     }
-    
+
     /** @dev Check how many tokens the processor has available to stake at this moment.
       * @param _staker is the processor who you would like to return the total available for.
-    */ 
+    */
     function getAvailableStake(address _staker)
         public
         view
@@ -91,11 +91,11 @@ contract StakeContract is Authorizable {
     // @TODO: Try to use ERC223 or something instead.
     /** @dev Top up your stake once you've given the stakeContract approval to transfer your funds.
       * @param _amount is how much you would like to withdraw (that's available).
-    */ 
+    */
     function topUpStake(uint _amount)
         public
         returns (bool _success)
-    {  
+    {
         if (tokenContract.transferFrom(msg.sender, address(this), _amount)) {
             stakes[msg.sender].total += _amount;
             return true;
@@ -106,8 +106,8 @@ contract StakeContract is Authorizable {
 
     /** @dev Withdraw your stake from the stake contract.
       * @param _amount is how much you would like to withdraw (that's available)..
-    */ 
-    function withdrawStake(uint _amount) 
+    */
+    function withdrawStake(uint _amount)
         public
     {
 
@@ -116,7 +116,7 @@ contract StakeContract is Authorizable {
 
         stakes[msg.sender].total -= _amount;
         tokenContract.transfer(msg.sender, _amount);
-        
+
     }
 
 }

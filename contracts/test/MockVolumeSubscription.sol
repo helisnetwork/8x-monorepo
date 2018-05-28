@@ -13,9 +13,10 @@ contract MockVolumeSubscription is VolumeSubscription {
       *
     */
 
-    function currentTimestamp() 
+    function currentTimestamp()
         internal
-        returns (uint _timetstamp) 
+        view
+        returns (uint _timetstamp)
     {
         return currentTime;
     }
@@ -23,7 +24,7 @@ contract MockVolumeSubscription is VolumeSubscription {
     /** @dev Set the time in the contract
       *
     */
-    
+
     function setTime(uint _time)
         public
     {
@@ -33,7 +34,7 @@ contract MockVolumeSubscription is VolumeSubscription {
     /** @dev Turn back the time in the contract
       *
     */
-    
+
     function turnBackTime(uint _seconds)
         public
     {

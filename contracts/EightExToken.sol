@@ -4,7 +4,7 @@ import "./base/token/StandardToken.sol";
 import "./base/ownership/Ownable.sol";
 
 contract EightExToken is StandardToken, Ownable {
-    
+
     uint8 constant public decimals = 18;
     uint public totalSupply = 10**27; // 1 billion tokens, 18 decimal places
     string constant public name = "8x Protocol Token";
@@ -12,7 +12,7 @@ contract EightExToken is StandardToken, Ownable {
 
     uint constant MAX_UINT = 2**256 - 1;
 
-    function EightExToken() public {
+    constructor() public {
         balances[msg.sender] = totalSupply;
     }
 
@@ -37,7 +37,7 @@ contract EightExToken is StandardToken, Ownable {
             if (allowance < MAX_UINT) {
                 allowed[_from][msg.sender] -= _value;
             }
-            Transfer(_from, _to, _value);
+            emit Transfer(_from, _to, _value);
             return true;
         } else {
             return false;
