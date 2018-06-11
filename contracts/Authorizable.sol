@@ -14,13 +14,13 @@ contract Authorizable is Ownable {
         _;
     }
 
-    modifier targetAuthorized(address target) {
-        require(authorized[target]);
+    modifier targetAuthorized(address _target) {
+        require(authorized[_target]);
         _;
     }
 
-    modifier targetNotAuthorized(address target) {
-        require(!authorized[target]);
+    modifier targetNotAuthorized(address _target) {
+        require(!authorized[_target]);
         _;
     }
 
@@ -35,39 +35,39 @@ contract Authorizable is Ownable {
     */
 
     /** @dev Authorizes an address.
-      * @param target Address to authorize.
+      * @param _target Address to authorize.
     */
 
-    function addAuthorizedAddress(address target)
+    function addAuthorizedAddress(address _target)
         public
         onlyOwner
-        targetNotAuthorized(target)
+        targetNotAuthorized(_target)
     {
-        authorized[target] = true;
-        authorities.push(target);
+        authorized[_target] = true;
+        authorities.push(_target);
 
-        emit LogAuthorizedAddressAdded(target, msg.sender);
+        emit LogAuthorizedAddressAdded(_target, msg.sender);
     }
 
     /** @dev Removes authorizion of an address.
-      * @param target Address to remove authorization from.
+      * @param _target Address to remove authorization from.
     */
 
-    function removeAuthorizedAddress(address target)
+    function removeAuthorizedAddress(address _target)
         public
         onlyOwner
-        targetAuthorized(target)
+        targetAuthorized(_target)
     {
-        delete authorized[target];
+        delete authorized[_target];
         for (uint i = 0; i < authorities.length; i++) {
-            if (authorities[i] == target) {
+            if (authorities[i] == _target) {
                 authorities[i] = authorities[authorities.length - 1];
                 authorities.length -= 1;
                 break;
             }
         }
 
-        emit LogAuthorizedAddressRemoved(target, msg.sender);
+        emit LogAuthorizedAddressRemoved(_target, msg.sender);
     }
 
     /*
