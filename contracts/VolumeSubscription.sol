@@ -212,8 +212,8 @@ contract VolumeSubscription is Collectable {
         require(_fee >= 0);
         require(_fee <= _amount); // Make sure that fee is at the most equal to but never greater than the amount
 
-        bytes32 hashedPlan = keccak256(abi.encodePacked(_owner, _identifier));
-        require(plans[hashedPlan].owner == 0x0);
+        bytes32 planHash = keccak256(abi.encodePacked(_owner, _identifier));
+        require(plans[planHash].owner == 0x0);
 
         Plan memory newPlan = Plan({
             owner: _owner,
@@ -228,11 +228,11 @@ contract VolumeSubscription is Collectable {
             data: _data
         });
 
-        plans[hashedPlan] = newPlan;
+        plans[planHash] = newPlan;
 
-        emit CreatedPlan(hashedPlan);
+        emit CreatedPlan(planHash);
 
-        return hashedPlan;
+        return planHash;
     }
 
     /** dev This is the function for creating a new subscription.
