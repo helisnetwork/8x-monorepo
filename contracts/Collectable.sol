@@ -7,32 +7,32 @@ contract Collectable is Authorizable {
     function isValidSubscription(bytes32 _subscription)
         view
         public
-        returns (bool _success);
+        returns (bool success);
 
     function getSubscriptionTokenAddress(bytes32 _subscription)
         view
         public
-        returns (address _address);
+        returns (address subscriptionTokenAddress);
 
     function getSubscriptionFromToAddresses(bytes32 _subscription)
         view
         public
-        returns (address _from, address _to);
+        returns (address from, address to);
 
     function getSubscriptionOwnerBalance(bytes32 _subscription)
         view
         public
-        returns (uint _balance);
+        returns (uint balance);
 
     function getAmountDueFromSubscription(bytes32 _subscription)
         view
         public
-        returns (uint _amount);
+        returns (uint amount);
 
     function getSubscriptionFee(bytes32 _subscription)
         view
         public
-        returns (uint _fee);
+        returns (uint fee);
 
     function terminateSubscriptionDueToInsufficientFunds(bytes32 _subscription) onlyAuthorized public;
 
