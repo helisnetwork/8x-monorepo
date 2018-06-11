@@ -81,7 +81,7 @@ contract StakeContract is Authorizable {
     function getAvailableStake(address _staker)
         public
         view
-        returns (uint _available)
+        returns (uint available)
     {
 
         return (stakes[_staker].total - stakes[_staker].lockedUp);
@@ -94,7 +94,7 @@ contract StakeContract is Authorizable {
     */
     function topUpStake(uint _amount)
         public
-        returns (bool _success)
+        returns (bool success)
     {
         if (tokenContract.transferFrom(msg.sender, address(this), _amount)) {
             stakes[msg.sender].total += _amount;

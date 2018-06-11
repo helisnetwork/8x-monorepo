@@ -33,7 +33,7 @@ contract Executor is Ownable {
     */
     function collectPayment(address _subscriptionContract, bytes32 _subscriptionIdentifier)
         public
-        returns (bool _success)
+        returns (bool success)
     {
 
         Collectable collectableContract = Collectable(_subscriptionContract);
