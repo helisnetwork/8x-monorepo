@@ -13,23 +13,23 @@ contract TransferProxy is Authorizable {
     */
 
     /** @dev Calls into ERC20 Token contract, invoking transferFrom.
-      * @param token Address of token to transfer.
-      * @param from Address to transfer token from.
-      * @param to Address to transfer token to.
-      * @param value Amount of token to transfer.
+      * @param _token Address of token to transfer.
+      * @param _from Address to transfer token from.
+      * @param _to Address to transfer token to.
+      * @param _value Amount of token to transfer.
       * @return Success of transfer.
     */
 
     function transferFrom(
-        address token,
-        address from,
-        address to,
-        uint value)
+        address _token,
+        address _from,
+        address _to,
+        uint _value)
         public
         onlyAuthorized
-        returns (bool)
+        returns (bool success)
     {
-        return ERC20(token).transferFrom(from, to, value);
+        return ERC20(_token).transferFrom(_from, _to, _value);
     }
 
 }

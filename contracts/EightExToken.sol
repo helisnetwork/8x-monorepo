@@ -25,7 +25,7 @@ contract EightExToken is StandardToken, Ownable {
 
     function transferFrom(address _from, address _to, uint _value)
         public
-        returns (bool)
+        returns (bool success)
     {
         uint allowance = allowed[_from][msg.sender];
         if (balances[_from] >= _value
