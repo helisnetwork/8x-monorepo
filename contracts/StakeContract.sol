@@ -64,7 +64,7 @@ contract StakeContract is Authorizable {
         public
         onlyAuthorized
     {
-        // Make sure than an authorized address can't slash more tokens then they actually have locked up.
+        // Make sure that an authorized address can't slash more tokens then they actually have locked up.
         require(stakes[_staker].lockedUp >= _amount);
 
         // Reduce the total amount first
