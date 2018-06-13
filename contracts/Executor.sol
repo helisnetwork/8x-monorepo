@@ -39,8 +39,7 @@ contract Executor is Ownable {
         Collectable collectableContract = Collectable(_subscriptionContract);
         require(collectableContract.isValidSubscription(_subscriptionIdentifier) == true); // Check if the subscription hasn't been cancelled
 
-        address tokenAddress = collectableContract.getSubscriptionTokenAddress(
-            );
+        address tokenAddress = collectableContract.getSubscriptionTokenAddress(_subscriptionIdentifier);
 
         address from;
         address to;
