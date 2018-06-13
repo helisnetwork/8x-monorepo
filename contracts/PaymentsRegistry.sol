@@ -40,7 +40,7 @@ contract PaymentsRegistry is Authorizable {
 
     }
 
-    /** @dev Create a new payment object when a user intially subscribes to a plan.
+    /** @dev Create a new payment object when a user initially subscribes to a plan.
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectable contract interface).
       * @param _subscriptionIdentifier is the identifier o f that customer's subscription with it's relevant details.
       * @param _dueDate is when the payment is meant to be paid by.
