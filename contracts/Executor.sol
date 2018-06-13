@@ -29,7 +29,7 @@ contract Executor is Ownable {
 
     /** @dev Collect the payment due from the subscriber.
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectable contract interface).
-      * @param _subscriptionIdentifier is the identifier of that customer's subscription with it's relevant details.
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function collectPayment(address _subscriptionContract, bytes32 _subscriptionIdentifier)
         public
@@ -39,7 +39,8 @@ contract Executor is Ownable {
         Collectable collectableContract = Collectable(_subscriptionContract);
         require(collectableContract.isValidSubscription(_subscriptionIdentifier) == true); // Check if the subscription hasn't been cancelled
 
-        address tokenAddress = collectableContract.getSubscriptionTokenAddress(_subscriptionIdentifier);
+        address tokenAddress = collectableContract.getSubscriptionTokenAddress(
+            );
 
         address from;
         address to;
