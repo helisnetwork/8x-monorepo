@@ -7,7 +7,15 @@ import "./base/ownership/Ownable.sol";
 
 contract Authorizable is Ownable {
 
-    /** @dev Only authorized addresses can invoke functions with this modifier. */
+    mapping (address => bool) public authorized;
+    address[] public authorities;
+
+    event LogAuthorizedAddressAdded(address indexed target, address indexed caller);
+    event LogAuthorizedAddressRemoved(address indexed target, address indexed caller);
+
+    /**
+     * Modifiers
+    */
 
     modifier onlyAuthorized {
         require(authorized[msg.sender]);
@@ -23,12 +31,6 @@ contract Authorizable is Ownable {
         require(!authorized[_target]);
         _;
     }
-
-    mapping (address => bool) public authorized;
-    address[] public authorities;
-
-    event LogAuthorizedAddressAdded(address indexed target, address indexed caller);
-    event LogAuthorizedAddressRemoved(address indexed target, address indexed caller);
 
     /**
      * Public functions
