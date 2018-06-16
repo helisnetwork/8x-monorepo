@@ -75,7 +75,7 @@ contract('MockPaymentsRegistry', function(accounts) {
 
             let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.valid");
             let result = await paymentsRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[0]});
-            assert(result);
+            assert.equal(result, true);
 
         });
 
@@ -93,21 +93,21 @@ contract('MockPaymentsRegistry', function(accounts) {
 
         it("should not able to execute for a subscription that doesn't exist", async function() {
 
-            await assertRevert(paymentsRegistry.processPayment("abc", twoMonthsLater, 400, {from: accounts[0]}));
+            await assertRevert(paymentsRegistry.processPayment("abc", {from: accounts[0]}));
 
         });
 
         it("should not be able to set the duedate in the past", async function() {
 
             let past = parseInt(now/1000) - 10;
-            await assertRevert(paymentsRegistry.processPayment(subscriptionHash, twoMonthsLater, 400, {from: accounts[0]}))
+            await assertRevert(paymentsRegistry.processPayment(subscriptionHash, {from: accounts[0]}))
 
         });
 
 
         it("should throw if being called from an unauthorized address", async function() {
 
-            await assertRevert(paymentsRegistry.processPayment(subscriptionHash, twoMonthsLater, 400, {from: accounts[1]}));
+            await assertRevert(paymentsRegistry.processPayment(subscriptionHash, {from: accounts[1]}));
 
         });
 
@@ -115,19 +115,26 @@ contract('MockPaymentsRegistry', function(accounts) {
 
             let dayBeforeOneMonth = oneMonthLater - (1*24*60*60);
             await paymentsRegistry.setTime(dayBeforeOneMonth);
-            await assertRevert(paymentsRegistry.processPayment(subscriptionHash, twoMonthsLater, 400, {from: accounts[0]}));
+            await assertRevert(paymentsRegistry.processPayment(subscriptionHash, {from: accounts[0]}));
 
         });
 
         it("should be able to process correctly", async function() {
 
             let tenSecondsfterOneMonth = oneMonthLater + 10;
-            await paymentsRegistry.setTime(tenSecondsfterOneMonth);
-            let result = await paymentsRegistry.processPayment(subscriptionHash, twoMonthsLater, 400, {from: accounts[0]});
 
-            // @TODO: We need to make sure that the claimant is set and the execution period is calculated properly.
-            // @TODO: Check for the success return parameter.
-            assert(result._success);
+            // We're setting the time to 10 seconds after the payment due date to set the claim period
+            await paymentsRegistry.setTime(tenSecondsfterOneMonth);
+
+            // Then we process the payment by passing the subscription identifier
+            let result = await paymentsRegistry.processPayment(subscriptionHash, {from: accounts[0]});
+
+            assert.equal(result, true);
+
+            // Get the payment information to check that it's been set correctly
+            let paymentInformation = await paymentsRegistry.getPaymentInformation(subscriptionHash);
+            assert.equal(paymentInformation[4], accounts[0]);
+            assert.equal(paymentInformation[5], 10);
 
         });
 
@@ -135,8 +142,8 @@ contract('MockPaymentsRegistry', function(accounts) {
 
             await paymentsRegistry.setTime(twoMonthsLater);
             let thirtySecondsAfterTwoMonths = twoMonthsLater + 30;
-            await assertRevert(paymentsRegistry.processPayment(subscriptionHash, threeMonthsLater, 400, {from: accounts[0]}));
-            assert(!result);
+            await assertRevert(paymentsRegistry.processPayment(subscriptionHash, {from: accounts[0]}));
+            assert.equal(result, false);
 
         });
 
@@ -144,9 +151,8 @@ contract('MockPaymentsRegistry', function(accounts) {
 
             await paymentsRegistry.setTime(twoMonthsLater);
             let thirtySecondsAfterTwoMonths = twoMonthsLater + 10;
-            let result = await paymentsRegistry.processPayment(subscriptionHash, threeMonthsLater, 400, {from: accounts[0]});
-            // @TODO: Check for the success return parameter.
-            assert(!result);
+            let result = await paymentsRegistry.processPayment(subscriptionHash, {from: accounts[0]});
+            assert.equal(result, true);
 
         });
 
@@ -171,7 +177,7 @@ contract('MockPaymentsRegistry', function(accounts) {
         it("should be able to remove a claimant", async function() {
 
             await paymentsRegistry.removeClaimant(subscriptionHash, {from: accounts[0]});
-            // @TODO: Check the logs for the claimant removed log event.
+            assert.equal(paymentsRegistry.logs[0].args.identifier, subscriptionHash);
 
         });
 
@@ -196,8 +202,7 @@ contract('MockPaymentsRegistry', function(accounts) {
         it("should be able to cancel a payment", async function() {
 
             let result = await paymentsRegistry.cancelPayment(subscriptionHash, {from: accounts[0]});
-            // @TODO: Check for the success return parameter.
-            assert(result);
+            assert.equal(result, true);
 
         });
 
