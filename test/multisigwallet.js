@@ -16,21 +16,33 @@ contract('MultiSigWallet', function(accounts) {
 
         it("should not be able to deploy a wallet with no owners", async function() {
 
-            assertRevert(MultiSigWallet.new([], requiredConfirmations));
+            await assertRevert(MultiSigWallet.new([], requiredConfirmations));
 
         });
 
-        it ("should not be able to deploy a wallet with zero confirmations", async function() {
+        it("should not be able to deploy a wallet with zero confirmations", async function() {
 
-            assertRevert(MultiSigWallet.new([accounts[0], accounts[1]], 0));
+            await assertRevert(MultiSigWallet.new([accounts[0], accounts[1]], 0));
 
-        })
+        });
 
-        it ("should not be able to deploy a wallet with more confirmations than owners", async function() {
+        it("should not be able to deploy a wallet with more confirmations than owners", async function() {
 
-          assertRevert(MultiSigWallet.new([accounts[0], accounts[1]], 3));
+            await assertRevert(MultiSigWallet.new([accounts[0], accounts[1]], 3));
 
-      })
+        });
+
+        it("should be able to deploy a wallet with the correct configuration", async function() {
+
+            let wallet = await MultiSigWallet.new([accounts[0], accounts[1], accounts[2]], 2);
+            let requiredSignatures = await wallet.requiredCount.call();
+            let owners = await wallet.getOwners();
+
+            assert.ok(wallet);
+            assert.equal(requiredSignatures.toNumber(), 2);
+            assert.equal(owners.valueOf().length, 3);
+
+        });
 
     });
 

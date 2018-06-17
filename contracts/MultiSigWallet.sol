@@ -1,7 +1,7 @@
 pragma solidity ^0.4.21;
 
 /** @title Multi signature wallet - allows multiple parties to agree on transactions before execution */
-/** @author Stefan George - <stefan.george@consensys.net> */
+/** @author Kerman Kohli - kerman@TBD.com, originally adapted from Stefan George - <stefan.george@consensys.net> */
 
 contract MultiSigWallet {
 
@@ -18,7 +18,7 @@ contract MultiSigWallet {
 
     address[] public owners;
 
-    uint public required;
+    uint public requiredCount;
     uint public transactionCount;
 
     uint constant public MAX_OWNER_COUNT = 50;
@@ -77,13 +77,13 @@ contract MultiSigWallet {
         _;
     }
 
-    modifier validRequirements(uint _ownerCount, uint _required) {
-        /* require(
+    modifier validRequirements(uint _ownerCount, uint _requiredCount) {
+        require(
             _ownerCount <= MAX_OWNER_COUNT
-                || _required <= _ownerCount
-                || _required > 0
-                || _ownerCount > 0
-            ); */
+                && _requiredCount <= _ownerCount
+                && _requiredCount > 0
+                && _ownerCount > 0
+            );
         _;
     }
 
@@ -103,12 +103,14 @@ contract MultiSigWallet {
 
     /* @dev Constructor for the multi-signature wallet.
      * @param _owners Array of the initial owners.
-     * @param _required The number of required confirmations in order for a transaction to go through.
+     * @param _requiredCount The number of required confirmations in order for a transaction to go through.
     */
-    constructor(address[] _owners, uint _required) public {
-
-        // @TODO: Implementation
-
+    constructor(address[] _owners, uint _requiredCount)
+        public
+        validRequirements(_owners.length, _requiredCount)
+    {
+        owners = _owners;
+        requiredCount = _requiredCount;
     }
 
     /* @dev Add a new owner. Only the wallet can execute this transaction.
@@ -140,9 +142,9 @@ contract MultiSigWallet {
     }
 
     /* @dev Change the required amount of confirmations to let a transaction execute.
-     * @param _required Number of required owners need to execute.
+     * @param _requiredCount Number of required owners need to execute.
     */
-    function changeRequirement(uint _required) public {
+    function changeRequirement(uint _requiredCount) public {
 
         // @TODO: Implementation
 
@@ -230,9 +232,7 @@ contract MultiSigWallet {
      * @return returnedOwners Array of all the owners.
     */
     function getOwners() public view returns (address[] returnedOwners) {
-
-        // @TODO: Implementation
-
+        return owners;
     }
 
     /* @dev Returns an array of the list of owners who confirmed a transaction.
