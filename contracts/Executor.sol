@@ -48,19 +48,17 @@ contract Executor is Ownable {
         uint ownerBalance = collectibleContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
         uint amountDue = collectibleContract.getAmountDueFromSubscription(_subscriptionIdentifier);
 
-        if (ownerBalance >= amountDue) { // Check whether the subscriber even has enough money
-            uint collectorCut = amountDue / 100;
-            // Pay the plan owner
-            transferProxy.transferFrom(tokenAddress, from, to, amountDue - collectorCut);
+        uint collectorFee = collectibleContract.getSubscriptionFee(_subscriptionIdentifier);
 
+        if (ownerBalance < amountDue) { // Check whether the subscriber even has enough money
             // Pay the person who called this contract
-            transferProxy.transferFrom(tokenAddress, from, msg.sender, collectorCut);
+            transferProxy.transferFrom(tokenAddress, from, msg.sender, collectorFee);
             return true;
-        } else { // Control flow for if they don't have enough
-            collectibleContract.terminateSubscriptionDueToInsufficientFunds(_subscriptionIdentifier);
-            return false;
         }
-        return true;
+
+        // If the payment couldn't be collected, terminate.
+        collectibleContract.terminateSubscriptionDueToInsufficientFunds(_subscriptionIdentifier);
+        return false;
     }
 
 }
