@@ -5,7 +5,7 @@ import "./Authorizable.sol";
 /** @title Gets details of the subscription and terminates it after detecting insufficient tokens */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
-contract Collectable is Authorizable {
+contract Collectible is Authorizable {
 
     /**
       * Public view functions
