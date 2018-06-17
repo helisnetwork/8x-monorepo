@@ -1,11 +1,11 @@
 pragma solidity ^0.4.21;
 
-import "./Collectable.sol";
+import "./Collectible.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
-contract VolumeSubscription is Collectable {
+contract VolumeSubscription is Collectible {
 
     struct Plan {
 
@@ -75,7 +75,7 @@ contract VolumeSubscription is Collectable {
     }
 
     /**
-      * Collectable interface functions
+      * Collectible interface functions
     */
 
     function isValidSubscription(bytes32 _subscription)

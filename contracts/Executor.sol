@@ -1,7 +1,7 @@
 pragma solidity ^0.4.21;
 
 import "./base/ownership/Ownable.sol";
-import "./Collectable.sol";
+import "./Collectible.sol";
 import "./TransferProxy.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
@@ -28,7 +28,7 @@ contract Executor is Ownable {
 
 
     /** @dev Collect the payment due from the subscriber.
-      * @param _subscriptionContract is the contract where the details exist (adheres to Collectable contract interface).
+      * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function collectPayment(address _subscriptionContract, bytes32 _subscriptionIdentifier)
@@ -36,17 +36,17 @@ contract Executor is Ownable {
         returns (bool success)
     {
 
-        Collectable collectableContract = Collectable(_subscriptionContract);
-        require(collectableContract.isValidSubscription(_subscriptionIdentifier) == true); // Check if the subscription hasn't been cancelled
+        Collectible collectibleContract = Collectible(_subscriptionContract);
+        require(collectibleContract.isValidSubscription(_subscriptionIdentifier) == true); // Check if the subscription hasn't been cancelled
 
-        address tokenAddress = collectableContract.getSubscriptionTokenAddress(_subscriptionIdentifier);
+        address tokenAddress = collectibleContract.getSubscriptionTokenAddress(_subscriptionIdentifier);
 
         address from;
         address to;
-        (from, to) = collectableContract.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+        (from, to) = collectibleContract.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
-        uint ownerBalance = collectableContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
-        uint amountDue = collectableContract.getAmountDueFromSubscription(_subscriptionIdentifier);
+        uint ownerBalance = collectibleContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
+        uint amountDue = collectibleContract.getAmountDueFromSubscription(_subscriptionIdentifier);
 
         if (ownerBalance >= amountDue) { // Check whether the subscriber even has enough money
             uint collectorCut = amountDue / 100;
@@ -57,7 +57,7 @@ contract Executor is Ownable {
             transferProxy.transferFrom(tokenAddress, from, msg.sender, collectorCut);
             return true;
         } else { // Control flow for if they don't have enough
-            collectableContract.terminateSubscriptionDueToInsufficientFunds(_subscriptionIdentifier);
+            collectibleContract.terminateSubscriptionDueToInsufficientFunds(_subscriptionIdentifier);
             return false;
         }
         return true;
