@@ -1,7 +1,7 @@
 pragma solidity ^0.4.21;
 
 /** @title Multi signature wallet - allows multiple parties to agree on transactions before execution */
-/** @author Kerman Kohli - kerman@TBD.com, orignally adapted from Stefan George - <stefan.george@consensys.net> */
+/** @author Stefan George - <stefan.george@consensys.net> */
 
 contract MultiSigWallet {
 
@@ -23,71 +23,68 @@ contract MultiSigWallet {
 
     uint constant public MAX_OWNER_COUNT = 50;
 
+    event Confirmation(address indexed sender, uint indexed transactionId);
+    event Revocation(address indexed sender, uint indexed transactionId);
+    event Submission(uint indexed transactionId);
+    event Execution(uint indexed transactionId);
+    event ExecutionFailure(uint indexed transactionId);
+    event Deposit(address indexed sender, uint value);
+    event OwnerAddition(address indexed owner);
+    event OwnerRemoval(address indexed owner);
+    event RequirementChange(uint required);
+
     /*
      * Modifiers
     */
 
     modifier onlyWallet() {
-
-        // @TODO: Implementation
+        // require(msg.sender == address(this));
         _;
-
     }
 
     modifier ownerDoesNotExist(address _owner) {
-
-        // @TODO: Implementation
+        // require(!isOwner[_owner]);
         _;
-
     }
 
     modifier ownerExists(address _owner) {
-
-        // @TODO: Implementation
+        // require(isOwner[_owner]);
         _;
-
     }
 
     modifier transactionExists(uint _transactionId) {
-
-        // @TODO: Implementation
+        // require(transactions[_transactionId].destination != 0);
         _;
-
     }
 
     modifier confirmed(uint _transactionId, address _owner) {
-
-        // @TODO: Implementation
+        // require(confirmations[_transactionId][_owner]);
         _;
-
     }
 
     modifier notConfirmed(uint _transactionId, address _owner) {
-
-        // @TODO: Implementation
+        // require(!confirmations[_transactionId][_owner]);
         _;
-
     }
 
     modifier notExecuted(uint _transactionId) {
-
-        // @TODO: Implementation
+        // require(!transactions[_transactionId].executed);
         _;
-
     }
 
     modifier notNull(address _address) {
-
-        // @TODO: Implementation
+        // require(_address != 0);
         _;
-
     }
 
     modifier validRequirements(uint _ownerCount, uint _required) {
-
-        // @TODO: Implementation
+        /* require(
+            _ownerCount <= MAX_OWNER_COUNT
+                || _required <= _ownerCount
+                || _required > 0
+                || _ownerCount > 0
+            ); */
         _;
-
     }
 
     /*
@@ -108,7 +105,7 @@ contract MultiSigWallet {
      * @param _owners Array of the initial owners.
      * @param _required The number of required confirmations in order for a transaction to go through.
     */
-    function constructor(address[] _owners, uint _required) public {
+    constructor(address[] _owners, uint _required) public {
 
         // @TODO: Implementation
 

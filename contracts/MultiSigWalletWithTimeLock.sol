@@ -48,7 +48,7 @@ contract MultiSigWalletWithTimeLock is MultiSigWallet {
      * @param _required Number of required signatures to authorize a transaction.
      * @param _secondsLocked Amount of time required to pass before executing a transaction.
     */
-    function constructor(
+    constructor(
         address[] _owners,
         uint _required,
         uint _secondsLocked
