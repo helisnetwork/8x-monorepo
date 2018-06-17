@@ -46,7 +46,7 @@ contract('VolumeSubscription', function(accounts) {
     });
 
     /**
-      * Collectable Implementation
+      * Collectible Implementation
     **/
 
     describe("when collecting money from the contract", () => {
