@@ -32,6 +32,12 @@ contract('MultiSigWallet', function(accounts) {
 
         });
 
+        it("should not be able to deploy a wallet with duplicate", async function() {
+
+            await assertRevert(MultiSigWallet.new([accounts[0], accounts[0], accounts[1]], 2));
+
+        });
+
         it("should be able to deploy a wallet with the correct configuration", async function() {
 
             let wallet = await MultiSigWallet.new([accounts[0], accounts[1], accounts[2]], 2);
