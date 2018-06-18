@@ -5,7 +5,7 @@ import "./Authorizable.sol";
 /** @title Transaction Registry - Stores a list of all the currently pending transactions */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
-contract PaymentsRegistry is Authorizable {
+contract TransactionRegistry is Authorizable {
 
     struct Payment {
         address subscriptionContract;
