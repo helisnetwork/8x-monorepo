@@ -1,11 +1,11 @@
 pragma solidity ^0.4.21;
 
-import "../PaymentsRegistry.sol";
+import "../TransactionRegistry.sol";
 
 /** @title Mock contract in order to test time logic reliably. */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
-contract MockPaymentsRegistry is PaymentsRegistry {
+contract MockTransactionRegistry is TransactionRegistry {
 
     uint public currentTime = block.timestamp;
 
