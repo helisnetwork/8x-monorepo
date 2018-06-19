@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "./Authorizable.sol";
 
@@ -44,7 +44,7 @@ contract Collectible is Authorizable {
 
     /** @dev Gets token balance of the subscription owners address.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
-      * @return balance is the token balance of the address where the recurring payments will be deducted from (the customer).      
+      * @return balance is the token balance of the address where the recurring payments will be deducted from (the customer).
     */
 
     function getSubscriptionOwnerBalance(bytes32 _subscription)
@@ -79,7 +79,7 @@ contract Collectible is Authorizable {
     /** @dev Terminate the subscription after detecting that there are insufficient tokens.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
     */
-    // @TODO: Deduct a penalty fee after detecting insufficient tokens. 
+    // @TODO: Deduct a penalty fee after detecting insufficient tokens.
     //        The first subscription payment should be marked up to include the penalty fee.
 
     function terminateSubscriptionDueToInsufficientFunds(bytes32 _subscription) onlyAuthorized public;
