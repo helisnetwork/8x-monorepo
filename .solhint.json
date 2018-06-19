@@ -1,0 +1,8 @@
+{
+    "extends": "default",
+    "rules": {
+        "max-line-length": ["error", 80],
+        "avoid-sha3": "error",
+        "avoid-suicide": "error"
+    }
+}
