@@ -23,7 +23,7 @@ The protocol is still at an early stage although majority of the architecture ha
 Below are the technical things required to create a MVP of the protocol:
 
 ### To-Think
-- Design architecture for how the PaymentsRegistry is going to work in relation to an upgradeable and modular architecture.
+- Design architecture for how the TransactionRegistry is going to work in relation to an upgradeable and modular architecture.
 - Think about how service nodes are rewarded for finding bad actors (people who don't execute on their subscriptions on time). Subsequently, we need to record how long it took them to actually execute the transaction the first time so they're bounded by that SLA (if that's the right term) in the future too.
 - Have a strategy for how changes to a multiplier will be handled to existing stakes in subscriptions.
 - Determine whether the Collectible interface is needed in the first place and whether the logic for handling each type of contract should be in the executor itself. Can't think of an exact use case of how the Collectible interface might be restrictive but still worth thinking about neverthless.
