@@ -3,6 +3,7 @@
     "rules": {
         "max-line-length": ["error", 80],
         "avoid-sha3": "error",
-        "avoid-suicide": "error"
+        "avoid-suicide": "error",
+        "compiler-fixed": "error"
     }
 }

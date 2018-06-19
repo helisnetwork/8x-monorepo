@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 import "./base/ownership/Ownable.sol";
 
@@ -33,7 +33,7 @@ contract Authorizable is Ownable {
     }
 
     /**
-     * Public functions
+      * Public functions
     */
 
     /** @dev Authorizes an address.
@@ -72,8 +72,8 @@ contract Authorizable is Ownable {
         emit LogAuthorizedAddressRemoved(_target, msg.sender);
     }
 
-    /*
-     * Public constant functions
+    /**
+      * Public constant functions
     */
 
     /** @dev Gets all authorized addresses.
