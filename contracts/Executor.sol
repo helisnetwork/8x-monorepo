@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 import "./base/ownership/Ownable.sol";
 import "./Collectible.sol";
@@ -12,32 +12,31 @@ contract Executor is Ownable {
     TransferProxy public transferProxy;
 
     /**
-      * Modifiers
+      * PUBLIC FUNCTIONS
     */
-
-    /**
-      * Public functions
-    */
-
     function setTransferProxy(address _proxyAddress)
-      public
-      onlyOwner
+        public
+        onlyOwner
     {
         transferProxy = TransferProxy(_proxyAddress);
     }
 
-
     /** @dev Collect the payment due from the subscriber.
-      * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface).
-      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's
+      * subscription with its relevant details.
     */
-    function collectPayment(address _subscriptionContract, bytes32 _subscriptionIdentifier)
+    function collectPayment(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier)
         public
         returns (bool success)
     {
 
         Collectible collectibleContract = Collectible(_subscriptionContract);
-        require(collectibleContract.isValidSubscription(_subscriptionIdentifier) == true); // Check if the subscription hasn't been cancelled
+
+        // Check if the subscription hasn't been cancelled
+        require(collectibleContract.isValidSubscription(_subscriptionIdentifier) == true);
 
         address tokenAddress = collectibleContract.getSubscriptionTokenAddress(_subscriptionIdentifier);
 
@@ -50,7 +49,8 @@ contract Executor is Ownable {
 
         uint collectorFee = collectibleContract.getSubscriptionFee(_subscriptionIdentifier);
 
-        if (ownerBalance < amountDue) { // Check whether the subscriber even has enough money
+        // Check whether the subscriber even has enough money
+        if (ownerBalance < amountDue) {
             // Pay the person who called this contract
             transferProxy.transferFrom(tokenAddress, from, msg.sender, collectorFee);
             return true;

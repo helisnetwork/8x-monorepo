@@ -1,22 +1,23 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 import "../math/SafeMath.sol";
 import "./ERC20.sol";
+
 
 /**
  * @title Standard ERC20 token
  *
  * @dev Implementation of the basic standard token.
  * @dev https://github.com/ethereum/EIPs/issues/20
- * @dev Based on code by FirstBlood: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
+ * @dev Inspiration FirstBlood: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
  */
 contract StandardToken is ERC20 {
 
     using SafeMath for uint256;
 
-    mapping(address => uint256) balances;
+    mapping (address => uint256) public balances;
 
-    uint256 totalTokenSupply;
+    uint256 public totalTokenSupply;
 
     mapping (address => mapping (address => uint256)) internal allowed;
 
@@ -38,7 +39,7 @@ contract StandardToken is ERC20 {
 
         balances[msg.sender] = balances[msg.sender].sub(_value);
         balances[_to] = balances[_to].add(_value);
-        emit Transfer(msg.sender, _to, _value);
+        emit TransferTokens(msg.sender, _to, _value);
         return true;
     }
 
@@ -50,7 +51,6 @@ contract StandardToken is ERC20 {
     function balanceOf(address _account) public view returns (uint256 balance) {
         return balances[_account];
     }
-
 
     /**
     * @dev Transfer tokens from one address to another
@@ -66,7 +66,7 @@ contract StandardToken is ERC20 {
         balances[_from] = balances[_from].sub(_value);
         balances[_to] = balances[_to].add(_value);
         allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
-        emit Transfer(_from, _to, _value);
+        emit TransferTokens(_from, _to, _value);
         return true;
     }
 

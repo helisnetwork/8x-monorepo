@@ -1,9 +1,9 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 import "./base/ownership/Ownable.sol";
 
 /** @title Authorizable - Gives permission to multiple parties in order to execute transactions */
-/** @author Originally adapted from ZeroEx (0x): Amir Bandeali - <amir@0xProject.com>, Will Warren - <will@0xProject.com> */
+/** @author Originally adapted from 0x: Amir Bandeali - <amir@0xProject.com>, Will Warren - <will@0xProject.com> */
 
 contract Authorizable is Ownable {
 
@@ -14,9 +14,8 @@ contract Authorizable is Ownable {
     event LogAuthorizedAddressRemoved(address indexed target, address indexed caller);
 
     /**
-     * Modifiers
+     * MODIFIERS
     */
-
     modifier onlyAuthorized {
         require(authorized[msg.sender]);
         _;
@@ -33,13 +32,11 @@ contract Authorizable is Ownable {
     }
 
     /**
-     * Public functions
+      * PUBLIC FUNCTIONS
     */
-
     /** @dev Authorizes an address.
       * @param _target Address to authorize.
     */
-
     function addAuthorizedAddress(address _target)
         public
         onlyOwner
@@ -54,7 +51,6 @@ contract Authorizable is Ownable {
     /** @dev Removes authorizion of an address.
       * @param _target Address to remove authorization from.
     */
-
     function removeAuthorizedAddress(address _target)
         public
         onlyOwner
@@ -72,14 +68,12 @@ contract Authorizable is Ownable {
         emit LogAuthorizedAddressRemoved(_target, msg.sender);
     }
 
-    /*
-     * Public constant functions
+    /**
+      * PUBLIC CONSTANT FUNCTIONS
     */
-
     /** @dev Gets all authorized addresses.
       * @return Array of authorized addresses.
     */
-
     function getAuthorizedAddresses()
         public
         constant

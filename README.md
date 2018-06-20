@@ -1,53 +1,93 @@
-# 8x Protocol
+![8X Logo](https://8xprotocol.com/assets/images/full-logo.png)
 
-## What is it?
+---
 
-8x protocol is a way to enable decentralised recurring payments on the Ethereum blockchain. You can read more about it at:
+8x Protocol enables decentralised recurring payments on the Ethereum blockchain.
+A complete explanation of the protocol may be found in our [whitepaper](https://github.com/8x-protocol/whitepaper).
 
-Whitepaper: https://github.com/8x-protocol/whitepaper
 
-Website: http://8xprotocol.com/
+[![Telegram Chat](https://img.shields.io/badge/CHAT-TELEGRAM-0088cc.svg)](http://t.me/eightexprotocol_contributors)
+[![Solidity](https://img.shields.io/badge/SOLIDITY-0.4.24-orange.svg)](https://solidity.readthedocs.io/en/develop/index.html)
+<!-- [![Apache License](https://img.shields.io/badge/LICENSE-APACHE 2.0-3DA639.svg)](https://opensource.org/licenses/Apache-2.0) -->
 
-Telegram: https://t.me/eightexprotocol
+## Contributing
+We appreciate your desire to contribute to the 8x Protocol. We strive to maintain
+a high standard over code quality and the security of our contracts. Please read over
+this contributor guide before starting.
 
-Medium: https://medium.com/8x-protocol/
+### How to Contribute
+If you would like to contribute please fork the repo, create a new branch, fix the problem, commit the work with a clear message about what was accomplished, and submit a pull request.
 
-Twitter: https://twitter.com/8x_Protocol
+### Code Quality
+- When adding functionality, please also add tests and make sure they pass
+- When adding a new function, make sure to add comments that adhere to the format seen throughout the project
+- When fixing conflicts please use `rebase`
+- When updating your working branch with `upstream master` changes, please `rebase`
+- Make sure there are no linter `warnings` or `errors`
 
-## Current State
+### Style Guide
 
-The protocol is still at an early stage although majority of the architecture has been outlined in the whitepaper.
+##### Editor Settings
+Please setup your editor with the following settings for this project.
 
-## Next Steps
+- 4 space(soft) indentation
+- strip trailing whitespace
+- 120 char max line length
 
-Below are the technical things required to create a MVP of the protocol:
+##### About Our Standards
+The 8x Protocol uses [Solhint](https://github.com/protofire/solhint) to
+maintain high security and code standards within our project. We are following
+the code standards set forth in the [Official Solidity Style Guide](http://solidity.readthedocs.io/en/develop/style-guide.html) and the security standards outlined in the [ConsenSys Guide for Smart Contracts](https://consensys.github.io/smart-contract-best-practices/recommendations/).
 
-### To-Think
-- Design architecture for how the TransactionRegistry is going to work in relation to an upgradeable and modular architecture.
-- Think about how service nodes are rewarded for finding bad actors (people who don't execute on their subscriptions on time). Subsequently, we need to record how long it took them to actually execute the transaction the first time so they're bounded by that SLA (if that's the right term) in the future too.
-- Have a strategy for how changes to a multiplier will be handled to existing stakes in subscriptions.
-- Determine whether the Collectible interface is needed in the first place and whether the logic for handling each type of contract should be in the executor itself. Can't think of an exact use case of how the Collectible interface might be restrictive but still worth thinking about neverthless.
+###### Style Exceptions
+Variables passed into a function should use `mixedCase`, however, they should be prefixed with an `_`. This tells us that it is an `immutable` value passed into the function.
 
-### To-Do
-- Change implementation of Volume Subscription so that a new subscription can only be created by the executor (so it can be added the transaction registry).
-- Finish off the implementation of Exector.sol and its tests.
-- Implement transaction registy.
-- Implement subscription registry.
-- Add a well-audited multi-sig wallet with a timelock function.
-- Add proper deployment scripts that make the multi-sig wallet with time lock the owner.
-- Optimize the type of ints used. Right now every int is uint256 which isn't too good.
-- Create a Donation subscription interface with the accompanying tests.
+Example:
+```SOLIDITY
+function example(address _exampleAddress)
+    public
+{
+    ...
+}
+```
 
-### To-Check
+###### IDE Integrations for Solhint
+- [Atom](https://atom.io/packages/atom-solidity-linter)
+- [Sublime Text 3](https://packagecontrol.io/search/solhint)
+- [Vim](https://github.com/sohkai/syntastic-local-solhint)
+- [JetBrains IDEA, WebStorm, CLion, etc](https://plugins.jetbrains.com/plugin/10177-solidity-solhint)
+- [VS Code: Solidity by Juan Blanco](https://marketplace.visualstudio.com/items?itemName=JuanBlanco.solidity)
+- [VS Code: Solidity Language Support by CodeChain.io](https://marketplace.visualstudio.com/items?itemName=kodebox.solidity-language-server)
 
-- Check for integer overflows and underflows.
-- Check for re-entry attacks.
-- Check to ensure safe push payments are made to subscription owner (might need to change this to pull but it'd be cheaper & cooler if it's push).
-- Check all failing test cases are implemented.
-- Check return values are within the range we expect them to be.
+### Getting Started
+Set a remote url for our upstream repo so you can keep your master branch unpolluted and updated.
 
-### To-Celebrate
-- ~~Create mocks to facilitate the testing of more complex time logic.~~
-- ~~Ensure tests run consistently (this is something to do with the calculation of time). Checkout https://github.com/trufflesuite/truffle/issues/920#issuecomment-385022886 for more information.~~
+```
+git remote set-url upstream https://github.com/8xprotocol/contracts.git
+```
 
-There's more but this is the most I can think of at this stage. Feel free to get in touch with me at kermankohli@gmail.com or @kermankohli (on Telegram) if you have any questions.
+##### Requirements
+- Truffle ^4.1.8
+- Gananche UI
+- NPM
+
+##### Pre Requisites
+```
+npm install
+npm install -g solhint
+```
+
+##### Running Contract Tests
+```
+truffle test
+```
+
+##### Running Style/Security Tests
+```
+npm run lint
+```
+
+##### Running Full Test Suite
+```
+npm run test
+```
