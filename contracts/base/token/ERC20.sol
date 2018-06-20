@@ -1,4 +1,5 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
+
 
 /**
  * @title ERC20 interface
@@ -14,6 +15,6 @@ contract ERC20 {
     function transfer(address _to, uint256 _value) public returns (bool success);
 
     event Approval(address indexed owner, address indexed spender, uint256 value);
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
+    event TransferTokens(address indexed from, address indexed to, uint256 value);
+    
 }

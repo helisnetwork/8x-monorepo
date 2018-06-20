@@ -1,15 +1,15 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 import "./base/token/ERC20.sol";
 import "./Authorizable.sol";
 
-/** @title TokenTransferProxy - Transfers tokens on behalf of contracts that have been approved via decentralized governance. */
-/** @author Originally adapted from ZeroEx (0x): Amir Bandeali - <amir@0xProject.com>, Will Warren - <will@0xProject.com> */
+/** @title TokenTransferProxy - Transfers tokens on behalf of contracts. */
+/** @author Originally adapted from 0x: Amir Bandeali - <amir@0xProject.com>, Will Warren - <will@0xProject.com> */
 
 contract TransferProxy is Authorizable {
 
     /**
-     * Public functions
+     * PUBLIC FUNCTIONS
     */
 
     /** @dev Calls into ERC20 Token contract, invoking transferFrom.
