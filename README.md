@@ -8,7 +8,7 @@ A complete explanation of the protocol may be found in our [whitepaper](https://
 
 [![Telegram Chat](https://img.shields.io/badge/CHAT-TELEGRAM-0088cc.svg)](http://t.me/eightexprotocol_contributors)
 [![Solidity](https://img.shields.io/badge/SOLIDITY-0.4.24-orange.svg)](https://solidity.readthedocs.io/en/develop/index.html)
-[![Apache License](https://img.shields.io/badge/LICENSE-APACHE 2.0-3DA639.svg)](https://opensource.org/licenses/Apache-2.0)
+<!-- [![Apache License](https://img.shields.io/badge/LICENSE-APACHE 2.0-3DA639.svg)](https://opensource.org/licenses/Apache-2.0) -->
 
 ## Contributing
 We appreciate your desire to contribute to the 8x Protocol. We strive to maintain
@@ -32,7 +32,7 @@ Please setup your editor with the following settings for this project.
 
 - 4 space(soft) indentation
 - strip trailing whitespace
-- 80 char max line length
+- 120 char max line length
 
 ##### About Our Standards
 The 8x Protocol uses [Solhint](https://github.com/protofire/solhint) to

@@ -25,7 +25,6 @@ contract EightExToken is StandardToken, Ownable {
       *
       * @return Success of transfer.
     */
-
     function transferFrom(address _from, address _to, uint _value)
         public
         returns (bool success)
@@ -41,7 +40,7 @@ contract EightExToken is StandardToken, Ownable {
             if (allowance < MAX_UINT) {
                 allowed[_from][msg.sender] -= _value;
             }
-            emit Transfer(_from, _to, _value);
+            emit TransferToken(_from, _to, _value);
             return true;
         } else {
             return false;
