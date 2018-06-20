@@ -1,7 +1,7 @@
 {
     "extends": "default",
     "rules": {
-        "max-line-length": ["error", 80],
+        "max-line-length": ["error", 120],
         "avoid-sha3": "error",
         "avoid-suicide": "error",
         "compiler-fixed": "error"
