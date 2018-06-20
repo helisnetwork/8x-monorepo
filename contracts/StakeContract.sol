@@ -4,7 +4,7 @@ import "./Authorizable.sol";
 import "./EightExToken.sol";
 import "./base/math/SafeMath.sol";
 
-/** @title Stake Contract - processors stake their tokens in this smart contract in order to claim transactions */
+/** @title Stake Contract - Processors stake tokens to claim transactions */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
 contract StakeContract is Authorizable {
@@ -16,14 +16,13 @@ contract StakeContract is Authorizable {
         uint total;
     }
 
-    mapping (address => Stake) stakes;
+    mapping (address => Stake) public stakes;
 
     EightExToken public tokenContract;
 
     /**
-      * Public functions
+      * PUBLIC FUNCTIONS
     */
-
     constructor(address _tokenAddress) public {
         tokenContract = EightExToken(_tokenAddress);
     }
@@ -41,7 +40,7 @@ contract StakeContract is Authorizable {
 
     }
 
-    /** @dev When the processor executes a transaction their tokens are unstaked.
+    /** @dev When a processor executes a transaction their tokens are unstaked.
       * @param _staker is the processors who is staking thier tokens.
       * @param _amount is how much they would like to unstake;
     */
@@ -56,7 +55,8 @@ contract StakeContract is Authorizable {
 
     }
 
-    /** @dev When the processor doesn't execute a transaction they claimed their tokens are slashed.
+    /** @dev When the processor doesn't execute a transaction they claimed
+      * their tokens are slashed.
       * @param _staker is the processors who's tokens need to be slashed.
       * @param _amount is how many tokens need to be slashed.
     */
@@ -64,7 +64,8 @@ contract StakeContract is Authorizable {
         public
         onlyAuthorized
     {
-        // Make sure that an authorized address can't slash more tokens then they actually have locked up.
+        // Make sure that an authorized address can't slash more tokens than
+        // they actually have locked up.
         require(stakes[_staker].lockedUp >= _amount);
 
         // Reduce the total amount first
@@ -75,8 +76,8 @@ contract StakeContract is Authorizable {
 
     }
 
-    /** @dev Check how many tokens the processor has available to stake at this moment.
-      * @param _staker is the processor who you would like to return the total available for.
+    /** @dev Check how many tokens the processor has available at this moment.
+      * @param _staker is the processor address.
     */
     function getAvailableStake(address _staker)
         public
@@ -89,8 +90,8 @@ contract StakeContract is Authorizable {
     }
 
     // @TODO: Try to use ERC223 or something instead.
-    /** @dev Top up your stake once you've given the stakeContract approval to transfer your funds.
-      * @param _amount is how much you would like to withdraw (that's available).
+    /** @dev Top up your stake once you've given approval to transfer funds.
+      * @param _amount is how much you would like to withdraw.
     */
     function topUpStake(uint _amount)
         public
@@ -105,7 +106,7 @@ contract StakeContract is Authorizable {
     }
 
     /** @dev Withdraw your stake from the stake contract.
-      * @param _amount is how much you would like to withdraw (that's available)..
+      * @param _amount is how much you would like to withdraw.
     */
     function withdrawStake(uint _amount)
         public
