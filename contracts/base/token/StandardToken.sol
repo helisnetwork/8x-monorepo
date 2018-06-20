@@ -39,7 +39,7 @@ contract StandardToken is ERC20 {
 
         balances[msg.sender] = balances[msg.sender].sub(_value);
         balances[_to] = balances[_to].add(_value);
-        emit TransferToken(msg.sender, _to, _value);
+        emit TransferTokens(msg.sender, _to, _value);
         return true;
     }
 
@@ -66,7 +66,7 @@ contract StandardToken is ERC20 {
         balances[_from] = balances[_from].sub(_value);
         balances[_to] = balances[_to].add(_value);
         allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
-        emit TransferToken(_from, _to, _value);
+        emit TransferTokens(_from, _to, _value);
         return true;
     }
 

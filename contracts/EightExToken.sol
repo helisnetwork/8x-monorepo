@@ -40,7 +40,7 @@ contract EightExToken is StandardToken, Ownable {
             if (allowance < MAX_UINT) {
                 allowed[_from][msg.sender] -= _value;
             }
-            emit TransferToken(_from, _to, _value);
+            emit TransferTokens(_from, _to, _value);
             return true;
         } else {
             return false;
