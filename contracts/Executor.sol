@@ -39,11 +39,10 @@ contract Executor is Ownable {
         require(collectibleContract.isValidSubscription(_subscriptionIdentifier) == true);
 
         address tokenAddress = collectibleContract.getSubscriptionTokenAddress(_subscriptionIdentifier);
-
         address from;
         address to;
         (from, to) = collectibleContract.getSubscriptionFromToAddresses(_subscriptionIdentifier);
-
+        
         uint ownerBalance = collectibleContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
         uint amountDue = collectibleContract.getAmountDueFromSubscription(_subscriptionIdentifier);
         uint collectorFee = collectibleContract.getSubscriptionFee(_subscriptionIdentifier);
