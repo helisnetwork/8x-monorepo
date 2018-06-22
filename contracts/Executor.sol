@@ -50,8 +50,11 @@ contract Executor is Ownable {
 
         // Check if subscriber has enough balance and withdraw amountDue
         if (ownerBalance > amountDue) {
+            // send fee to collector
             transferProxy.transferFrom(tokenAddress, from, msg.sender, collectorFee);
+            // send amountDue - fee to plan owner
             transferProxy.transferFrom(tokenAddress, from, to, amountDue - collectorFee);
+            // return success
             return true;
         }
 
