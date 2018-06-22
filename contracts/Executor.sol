@@ -23,8 +23,7 @@ contract Executor is Ownable {
 
     /** @dev Collect the payment due from the subscriber.
       * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
-      * @param _subscriptionIdentifier is the identifier of that customer's
-      * subscription with its relevant details.
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function collectPayment(
         address _subscriptionContract,
@@ -39,14 +38,12 @@ contract Executor is Ownable {
         require(collectibleContract.isValidSubscription(_subscriptionIdentifier) == true);
 
         address tokenAddress = collectibleContract.getSubscriptionTokenAddress(_subscriptionIdentifier);
-
         address from;
         address to;
-        (from, to) = collectibleContract.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
+        (from, to) = collectibleContract.getSubscriptionFromToAddresses(_subscriptionIdentifier);
         uint ownerBalance = collectibleContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
         uint amountDue = collectibleContract.getAmountDueFromSubscription(_subscriptionIdentifier);
-
         uint collectorFee = collectibleContract.getSubscriptionFee(_subscriptionIdentifier);
 
         // Check whether the subscriber even has enough money
