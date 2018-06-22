@@ -46,7 +46,6 @@ contract Executor is Ownable {
 
         uint ownerBalance = collectibleContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
         uint amountDue = collectibleContract.getAmountDueFromSubscription(_subscriptionIdentifier);
-
         uint collectorFee = collectibleContract.getSubscriptionFee(_subscriptionIdentifier);
 
         // Check if subscriber has enough balance and withdraw amountDue
