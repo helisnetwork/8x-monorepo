@@ -42,7 +42,7 @@ contract Executor is Ownable {
         address from;
         address to;
         (from, to) = collectibleContract.getSubscriptionFromToAddresses(_subscriptionIdentifier);
-        
+
         uint ownerBalance = collectibleContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
         uint amountDue = collectibleContract.getAmountDueFromSubscription(_subscriptionIdentifier);
         uint collectorFee = collectibleContract.getSubscriptionFee(_subscriptionIdentifier);
@@ -51,7 +51,7 @@ contract Executor is Ownable {
         if (ownerBalance > amountDue) {
             // send fee to collector
             transferProxy.transferFrom(tokenAddress, from, msg.sender, collectorFee);
-            // send amountDue - fee to plan owner
+            // send (amountDue - collectorFee) to plan owner
             transferProxy.transferFrom(tokenAddress, from, to, amountDue - collectorFee);
             // return success
             return true;
