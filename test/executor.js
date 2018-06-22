@@ -42,7 +42,7 @@ contract('Executor', function(accounts) {
 
         // Create a plan that costs $100/month
         let newPlan = await subscriptionContract.createPlan(secondAccount, tokenContract.address, "test", "product", "n/a", 30, 100, 10, "", {from: secondAccount});
-        planIdentifier = newPlan.logs[0].args.identifier;
+        planHash = newPlan.logs[0].args.identifier;
 
         // Make the user give permission to the proxy to transfer tokens on it's behalf
         await tokenContract.approve(proxyContract.address, 100, {from: thirdAccount});
@@ -61,10 +61,10 @@ contract('Executor', function(accounts) {
             now = now/1000;
 
             // Make the user subscribe to the plan
-            let newSubscription = await subscriptionContract.createSubscription(thirdAccount, planIdentifier, now, "", {from: thirdAccount});
-            let subscriptionIdentifier = newSubscription.logs[0].args.identifier;
+            let newSubscription = await subscriptionContract.createSubscription(thirdAccount, planHash, now, "", {from: thirdAccount});
+            let subscriptionHash = newSubscription.logs[0].args.identifier;
 
-            await executorContract.collectPayment(subscriptionContract.address, subscriptionIdentifier, {from: fourthAccount});
+            await executorContract.collectPayment(subscriptionContract.address, subscriptionHash, {from: fourthAccount});
 
             let collectorAfterBalance = await tokenContract.balanceOf(fourthAccount);
             let planOwnerAfterBalance = await tokenContract.balanceOf(secondAccount);
