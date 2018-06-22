@@ -49,10 +49,10 @@ contract Executor is Ownable {
 
         uint collectorFee = collectibleContract.getSubscriptionFee(_subscriptionIdentifier);
 
-        // Check whether the subscriber even has enough money
-        if (ownerBalance < amountDue) {
-            // Pay the person who called this contract
+        // Check if subscriber has enough balance and withdraw amountDue
+        if (ownerBalance > amountDue) {
             transferProxy.transferFrom(tokenAddress, from, msg.sender, collectorFee);
+            transferProxy.transferFrom(tokenAddress, from, to, amountDue - collectorFee);
             return true;
         }
 
