@@ -137,12 +137,18 @@ contract('VolumeSubscription', function(accounts) {
         });
 
         it("should not be able to create a plan without required details", async function() {
-
             await assertRevert(contract.createPlan(0x0, token.address, "test.identifier", "", "", 30, 10, 0, ""));
             await assertRevert(contract.createPlan(accounts[0], token.address, "", "", "", 30, 10, 0, ""));
             await assertRevert(contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 0, 10, 0, ""));
             await assertRevert(contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 30, 0, 0, ""));
             await assertRevert(contract.createPlan(accounts[0], 0x0, "test.identifier", "", "", 30, 10, 0, ""));
+        });
+
+        it("should not be able to create two plans with the same planHash if amounts are different", async function() {
+            let originalPlanHash = await contract.createPlan(accounts[0], token.address, "plan.hash.test", "Test", "Description", 30, 10, 5, "{}");
+            let newPlanHash = await contract.createPlan(accounts[0], token.address, "plan.hash.test", "Test", "Description", 30, 11, 5, "{}");
+
+            assert.notEqual(originalPlanHash, newPlanHash);
         });
 
         it("should not be able to create a plan where the fee is more than the amount", async function() {
@@ -157,7 +163,6 @@ contract('VolumeSubscription', function(accounts) {
             await assertRevert(contract.createPlan(accounts[0], token.address, "test.identifier", "", "", 30, 10, 0, ""));
 
         });
-
     });
 
     describe("when updating the owner of a plan", () => {
@@ -300,7 +305,7 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
-        it("should not be able to terminate as another user", async function () {
+        it("should not be able to terminate as another user", async function() {
 
             let planHash = await newPlan(contract, token.address, accounts[0], "plan.terminate.otherUser");
 
@@ -310,7 +315,6 @@ contract('VolumeSubscription', function(accounts) {
             await assertRevert(contract.terminatePlan(planHash, now, {from: accounts[1]}));
 
         });
-
     });
 
     describe("when updating the data of a subscription", () => {

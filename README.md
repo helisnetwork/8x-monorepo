@@ -3,7 +3,7 @@
 ---
 
 8x Protocol enables decentralised recurring payments on the Ethereum blockchain.
-A complete explanation of the protocol may be found in our [whitepaper](https://github.com/8x-protocol/whitepaper).
+A complete explanation of the protocol may be found in our [whitepaper](https://github.com/8xprotocol/whitepaper).
 
 
 [![Telegram Chat](https://img.shields.io/badge/CHAT-TELEGRAM-0088cc.svg)](http://t.me/eightexprotocol_contributors)
