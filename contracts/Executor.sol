@@ -39,20 +39,21 @@ contract Executor is Ownable {
         require(collectibleContract.isValidSubscription(_subscriptionIdentifier) == true);
 
         address tokenAddress = collectibleContract.getSubscriptionTokenAddress(_subscriptionIdentifier);
-
         address from;
         address to;
         (from, to) = collectibleContract.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
         uint ownerBalance = collectibleContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
         uint amountDue = collectibleContract.getAmountDueFromSubscription(_subscriptionIdentifier);
-
         uint collectorFee = collectibleContract.getSubscriptionFee(_subscriptionIdentifier);
 
-        // Check whether the subscriber even has enough money
-        if (ownerBalance < amountDue) {
-            // Pay the person who called this contract
+        // Check if subscriber has enough balance and withdraw amountDue
+        if (ownerBalance > amountDue) {
+            // send fee to collector
             transferProxy.transferFrom(tokenAddress, from, msg.sender, collectorFee);
+            // send (amountDue - collectorFee) to plan owner
+            transferProxy.transferFrom(tokenAddress, from, to, amountDue - collectorFee);
+            // return success
             return true;
         }
 
