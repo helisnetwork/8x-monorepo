@@ -38,17 +38,17 @@ contract MultiSigWallet {
     */
 
     modifier onlyWallet() {
-        // require(msg.sender == address(this));
+        require(msg.sender == address(this));
         _;
     }
 
     modifier ownerDoesNotExist(address _owner) {
-        // require(!isOwner[_owner]);
+        require(!isOwner[_owner]);
         _;
     }
 
     modifier ownerExists(address _owner) {
-        // require(isOwner[_owner]);
+        require(isOwner[_owner]);
         _;
     }
 
@@ -73,7 +73,7 @@ contract MultiSigWallet {
     }
 
     modifier notNull(address _address) {
-        // require(_address != 0);
+        require(_address != 0);
         _;
     }
 
@@ -118,15 +118,22 @@ contract MultiSigWallet {
 
         owners = _owners;
         requiredCount = _requiredCount;
+        transactionCount = 0;
     }
 
     /* @dev Add a new owner. Only the wallet can execute this transaction.
      * @param _owner Address of the new to be added owner.
     */
-    function addOwner(address _owner) public {
-
-        // @TODO: Implementation
-
+    function addOwner(address _owner)
+        public
+        onlyWallet
+        ownerDoesNotExist(_owner)
+        notNull(_owner)
+        validRequirements(owners.length + 1, requiredCount)
+    {
+        isOwner[_owner] = true;
+        owners.push(_owner);
+        OwnerAddition(_owner);
     }
 
     /* @dev Remove an owner. Only the wallet can execute this wallet.
@@ -162,10 +169,12 @@ contract MultiSigWallet {
      * @param _value Ether required to execute transaction.
      * @param _data Any additional data or payload to pass along.
     */
-    function submitTransaction(address _destination, uint _value, bytes _data) public {
-
-        // @TODO: Implementation
-
+    function submitTransaction(address _destination, uint _value, bytes _data)
+        public
+        ownerExists(msg.sender)
+    {
+        require(_destination != 0);
+        addTransaction(_destination, _value, _data);
     }
 
     /* @dev Allows an owner to confirm a transaction submitted.
@@ -283,10 +292,18 @@ contract MultiSigWallet {
      * @returns transactionId Identifier for the transaction.
     */
     function addTransaction(address _destination, uint _value, bytes _data)
-        public
+        internal
         returns (uint transactionId)
     {
+        transactionCount++;
+        transactions[transactionCount] = Transaction({
+            destination: _destination,
+            value: _value,
+            data: _data,
+            executed: false
+        });
 
+        return transactionCount;
     }
 
 }
