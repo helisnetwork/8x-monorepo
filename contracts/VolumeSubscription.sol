@@ -180,8 +180,7 @@ contract VolumeSubscription is Collectible {
       * PUBLIC FUNCTIONS
     */
     /** @dev This is the function for creating a new plan.
-      * @param _owner the address which owns this contract and to which a
-      * payment will be made.
+      * @param _owner the address which owns this contract and to which a payment will be made.
       * @param _identifier a way to uniquely identify a product for each vendor.
       * @param _name a front-end displaying name for the product.
       * @param _description a front-end displaying description for the product.
@@ -212,7 +211,18 @@ contract VolumeSubscription is Collectible {
         require(_fee >= 0);
         require(_fee <= _amount);
 
-        bytes32 planHash = keccak256(abi.encodePacked(_owner, _identifier, _interval, _amount));
+        bytes32 planHash = keccak256(abi.encodePacked(
+            _owner,
+            _tokenAddress,
+            _identifier,
+            _name,
+            _description,
+            _interval,
+            _amount,
+            _fee,
+            _data
+        ));
+
         require(plans[planHash].owner == 0x0);
 
         Plan memory newPlan = Plan({
