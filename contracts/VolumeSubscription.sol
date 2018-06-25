@@ -77,7 +77,7 @@ contract VolumeSubscription is Collectible {
       * EXTERNAL FUNCTIONS
     */
     /** @dev Terminate's the plan in case the merchant wants to discontinue the service.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
       * @param _terminationDate is the date from which they would like to
       * terminate the service.
     */
@@ -291,7 +291,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Updates the plan's owner.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
       * @param _owner the address which they want to update it to.
     */
     function setPlanOwner(bytes32 _plan, address _owner)
@@ -305,7 +305,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Updates the name of the product (visible to the user).
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
       * @param _name the name which they want to update it to.
     */
     function setPlanName(bytes32 _plan, string _name)
@@ -317,7 +317,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Updates the description of the product (visible to the user).
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
       * @param _description the description which they want to update it to.
     */
     function setPlanDescription(bytes32 _plan, string _description)
@@ -329,7 +329,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Updates the data field which can be used to store anything extra.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
       * @param _data the data which they want to update it to.
     */
     function setPlanData(bytes32 _plan, string _data)
@@ -353,7 +353,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Retrieve a plan from the plans mapping by providing an identifier.
-      * @param _plan is the hash of the user's address + identifier + interval + amount
+      * @param _plan is the hash of the user's plan
     */
     function getPlan(bytes32 _plan)
         public
@@ -385,7 +385,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Get the owner for the plan.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
     */
     function getPlanOwner(bytes32 _plan)
         public
@@ -396,7 +396,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Get the token address for the plan.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
     */
     function getPlanTokenAddress(bytes32 _plan)
         public
@@ -407,7 +407,7 @@ contract VolumeSubscription is Collectible {
     }
 
      /** @dev Get the identifier for the plan.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
     */
     function getPlanIdentifier(bytes32 _plan)
         public
@@ -418,7 +418,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Get the description for the plan.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
     */
     function getPlanDescription(bytes32 _plan)
         public
@@ -429,7 +429,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Get the name for the plan.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
     */
     function getPlanName(bytes32 _plan)
         public
@@ -440,7 +440,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Get the termination date for the plan.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
     */
     function getPlanTerminationDate(bytes32 _plan)
         public
@@ -451,7 +451,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Get the interval for the plan.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
     */
     function getPlanInterval(bytes32 _plan)
         public
@@ -462,7 +462,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Get the amount for the plan.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
     */
     function getPlanAmount(bytes32 _plan)
         public
@@ -473,7 +473,7 @@ contract VolumeSubscription is Collectible {
     }
 
     /** @dev Get the extra data for the plan.
-      * @param _plan is the hash of the user's address + identifier + interval + amount.
+      * @param _plan is the hash of the user's plan.
     */
     function getPlanData(bytes32 _plan)
         public
