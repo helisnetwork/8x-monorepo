@@ -20,7 +20,7 @@ contract('Executor', function(accounts) {
     let fourthAccount = accounts[3]; // Collector party claiming payment
     let fifthAccount = accounts[4]; // Third party claiming payment
 
-    let planHash;
+    let planIdentifier;
 
     before(async function() {
 
