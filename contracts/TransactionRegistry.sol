@@ -31,8 +31,7 @@ contract TransactionRegistry is Authorizable {
     /**
       * PUBLIC FUNCTIONS
     */
-    /** @dev Set a multiplier for how many tokens you need in order to claim
-      * proportional to the payments.
+    /** @dev Set a multiplier for how many tokens you need in order to claim proportional to the payments.
       * @param _amount is the multiplier that would like to be set.
     */
 
@@ -41,15 +40,11 @@ contract TransactionRegistry is Authorizable {
         // @TODO: Implementation
     }
 
-    /** @dev Create a new payment object when a user initially subscribes to a
-      * plan.
-      * @param _subscriptionContract is the contract where the details exist
-      * (adheres to Collectible contract interface).
-      * @param _subscriptionIdentifier is the identifier of that customer's
-      * subscription with its relevant details.
+    /** @dev Create a new payment object when a user initially subscribes to a plan.
+      * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface)
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
       * @param _dueDate is when the payment is meant to be paid by.
-      * @param _amount is how much the processors has staked in order to have
-      * the right to process the transaction.
+      * @param _amount is how much the processors has staked in order to have the right to process the transaction.
     */
     function createNewPayment(
         bytes32 _subscriptionIdentifier, // solhint-disable-line
