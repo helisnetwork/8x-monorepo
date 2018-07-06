@@ -53,22 +53,22 @@ contract MultiSigWallet {
     }
 
     modifier transactionExists(uint _transactionId) {
-        // require(transactions[_transactionId].destination != 0);
+        require(transactions[_transactionId].destination != 0);
         _;
     }
 
     modifier confirmed(uint _transactionId, address _owner) {
-        // require(confirmations[_transactionId][_owner]);
+        require(confirmations[_transactionId][_owner]);
         _;
     }
 
     modifier notConfirmed(uint _transactionId, address _owner) {
-        // require(!confirmations[_transactionId][_owner]);
+        require(!confirmations[_transactionId][_owner]);
         _;
     }
 
     modifier notExecuted(uint _transactionId) {
-        // require(!transactions[_transactionId].executed);
+        require(!transactions[_transactionId].executed);
         _;
     }
 
@@ -172,18 +172,25 @@ contract MultiSigWallet {
     function submitTransaction(address _destination, uint _value, bytes _data)
         public
         ownerExists(msg.sender)
+        returns (uint transactionId)
     {
         require(_destination != 0);
-        addTransaction(_destination, _value, _data);
+        transactionId = addTransaction(_destination, _value, _data);
+        confirmTransaction(transactionId);
     }
 
     /* @dev Allows an owner to confirm a transaction submitted.
      * @param _transactionId Identifier for the transaction.
     */
-    function confirmTransaction(uint _transactionId) public {
+    function confirmTransaction(uint _transactionId)
+        public
+        ownerExists(msg.sender)
+        transactionExists(_transactionId)
+        notConfirmed(_transactionId, msg.sender)
+    {
 
-        // @TODO: Implementation
-
+        confirmations[_transactionId][msg.sender] = true;
+        Confirmation(msg.sender, _transactionId);
     }
 
     /* @dev Allows an owner to revoke a transaction they've confirmed.
@@ -198,10 +205,21 @@ contract MultiSigWallet {
     /* @dev Excute a transaction that has enough confirmations.
      * @param _transactionId Identifier for the transaction.
     */
-    function executeTransaction(uint _transactionId) public {
-
-        // @TODO: Implementation
-
+    function executeTransaction(uint _transactionId)
+        public
+        ownerExists(msg.sender)
+        notExecuted(_transactionId)
+    {
+        if (isConfirmed(_transactionId)) {
+            Transaction transactionToExecute = transactions[_transactionId];
+            transactionToExecute.executed = true;
+            if (transactionToExecute.destination.call.value(transactionToExecute.value)(transactionToExecute.data)) {
+                Execution(_transactionId);
+            } else {
+                ExecutionFailure(_transactionId);
+                transactionToExecute.executed = false;
+            }
+        }
     }
 
     /* @dev Check if a transaction has enough confirmations.
@@ -212,8 +230,17 @@ contract MultiSigWallet {
         public
         returns (bool confirmed) {
 
-        // @TODO: Implementation
+        uint count = 0;
+        for (uint i = 0; i < owners.length; i++) {
+            if (confirmations[_transactionId][owners[i]]) {
+                count += 1;
+            }
+            if (count == requiredCount) {
+                return true;
+            }
+        }
 
+        return false;
     }
 
     /* @dev Return the number of confirmations for a transaction.
