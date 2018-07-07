@@ -25,7 +25,7 @@ contract PaymentRegistry is Authorizable {
 
     event PaymentCreated(bytes32 subscriptionIdentifer);
     event PaymentClaimed(bytes32 subscriptionIdentifer, address claimant);
-    event PaymentClaimantRemoved(bytes32 subscriptionIdentifer);
+    event PaymentClaimantRemoved(bytes32 subscriptionIdentifer, address claimant);
     event PaymentCancelled(bytes32 subscriptionIdentifer);
 
     /**
@@ -118,14 +118,23 @@ contract PaymentRegistry is Authorizable {
       * @param _subscriptionIdentifier is the identifier of that customer's
       * subscription with it's relevant details.
     */
-    function removeClaimant(bytes32 _subscriptionIdentifier)
+    function removeClaimant(
+        bytes32 _subscriptionIdentifier,
+        address _claimant)
         public
         onlyAuthorized
         returns (bool success)
-    { // solhint-disable-line
+    {
+        Payment storage currentPayment = payments[_subscriptionIdentifier];
 
-        // @TODO: Implementation
+        require(currentTimestamp() < currentPayment.dueDate);
 
+        currentPayment.claimant = 0;
+        currentPayment.executionPeriod = 0;
+
+        emit PaymentClaimantRemoved(_subscriptionIdentifier, _claimant);
+
+        return true;
     }
 
     /** @dev A payment was cancelled by the business or user
