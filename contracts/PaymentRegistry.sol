@@ -127,8 +127,6 @@ contract PaymentRegistry is Authorizable {
     {
         Payment storage currentPayment = payments[_subscriptionIdentifier];
 
-        require(currentTimestamp() < currentPayment.dueDate);
-
         currentPayment.claimant = 0;
         currentPayment.executionPeriod = 0;
 
@@ -145,10 +143,12 @@ contract PaymentRegistry is Authorizable {
         public
         onlyAuthorized
         returns (bool sucess)
-    { // solhint-disable-line
+    {
+        delete payments[_subscriptionIdentifier];
 
-        // @TODO: Implementation
+        emit PaymentCancelled(_subscriptionIdentifier);
 
+        return true;
     }
 
     /** @dev Get the infromation about a payment
