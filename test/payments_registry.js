@@ -43,7 +43,7 @@ contract('MockPaymentRegistry', function(accounts) {
             await paymentRegistry.setMultiplier(1, {from: accounts[0]});
 
             let multiplier = await paymentRegistry.multiplier.call();
-            assert.equal(multiplier, 1);
+            assert.equal(multiplier.toNumber(), 1);
 
         });
 
@@ -52,30 +52,30 @@ contract('MockPaymentRegistry', function(accounts) {
 
     describe("when creating a new payment", () => {
 
-        let future = parseInt(now/1000) + (30*24*60*60);
-
         it("should not be able to create with invalid details", async function() {
 
             let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.invalid.details", {from: accounts[0]});
 
-            await assertRevert(paymentRegistry.createNewPayment("", subscriptionContract.address, future, 400, {from: accounts[0]}));
-            await assertRevert(paymentRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, now - 1000, 400, {from: accounts[0]}));
-            await assertRevert(paymentRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, future, 0, {from: accounts[0]}));
+            await assertRevert(paymentRegistry.createNewPayment("", subscriptionContract.address, oneMonthLater, 400, {from: accounts[0]}));
+            await assertRevert(paymentRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, (now/1000) - 100, 400, {from: accounts[0]}));
+            await assertRevert(paymentRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, oneMonthLater, 0, {from: accounts[0]}));
 
         });
 
         it("should not be able to create as an unauthorized address", async function() {
 
             let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.unauthorized");
-            await assertRevert(paymentRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[1]}));
+            await assertRevert(paymentRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, oneMonthLater, 400, {from: accounts[1]}));
 
         });
 
         it("should be able to create a valid new payment", async function() {
 
             let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.valid");
-            let result = await paymentRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, future, 400, {from: accounts[0]});
-            assert.equal(result, true);
+            let result = await paymentRegistry.createNewPayment(subscriptionHash, subscriptionContract.address, oneMonthLater, 400, {from: accounts[0]});
+
+            let firstPayment = await paymentRegistry.payments.call(subscriptionHash);
+            assert.equal(firstPayment[2].toNumber(), 400);
 
         });
 

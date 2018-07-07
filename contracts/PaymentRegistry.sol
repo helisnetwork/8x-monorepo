@@ -5,7 +5,7 @@ import "./Authorizable.sol";
 /** @title Transaction Registry - Stores a list of pending transactions */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
-contract TransactionRegistry is Authorizable {
+contract PaymentRegistry is Authorizable {
 
     struct Payment {
         address subscriptionContract;
@@ -23,21 +23,20 @@ contract TransactionRegistry is Authorizable {
 
     uint public multiplier;
 
-    event PaymentCreated(bytes32 _subscriptionIdentifer);
-    event PaymentProcessed(bytes32 _subscriptionIdentifer);
-    event PaymentClaimantRemoved(bytes32 _subscriptionIdentifer);
-    event PaymentCancelled(bytes32 _subscriptionIdentifer);
+    event PaymentCreated(bytes32 subscriptionIdentifer);
+    event PaymentProcessed(bytes32 subscriptionIdentifer);
+    event PaymentClaimantRemoved(bytes32 subscriptionIdentifer);
+    event PaymentCancelled(bytes32 subscriptionIdentifer);
 
     /**
       * PUBLIC FUNCTIONS
     */
     /** @dev Set a multiplier for how many tokens you need in order to claim proportional to the payments.
-      * @param _amount is the multiplier that would like to be set.
+      * @param _multiplier is the multiplier that would like to be set.
     */
 
-    // solhint-disable-next-line
-    function setMultiplier(uint _amount) public onlyOwner {
-        // @TODO: Implementation
+    function setMultiplier(uint _multiplier) public onlyOwner {
+        multiplier = _multiplier;
     }
 
     /** @dev Create a new payment object when a user initially subscribes to a plan.
@@ -56,8 +55,25 @@ contract TransactionRegistry is Authorizable {
         returns (bool success)
     {
 
-        // @TODO: Implementation
-        return false;
+        require(_subscriptionIdentifier[0] != 0);
+        require(_subscriptionContract != 0);
+        require(_dueDate >= currentTimestamp());
+        require(_amount > 0);
+
+        Payment memory newPayment = Payment({
+            subscriptionContract: _subscriptionContract,
+            dueDate: _dueDate,
+            amount: _amount,
+            lastPaymentDate: 0,
+            claimant: 0,
+            executionPeriod: 0
+        });
+
+        payments[_subscriptionIdentifier] = newPayment;
+
+        emit PaymentCreated(_subscriptionIdentifier);
+
+        return true;
 
     }
 
@@ -123,6 +139,20 @@ contract TransactionRegistry is Authorizable {
 
         // @TODO: Implementation
 
+    }
+
+     /**
+      * INTERNAL FUNCTIONS
+    */
+    /** @dev Current timestamp returned via a function in order for mocks in tests
+    */
+    function currentTimestamp()
+        internal
+        view
+        returns (uint timetstamp)
+    {
+        // solhint-disable-next-line
+        return block.timestamp;
     }
 
 }

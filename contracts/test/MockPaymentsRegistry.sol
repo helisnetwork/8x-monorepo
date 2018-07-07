@@ -1,11 +1,11 @@
 pragma solidity 0.4.24;
 
-import "../TransactionRegistry.sol";
+import "../PaymentRegistry.sol";
 
 /** @title Mock contract in order to test time logic reliably. */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
-contract MockTransactionRegistry is TransactionRegistry {
+contract MockPaymentRegistry is PaymentRegistry {
     // solhint-disable-next-line
     uint public currentTime = block.timestamp;
 
