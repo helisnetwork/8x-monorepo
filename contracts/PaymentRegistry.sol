@@ -8,14 +8,14 @@ import "./Authorizable.sol";
 contract PaymentRegistry is Authorizable {
 
     struct Payment {
-        address subscriptionContract;
+        address subscriptionContract;   // 0
 
-        uint dueDate;
-        uint amount;
-        uint lastPaymentDate;
+        uint dueDate;                   // 1
+        uint amount;                    // 2
+        uint lastPaymentDate;           // 3
 
-        address claimant;
-        uint executionPeriod;
+        address claimant;               // 4
+        uint executionPeriod;           // 5
     }
 
     // The bytes32 key is the subscription identifier
@@ -24,7 +24,7 @@ contract PaymentRegistry is Authorizable {
     uint public multiplier;
 
     event PaymentCreated(bytes32 subscriptionIdentifer);
-    event PaymentProcessed(bytes32 subscriptionIdentifer);
+    event PaymentClaimed(bytes32 subscriptionIdentifer, address claimant);
     event PaymentClaimantRemoved(bytes32 subscriptionIdentifer);
     event PaymentCancelled(bytes32 subscriptionIdentifer);
 
@@ -77,18 +77,40 @@ contract PaymentRegistry is Authorizable {
 
     }
 
-    /** @dev Process the payment
+    /** @dev Claim the payment
       * @param _subscriptionIdentifier is the identifier of that customer's
       * subscription with it's relevant details.
+      * @param _claimant is the address of the account behind a service node.
+      * @param _nextPayment is the date for the next payment.
     */
-    function processPayment(bytes32 _subscriptionIdentifier)
+    function claimPayment(
+        bytes32 _subscriptionIdentifier,
+        address _claimant,
+        uint _nextPayment)
         public
         onlyAuthorized
         returns (bool success)
-    { // solhint-disable-line
+    {
+        Payment storage currentPayment = payments[_subscriptionIdentifier];
+        require(currentTimestamp() >= currentPayment.dueDate);
+        require(_nextPayment >= currentTimestamp());
 
-        // @TODO: Implementation
+        if (currentPayment.claimant != 0) {
+            require(currentTimestamp() <= currentPayment.dueDate + currentPayment.executionPeriod);
+            require(currentPayment.claimant == _claimant);
+        }
 
+        if (currentPayment.executionPeriod == 0) {
+            currentPayment.executionPeriod = currentTimestamp() - currentPayment.dueDate;
+        }
+
+        currentPayment.claimant = _claimant;
+        currentPayment.dueDate = _nextPayment;
+        currentPayment.lastPaymentDate = currentTimestamp();
+
+        emit PaymentClaimed(_subscriptionIdentifier, _claimant);
+
+        return true;
     }
 
     /** @dev Allows a claimant to cancel their responsibility to process a
@@ -130,8 +152,8 @@ contract PaymentRegistry is Authorizable {
         returns (
             address subscriptionContract,   // 0
             uint dueDate,                   // 1
-            uint lastPaymentDate,           // 2
-            uint amount,                    // 3
+            uint amount,                    // 2
+            uint lastPaymentDate,           // 3
             address claimant,               // 4
             uint executionPeriod            // 5
         )
