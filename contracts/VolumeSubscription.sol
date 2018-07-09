@@ -211,17 +211,19 @@ contract VolumeSubscription is Collectible {
         require(_fee >= 0);
         require(_fee <= _amount);
 
-        bytes32 planHash = keccak256(abi.encodePacked(
-            _owner,
-            _tokenAddress,
-            _identifier,
-            _name,
-            _description,
-            _interval,
-            _amount,
-            _fee,
-            _data
-        ));
+        bytes32 planHash = keccak256(
+            abi.encodePacked(
+                _owner,
+                _tokenAddress,
+                _identifier,
+                _name,
+                _description,
+                _interval,
+                _amount,
+                _fee,
+                _data
+            )
+        );
 
         require(plans[planHash].owner == 0x0);
 
