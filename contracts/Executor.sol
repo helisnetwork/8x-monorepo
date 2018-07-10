@@ -32,7 +32,7 @@ contract Executor is Ownable {
         returns (bool success)
     {
 
-        Collectible collectibleContract = Collectible(_subscriptionContract);
+        /*Collectible collectibleContract = Collectible(_subscriptionContract);
 
         // Check if the subscription hasn't been cancelled
         require(collectibleContract.isValidSubscription(_subscriptionIdentifier) == true);
@@ -57,7 +57,7 @@ contract Executor is Ownable {
         }
 
         // If the payment couldn't be collected, terminate.
-        collectibleContract.terminateSubscriptionDueToInsufficientFunds(_subscriptionIdentifier);
+        collectibleContract.terminateSubscriptionDueToInsufficientFunds(_subscriptionIdentifier);*/
         return false;
     }
 
