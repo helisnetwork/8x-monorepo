@@ -172,6 +172,129 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
-      });
+    });
+
+    describe("when updating a plan", () => {
+
+      let newPlan;
+      let planHash;
+
+        before(async function() {
+
+            newPlan = await contract.createPlan(
+              business, token.address, "plan.update", "test", "", 30, 100, 10, "{}", {from: executorContract}
+            );
+
+            planHash = newPlan.logs[0].args.identifier;
+
+        });
+
+        it("should throw when setting the owner from an unauthorized address", async function() {
+
+            await assertRevert(contract.setPlanOwner(planHash, accounts[5], {from: unauthorizedAddress}));
+
+        });
+
+        it("should be able to update the owner", async function() {
+
+            await contract.setPlanOwner(planHash, accounts[5], {from: executorContract});
+
+            let returnedPlan = await contract.plans.call(planHash);
+            assert(returnedPlan[0], accounts[5]);
+
+            await contract.setPlanOwner(planHash, business, {from: executorContract});
+
+        });
+
+        it("should throw when setting the name from an unauthorized address", async function() {
+
+            await assertRevert(contract.setPlanName(planHash, "Test", {from: unauthorizedAddress}));
+
+        });
+
+        it("should be able to update the name", async function() {
+
+            await contract.setPlanName(planHash, "Test", {from: executorContract});
+
+            let returnedPlan = await contract.plans.call(planHash);
+            assert(returnedPlan[3], "Test");
+
+        });
+
+        it("should throw when setting the description from an unauthorized address", async function() {
+
+            await assertRevert(contract.setPlanDescription(planHash, "This is a long description.", {from: unauthorizedAddress}));
+
+        });
+
+        it("should be able to update the description", async function() {
+
+            await contract.setPlanDescription(planHash, "This is a long description.", {from: executorContract});
+
+            let returnedPlan = await contract.plans.call(planHash);
+            assert(returnedPlan[4], "This is a long description.");
+
+        });
+
+        it("should throw when setting the data from an unauthorized address", async function() {
+
+            await assertRevert(contract.setPlanData(planHash, "{foo: bar}", {from: unauthorizedAddress}));
+
+        });
+
+        it("should be able to update the name", async function() {
+
+            await contract.setPlanData(planHash, "{foo: bar}", {from: executorContract});
+
+            let returnedPlan = await contract.plans.call(planHash);
+            assert(returnedPlan[8], "{foo: bar}");
+
+        });
+
+    });
+
+    describe("when terminating a plan", () => {
+
+        let newPlan;
+        let planHash;
+
+        before(async function() {
+
+            newPlan = await contract.createPlan(
+              business, token.address, "plan.terminate", "test", "", 30, 100, 10, "{}", {from: executorContract}
+            );
+
+            planHash = newPlan.logs[0].args.identifier;
+
+        });
+
+        it("should throw when terminating a plan from an unauthorized address", async function() {
+
+            let terminationDate = Date.now();
+            terminationDate = parseInt(terminationDate/1000) + (60*60*24);
+            await assertRevert(contract.terminatePlan(planHash, terminationDate, {from: unauthorizedAddress}));
+
+        });
+
+        it("should throw when terminating a plan with the termination date in the past", async function() {
+
+            let terminationDate = Date.now();
+            terminationDate = parseInt(terminationDate/1000) - (60*60*24);
+            await assertRevert(contract.terminatePlan(planHash, terminationDate, {from: executorContract}));
+
+        });
+
+        it("should be able to terminate a plan", async function() {
+
+            let terminationDate = Date.now();
+            terminationDate = parseInt(terminationDate/1000) + (60*60*24);
+            await contract.terminatePlan(planHash, terminationDate, {from: executorContract});
+
+            let plan = await contract.plans.call(planHash);
+            assert.equal(plan[9], terminationDate);
+
+        });
+
+    });
 
 });
