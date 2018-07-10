@@ -1,11 +1,11 @@
 pragma solidity 0.4.24;
 
-import "./Collectible.sol";
+import "./Collectable.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
-contract VolumeSubscription is Collectible {
+contract VolumeSubscription is Collectable {
 
     struct Plan {
 
@@ -160,7 +160,7 @@ contract VolumeSubscription is Collectible {
         return plans[planHash].fee;
     }
 
-    function terminateSubscriptionDueToInsufficientFunds(bytes32 _subscription)
+    function cancelSubscription(bytes32 _subscription)
         public
         onlyAuthorized
     {

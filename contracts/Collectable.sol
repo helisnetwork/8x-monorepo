@@ -5,7 +5,7 @@ import "./Authorizable.sol";
 /** @title Gets details of the subscription and terminates it after detecting insufficient tokens */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
-contract Collectible is Authorizable {
+contract Collectable is Authorizable {
 
     /**
       * PUBLIC VIEW FUNCTIONS
@@ -62,10 +62,8 @@ contract Collectible is Authorizable {
     /**
       * PUBLIC FUNCTIONS
     */
-    /** @dev Terminate the subscription after detecting that there are insufficient tokens.
+    /** @dev Cancel the subscription. User or service node iniated.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
     */
-    // @TODO: Deduct a penalty fee after detecting insufficient tokens.
-    //        The first subscription payment should be marked up to include the penalty fee.
-    function terminateSubscriptionDueToInsufficientFunds(bytes32 _subscription) public onlyAuthorized;
+    function cancelSubscription(bytes32 _subscription) public onlyAuthorized;
 }

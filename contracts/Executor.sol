@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 
 import "./base/ownership/Ownable.sol";
-import "./Collectible.sol";
+import "./Collectable.sol";
 import "./TransferProxy.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
