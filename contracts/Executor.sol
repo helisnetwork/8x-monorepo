@@ -31,33 +31,6 @@ contract Executor is Ownable {
         public
         returns (bool success)
     {
-
-        /*Collectible collectibleContract = Collectible(_subscriptionContract);
-
-        // Check if the subscription hasn't been cancelled
-        require(collectibleContract.isValidSubscription(_subscriptionIdentifier) == true);
-
-        address tokenAddress = collectibleContract.getSubscriptionTokenAddress(_subscriptionIdentifier);
-        address from;
-        address to;
-
-        (from, to) = collectibleContract.getSubscriptionFromToAddresses(_subscriptionIdentifier);
-        uint ownerBalance = collectibleContract.getSubscriptionOwnerBalance(_subscriptionIdentifier);
-        uint amountDue = collectibleContract.getAmountDueFromSubscription(_subscriptionIdentifier);
-        uint collectorFee = collectibleContract.getSubscriptionFee(_subscriptionIdentifier);
-
-        // Check if subscriber has enough balance and withdraw amountDue
-        if (ownerBalance > amountDue) {
-            // send fee to collector
-            transferProxy.transferFrom(tokenAddress, from, msg.sender, collectorFee);
-            // send (amountDue - collectorFee) to plan owner
-            transferProxy.transferFrom(tokenAddress, from, to, amountDue - collectorFee);
-            // return success
-            return true;
-        }
-
-        // If the payment couldn't be collected, terminate.
-        collectibleContract.terminateSubscriptionDueToInsufficientFunds(_subscriptionIdentifier);*/
         return false;
     }
 
