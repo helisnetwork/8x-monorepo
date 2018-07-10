@@ -83,7 +83,7 @@ contract VolumeSubscription is Collectable {
     */
     function terminatePlan(bytes32 _plan, uint _terminationDate)
         external
-        isOwnerOfPlan(_plan)
+        onlyAuthorized
     {
         require(_terminationDate >= currentTimestamp());
 
@@ -290,7 +290,7 @@ contract VolumeSubscription is Collectable {
     */
     function setPlanOwner(bytes32 _plan, address _owner)
         public
-        isOwnerOfPlan(_plan)
+        onlyAuthorized
         shouldEmitPlanChanges(_plan)
     {
         if (_owner != address(0)) {
@@ -304,7 +304,7 @@ contract VolumeSubscription is Collectable {
     */
     function setPlanName(bytes32 _plan, string _name)
         public
-        isOwnerOfPlan(_plan)
+        onlyAuthorized
         shouldEmitPlanChanges(_plan)
     {
         plans[_plan].name = _name;
@@ -316,7 +316,7 @@ contract VolumeSubscription is Collectable {
     */
     function setPlanDescription(bytes32 _plan, string _description)
         public
-        isOwnerOfPlan(_plan)
+        onlyAuthorized
         shouldEmitPlanChanges(_plan)
     {
         plans[_plan].description = _description;
@@ -328,7 +328,7 @@ contract VolumeSubscription is Collectable {
     */
     function setPlanData(bytes32 _plan, string _data)
         public
-        isOwnerOfPlan(_plan)
+        onlyAuthorized
         shouldEmitPlanChanges(_plan)
     {
         plans[_plan].data = _data;
