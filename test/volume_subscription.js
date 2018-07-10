@@ -297,4 +297,171 @@ contract('VolumeSubscription', function(accounts) {
 
     });
 
+    describe("when creating a new subscription", () => {
+
+        let newPlan;
+        let planHash;
+
+        let futureDate = Date.now();
+        futureDate = parseInt(futureDate/1000) + (60*60*24);
+
+        before(async function() {
+
+            newPlan = await contract.createPlan(
+              business, token.address, "subscription.new", "test", "", 30, 100, 10, "{}", {from: executorContract}
+            );
+
+            planHash = newPlan.logs[0].args.identifier;
+
+        });
+
+        it("should not be able to create from an unauthorized address", async function() {
+
+            await assertRevert(contract.createSubscription(subscriber, planHash, futureDate, "{}"));
+
+        });
+
+        it("should not be able to create with an invalid owner", async function() {
+
+            await assertRevert(contract.createSubscription(0, planHash, futureDate, "{}", {from: executorContract}));
+
+        });
+
+        it("should not be able to create with an invalid plan hash", async function() {
+
+            let incorrectHash = keccak(
+              ["string"],
+              ["test"]
+            );
+
+            await assertRevert(contract.createSubscription(subscriber, incorrectHash, futureDate, "{}", {from: executorContract}));
+
+        });
+
+        it("should not be able to create with a starting date in the past", async function() {
+
+            let pastDate = futureDate - (60*60*24*5);
+            await assertRevert(contract.createSubscription(subscriber, planHash, pastDate, "{}", {from: executorContract}));
+
+        });
+
+        it("should be able to create a subscription from an authorized address", async function() {
+
+            let newSubscription = await contract.createSubscription(
+              subscriber, planHash, futureDate, "{}", {from: executorContract}
+            );
+
+            let subscriptionHash = newSubscription.logs[0].args.identifier;
+            let subscription = await contract.subscriptions.call(subscriptionHash);
+
+            assert.equal(subscription[0], subscriber);
+            assert.equal(subscription[1], token.address);
+            assert.equal(subscription[2], planHash);
+            assert.equal(subscription[3], futureDate);
+            assert.equal(subscription[4], 0);
+            assert.equal(subscription[5], "{}");
+
+            let computedHash = keccak(
+              ["address", "bytes32", "uint"],
+              [subscriber, planHash, futureDate]
+            );
+
+            assert.equal(computedHash, subscriptionHash);
+
+        });
+
+        it("should throw when trying to resubscribe with an existing active subscription", async function() {
+
+            await assertRevert(contract.createSubscription(
+              subscriber, planHash, futureDate, "{}", {from: executorContract}
+            ));
+
+        });
+
+    });
+
+    describe("when updating a subscription", () => {
+
+        let newPlan;
+        let planHash;
+        let subscriptionHash;
+
+        let futureDate = Date.now();
+        futureDate = parseInt(futureDate/1000) + (60*60*24);
+
+        before(async function() {
+
+            newPlan = await contract.createPlan(
+              business, token.address, "subscription.update", "test", "", 30, 100, 10, "{}", {from: executorContract}
+            );
+
+            planHash = newPlan.logs[0].args.identifier;
+
+            let newSubscription = await contract.createSubscription(
+              subscriber, planHash, futureDate, "{}", {from: executorContract}
+            );
+
+            subscriptionHash = newSubscription.logs[0].args.identifier;
+
+        });
+
+        it("should throw when upadating the data from an unauthorized address", async function() {
+
+            await assertRevert(contract.setSubscriptionData(subscriptionHash, "{foo: bar}", {from: unauthorizedAddress}));
+
+        });
+
+        it("should be able to update the data of a subscription", async function() {
+
+            await contract.setSubscriptionData(subscriptionHash, "{foo: bar}", {from: executorContract});
+
+            let subscription = await contract.subscriptions.call(subscriptionHash);
+            assert.equal(subscription[5], "{foo: bar}");
+
+        });
+
+    });
+
+    describe("when cancelling a subscription", () => {
+
+        let newPlan;
+        let planHash;
+        let subscriptionHash;
+
+        let futureDate = Date.now();
+        futureDate = parseInt(futureDate/1000) + (60*60*24);
+
+        before(async function() {
+
+            newPlan = await contract.createPlan(
+              business, token.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: executorContract}
+            );
+
+            planHash = newPlan.logs[0].args.identifier;
+
+            let newSubscription = await contract.createSubscription(
+              subscriber, planHash, futureDate, "{}", {from: executorContract}
+            );
+
+            subscriptionHash = newSubscription.logs[0].args.identifier;
+
+        });
+
+        it("should not be able to cancel from an unauthorized address", async function() {
+
+            await assertRevert(contract.cancelSubscription(subscriptionHash, {from: unauthorizedAddress}));
+
+        });
+
+        it("should be able to cancel from an authorized address", async function() {
+
+            await contract.cancelSubscription(subscriptionHash, {from: executorContract});
+
+            let subscription = await contract.subscriptions.call(subscriptionHash);
+            assert.isAbove(subscription[4].toNumber(), 0);
+
+        });
+
+    });
+
 });

@@ -15,7 +15,6 @@ contract Collectable is Authorizable {
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
       * @return success is the result of whether the subscription is valid or not.
     */
-
     function isValidSubscription(bytes32 _subscription)
         public
         view
@@ -65,5 +64,6 @@ contract Collectable is Authorizable {
     /** @dev Cancel the subscription. User or service node iniated.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
     */
-    function cancelSubscription(bytes32 _subscription) public onlyAuthorized;
+    function cancelSubscription(bytes32 _subscription)
+        public;
 }

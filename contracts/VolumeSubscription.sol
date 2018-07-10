@@ -33,7 +33,6 @@ contract VolumeSubscription is Collectable {
         bytes32 planHash;
 
         uint startDate;
-        uint nextPaymentDate;
         uint terminationDate;
 
         string data;
@@ -95,25 +94,6 @@ contract VolumeSubscription is Collectable {
         emit TerminatedPlan(_plan, _terminationDate);
     }
 
-    /** @dev Terminate's the subscription in case the user wants to discontinue the service.
-      * @param _subscription is the hash of the user's address + plan's hash.
-      * @param _terminationDate is the date from which they would like to
-      * terminate the service.
-    */
-    function terminateSubscription(bytes32 _subscription, uint _terminationDate)
-        external
-        isOwnerOfSubscription(_subscription)
-    {
-        require(_terminationDate >= currentTimestamp());
-
-        // If it's already been set then we don't want it to be modified
-        require(subscriptions[_subscription].terminationDate == 0);
-
-        subscriptions[_subscription].terminationDate = _terminationDate;
-
-        emit TerminatedSubscription(_subscription, _terminationDate);
-    }
-
     /**
       * COLLECTIBLE INTERFACE FUNCTIONS
     */
@@ -164,8 +144,13 @@ contract VolumeSubscription is Collectable {
         public
         onlyAuthorized
     {
-        subscriptions[_subscription].terminationDate = currentTimestamp();
-        emit TerminatedSubscription(_subscription, currentTimestamp());
+        // Check that the subscription is still valid
+        require(subscriptions[_subscription].terminationDate == 0);
+
+        uint cancellationTimestamp = currentTimestamp();
+        subscriptions[_subscription].terminationDate = cancellationTimestamp;
+
+        emit TerminatedSubscription(_subscription, cancellationTimestamp);
     }
 
     /**
@@ -252,6 +237,7 @@ contract VolumeSubscription is Collectable {
         string _data
     )
         public
+        onlyAuthorized
         returns (bytes32 newSubscriptionHash)
     {
         // @TODO: Check for overflows and underflows
@@ -262,7 +248,7 @@ contract VolumeSubscription is Collectable {
         address planTokenAddress = plans[_planHash].tokenAddress;
 
         bytes32 subscriptionHash =
-            keccak256(abi.encodePacked(_owner, _planHash));
+            keccak256(abi.encodePacked(_owner, _planHash, _startDate));
 
         require(subscriptions[subscriptionHash].owner == 0x0);
         require(planTokenAddress != 0x0);
@@ -272,7 +258,6 @@ contract VolumeSubscription is Collectable {
             tokenAddress: planTokenAddress,
             planHash: _planHash,
             startDate: _startDate,
-            nextPaymentDate: 0,
             terminationDate: 0,
             data: _data
         });
@@ -340,7 +325,7 @@ contract VolumeSubscription is Collectable {
     */
     function setSubscriptionData(bytes32 _subscription, string _data)
         public
-        isOwnerOfSubscription(_subscription)
+        onlyAuthorized
         shouldEmitSubscriptionChanges(_subscription)
     {
         subscriptions[_subscription].data = _data;
