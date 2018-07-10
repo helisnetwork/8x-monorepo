@@ -16,12 +16,12 @@ contract VolumeSubscription is Collectible {
         string name;
         string description;
 
-        uint terminationDate;
         uint interval;
         uint amount;
         uint fee;
 
         string data;
+        uint terminationDate;
 
     }
 
@@ -122,7 +122,7 @@ contract VolumeSubscription is Collectible {
         view
         returns (bool success)
     {
-        return (getSubscriptionTerminationDate(_subscription) == 0);
+        return (subscriptions[_subscription].terminationDate == 0);
     }
 
     function getSubscriptionTokenAddress(bytes32 _subscription)
@@ -138,16 +138,8 @@ contract VolumeSubscription is Collectible {
         view
         returns (address from, address to)
     {
-        bytes32 planHash = getSubscriptionPlanHash(_subscription);
-        return (getSubscriptionOwner(_subscription), getPlanOwner(planHash));
-    }
-
-    function getSubscriptionOwnerBalance(bytes32 _subscription)
-        public
-        view
-        returns (uint balance)
-    {
-        return getSubscriptionOwner(_subscription).balance;
+        bytes32 planHash = subscriptions[_subscription].planHash;
+        return (subscriptions[_subscription].owner, plans[planHash].owner);
     }
 
     function getAmountDueFromSubscription(bytes32 _subscription)
@@ -155,7 +147,7 @@ contract VolumeSubscription is Collectible {
         view
         returns (uint amount)
     {
-        bytes32 planHash = getSubscriptionPlanHash(_subscription);
+        bytes32 planHash = subscriptions[_subscription].planHash;
         return plans[planHash].amount;
     }
 
@@ -164,7 +156,7 @@ contract VolumeSubscription is Collectible {
         view
         returns (uint fee)
     {
-        bytes32 planHash = getSubscriptionPlanHash(_subscription);
+        bytes32 planHash = subscriptions[_subscription].planHash;
         return plans[planHash].fee;
     }
 
@@ -198,8 +190,8 @@ contract VolumeSubscription is Collectible {
         uint _amount, // Required
         uint _fee, // Required
         string _data)
-
         public
+        onlyAuthorized
         returns (bytes32 newPlanHash)
     {
 
@@ -208,8 +200,8 @@ contract VolumeSubscription is Collectible {
         require(bytes(_identifier).length > 0);
         require(_interval > 0);
         require(_amount > 0);
-        require(_fee >= 0);
-        require(_fee <= _amount);
+        require(_fee > 0);
+        require(_fee < _amount);
 
         bytes32 planHash = keccak256(
             abi.encodePacked(
@@ -233,11 +225,11 @@ contract VolumeSubscription is Collectible {
             identifier: _identifier,
             name: _name,
             description: _description,
-            terminationDate: 0,
             interval: _interval,
             amount: _amount,
             fee: _fee,
-            data: _data
+            data: _data,
+            terminationDate: 0
         });
 
         plans[planHash] = newPlan;
@@ -267,7 +259,7 @@ contract VolumeSubscription is Collectible {
         require(_owner != 0x0);
         require(_startDate >= currentTimestamp());
 
-        address planTokenAddress = getPlanTokenAddress(_planHash);
+        address planTokenAddress = plans[_planHash].tokenAddress;
 
         bytes32 subscriptionHash =
             keccak256(abi.encodePacked(_owner, _planHash));
@@ -352,233 +344,6 @@ contract VolumeSubscription is Collectible {
         shouldEmitSubscriptionChanges(_subscription)
     {
         subscriptions[_subscription].data = _data;
-    }
-
-    /** @dev Retrieve a plan from the plans mapping by providing an identifier.
-      * @param _plan is the hash of the user's plan
-    */
-    function getPlan(bytes32 _plan)
-        public
-        view
-        returns (
-            address owner,
-            string identifier,
-            string name,
-            string description,
-            uint terminationDate,
-            uint interval,
-            uint amount,
-            uint fee,
-            string data
-        )
-    {
-        Plan storage plan = plans[_plan];
-        return (
-            plan.owner,
-            plan.identifier,
-            plan.name,
-            plan.description,
-            plan.terminationDate,
-            plan.interval,
-            plan.amount,
-            plan.fee,
-            plan.data
-        );
-    }
-
-    /** @dev Get the owner for the plan.
-      * @param _plan is the hash of the user's plan.
-    */
-    function getPlanOwner(bytes32 _plan)
-        public
-        view
-        returns (address owner)
-    {
-        return plans[_plan].owner;
-    }
-
-    /** @dev Get the token address for the plan.
-      * @param _plan is the hash of the user's plan.
-    */
-    function getPlanTokenAddress(bytes32 _plan)
-        public
-        view
-        returns (address owner)
-    {
-        return plans[_plan].tokenAddress;
-    }
-
-     /** @dev Get the identifier for the plan.
-      * @param _plan is the hash of the user's plan.
-    */
-    function getPlanIdentifier(bytes32 _plan)
-        public
-        view
-        returns (string identifier)
-    {
-        return plans[_plan].identifier;
-    }
-
-    /** @dev Get the description for the plan.
-      * @param _plan is the hash of the user's plan.
-    */
-    function getPlanDescription(bytes32 _plan)
-        public
-        view
-        returns (string description)
-    {
-        return plans[_plan].description;
-    }
-
-    /** @dev Get the name for the plan.
-      * @param _plan is the hash of the user's plan.
-    */
-    function getPlanName(bytes32 _plan)
-        public
-        view
-        returns (string name)
-    {
-        return plans[_plan].name;
-    }
-
-    /** @dev Get the termination date for the plan.
-      * @param _plan is the hash of the user's plan.
-    */
-    function getPlanTerminationDate(bytes32 _plan)
-        public
-        view
-        returns (uint terminationDate)
-    {
-        return plans[_plan].terminationDate;
-    }
-
-    /** @dev Get the interval for the plan.
-      * @param _plan is the hash of the user's plan.
-    */
-    function getPlanInterval(bytes32 _plan)
-        public
-        view
-        returns (uint interval)
-    {
-        return plans[_plan].interval;
-    }
-
-    /** @dev Get the amount for the plan.
-      * @param _plan is the hash of the user's plan.
-    */
-    function getPlanAmount(bytes32 _plan)
-        public
-        view
-        returns (uint amount)
-    {
-        return plans[_plan].amount;
-    }
-
-    /** @dev Get the extra data for the plan.
-      * @param _plan is the hash of the user's plan.
-    */
-    function getPlanData(bytes32 _plan)
-        public
-        view
-        returns (string data)
-    {
-        return plans[_plan].data;
-    }
-
-    /** @dev Retrieve a subscription by providing an identifier.
-      * @param _subscription is the hash of the user's address + plan's hash.
-    */
-    function getSubscription(bytes32 _subscription)
-        public
-        view
-        returns (
-            address owner,
-            bytes32 planHash,
-            uint startDate,
-            uint nextPaymentDate,
-            uint terminationDate,
-            uint interval,
-            uint amount,
-            string data
-        )
-    {
-        Subscription storage subscription = subscriptions[_subscription];
-        return (
-            subscription.owner,
-            subscription.planHash,
-            subscription.startDate,
-            subscription.nextPaymentDate,
-            subscription.terminationDate,
-            plans[planHash].interval,
-            plans[planHash].amount,
-            subscription.data
-        );
-    }
-
-    /** @dev Get the owner of the subscription.
-      * @param _subscription is the hash of the user's address + identifier.
-    */
-    function getSubscriptionOwner(bytes32 _subscription)
-        public
-        view
-        returns (address owner)
-    {
-        return subscriptions[_subscription].owner;
-    }
-
-    /** @dev Get the plan hash of the subscription.
-      * @param _subscription is the hash of the user's address + identifier.
-    */
-    function getSubscriptionPlanHash(bytes32 _subscription)
-        public
-        view
-        returns (bytes32 planHash)
-    {
-        return subscriptions[_subscription].planHash;
-    }
-
-    /** @dev Get the start date of the subscription.
-      * @param _subscription is the hash of the user's address + identifier.
-    */
-    function getSubscriptionStartDate(bytes32 _subscription)
-        public
-        view
-        returns (uint startDate)
-    {
-        return subscriptions[_subscription].startDate;
-    }
-
-    /** @dev Get the next payment date of the subscription.
-      * @param _subscription is the hash of the user's address + identifier.
-    */
-    function getSubscriptionNextPaymentDate(bytes32 _subscription)
-        public
-        view
-        returns (uint nextPaymentDue)
-    {
-        return subscriptions[_subscription].nextPaymentDate;
-    }
-
-    /** @dev Get the termination date for the subscription.
-      * @param _subscription is the hash of the user's address + identifier.
-    */
-    function getSubscriptionTerminationDate(bytes32 _subscription)
-        public
-        view
-        returns (uint terminationDate)
-    {
-        return subscriptions[_subscription].terminationDate;
-    }
-
-    /** @dev Get the extra data for the plan.
-      * @param _subscription is the hash of the user's address + identifier.
-    */
-    function getSubscriptionData(bytes32 _subscription)
-        public
-        view
-        returns (string data)
-    {
-        return subscriptions[_subscription].data;
     }
 
     /**

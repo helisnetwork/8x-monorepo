@@ -40,14 +40,6 @@ contract Collectible is Authorizable {
         view
         returns (address from, address to);
 
-    /** @dev Gets token balance of the subscription owners address.
-      * @param _subscription is the identifier of the customer's subscription with its relevant details.
-      * @return balance the token balance of the address where the recurring payments will be deducted (the customer).
-    */
-    function getSubscriptionOwnerBalance(bytes32 _subscription)
-        public
-        view
-        returns (uint balance);
 
     /** @dev Gets the token amount due from the subscription.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
