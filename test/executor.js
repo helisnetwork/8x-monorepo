@@ -30,4 +30,40 @@ contract('Executor', function(accounts) {
 
     });
 
+    describe("when businesses creates subscriptions", () => {
+
+        // @TODO: Implementation
+
+    });
+
+    describe("when users subscribe to subscriptions", () => {
+
+        // @TODO: Implementation
+
+    });
+
+    describe("when service nodes process subscriptions", () => {
+
+        // @TODO: Implementation
+
+    });
+
+    describe("when service nodes cancel a subscription", () => {
+
+        // @TODO: Implementation
+
+    });
+
+    describe("when businesses cancel a subscription", () => {
+
+        // @TODO: Implementation
+
+    });
+
+    describe("when users don't have enough funds in their wallet", () => {
+
+        // @TODO: Implementation
+
+    });
+
 });
