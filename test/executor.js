@@ -30,39 +30,121 @@ contract('Executor', function(accounts) {
 
     });
 
+    describe("when the contract is initialised", () =>{
+
+        it("should only have one authorised token address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should only have one subscription contract whitelisted", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+    });
+
     describe("when businesses creates subscriptions", () => {
 
-        // @TODO: Implementation
+        it("should not be able to create a subscription to an unauthorised contract", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to create a subscription", async function() {
+
+            // @TODO: Implementation
+
+        });
 
     });
 
     describe("when users subscribe to subscriptions", () => {
 
-        // @TODO: Implementation
+        it("should not be able to subscribe to an unauthorized subscription contract", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be have enough allowance to spend from the user's wallet with enough funds", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be subscribing to an authorized subscription contract", async function() {
+
+            // @TODO: Implementation
+
+        });
 
     });
 
     describe("when service nodes process subscriptions", () => {
 
-        // @TODO: Implementation
+        it("should have enough funds in the user's wallet including gas cost", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to process a valid subscription", async function() {
+
+            // @TODO: Implementation
+
+        });
 
     });
 
     describe("when service nodes cancel a subscription", () => {
 
-        // @TODO: Implementation
+        it("should not be able to if the due date has already passed", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to before the due date", async function() {
+
+            // @TODO: Implementation
+
+        });
 
     });
 
     describe("when businesses cancel a subscription", () => {
 
-        // @TODO: Implementation
+        it("should not be able to cancel to an unauthorised subscription contract", async function() {
+
+            // @TODO: Protocol
+
+        });
+
+        it("should not be able to as an unauthorised user", async function() {
+
+            // @TODO: Implementation
+
+        });
 
     });
 
     describe("when users don't have enough funds in their wallet", () => {
 
-        // @TODO: Implementation
+        it("should not allow the subscription to be processed", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should cancel the subscription", async function() {
+
+            // @TODO: Implementation
+
+        });
 
     });
 
