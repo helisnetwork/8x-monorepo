@@ -431,9 +431,15 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
-        it("should be able to cancel from an authorized address", async function() {
+        it("should not be able to cancel from an authorized address", async function() {
 
-            await contract.cancelSubscription(subscriptionHash, {from: executorContract});
+            await assertRevert(contract.cancelSubscription(subscriptionHash, {from: executorContract}));
+
+        });
+
+        it("should be able to cancel from the owner", async function() {
+
+            await contract.cancelSubscription(subscriptionHash, {from: subscriber});
 
             let subscription = await contract.subscriptions.call(subscriptionHash);
             assert.isAbove(subscription[4].toNumber(), 0);

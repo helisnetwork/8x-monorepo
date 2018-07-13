@@ -142,7 +142,7 @@ contract VolumeSubscription is Collectable {
 
     function cancelSubscription(bytes32 _subscription)
         public
-        onlyAuthorized
+        isOwnerOfSubscription(_subscription)
     {
         // Check that the subscription is still valid
         require(subscriptions[_subscription].terminationDate == 0);
