@@ -82,7 +82,7 @@ contract VolumeSubscription is Collectable {
     */
     function terminatePlan(bytes32 _plan, uint _terminationDate)
         external
-        onlyAuthorized
+        isOwnerOfPlan(_plan)
     {
         require(_terminationDate >= currentTimestamp());
 
@@ -176,7 +176,6 @@ contract VolumeSubscription is Collectable {
         uint _fee, // Required
         string _data)
         public
-        onlyAuthorized
         returns (bytes32 newPlanHash)
     {
 
@@ -225,36 +224,33 @@ contract VolumeSubscription is Collectable {
     }
 
     /** dev This is the function for creating a new subscription.
-      * @param _owner the user address that owns this contract.
       * @param _startDate the date from which this subscription should start.
       * @param _planHash a reference to the subscribed plan
       * @param _data extra data store.
     */
     function createSubscription(
-        address _owner,
         bytes32 _planHash,
         uint _startDate,
         string _data
     )
         public
-        onlyAuthorized
         returns (bytes32 newSubscriptionHash)
     {
         // @TODO: Check for overflows and underflows
 
-        require(_owner != 0x0);
+        require(msg.sender != 0x0);
         require(_startDate >= currentTimestamp());
 
         address planTokenAddress = plans[_planHash].tokenAddress;
 
         bytes32 subscriptionHash =
-            keccak256(abi.encodePacked(_owner, _planHash, _startDate));
+            keccak256(abi.encodePacked(msg.sender, _planHash, _startDate));
 
         require(subscriptions[subscriptionHash].owner == 0x0);
         require(planTokenAddress != 0x0);
 
         Subscription memory newSubscription = Subscription({
-            owner: _owner,
+            owner: msg.sender,
             tokenAddress: planTokenAddress,
             planHash: _planHash,
             startDate: _startDate,
@@ -275,7 +271,7 @@ contract VolumeSubscription is Collectable {
     */
     function setPlanOwner(bytes32 _plan, address _owner)
         public
-        onlyAuthorized
+        isOwnerOfPlan(_plan)
         shouldEmitPlanChanges(_plan)
     {
         if (_owner != address(0)) {
@@ -289,7 +285,7 @@ contract VolumeSubscription is Collectable {
     */
     function setPlanName(bytes32 _plan, string _name)
         public
-        onlyAuthorized
+        isOwnerOfPlan(_plan)
         shouldEmitPlanChanges(_plan)
     {
         plans[_plan].name = _name;
@@ -301,7 +297,7 @@ contract VolumeSubscription is Collectable {
     */
     function setPlanDescription(bytes32 _plan, string _description)
         public
-        onlyAuthorized
+        isOwnerOfPlan(_plan)
         shouldEmitPlanChanges(_plan)
     {
         plans[_plan].description = _description;
@@ -313,7 +309,7 @@ contract VolumeSubscription is Collectable {
     */
     function setPlanData(bytes32 _plan, string _data)
         public
-        onlyAuthorized
+        isOwnerOfPlan(_plan)
         shouldEmitPlanChanges(_plan)
     {
         plans[_plan].data = _data;
@@ -325,7 +321,7 @@ contract VolumeSubscription is Collectable {
     */
     function setSubscriptionData(bytes32 _subscription, string _data)
         public
-        onlyAuthorized
+        isOwnerOfSubscription(_subscription)
         shouldEmitSubscriptionChanges(_subscription)
     {
         subscriptions[_subscription].data = _data;

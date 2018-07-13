@@ -53,21 +53,11 @@ contract('VolumeSubscription', function(accounts) {
 
     describe("when creating a new plan", () => {
 
-        it("should throw when creating from an unauthorised address", async function() {
-
-            await assertRevert(
-              contract.createPlan(
-                business, token.address, "plan.new.incorrect", "test", "", 30, 100, 5, "{}", {from: unauthorizedAddress}
-              )
-            );
-
-        });
-
         it("should throw when creating a plan with an invalid owner address", async function() {
 
             await assertRevert(
               contract.createPlan(
-                0, token.address, "plan.new.incorrect", "test", "", 30, 100, 5, "{}", {from: executorContract}
+                0, token.address, "plan.new.incorrect", "test", "", 30, 100, 5, "{}", {from: business}
               )
             );
 
@@ -77,7 +67,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                business, 0, "plan.new.incorrect", "test", "", 30, 100, 5, "{}", {from: executorContract}
+                business, 0, "plan.new.incorrect", "test", "", 30, 100, 5, "{}", {from: business}
               )
             );
 
@@ -87,7 +77,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                business, token.address, "", "test", "", 30, 100, 5, "{}", {from: executorContract}
+                business, token.address, "", "test", "", 30, 100, 5, "{}", {from: business}
               )
             );
 
@@ -97,7 +87,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
             contract.createPlan(
-              business, token.address, "plan.new.incorrect", "test", "", 0, 100, 5, "{}", {from: executorContract}
+              business, token.address, "plan.new.incorrect", "test", "", 0, 100, 5, "{}", {from: business}
             )
           );
 
@@ -107,7 +97,7 @@ contract('VolumeSubscription', function(accounts) {
 
           await assertRevert(
             contract.createPlan(
-              business, token.address, "plan.new.incorrect", "test", "", 30, 0, 5, "{}", {from: executorContract}
+              business, token.address, "plan.new.incorrect", "test", "", 30, 0, 5, "{}", {from: business}
             )
           );
 
@@ -118,7 +108,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                business, token.address, "plan.new.incorrect", "test", "", 30, 100, 0, "{}", {from: executorContract}
+                business, token.address, "plan.new.incorrect", "test", "", 30, 100, 0, "{}", {from: business}
               )
             );
 
@@ -128,7 +118,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                business, token.address, "plan.new.incorrect", "test", "", 30, 100, 100, "{}", {from: executorContract}
+                business, token.address, "plan.new.incorrect", "test", "", 30, 100, 100, "{}", {from: business}
               )
             );
 
@@ -137,7 +127,7 @@ contract('VolumeSubscription', function(accounts) {
         it("should be able to create a new plan correctly", async function() {
 
             let newPlan = await contract.createPlan(
-              business, token.address, "plan.new", "test", "", 30, 100, 10, "{}", {from: executorContract}
+              business, token.address, "plan.new", "test", "", 30, 100, 10, "{}", {from: business}
             )
 
             let planHash = newPlan.logs[0].args.identifier;
@@ -166,7 +156,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                business, token.address, "plan.new", "test", "", 30, 100, 10, "{}", {from: executorContract}
+                business, token.address, "plan.new", "test", "", 30, 100, 10, "{}", {from: business}
               )
             );
 
@@ -182,7 +172,7 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, "plan.update", "test", "", 30, 100, 10, "{}", {from: executorContract}
+              business, token.address, "plan.update", "test", "", 30, 100, 10, "{}", {from: business}
             );
 
             planHash = newPlan.logs[0].args.identifier;
@@ -197,12 +187,12 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update the owner", async function() {
 
-            await contract.setPlanOwner(planHash, accounts[5], {from: executorContract});
+            await contract.setPlanOwner(planHash, accounts[5], {from: business});
 
             let returnedPlan = await contract.plans.call(planHash);
             assert(returnedPlan[0], accounts[5]);
 
-            await contract.setPlanOwner(planHash, business, {from: executorContract});
+            await contract.setPlanOwner(planHash, business, {from: accounts[5]});
 
         });
 
@@ -214,7 +204,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update the name", async function() {
 
-            await contract.setPlanName(planHash, "Test", {from: executorContract});
+            await contract.setPlanName(planHash, "Test", {from: business});
 
             let returnedPlan = await contract.plans.call(planHash);
             assert(returnedPlan[3], "Test");
@@ -229,7 +219,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update the description", async function() {
 
-            await contract.setPlanDescription(planHash, "This is a long description.", {from: executorContract});
+            await contract.setPlanDescription(planHash, "This is a long description.", {from: business});
 
             let returnedPlan = await contract.plans.call(planHash);
             assert(returnedPlan[4], "This is a long description.");
@@ -244,7 +234,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update the name", async function() {
 
-            await contract.setPlanData(planHash, "{foo: bar}", {from: executorContract});
+            await contract.setPlanData(planHash, "{foo: bar}", {from: business});
 
             let returnedPlan = await contract.plans.call(planHash);
             assert(returnedPlan[8], "{foo: bar}");
@@ -261,7 +251,7 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, "plan.terminate", "test", "", 30, 100, 10, "{}", {from: executorContract}
+              business, token.address, "plan.terminate", "test", "", 30, 100, 10, "{}", {from: business}
             );
 
             planHash = newPlan.logs[0].args.identifier;
@@ -280,7 +270,7 @@ contract('VolumeSubscription', function(accounts) {
 
             let terminationDate = Date.now();
             terminationDate = parseInt(terminationDate/1000) - (60*60*24);
-            await assertRevert(contract.terminatePlan(planHash, terminationDate, {from: executorContract}));
+            await assertRevert(contract.terminatePlan(planHash, terminationDate, {from: business}));
 
         });
 
@@ -288,7 +278,7 @@ contract('VolumeSubscription', function(accounts) {
 
             let terminationDate = Date.now();
             terminationDate = parseInt(terminationDate/1000) + (60*60*24);
-            await contract.terminatePlan(planHash, terminationDate, {from: executorContract});
+            await contract.terminatePlan(planHash, terminationDate, {from: business});
 
             let plan = await contract.plans.call(planHash);
             assert.equal(plan[9], terminationDate);
@@ -308,22 +298,10 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, "subscription.new", "test", "", 30, 100, 10, "{}", {from: executorContract}
+              business, token.address, "subscription.new", "test", "", 30, 100, 10, "{}", {from: business}
             );
 
             planHash = newPlan.logs[0].args.identifier;
-
-        });
-
-        it("should not be able to create from an unauthorized address", async function() {
-
-            await assertRevert(contract.createSubscription(subscriber, planHash, futureDate, "{}"));
-
-        });
-
-        it("should not be able to create with an invalid owner", async function() {
-
-            await assertRevert(contract.createSubscription(0, planHash, futureDate, "{}", {from: executorContract}));
 
         });
 
@@ -334,21 +312,21 @@ contract('VolumeSubscription', function(accounts) {
               ["test"]
             );
 
-            await assertRevert(contract.createSubscription(subscriber, incorrectHash, futureDate, "{}", {from: executorContract}));
+            await assertRevert(contract.createSubscription(incorrectHash, futureDate, "{}", {from: subscriber}));
 
         });
 
         it("should not be able to create with a starting date in the past", async function() {
 
             let pastDate = futureDate - (60*60*24*5);
-            await assertRevert(contract.createSubscription(subscriber, planHash, pastDate, "{}", {from: executorContract}));
+            await assertRevert(contract.createSubscription(planHash, pastDate, "{}", {from: subscriber}));
 
         });
 
         it("should be able to create a subscription from an authorized address", async function() {
 
             let newSubscription = await contract.createSubscription(
-              subscriber, planHash, futureDate, "{}", {from: executorContract}
+              planHash, futureDate, "{}", {from: subscriber}
             );
 
             let subscriptionHash = newSubscription.logs[0].args.identifier;
@@ -373,7 +351,7 @@ contract('VolumeSubscription', function(accounts) {
         it("should throw when trying to resubscribe with an existing active subscription", async function() {
 
             await assertRevert(contract.createSubscription(
-              subscriber, planHash, futureDate, "{}", {from: executorContract}
+                planHash, futureDate, "{}", {from: subscriber}
             ));
 
         });
@@ -392,13 +370,13 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, "subscription.update", "test", "", 30, 100, 10, "{}", {from: executorContract}
+              business, token.address, "subscription.update", "test", "", 30, 100, 10, "{}", {from: business}
             );
 
             planHash = newPlan.logs[0].args.identifier;
 
             let newSubscription = await contract.createSubscription(
-              subscriber, planHash, futureDate, "{}", {from: executorContract}
+              planHash, futureDate, "{}", {from: subscriber}
             );
 
             subscriptionHash = newSubscription.logs[0].args.identifier;
@@ -413,7 +391,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update the data of a subscription", async function() {
 
-            await contract.setSubscriptionData(subscriptionHash, "{foo: bar}", {from: executorContract});
+            await contract.setSubscriptionData(subscriptionHash, "{foo: bar}", {from: subscriber});
 
             let subscription = await contract.subscriptions.call(subscriptionHash);
             assert.equal(subscription[5], "{foo: bar}");
@@ -434,13 +412,13 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: executorContract}
+              business, token.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: business}
             );
 
             planHash = newPlan.logs[0].args.identifier;
 
             let newSubscription = await contract.createSubscription(
-              subscriber, planHash, futureDate, "{}", {from: executorContract}
+              planHash, futureDate, "{}", {from: subscriber}
             );
 
             subscriptionHash = newSubscription.logs[0].args.identifier;
