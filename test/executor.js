@@ -6,39 +6,76 @@ var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.s
 var Executor = artifacts.require("./Executor.sol");
 var TransferProxy = artifacts.require("./TransferProxy.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
+var StakeContract = artifacts.require("./StakeContract.sol");
+var PaymentRegistryContract = artifacts.require("./PaymentRegistry.sol");
 
 contract('Executor', function(accounts) {
 
     let subscriptionContract;
-    let executorContract;
     let proxyContract;
+    let stakeContract;
+    let paymentRegistryContract;
+
+    let executorContract;
     let tokenContract;
 
     let contractOwner = accounts[0]; // Admin role
     let business = accounts[1]; // Plan owner that has a plan that costs $100/month
     let subscriber = accounts[2]; // User paying $100/month subscription
     let serviceNode = accounts[3]; // Collector party claiming payment
+    let unauthorisedAddress = accounts[4]; // Some random address.
 
     let planIdentifier;
 
     before(async function() {
 
         subscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
-        executorContract = await Executor.new({from: contractOwner});
         proxyContract = await TransferProxy.new({from: contractOwner});
+        stakeContract = await StakeContract.new({from: contractOwner});
+        paymentRegistryContract = await PaymentRegistryContract.new({from: contractOwner});
+
         tokenContract = await EightExToken.new({from: contractOwner});
+
+        executorContract = await Executor.new(
+            proxyContract.address,
+            stakeContract.address,
+            paymentRegistryContract,
+            {from: contractOwner}
+        );
+
+
+        subscriptionContract.addAuthorizedAddress(executorContract, {from: contractOwner});
+        proxyContract.addAuthorizedAddress(executorContract, {from: contractOwner});
+        stakeContract.addAuthorizedAddress(executorContract, {from: contractOwner});
+        paymentRegistryContract.addAuthorizedAddress(executorContract, {from: contractOwner});
 
     });
 
-    describe("when the contract is initialised", () =>{
+    describe("when adding an approved contract", () =>{
 
-        it("should only have one authorised token address", async function() {
+        it("should not be able to add a contract as an unauthorised address", async function() {
 
             // @TODO: Implementation
 
         });
 
-        it("should only have one subscription contract whitelisted", async function() {
+        it("should be able to add a contract as an authorised address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+    });
+
+    describe("when adding an approved token", () =>{
+
+        it("should not be able to add a token as an unauthorised address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to add a token as an authorised address", async function() {
 
             // @TODO: Implementation
 
