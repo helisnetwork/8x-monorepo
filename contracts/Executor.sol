@@ -41,13 +41,12 @@ contract Executor is Ownable {
         address _paymentRegistryAddress
     )
         public
-        onlyOwner
     {
         // @TODO: Implementation
     }
 
-    /**
-      *
+    /** @dev Add an approved subscription contract.
+      * @param _contractAddress is the address of the subscription contract.
     */
     function addApprovedContract(address _contractAddress)
         public
@@ -55,8 +54,8 @@ contract Executor is Ownable {
         // @TODO: Implementation
     }
 
-    /**
-      *
+    /** @dev Add an approved token to be used.
+      * @param _tokenAddress is the address of the token to be used.
     */
     function addApprovedToken(address _tokenAddress)
         public
@@ -64,8 +63,8 @@ contract Executor is Ownable {
         // @TODO: Implementation
     }
 
-    /**
-      *
+    /** @dev Remove an approved subscription contract.
+      * @param _contractAddress is the address of the subscription contract.
     */
     function removeApprovedContract(address _contractAddress)
         public
@@ -73,8 +72,8 @@ contract Executor is Ownable {
         // @TODO: Implementation
     }
 
-    /**
-      *
+    /** @dev Remove an approved token to be used.
+      * @param _tokenAddress is the address of the token to remove.
     */
     function removeApprovedToken(address _tokenAddress)
         public
