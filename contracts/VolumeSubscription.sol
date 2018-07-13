@@ -46,6 +46,7 @@ contract VolumeSubscription is Collectable {
     event TerminatedPlan(bytes32 identifier, uint terminationDate);
 
     event CreatedSubscription(bytes32 identifier);
+    event FirstPaymentToSubscription(bytes32 identifier);
     event UpdatedSubscription(bytes32 identifier);
     event TerminatedSubscription(bytes32 identifier, uint terminationDate);
 
@@ -138,6 +139,14 @@ contract VolumeSubscription is Collectable {
     {
         bytes32 planHash = subscriptions[_subscription].planHash;
         return plans[planHash].fee;
+    }
+
+    function setStartDate(uint _date, bytes32 _subscription)
+        public
+    {
+
+        // @TODO: Implementation
+
     }
 
     function cancelSubscription(bytes32 _subscription)
@@ -235,7 +244,6 @@ contract VolumeSubscription is Collectable {
     */
     function createSubscription(
         bytes32 _planHash,
-        uint _startDate,
         string _data
     )
         public
@@ -244,12 +252,11 @@ contract VolumeSubscription is Collectable {
         // @TODO: Check for overflows and underflows
 
         require(msg.sender != 0x0);
-        require(_startDate >= currentTimestamp());
 
         address planTokenAddress = plans[_planHash].tokenAddress;
 
         bytes32 subscriptionHash =
-            keccak256(abi.encodePacked(msg.sender, _planHash, _startDate));
+            keccak256(abi.encodePacked(msg.sender, _planHash, currentTimestamp()));
 
         require(subscriptions[subscriptionHash].owner == 0x0);
         require(planTokenAddress != 0x0);
@@ -258,7 +265,7 @@ contract VolumeSubscription is Collectable {
             owner: msg.sender,
             tokenAddress: planTokenAddress,
             planHash: _planHash,
-            startDate: _startDate,
+            startDate: 0,
             terminationDate: 0,
             data: _data
         });

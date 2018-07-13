@@ -61,6 +61,14 @@ contract Collectable is Authorizable {
     /**
       * PUBLIC FUNCTIONS
     */
+
+    /** @dev Set the start date for the subscription (first payment made).
+      * @param _date is the starting date or date payment was made.
+      * @param _subscription is the identifier of the customer's subscription with its relevant details.
+    */
+    function setStartDate(uint _date, bytes32 _subscription)
+        public;
+
     /** @dev Cancel the subscription. User or service node iniated.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
     */
