@@ -142,8 +142,13 @@ contract VolumeSubscription is Collectable {
 
     function cancelSubscription(bytes32 _subscription)
         public
-        isOwnerOfSubscription(_subscription)
     {
+        // Either the original subscription owner can cancel or an authorized address.
+        require(
+            msg.sender == subscriptions[_subscription].owner ||
+            authorized[msg.sender]
+        );
+
         // Check that the subscription is still valid
         require(subscriptions[_subscription].terminationDate == 0);
 
