@@ -94,22 +94,6 @@ contract('Executor', function(accounts) {
 
     });
 
-    describe("when businesses creates subscriptions", () => {
-
-        it("should not be able to create a subscription to an unauthorised contract", async function() {
-
-            // @TODO: Implementation
-
-        });
-
-        it("should be able to create a subscription", async function() {
-
-            // @TODO: Implementation
-
-        });
-
-    });
-
     describe("when users subscribe to subscriptions", () => {
 
         it("should not be able to subscribe to an unauthorized subscription contract", async function() {
