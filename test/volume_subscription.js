@@ -1,7 +1,5 @@
 import assertRevert from './helpers/assert_revert.js';
 import keccak from './helpers/keccak.js';
-import { newSubscription, newSubscriptionFull, newPlan } from './helpers/volume_subscription.js';
-import { exec } from 'child_process';
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
