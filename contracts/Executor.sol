@@ -81,17 +81,36 @@ contract Executor is Ownable {
         // @TODO: Implementation
     }
 
+    /** @dev Active a subscription once it's been created (make the first payment).
+      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
+    function activateSubscription(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier
+    )
+        public
+        returns (bool success)
+    {
+
+        // @TODO: Implementation
+
+    }
+
     /** @dev Collect the payment due from the subscriber.
       * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function collectPayment(
         address _subscriptionContract,
-        bytes32 _subscriptionIdentifier)
+        bytes32 _subscriptionIdentifier
+    )
         public
         returns (bool success)
     {
-        return false;
+
+        // @TODO: Implementation
+
     }
 
 }

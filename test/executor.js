@@ -94,7 +94,7 @@ contract('Executor', function(accounts) {
 
     });
 
-    describe("when users subscribe to subscriptions", () => {
+    describe("when users activate subscriptions", () => {
 
         it("should not be able to subscribe to an unauthorized subscription contract", async function() {
 
@@ -102,13 +102,19 @@ contract('Executor', function(accounts) {
 
         });
 
-        it("should be have enough allowance to spend from the user's wallet with enough funds", async function() {
+        it("should not be able to subscribe without enough funds", async function() {
 
             // @TODO: Implementation
 
         });
 
-        it("should be subscribing to an authorized subscription contract", async function() {
+        it("should not be able subscribe if it has already been activated", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to subscribe to an authorized subscription contract", async function() {
 
             // @TODO: Implementation
 
