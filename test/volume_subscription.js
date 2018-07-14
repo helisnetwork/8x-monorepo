@@ -11,9 +11,9 @@ contract('VolumeSubscription', function(accounts) {
 
     let contractOwner = accounts[0]; // Owner of the actual contract
     let executorContract = accounts[1]; // Authorized address that can create plans and subscriptions
-    let business = accounts[1]; // The business who has a subscription they want to earn money from
-    let subscriber = accounts[2]; // The user who is paying the business
-    let unauthorizedAddress = accounts[3]; // Someone random
+    let business = accounts[2]; // The business who has a subscription they want to earn money from
+    let subscriber = accounts[3]; // The user who is paying the business
+    let unauthorizedAddress = accounts[4]; // Someone random
 
     before(async function() {
 
@@ -289,9 +289,10 @@ contract('VolumeSubscription', function(accounts) {
 
         let newPlan;
         let planHash;
+        let subscriptionHash;
 
-        let futureDate = Date.now();
-        futureDate = parseInt(futureDate/1000) + (60*60*24);
+        let now = parseInt(Date.now()/1000);
+        let futureDate = now + (60*60*24);
 
         before(async function() {
 
@@ -310,36 +311,31 @@ contract('VolumeSubscription', function(accounts) {
               ["test"]
             );
 
-            await assertRevert(contract.createSubscription(incorrectHash, futureDate, "{}", {from: subscriber}));
-
-        });
-
-        it("should not be able to create with a starting date in the past", async function() {
-
-            let pastDate = futureDate - (60*60*24*5);
-            await assertRevert(contract.createSubscription(planHash, pastDate, "{}", {from: subscriber}));
+            await assertRevert(contract.createSubscription(incorrectHash, "{}", {from: subscriber}));
 
         });
 
         it("should be able to create a subscription from an authorized address", async function() {
 
+            await contract.setTime(now);
+
             let newSubscription = await contract.createSubscription(
-              planHash, futureDate, "{}", {from: subscriber}
+              planHash, "{}", {from: subscriber}
             );
 
-            let subscriptionHash = newSubscription.logs[0].args.identifier;
+            subscriptionHash = newSubscription.logs[0].args.identifier;
             let subscription = await contract.subscriptions.call(subscriptionHash);
 
             assert.equal(subscription[0], subscriber);
             assert.equal(subscription[1], token.address);
             assert.equal(subscription[2], planHash);
-            assert.equal(subscription[3], futureDate);
+            assert.equal(subscription[3], 0);
             assert.equal(subscription[4], 0);
             assert.equal(subscription[5], "{}");
 
             let computedHash = keccak(
               ["address", "bytes32", "uint"],
-              [subscriber, planHash, futureDate]
+              [subscriber, planHash, now]
             );
 
             assert.equal(computedHash, subscriptionHash);
@@ -349,8 +345,41 @@ contract('VolumeSubscription', function(accounts) {
         it("should throw when trying to resubscribe with an existing active subscription", async function() {
 
             await assertRevert(contract.createSubscription(
-                planHash, futureDate, "{}", {from: subscriber}
+                planHash, "{}", {from: subscriber}
             ));
+
+        });
+
+        it("should not be able to set the start date as the subscriber", async function() {
+
+            await assertRevert(contract.setStartDate(futureDate, subscriptionHash, {from: subscriber}));
+
+        });
+
+        it("should not be able to set the start date as the business", async function() {
+
+            await assertRevert(contract.setStartDate(futureDate, subscriptionHash, {from: business}));
+
+        });
+
+         it("should not be able to set the start date in the past", async function() {
+
+            await assertRevert(contract.setStartDate(now - 1000, subscriptionHash, {from: executorContract}));
+
+        });
+
+        it("should be able to set the start date from the executor", async function() {
+
+            await contract.setStartDate(futureDate, subscriptionHash, {from: executorContract});
+
+            let subscription = await contract.subscriptions.call(subscriptionHash)
+            assert.equal(subscription[3], futureDate);
+
+        });
+
+        it("should not be able to re-set the start date after it's already been set", async function() {
+
+            await assertRevert(contract.setStartDate(futureDate + 100, subscriptionHash, {from: executorContract}));
 
         });
 
@@ -374,7 +403,7 @@ contract('VolumeSubscription', function(accounts) {
             planHash = newPlan.logs[0].args.identifier;
 
             let newSubscription = await contract.createSubscription(
-              planHash, futureDate, "{}", {from: subscriber}
+              planHash, "{}", {from: subscriber}
             );
 
             subscriptionHash = newSubscription.logs[0].args.identifier;
@@ -416,7 +445,7 @@ contract('VolumeSubscription', function(accounts) {
             planHash = newPlan.logs[0].args.identifier;
 
             let newSubscription = await contract.createSubscription(
-              planHash, futureDate, "{}", {from: subscriber}
+              planHash, "{}", {from: subscriber}
             );
 
             subscriptionHash = newSubscription.logs[0].args.identifier;
@@ -431,12 +460,15 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to cancel from an authorized address", async function() {
 
+            await contract.setTime(futureDate - 90);
+
             let newSubscription2 = await contract.createSubscription(
-                planHash, futureDate + 1, "{}", {from: subscriber}
+                planHash, "{}", {from: subscriber}
             );
 
             let subscriptionHash2 = newSubscription2.logs[0].args.identifier;
 
+            await contract.setStartDate(futureDate, subscriptionHash2, {from: executorContract});
             await contract.cancelSubscription(subscriptionHash2, {from: executorContract});
 
             let subscription = await contract.subscriptions.call(subscriptionHash2);
@@ -444,8 +476,21 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
+        it("should not be able to cancel before the start date is set", async function() {
+
+            await assertRevert(contract.cancelSubscription(subscriptionHash, {from: subscriber}));
+
+        });
+
+        it("should not be able to cancel before the start date is set", async function() {
+
+            await assertRevert(contract.cancelSubscription(subscriptionHash, {from: executorContract}));
+
+        });
+
         it("should be able to cancel from the owner", async function() {
 
+            await contract.setStartDate(futureDate, subscriptionHash, {from: executorContract});
             await contract.cancelSubscription(subscriptionHash, {from: subscriber});
 
             let subscription = await contract.subscriptions.call(subscriptionHash);

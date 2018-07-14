@@ -46,7 +46,7 @@ contract VolumeSubscription is Collectable {
     event TerminatedPlan(bytes32 identifier, uint terminationDate);
 
     event CreatedSubscription(bytes32 identifier);
-    event FirstPaymentToSubscription(bytes32 identifier);
+    event FirstPaymentToSubscription(uint startDate, bytes32 identifier);
     event UpdatedSubscription(bytes32 identifier);
     event TerminatedSubscription(bytes32 identifier, uint terminationDate);
 
@@ -143,22 +143,26 @@ contract VolumeSubscription is Collectable {
 
     function setStartDate(uint _date, bytes32 _subscription)
         public
+        onlyAuthorized
     {
+        require(_date >= currentTimestamp());
+        require(subscriptions[_subscription].startDate == 0);
 
-        // @TODO: Implementation
+        subscriptions[_subscription].startDate = _date;
 
+        emit FirstPaymentToSubscription(_date, _subscription);
     }
 
     function cancelSubscription(bytes32 _subscription)
         public
     {
         // Either the original subscription owner can cancel or an authorized address.
-        require(
-            msg.sender == subscriptions[_subscription].owner ||
-            authorized[msg.sender]
-        );
+        require((msg.sender == subscriptions[_subscription].owner) || (authorized[msg.sender] == true));
 
-        // Check that the subscription is still valid
+        // Ensure that the subscription has started;
+        require(subscriptions[_subscription].startDate > 0);
+
+        // Check that the subscription is still valid.
         require(subscriptions[_subscription].terminationDate == 0);
 
         uint cancellationTimestamp = currentTimestamp();
@@ -238,7 +242,6 @@ contract VolumeSubscription is Collectable {
     }
 
     /** dev This is the function for creating a new subscription.
-      * @param _startDate the date from which this subscription should start.
       * @param _planHash a reference to the subscribed plan
       * @param _data extra data store.
     */
