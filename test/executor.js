@@ -8,6 +8,7 @@ var TransferProxy = artifacts.require("./TransferProxy.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
 var StakeContract = artifacts.require("./StakeContract.sol");
 var PaymentRegistryContract = artifacts.require("./PaymentRegistry.sol");
+var MockToken = artifacts.require("./test/MockToken.sol");
 
 contract('Executor', function(accounts) {
 
@@ -17,7 +18,8 @@ contract('Executor', function(accounts) {
     let paymentRegistryContract;
 
     let executorContract;
-    let tokenContract;
+    let nativeTokenContract;
+    let mockTokenContract;
 
     let contractOwner = accounts[0]; // Admin role
     let business = accounts[1]; // Plan owner that has a plan that costs $100/month
@@ -27,15 +29,24 @@ contract('Executor', function(accounts) {
 
     let planIdentifier;
 
+    let planHash;
+    let subscriptionHash;
+
     before(async function() {
 
-        tokenContract = await EightExToken.new({from: contractOwner});
+        // Initialise the 8x token contract, the owner has all the initial token supply.
+        nativeTokenContract = await EightExToken.new({from: contractOwner});
 
+        // Initialise a mock token contract, the owner has the initial supply
+        mockTokenContract = await MockToken.new({from: contractOwner});
+
+        // Initialise all the other contracts the executor needs in order to function
         subscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
         proxyContract = await TransferProxy.new({from: contractOwner});
-        stakeContract = await StakeContract.new(tokenContract.address, {from: contractOwner});
+        stakeContract = await StakeContract.new(nativeTokenContract.address, {from: contractOwner});
         paymentRegistryContract = await PaymentRegistryContract.new({from: contractOwner});
 
+        // Initialise the executor contract with all it's needed components
         executorContract = await Executor.new(
             proxyContract.address,
             stakeContract.address,
@@ -43,14 +54,32 @@ contract('Executor', function(accounts) {
             {from: contractOwner}
         );
 
+        // Add the executor contract as an authorised address for all the different components
         subscriptionContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
         proxyContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
         stakeContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
         paymentRegistryContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
 
+        // Create a new subscription plan
+        let newPlan = await contract.createPlan(
+            business, token.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: business}
+        );
+
+        // The hash that we can use to identify the plan
+        planHash = newPlan.logs[0].args.identifier;
+
+        // Create a new subscription (from a subscriber)
+
+        let newSubscription = await contract.createSubscription(
+            planHash, "{}", {from: subscriber}
+        );
+
+        // The hash we can use to identify the subscription
+        subscriptionHash = newSubscription.logs[0].args.identifier;
+
     });
 
-    describe("when adding an approved contract", () =>{
+    describe("when adding an approved contract", () => {
 
         it("should not be able to add a contract as an unauthorised address", async function() {
 
@@ -72,19 +101,19 @@ contract('Executor', function(accounts) {
 
     });
 
-    describe("when adding an approved token", () =>{
+    describe("when adding an approved token", () => {
 
         it("should not be able to add a token as an unauthorised address", async function() {
 
-            await assertRevert(executorContract.addApprovedToken(tokenContract.address, {from: unauthorisedAddress}));
+            await assertRevert(executorContract.addApprovedToken(mockTokenContract.address, {from: unauthorisedAddress}));
 
         });
 
         it("should be able to add a token as an authorised address", async function() {
 
-            await executorContract.addApprovedToken(tokenContract.address, {from: contractOwner});
+            await executorContract.addApprovedToken(mockTokenContract.address, {from: contractOwner});
 
-            let isApproved = await executorContract.approvedTokenMapping.call(tokenContract.address);
+            let isApproved = await executorContract.approvedTokenMapping.call(mockTokenContract.address);
             assert(isApproved);
 
             let approvedArray = await executorContract.approvedTokenArray;
@@ -98,7 +127,7 @@ contract('Executor', function(accounts) {
 
         it("should not be able to subscribe to an unauthorized subscription contract", async function() {
 
-            // @TODO: Implementation
+            let fakeSubscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
 
         });
 
