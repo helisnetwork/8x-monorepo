@@ -27,6 +27,9 @@ contract Executor is Ownable {
     event LogAuthorizedTokenAdded(address indexed target);
     event LogAuthorizedTokenRemoved(address indexed target);
 
+    event SubscriptionActivated(address subscriptionAddress, bytes32 subscriptionIdentifer);
+    event SubscriptionProcessesed(address subscriptionAddress, bytes32 subscriptionIdentifer);
+
     /**
       * PUBLIC FUNCTIONS
     */
