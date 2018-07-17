@@ -61,16 +61,15 @@ contract('Executor', function(accounts) {
         paymentRegistryContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
 
         // Create a new subscription plan
-        let newPlan = await contract.createPlan(
-            business, token.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: business}
+        let newPlan = await subscriptionContract.createPlan(
+            business, mockTokenContract.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: business}
         );
 
         // The hash that we can use to identify the plan
         planHash = newPlan.logs[0].args.identifier;
 
         // Create a new subscription (from a subscriber)
-
-        let newSubscription = await contract.createSubscription(
+        let newSubscription = await subscriptionContract.createSubscription(
             planHash, "{}", {from: subscriber}
         );
 
@@ -129,23 +128,48 @@ contract('Executor', function(accounts) {
 
             let fakeSubscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
 
+            let fakePlan = await fakeSubscriptionContract.createPlan(
+                business, token.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: business}
+            );
+
+            let fakePlanHash = fakePlan.logs[0].args.identifier;
+
+            await assertRevert(executorContract.activateSubscription(fakeSubscriptionContract.address, fakePlanHash, {from: subscriber}));
+
         });
 
-        it("should not be able to subscribe without enough funds", async function() {
+        it("should not be able to subscribe to a plan with an unauthorised token contract", async function() {
 
             // @TODO: Implementation
+            // Might need to implement this check in the create plan function in Volume Subscription.
 
         });
 
-        it("should not be able subscribe if it has already been activated", async function() {
+        it("should not be able to activate a subscription without enough funds", async function() {
 
-            // @TODO: Implementation
+            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
 
         });
 
         it("should be able to subscribe to an authorized subscription contract", async function() {
 
-            // @TODO: Implementation
+            // Transfer 10 extra for gas fees
+            // @ TODO: Figure out how to handle gas costs...
+            await contractOwner.transfer(subscriber, 110);
+            await executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber});
+
+            let subscription = await subscriptionContract.subscriptions.call(subscriptionHash);
+            assert.isAbove(subscription[3], 0); // See if the start date has been set (subcription activated)
+
+            let balance = await mockTokenContract.balanceOf(subscriber);
+            // @ TODO: Figure out how to handle gas costs accurately
+            assert.isBelow(balance.toNumber(), 11)
+
+        });
+
+        it("should not be able subscribe if it has already been activated", async function() {
+
+            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
 
         });
 
