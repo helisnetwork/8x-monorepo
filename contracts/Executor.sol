@@ -77,7 +77,7 @@ contract Executor is Ownable {
       * @param _contractAddress is the address of the subscription contract.
       * @param _index is the reference to the call (cancel, subscribe etc).
       * @param _callValue is how much the transaction will cost.
-      * @param _gastCost is the amount of gas that will be used.
+      * @param _gasCost is the amount of gas that will be used.
       * @param _gasPrice is the gas price that will be reimbursed up to.
     */
     function setApprovedContractCallCost(
