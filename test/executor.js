@@ -105,7 +105,7 @@ contract('Executor', function(accounts) {
 
         });
 
-        it("should be able to add a contract as an authorised address", async function() {
+        it("should be able to add a contract as the owner", async function() {
 
             await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
 
@@ -119,38 +119,64 @@ contract('Executor', function(accounts) {
 
         it("should not be able to set a contract's call costs as an unauthorised address", async function() {
 
-            // @TODO: Implementation
+            await assertRevert(executorContract.addApprovedContractCallCost(subscriptionContract.address, 0, 40, 20, 1, {from: unauthorisedAddress}));
 
         });
 
-        it("should be able to set a contract's call costs as an authorised address", async function() {
+        it("should not be able to set call costs for a contract which isn't already authorised", async function() {
 
-            // @TODO: Implementation
-
-        });
-
-        it("should not be able to remove a contract as an unauthorised address", async function() {
-
-            // @TODO: Implementation
+            await assertRevert(executorContract.addApprovedContractCallCost("0xabc", 0, 40, 20, 1, {from: contractOwner}));
 
         });
 
+        it("should be able to set a contract's call costs as the owner", async function() {
 
-        it("should be able to remove a contract as an authorised address", async function() {
+            await executorContract.addApprovedContractCallCost(subscriptionContract.address, 0, 40, 20, 1, {from: contractOwner});
+            await executorContract.addApprovedContractCallCost(subscriptionContract.address, 1, 30, 10, 1, {from: contractOwner});
 
-            // @TODO: Implementation
+            let gasCostObject = await executorContract.approvedContractMapping.call(subscriptionContract.address).call(0);
+            assert.equal(gasCostObject[0], 40);
+            assert.equal(gasCostObject[1], 20);
+            assert.equal(gasCostObject[2], 1);
+
+            let secondGasCostObject = await executorContract.approvedContractMapping.call(subscriptionContract.address).call(1);
+            assert.equal(secondGasCostObject[0], 30);
+            assert.equal(secondGasCostObject[1], 10);
+            assert.equal(secondGasCostObject[2], 1);
 
         });
 
         it("should not be able to remove a contract's call costs as an unauthorised address", async function() {
 
-            // @TODO: Implementation
+            await assertRevert(executorContract.removeApprovedContractCallCost(subscriptionContract.address, 0, {from: unauthorisedAddress}));
 
         });
 
         it("should be able to remove a contract's call costs as an authorised address", async function() {
 
-            // @TODO: Implementation
+            await executorContract.removeApprovedContractCallCost(subscriptionContract.address, 0, {from: contractOwner});
+
+            let gasCostObject = await executorContract.approvedContractMapping.call(subscriptionContract.address).call(0);
+            assert.equal(gasCostObject[0], 0);
+            assert.equal(gasCostObject[1], 0);
+            assert.equal(gasCostObject[2], 0);
+        });
+
+        it("should not be able to remove a contract as an unauthorised address", async function() {
+
+            await assertRevert(executorContract.removeApprovedContract(subscriptionContract.address, {from: unauthorisedAddress}));
+
+        });
+
+        it("should be able to remove a contract as the owner", async function() {
+
+            await executorContract.removeApprovedContract(subscriptionContract.address, {from: unauthorisedAddress});
+
+            let approvedObject = await executorContract.approvedContractMapping.call(subscriptionContract.address);
+            assert.equal(approvedObject, 0);
+
+            let approvedArray = await executorContract.approvedContractMapping;
+            assert.equal(approvedArray.length, 0);
 
         });
 
@@ -178,13 +204,19 @@ contract('Executor', function(accounts) {
 
         it("should not be able to remove a token as an unauthorised address", async function() {
 
-            // @TODO: Implementation
+            await assertRevert(executorContract.removeApprovedToken(mockTokenContract.address, {from: unauthorisedAddress}));
 
         });
 
         it("should be able to remove a token as an authorised address", async function() {
 
-            // @TODO: Implementation
+            await executorContract.removeApprovedToken(subscriptionContract.address, {from: contractOwner});
+
+            let approvedObject = await executorContract.approvedTokenMapping.call(subscriptionContract.address);
+            assert.equal(approvedObject, 0);
+
+            let approvedArray = await executorContract.approvedTokenMapping;
+            assert.equal(approvedArray.length, 0);
 
         });
 
