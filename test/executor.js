@@ -97,7 +97,7 @@ contract('Executor', function(accounts) {
 
     })
 
-    describe("when adding an approved contract", () => {
+    describe("when adding or removing an approved contract", () => {
 
         it("should not be able to add a contract as an unauthorised address", async function() {
 
@@ -114,6 +114,19 @@ contract('Executor', function(accounts) {
 
             let approvedArray = await executorContract.approvedContractArray;
             assert.equal(approvedArray.length, 1);
+
+        });
+
+        it("should not be able to remove a contract as an unauthorised address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+
+        it("should be able to remove a contract as an authorised address", async function() {
+
+            // @TODO: Implementation
 
         });
 
@@ -136,6 +149,18 @@ contract('Executor', function(accounts) {
 
             let approvedArray = await executorContract.approvedTokenArray;
             assert.equal(approvedArray.length, 1);
+
+        });
+
+        it("should not be able to remove a token as an unauthorised address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to remove a token as an authorised address", async function() {
+
+            // @TODO: Implementation
 
         });
 
