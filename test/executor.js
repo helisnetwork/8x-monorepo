@@ -129,7 +129,6 @@ contract('Executor', function(accounts) {
 
         });
 
-
         it("should not be able to remove a contract as an unauthorised address", async function() {
 
             // @TODO: Implementation
