@@ -117,6 +117,19 @@ contract('Executor', function(accounts) {
 
         });
 
+        it("should not be able to set a contract's call costs as an unauthorised address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to set a contract's call costs as an authorised address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+
         it("should not be able to remove a contract as an unauthorised address", async function() {
 
             // @TODO: Implementation
@@ -125,6 +138,18 @@ contract('Executor', function(accounts) {
 
 
         it("should be able to remove a contract as an authorised address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should not be able to remove a contract's call costs as an unauthorised address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to remove a contract's call costs as an authorised address", async function() {
 
             // @TODO: Implementation
 
