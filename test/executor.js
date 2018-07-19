@@ -78,6 +78,25 @@ contract('Executor', function(accounts) {
 
     });
 
+    describe("basic tests", () => {
+
+        it("should throw if someone other than the owner tries to set the multiplier", async function() {
+
+            await assertRevert(paymentRegistry.updateMultiplier(2, {from: contractOwner}));
+
+        });
+
+        it("should be able to set the multiplier as the owner", async function() {
+
+            await paymentRegistry.updateMultiplier(1, {from: contractOwner});
+
+            let multiplier = await paymentRegistry.currentMultiplier.call();
+            assert.equal(multiplier.toNumber(), 1);
+
+        });
+
+    })
+
     describe("when adding an approved contract", () => {
 
         it("should not be able to add a contract as an unauthorised address", async function() {
