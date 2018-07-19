@@ -30,26 +30,6 @@ contract('MockPaymentRegistry', function(accounts) {
 
     });
 
-    describe("basic tests", () => {
-
-        it("should throw if someone other than the owner tries to set the multiplier", async function() {
-
-            await assertRevert(paymentRegistry.setMultiplier(2, {from: accounts[1]}));
-
-        });
-
-        it("should be able to set the multiplier as the owner", async function() {
-
-            await paymentRegistry.setMultiplier(1, {from: accounts[0]});
-
-            let multiplier = await paymentRegistry.multiplier.call();
-            assert.equal(multiplier.toNumber(), 1);
-
-        });
-
-
-    })
-
     describe("when creating a new payment", () => {
 
         it("should not be able to create with invalid details", async function() {
@@ -94,7 +74,13 @@ contract('MockPaymentRegistry', function(accounts) {
 
         it("should throw if being called from an unauthorized address", async function() {
 
-            await assertRevert(paymentRegistry.claimPayment(subscriptionHash, accounts[1], twoMonthsLater, {from: accounts[1]}));
+            await assertRevert(paymentRegistry.claimPayment(subscriptionHash, accounts[1], twoMonthsLater, 10, {from: accounts[1]}));
+
+        });
+
+        it("should throw if stake multiplier is set to zero", async function() {
+
+            await assertRevert(paymentRegistry.claimPayment(subscriptionHash, accounts[1], twoMonthsLater, 0, {from: accounts[0]}));
 
         });
 
@@ -102,7 +88,7 @@ contract('MockPaymentRegistry', function(accounts) {
 
             let dayBeforeOneMonth = oneMonthLater - (1*24*60*60);
             await paymentRegistry.setTime(dayBeforeOneMonth);
-            await assertRevert(paymentRegistry.claimPayment(subscriptionHash, accounts[1], twoMonthsLater, {from: accounts[0]}));
+            await assertRevert(paymentRegistry.claimPayment(subscriptionHash, accounts[1], twoMonthsLater, 10, {from: accounts[0]}));
 
         });
 
@@ -114,7 +100,7 @@ contract('MockPaymentRegistry', function(accounts) {
             await paymentRegistry.setTime(tenSecondsfterOneMonth);
 
             // Then we process the payment by passing the subscription identifier
-            let result = await paymentRegistry.claimPayment(subscriptionHash, accounts[1], twoMonthsLater, {from: accounts[0]});
+            let result = await paymentRegistry.claimPayment(subscriptionHash, accounts[1], twoMonthsLater, 10, {from: accounts[0]});
 
             // Get the payment information to check that it's been set correctly
             let paymentInformation = await paymentRegistry.payments.call(subscriptionHash);
@@ -122,6 +108,7 @@ contract('MockPaymentRegistry', function(accounts) {
             assert.equal(paymentInformation[1].toNumber(), twoMonthsLater);
             assert.equal(paymentInformation[4], accounts[1]);
             assert.equal(paymentInformation[5].toNumber(), 10);
+            assert.equal(paymentInformation[6].toNumber(), 10);
 
         });
 
@@ -129,7 +116,7 @@ contract('MockPaymentRegistry', function(accounts) {
 
             let thirtySecondsAfterTwoMonths = twoMonthsLater + 30;
             await paymentRegistry.setTime(thirtySecondsAfterTwoMonths);
-            await assertRevert(paymentRegistry.claimPayment(subscriptionHash, accounts[1], threeMonthsLater, {from: accounts[0]}));
+            await assertRevert(paymentRegistry.claimPayment(subscriptionHash, accounts[1], threeMonthsLater, 10, {from: accounts[0]}));
 
         });
 
@@ -137,7 +124,7 @@ contract('MockPaymentRegistry', function(accounts) {
 
             let tenSecondsAfterTwoMonths = twoMonthsLater + 10;
             await paymentRegistry.setTime(tenSecondsAfterTwoMonths);
-            let result = await paymentRegistry.claimPayment(subscriptionHash, accounts[1], threeMonthsLater, {from: accounts[0]});
+            let result = await paymentRegistry.claimPayment(subscriptionHash, accounts[1], threeMonthsLater, 10, {from: accounts[0]});
 
             // Get the payment information to check that it's been set correctly
             let paymentInformation = await paymentRegistry.payments.call(subscriptionHash);
@@ -160,7 +147,7 @@ contract('MockPaymentRegistry', function(accounts) {
 
             let tenSecondsfterOneMonth = oneMonthLater + 10;
             await paymentRegistry.setTime(tenSecondsfterOneMonth);
-            await paymentRegistry.claimPayment(subscriptionHash, accounts[1], twoMonthsLater, {from: accounts[0]});
+            await paymentRegistry.claimPayment(subscriptionHash, accounts[1], twoMonthsLater, 10, {from: accounts[0]});
 
         });
 
