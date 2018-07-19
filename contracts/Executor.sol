@@ -33,6 +33,16 @@ contract Executor is Ownable {
     /**
       * PUBLIC FUNCTIONS
     */
+        /** @dev Set a multiplier for how many tokens you need in order to claim proportional to the payments.
+      * @param _multiplier is the multiplier that would like to be set.
+    */
+
+    uint public currentMultiplier;
+
+    function updateMultiplier(uint _multiplier) public onlyOwner {
+        currentMultiplier = _multiplier;
+    }
+
     /** @dev Set the addresses for the relevant contracts
       * @param _transferProxyAddress the address for the designated transfer proxy.
       * @param _stakeContractAddress the address for the stake contract.
