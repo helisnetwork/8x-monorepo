@@ -12,12 +12,18 @@ import "./PaymentRegistry.sol";
 
 contract Executor is Ownable {
 
+    struct GasCost {
+        uint callValue;
+        uint gasCost;
+        uint gasPrice;
+    }
+
     TransferProxy public transferProxy;
     StakeContract public stakeContract;
     PaymentRegistry public paymentRegistry;
 
-    mapping (address => bool) public approvedContractMapping;
     mapping (address => bool) public approvedTokenMapping;
+    mapping (address => mapping (uint => GasCost)) public approvedContractMapping;
 
     address[] public approvedContractArray;
     address[] public approvedTokenArray;
@@ -58,10 +64,20 @@ contract Executor is Ownable {
         // @TODO: Implementation
     }
 
-    /** @dev Add an approved subscription contract.
+    /** @dev Set an approved contract call cost.
       * @param _contractAddress is the address of the subscription contract.
+      * @param _index is the reference to the call (cancel, subscribe etc).
+      * @param _callValue is how much the transaction will cost.
+      * @param _gastCost is the amount of gas that will be used.
+      * @param _gasPrice is the gas price that will be reimbursed up to.
     */
-    function addApprovedContract(address _contractAddress)
+    function setApprovedContractCallCost(
+        address _contractAddress,
+        uint _index,
+        uint _callValue,
+        uint _gasCost,
+        uint _gasPrice
+    )
         public
     {
         // @TODO: Implementation
@@ -74,6 +90,19 @@ contract Executor is Ownable {
         public
     {
         // @TODO: Implementation
+    }
+
+    /** @dev Remove an approved contract call cost.
+      * @param _contractAddress is the address of the contract.
+      * @param _index is the reference to the call (cancel, subscribe etc).
+    */
+    function removeApprovedContractCallCost(
+        address _contractAddress,
+        uint _index
+    )
+        public
+    {
+
     }
 
     /** @dev Remove an approved subscription contract.
