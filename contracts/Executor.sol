@@ -64,6 +64,15 @@ contract Executor is Ownable {
         // @TODO: Implementation
     }
 
+    /** @dev Add an approved subscription contract to be used.
+      * @param _contractAddress is the address of the subscription contract.
+    */
+    function addApprovedContract(address _contractAddress)
+        public
+    {
+        // @TODO: Implementation
+    }
+
     /** @dev Set an approved contract call cost.
       * @param _contractAddress is the address of the subscription contract.
       * @param _index is the reference to the call (cancel, subscribe etc).
@@ -92,6 +101,15 @@ contract Executor is Ownable {
         // @TODO: Implementation
     }
 
+    /** @dev Remove an approved subscription contract.
+      * @param _contractAddress is the address of the subscription contract.
+    */
+    function removeApprovedContract(address _contractAddress)
+        public
+    {
+        // @TODO: Implementation
+    }
+
     /** @dev Remove an approved contract call cost.
       * @param _contractAddress is the address of the contract.
       * @param _index is the reference to the call (cancel, subscribe etc).
@@ -103,15 +121,6 @@ contract Executor is Ownable {
         public
     {
 
-    }
-
-    /** @dev Remove an approved subscription contract.
-      * @param _contractAddress is the address of the subscription contract.
-    */
-    function removeApprovedContract(address _contractAddress)
-        public
-    {
-        // @TODO: Implementation
     }
 
     /** @dev Remove an approved token to be used.
