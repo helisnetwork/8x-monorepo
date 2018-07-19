@@ -6,105 +6,255 @@ var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.s
 var Executor = artifacts.require("./Executor.sol");
 var TransferProxy = artifacts.require("./TransferProxy.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
+var StakeContract = artifacts.require("./StakeContract.sol");
+var PaymentRegistryContract = artifacts.require("./PaymentRegistry.sol");
+var MockToken = artifacts.require("./test/MockToken.sol");
 
 contract('Executor', function(accounts) {
 
     let subscriptionContract;
-    let executorContract;
     let proxyContract;
-    let tokenContract;
+    let stakeContract;
+    let paymentRegistryContract;
 
-    let firstAccount = accounts[0]; // Admin role
-    let secondAccount = accounts[1]; // Plan owner that has a plan that costs $100/month
-    let thirdAccount = accounts[2]; // User paying $100/month subscription
-    let fourthAccount = accounts[3]; // Collector party claiming payment
-    let fifthAccount = accounts[4]; // Third party claiming payment
+    let executorContract;
+    let nativeTokenContract;
+    let mockTokenContract;
+
+    let contractOwner = accounts[0]; // Admin role
+    let business = accounts[1]; // Plan owner that has a plan that costs $100/month
+    let subscriber = accounts[2]; // User paying $100/month subscription
+    let serviceNode = accounts[3]; // Collector party claiming payment
+    let unauthorisedAddress = accounts[4]; // Some random address.
 
     let planIdentifier;
 
+    let planHash;
+    let subscriptionHash;
+
     before(async function() {
 
-        subscriptionContract = await MockVolumeSubscription.new({from: firstAccount});
-        executorContract = await Executor.new({from: firstAccount});
-        proxyContract = await TransferProxy.new({from: firstAccount});
-        tokenContract = await EightExToken.new({from: firstAccount});
+        // Initialise the 8x token contract, the owner has all the initial token supply.
+        nativeTokenContract = await EightExToken.new({from: contractOwner});
 
-        // Set proxy in executor contract
-        executorContract.setTransferProxy(proxyContract.address);
+        // Initialise a mock token contract, the owner has the initial supply
+        mockTokenContract = await MockToken.new({from: contractOwner});
 
-        // Add executor as as authorized to proxy contract
-        // Add executor as as authorized to subscription contract
-        await subscriptionContract.addAuthorizedAddress(executorContract.address, {from: firstAccount});
-        await proxyContract.addAuthorizedAddress(executorContract.address, {from: firstAccount});
+        // Initialise all the other contracts the executor needs in order to function
+        subscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
+        proxyContract = await TransferProxy.new({from: contractOwner});
+        stakeContract = await StakeContract.new(nativeTokenContract.address, {from: contractOwner});
+        paymentRegistryContract = await PaymentRegistryContract.new({from: contractOwner});
 
-        // Transfer tokens to third account
-        await tokenContract.transfer(thirdAccount, 100, {from: firstAccount});
+        // Initialise the executor contract with all it's needed components
+        executorContract = await Executor.new(
+            proxyContract.address,
+            stakeContract.address,
+            paymentRegistryContract.address,
+            {from: contractOwner}
+        );
 
-        // Create a plan that costs $100/month
-        let newPlan = await subscriptionContract.createPlan(secondAccount, tokenContract.address, "test", "product", "n/a", 30, 100, 1, "", {from: secondAccount});
+        // Add the executor contract as an authorised address for all the different components
+        subscriptionContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
+        proxyContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
+        stakeContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
+        paymentRegistryContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
+
+        // Create a new subscription plan
+        let newPlan = await subscriptionContract.createPlan(
+            business, mockTokenContract.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: business}
+        );
+
+        // The hash that we can use to identify the plan
         planHash = newPlan.logs[0].args.identifier;
 
-        // Make the user give permission to the proxy to transfer tokens on it's behalf
-        await tokenContract.approve(proxyContract.address, 100, {from: thirdAccount});
+        // Create a new subscription (from a subscriber)
+        let newSubscription = await subscriptionContract.createSubscription(
+            planHash, "{}", {from: subscriber}
+        );
+
+        // The hash we can use to identify the subscription
+        subscriptionHash = newSubscription.logs[0].args.identifier;
 
     });
 
-    describe("when the company is eligible to collect a payment", () => {
+    describe("basic tests", () => {
 
-        it("should be able to collect it", async function() {
+        it("should throw if someone other than the owner tries to set the multiplier", async function() {
 
-            let allowance = await tokenContract.allowance(thirdAccount, proxyContract.address);
-
-            // @TODO (MAJOR) - Should not allow user to create subscription directly. It should route through the executor.
-
-            let now = Date.now();
-            now = now/1000;
-
-            // Make the user subscribe to the plan
-            let newSubscription = await subscriptionContract.createSubscription(thirdAccount, planHash, now, "", {from: thirdAccount});
-            let subscriptionHash = newSubscription.logs[0].args.identifier;
-
-            await executorContract.collectPayment(subscriptionContract.address, subscriptionHash, {from: fourthAccount});
-
-            let collectorAfterBalance = await tokenContract.balanceOf(fourthAccount);
-            let planOwnerAfterBalance = await tokenContract.balanceOf(secondAccount);
-            let userAfterBalance = await tokenContract.balanceOf(thirdAccount);
-
-            assert.equal(1, collectorAfterBalance.toNumber()); // The collector should be able to draw the amount due
-            assert.equal(99, planOwnerAfterBalance.toNumber()); // The collector should be able to draw the amount due
-            assert.equal(0, userAfterBalance.toNumber()); // The end user should have no tokens left
-
-            // @TODO: Last payment date should be updated
-            // @TODO: Handle time based logic
+            await assertRevert(paymentRegistry.updateMultiplier(2, {from: contractOwner}));
 
         });
 
-        it("should not be able to collect it earlier than the time", async function() {
+        it("should be able to set the multiplier as the owner", async function() {
 
-            // @TODO: Handle time based logic
-            assert.fail("Not implemented");
+            await paymentRegistry.updateMultiplier(1, {from: contractOwner});
 
-        });
-
-        it("should be able to cancel the subscription if the user doesn't have enough funds", async function() {
-
-            // @TODO: Handle time based logic
-            assert.fail("Not implemented");
+            let multiplier = await paymentRegistry.currentMultiplier.call();
+            assert.equal(multiplier.toNumber(), 1);
 
         });
 
-        it("should be able to cancel the subscription if the user didn't pay in the last cycle", async function() {
+    })
 
-            // @TODO: Handle time based logic
-            assert.fail("Not implemented");
+    describe("when adding an approved contract", () => {
+
+        it("should not be able to add a contract as an unauthorised address", async function() {
+
+           await assertRevert(executorContract.addApprovedContract(subscriptionContract.address, {from: unauthorisedAddress}));
+
+        });
+
+        it("should be able to add a contract as an authorised address", async function() {
+
+            await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
+
+            let isApproved = await executorContract.approvedContractMapping.call(subscriptionContract.address);
+            assert(isApproved);
+
+            let approvedArray = await executorContract.approvedContractArray;
+            assert.equal(approvedArray.length, 1);
 
         });
 
     });
 
-    describe("when the a third party is eligible to collect a payment", () => {
+    describe("when adding an approved token", () => {
 
-        // @TODO: Handle time based logic
+        it("should not be able to add a token as an unauthorised address", async function() {
+
+            await assertRevert(executorContract.addApprovedToken(mockTokenContract.address, {from: unauthorisedAddress}));
+
+        });
+
+        it("should be able to add a token as an authorised address", async function() {
+
+            await executorContract.addApprovedToken(mockTokenContract.address, {from: contractOwner});
+
+            let isApproved = await executorContract.approvedTokenMapping.call(mockTokenContract.address);
+            assert(isApproved);
+
+            let approvedArray = await executorContract.approvedTokenArray;
+            assert.equal(approvedArray.length, 1);
+
+        });
+
+    });
+
+    describe("when users activate subscriptions", () => {
+
+        it("should not be able to subscribe to an unauthorized subscription contract", async function() {
+
+            let fakeSubscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
+
+            let fakePlan = await fakeSubscriptionContract.createPlan(
+                business, token.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: business}
+            );
+
+            let fakePlanHash = fakePlan.logs[0].args.identifier;
+
+            await assertRevert(executorContract.activateSubscription(fakeSubscriptionContract.address, fakePlanHash, {from: subscriber}));
+
+        });
+
+        it("should not be able to subscribe to a plan with an unauthorised token contract", async function() {
+
+            // @TODO: Implementation
+            // Might need to implement this check in the create plan function in Volume Subscription.
+
+        });
+
+        it("should not be able to activate a subscription without enough funds", async function() {
+
+            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
+
+        });
+
+        it("should be able to subscribe to an authorized subscription contract", async function() {
+
+            // Transfer 10 extra for gas fees
+            // @ TODO: Figure out how to handle gas costs...
+            await contractOwner.transfer(subscriber, 110);
+            await executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber});
+
+            let subscription = await subscriptionContract.subscriptions.call(subscriptionHash);
+            assert.isAbove(subscription[3], 0); // See if the start date has been set (subcription activated)
+
+            let balance = await mockTokenContract.balanceOf(subscriber);
+            // @ TODO: Figure out how to handle gas costs accurately
+            assert.isBelow(balance.toNumber(), 11)
+
+        });
+
+        it("should not be able subscribe if it has already been activated", async function() {
+
+            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
+
+        });
+
+    });
+
+    describe("when service nodes process subscriptions", () => {
+
+        it("should have enough funds in the user's wallet including gas cost", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to process a valid subscription", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+    });
+
+    describe("when service nodes cancel a subscription", () => {
+
+        it("should not be able to if the due date has already passed", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to before the due date", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+    });
+
+    describe("when businesses cancel a subscription", () => {
+
+        it("should not be able to cancel to an unauthorised subscription contract", async function() {
+
+            // @TODO: Protocol
+
+        });
+
+        it("should not be able to as an unauthorised user", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+    });
+
+    describe("when users don't have enough funds in their wallet", () => {
+
+        it("should not allow the subscription to be processed", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should cancel the subscription", async function() {
+
+            // @TODO: Implementation
+
+        });
 
     });
 

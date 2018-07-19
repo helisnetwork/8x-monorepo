@@ -16,12 +16,11 @@ contract PaymentRegistry is Authorizable {
 
         address claimant;               // 4
         uint executionPeriod;           // 5
+        uint stakeMultiplier;           // 6
     }
 
     // The bytes32 key is the subscription identifier
     mapping (bytes32 => Payment) public payments;
-
-    uint public multiplier;
 
     event PaymentCreated(bytes32 subscriptionIdentifer);
     event PaymentClaimed(bytes32 subscriptionIdentifer, address claimant);
@@ -31,13 +30,6 @@ contract PaymentRegistry is Authorizable {
     /**
       * PUBLIC FUNCTIONS
     */
-    /** @dev Set a multiplier for how many tokens you need in order to claim proportional to the payments.
-      * @param _multiplier is the multiplier that would like to be set.
-    */
-
-    function setMultiplier(uint _multiplier) public onlyOwner {
-        multiplier = _multiplier;
-    }
 
     /** @dev Create a new payment object when a user initially subscribes to a plan.
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface)
@@ -66,7 +58,8 @@ contract PaymentRegistry is Authorizable {
             amount: _amount,
             lastPaymentDate: 0,
             claimant: 0,
-            executionPeriod: 0
+            executionPeriod: 0,
+            stakeMultiplier: 0
         });
 
         payments[_subscriptionIdentifier] = newPayment;
@@ -86,7 +79,8 @@ contract PaymentRegistry is Authorizable {
     function claimPayment(
         bytes32 _subscriptionIdentifier,
         address _claimant,
-        uint _nextPayment)
+        uint _nextPayment,
+        uint _stakeMultiplier)
         public
         onlyAuthorized
         returns (bool success)
@@ -94,6 +88,7 @@ contract PaymentRegistry is Authorizable {
         Payment storage currentPayment = payments[_subscriptionIdentifier];
         require(currentTimestamp() >= currentPayment.dueDate);
         require(_nextPayment >= currentTimestamp());
+        require(_stakeMultiplier > 0);
 
         if (currentPayment.claimant != 0) {
             require(currentTimestamp() <= currentPayment.dueDate + currentPayment.executionPeriod);
@@ -107,6 +102,7 @@ contract PaymentRegistry is Authorizable {
         currentPayment.claimant = _claimant;
         currentPayment.dueDate = _nextPayment;
         currentPayment.lastPaymentDate = currentTimestamp();
+        currentPayment.stakeMultiplier = _stakeMultiplier;
 
         emit PaymentClaimed(_subscriptionIdentifier, _claimant);
 
@@ -129,6 +125,7 @@ contract PaymentRegistry is Authorizable {
 
         currentPayment.claimant = 0;
         currentPayment.executionPeriod = 0;
+        currentPayment.stakeMultiplier = 0;
 
         emit PaymentClaimantRemoved(_subscriptionIdentifier, _claimant);
 

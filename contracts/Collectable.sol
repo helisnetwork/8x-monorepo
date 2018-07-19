@@ -5,7 +5,7 @@ import "./Authorizable.sol";
 /** @title Gets details of the subscription and terminates it after detecting insufficient tokens */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
-contract Collectible is Authorizable {
+contract Collectable is Authorizable {
 
     /**
       * PUBLIC VIEW FUNCTIONS
@@ -15,7 +15,6 @@ contract Collectible is Authorizable {
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
       * @return success is the result of whether the subscription is valid or not.
     */
-
     function isValidSubscription(bytes32 _subscription)
         public
         view
@@ -40,14 +39,6 @@ contract Collectible is Authorizable {
         view
         returns (address from, address to);
 
-    /** @dev Gets token balance of the subscription owners address.
-      * @param _subscription is the identifier of the customer's subscription with its relevant details.
-      * @return balance the token balance of the address where the recurring payments will be deducted (the customer).
-    */
-    function getSubscriptionOwnerBalance(bytes32 _subscription)
-        public
-        view
-        returns (uint balance);
 
     /** @dev Gets the token amount due from the subscription.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
@@ -70,10 +61,17 @@ contract Collectible is Authorizable {
     /**
       * PUBLIC FUNCTIONS
     */
-    /** @dev Terminate the subscription after detecting that there are insufficient tokens.
+
+    /** @dev Set the start date for the subscription (first payment made).
+      * @param _date is the starting date or date payment was made.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
     */
-    // @TODO: Deduct a penalty fee after detecting insufficient tokens.
-    //        The first subscription payment should be marked up to include the penalty fee.
-    function terminateSubscriptionDueToInsufficientFunds(bytes32 _subscription) public onlyAuthorized;
+    function setStartDate(uint _date, bytes32 _subscription)
+        public;
+
+    /** @dev Cancel the subscription. User or service node iniated.
+      * @param _subscription is the identifier of the customer's subscription with its relevant details.
+    */
+    function cancelSubscription(bytes32 _subscription)
+        public;
 }
