@@ -82,15 +82,15 @@ contract('Executor', function(accounts) {
 
         it("should throw if someone other than the owner tries to set the multiplier", async function() {
 
-            await assertRevert(paymentRegistry.updateMultiplier(2, {from: contractOwner}));
+            await assertRevert(executorContract.updateMultiplier(2, {from: contractOwner}));
 
         });
 
         it("should be able to set the multiplier as the owner", async function() {
 
-            await paymentRegistry.updateMultiplier(1, {from: contractOwner});
+            await executorContract.updateMultiplier(1, {from: contractOwner});
 
-            let multiplier = await paymentRegistry.currentMultiplier.call();
+            let multiplier = await executorContract.currentMultiplier.call();
             assert.equal(multiplier.toNumber(), 1);
 
         });
