@@ -54,6 +54,15 @@ contract('Executor', function(accounts) {
             {from: contractOwner}
         );
 
+        let fetchedTransferProxy = await executorContract.transferProxy;
+        assert(fetchedTransferProxy);
+
+        let fetchedStakeContract = await executorContract.stakeContract;
+        assert(fetchedStakeContract);
+
+        let fetchedPaymentRegistry = await executorContract.paymentRegistry;
+        assert(fetchedPaymentRegistry);
+
         // Add the executor contract as an authorised address for all the different components
         subscriptionContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
         proxyContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
@@ -82,7 +91,7 @@ contract('Executor', function(accounts) {
 
         it("should throw if someone other than the owner tries to set the multiplier", async function() {
 
-            await assertRevert(executorContract.updateMultiplier(2, {from: contractOwner}));
+            await assertRevert(executorContract.updateMultiplier(2, {from: unauthorisedAddress}));
 
         });
 
@@ -109,37 +118,34 @@ contract('Executor', function(accounts) {
 
             await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
 
-            let isApproved = await executorContract.approvedContractMapping.call(subscriptionContract.address);
-            assert(isApproved);
-
-            let approvedArray = await executorContract.approvedContractArray;
+            let approvedArray = await executorContract.getApprovedContracts();
             assert.equal(approvedArray.length, 1);
 
         });
 
         it("should not be able to set a contract's call costs as an unauthorised address", async function() {
 
-            await assertRevert(executorContract.addApprovedContractCallCost(subscriptionContract.address, 0, 40, 20, 1, {from: unauthorisedAddress}));
+            await assertRevert(executorContract.setApprovedContractCallCost(subscriptionContract.address, 0, 40, 20, 1, {from: unauthorisedAddress}));
 
         });
 
         it("should not be able to set call costs for a contract which isn't already authorised", async function() {
 
-            await assertRevert(executorContract.addApprovedContractCallCost("0xabc", 0, 40, 20, 1, {from: contractOwner}));
+            await assertRevert(executorContract.setApprovedContractCallCost("0xabc", 0, 40, 20, 1, {from: contractOwner}));
 
         });
 
         it("should be able to set a contract's call costs as the owner", async function() {
 
-            await executorContract.addApprovedContractCallCost(subscriptionContract.address, 0, 40, 20, 1, {from: contractOwner});
-            await executorContract.addApprovedContractCallCost(subscriptionContract.address, 1, 30, 10, 1, {from: contractOwner});
+            await executorContract.setApprovedContractCallCost(subscriptionContract.address, 0, 40, 20, 1, {from: contractOwner});
+            await executorContract.setApprovedContractCallCost(subscriptionContract.address, 1, 30, 10, 1, {from: contractOwner});
 
-            let gasCostObject = await executorContract.approvedContractMapping.call(subscriptionContract.address).call(0);
+            let gasCostObject = await executorContract.approvedContractMapping.call(subscriptionContract.address, 0);
             assert.equal(gasCostObject[0], 40);
             assert.equal(gasCostObject[1], 20);
             assert.equal(gasCostObject[2], 1);
 
-            let secondGasCostObject = await executorContract.approvedContractMapping.call(subscriptionContract.address).call(1);
+            let secondGasCostObject = await executorContract.approvedContractMapping.call(subscriptionContract.address, 1);
             assert.equal(secondGasCostObject[0], 30);
             assert.equal(secondGasCostObject[1], 10);
             assert.equal(secondGasCostObject[2], 1);
@@ -156,7 +162,7 @@ contract('Executor', function(accounts) {
 
             await executorContract.removeApprovedContractCallCost(subscriptionContract.address, 0, {from: contractOwner});
 
-            let gasCostObject = await executorContract.approvedContractMapping.call(subscriptionContract.address).call(0);
+            let gasCostObject = await executorContract.approvedContractMapping.call(subscriptionContract.address, 0);
             assert.equal(gasCostObject[0], 0);
             assert.equal(gasCostObject[1], 0);
             assert.equal(gasCostObject[2], 0);
@@ -170,12 +176,9 @@ contract('Executor', function(accounts) {
 
         it("should be able to remove a contract as the owner", async function() {
 
-            await executorContract.removeApprovedContract(subscriptionContract.address, {from: unauthorisedAddress});
+            await executorContract.removeApprovedContract(subscriptionContract.address, {from: contractOwner});
 
-            let approvedObject = await executorContract.approvedContractMapping.call(subscriptionContract.address);
-            assert.equal(approvedObject, 0);
-
-            let approvedArray = await executorContract.approvedContractMapping;
+            let approvedArray = await executorContract.getApprovedContracts();
             assert.equal(approvedArray.length, 0);
 
         });
@@ -197,7 +200,7 @@ contract('Executor', function(accounts) {
             let isApproved = await executorContract.approvedTokenMapping.call(mockTokenContract.address);
             assert(isApproved);
 
-            let approvedArray = await executorContract.approvedTokenArray;
+            let approvedArray = await executorContract.getApprovedTokens();
             assert.equal(approvedArray.length, 1);
 
         });
@@ -210,12 +213,12 @@ contract('Executor', function(accounts) {
 
         it("should be able to remove a token as an authorised address", async function() {
 
-            await executorContract.removeApprovedToken(subscriptionContract.address, {from: contractOwner});
+            await executorContract.removeApprovedToken(mockTokenContract.address, {from: contractOwner});
 
-            let approvedObject = await executorContract.approvedTokenMapping.call(subscriptionContract.address);
+            let approvedObject = await executorContract.approvedTokenMapping.call(mockTokenContract.address);
             assert.equal(approvedObject, 0);
 
-            let approvedArray = await executorContract.approvedTokenMapping;
+            let approvedArray = await executorContract.getApprovedTokens();
             assert.equal(approvedArray.length, 0);
 
         });
