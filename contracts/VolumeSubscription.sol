@@ -103,7 +103,11 @@ contract VolumeSubscription is Collectable {
         view
         returns (bool success)
     {
-        return (subscriptions[_subscription].terminationDate == 0);
+        // @TODO: Add tests for this.
+        return (
+            subscriptions[_subscription].terminationDate == 0 &&
+            subscriptions[_subscription].startDate > 0
+        );
     }
 
     function getSubscriptionTokenAddress(bytes32 _subscription)
@@ -143,10 +147,10 @@ contract VolumeSubscription is Collectable {
 
     function setStartDate(uint _date, bytes32 _subscription)
         public
-        onlyAuthorized
+        //onlyAuthorized
     {
-        require(_date >= currentTimestamp());
-        require(subscriptions[_subscription].startDate == 0);
+        //require(_date >= currentTimestamp());
+        //require(subscriptions[_subscription].startDate == 0);
 
         subscriptions[_subscription].startDate = _date;
 
