@@ -1,6 +1,7 @@
 pragma solidity 0.4.24;
 
 import "./base/ownership/Ownable.sol";
+import "./base/token/ERC20.sol";
 
 import "./Collectable.sol";
 import "./TransferProxy.sol";
@@ -64,7 +65,11 @@ contract Executor is Ownable {
     )
         public
     {
-        // @TODO: Implementation
+        // @TODO: Figure out how to add tests for this
+
+        transferProxy = TransferProxy(_transferProxyAddress);
+        stakeContract = StakeContract(_stakeContractAddress);
+        paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
     }
 
     /** @dev Add an approved subscription contract to be used.
@@ -215,9 +220,31 @@ contract Executor is Ownable {
         public
         returns (bool success)
     {
+        // Make sure we have an approved subscription contract
+        require(approvedContractMapping[_subscriptionContract][0].callValue != 0);
 
-        // @TODO: Implementation
+        Collectable subscription = Collectable(_subscriptionContract);
 
+        // Ensure the subscription is valid
+        require(subscription.isValidSubscription(_subscriptionIdentifier) == false);
+
+        address tokenAddress = subscription.getSubscriptionTokenAddress(_subscriptionIdentifier);
+
+        require(approvedTokenMapping[tokenAddress]);
+
+        uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
+        uint fee = subscription.getSubscriptionFee(_subscriptionIdentifier);
+
+        (address from, address to) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+        ERC20 transactingTokenContract = ERC20(tokenAddress);
+
+        // Check that the balance of the user is enough to pay for the subscription
+        require(transactingTokenContract.balanceOf(from) >= (amountDue + fee));
+
+        transferProxy.transferFrom(tokenAddress, from, to, amountDue + fee);
+        subscription.setStartDate(block.timestamp, _subscriptionIdentifier);
+
+        emit SubscriptionActivated(_subscriptionContract, _subscriptionIdentifier);
     }
 
     /** @dev Collect the payment due from the subscriber.

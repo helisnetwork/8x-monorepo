@@ -54,15 +54,6 @@ contract('Executor', function(accounts) {
             {from: contractOwner}
         );
 
-        let fetchedTransferProxy = await executorContract.transferProxy;
-        assert(fetchedTransferProxy);
-
-        let fetchedStakeContract = await executorContract.stakeContract;
-        assert(fetchedStakeContract);
-
-        let fetchedPaymentRegistry = await executorContract.paymentRegistry;
-        assert(fetchedPaymentRegistry);
-
         // Add the executor contract as an authorised address for all the different components
         subscriptionContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
         proxyContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
@@ -71,7 +62,7 @@ contract('Executor', function(accounts) {
 
         // Create a new subscription plan
         let newPlan = await subscriptionContract.createPlan(
-            business, mockTokenContract.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: business}
+            business, mockTokenContract.address, "subscription.new", "test", "", 30, 10*10**18, 10**17, "{}", {from: business}
         );
 
         // The hash that we can use to identify the plan
@@ -161,11 +152,17 @@ contract('Executor', function(accounts) {
         it("should be able to remove a contract's call costs as an authorised address", async function() {
 
             await executorContract.removeApprovedContractCallCost(subscriptionContract.address, 0, {from: contractOwner});
+            await executorContract.removeApprovedContractCallCost(subscriptionContract.address, 1, {from: contractOwner});
 
             let gasCostObject = await executorContract.approvedContractMapping.call(subscriptionContract.address, 0);
             assert.equal(gasCostObject[0], 0);
             assert.equal(gasCostObject[1], 0);
             assert.equal(gasCostObject[2], 0);
+
+            let gasCostObjectTwo = await executorContract.approvedContractMapping.call(subscriptionContract.address, 1);
+            assert.equal(gasCostObjectTwo[0], 0);
+            assert.equal(gasCostObjectTwo[1], 0);
+            assert.equal(gasCostObjectTwo[2], 0);
         });
 
         it("should not be able to remove a contract as an unauthorised address", async function() {
@@ -227,17 +224,35 @@ contract('Executor', function(accounts) {
 
     describe("when users activate subscriptions", () => {
 
+        let fee = 10**17; // $0.10
+
+        before(async function() {
+
+            let subscriptionCost = 10*10**18; // $10.00
+
+            // Transfer tokens to the subscriber
+            await mockTokenContract.transfer(subscriber, subscriptionCost + fee, {from: contractOwner});
+
+            // Give unlimited allowance to the transfer proxy (from subscriber)
+            await mockTokenContract.approve(proxyContract.address, 10000*10**18, {from: subscriber});
+
+        })
+
         it("should not be able to subscribe to an unauthorized subscription contract", async function() {
+
+            await executorContract.addApprovedToken(mockTokenContract.address, {from: contractOwner});
 
             let fakeSubscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
 
             let fakePlan = await fakeSubscriptionContract.createPlan(
-                business, token.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: business}
+                business, mockTokenContract.address, "subscription.unauthorised.contract", "test", "", 30, 100, 10, "{}", {from: business}
             );
 
             let fakePlanHash = fakePlan.logs[0].args.identifier;
 
             await assertRevert(executorContract.activateSubscription(fakeSubscriptionContract.address, fakePlanHash, {from: subscriber}));
+
+            await executorContract.removeApprovedToken(mockTokenContract.address, {from: contractOwner});
 
         });
 
@@ -246,33 +261,54 @@ contract('Executor', function(accounts) {
             // @TODO: Implementation
             // Might need to implement this check in the create plan function in Volume Subscription.
 
+            await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
+            await executorContract.setApprovedContractCallCost(subscriptionContract.address, 0, 10, 20, 30, {from: contractOwner});
+
+            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
+
+            await executorContract.removeApprovedContract(subscriptionContract.address, {from: contractOwner});
+
         });
 
         it("should not be able to activate a subscription without enough funds", async function() {
 
+            // Subtract the fee from the wallet so insufficient funds are there
+            await mockTokenContract.transfer(contractOwner, fee, {from: subscriber});
+
+            // Make sure the relevant contracts and tokens have been authorised
+            await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
+            await executorContract.setApprovedContractCallCost(subscriptionContract.address, 0, 5**10*16, 10**5, 2*10**9);
+            await executorContract.addApprovedToken(mockTokenContract.address, {from: contractOwner});
+
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
+
+            // Top up the fee again
+            await mockTokenContract.transfer(subscriber, fee, {from: contractOwner});
 
         });
 
-        it("should be able to subscribe to an authorized subscription contract", async function() {
+        it("should be able to subscribe to an authorized subscription and token contract", async function() {
 
-            // Transfer 10 extra for gas fees
-            // @ TODO: Figure out how to handle gas costs...
-            await contractOwner.transfer(subscriber, 110);
+            // Activate the subscription
             await executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber});
 
             let subscription = await subscriptionContract.subscriptions.call(subscriptionHash);
-            assert.isAbove(subscription[3], 0); // See if the start date has been set (subcription activated)
+            assert.isAbove(subscription[3].toNumber(), 0); // See if the start date has been set (subcription activated)
 
             let balance = await mockTokenContract.balanceOf(subscriber);
-            // @ TODO: Figure out how to handle gas costs accurately
-            assert.isBelow(balance.toNumber(), 11)
+            assert.equal(balance.toNumber(), 0) // Check to ensure the user has an empty wallet
 
         });
 
         it("should not be able subscribe if it has already been activated", async function() {
 
+            let subscriptionCost = (10*10**18 + 10**17); // $10.10
+            await mockTokenContract.transfer(subscriber, subscriptionCost + fee, {from: contractOwner});
+
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
+
+            // Reset balance to 0
+            await mockTokenContract.transfer(contractOwner, subscriptionCost + fee, {from: subscriber});
 
         });
 
