@@ -36,10 +36,13 @@ contract Executor is Ownable {
     event SubscriptionActivated(address subscriptionAddress, bytes32 subscriptionIdentifer);
     event SubscriptionProcessesed(address subscriptionAddress, bytes32 subscriptionIdentifer);
 
+    event ContractGasCostSet(address indexed contractAddress, uint indexed index);
+    event ContractGasCostRemoved(address indexed contractAddress, uint indexed index);
+
     /**
       * PUBLIC FUNCTIONS
     */
-        /** @dev Set a multiplier for how many tokens you need in order to claim proportional to the payments.
+    /** @dev Set a multiplier for how many tokens you need in order to claim proportional to the payments.
       * @param _multiplier is the multiplier that would like to be set.
     */
 
@@ -69,8 +72,10 @@ contract Executor is Ownable {
     */
     function addApprovedContract(address _contractAddress)
         public
+        onlyOwner
     {
-        // @TODO: Implementation
+        approvedContractArray.push(_contractAddress);
+        emit LogAuthorizedContractAdded(_contractAddress);
     }
 
     /** @dev Set an approved contract call cost.
@@ -88,8 +93,27 @@ contract Executor is Ownable {
         uint _gasPrice
     )
         public
+        onlyOwner
     {
-        // @TODO: Implementation
+        bool contractFoundInRegistry = false;
+
+        for (uint i = 0; i < approvedContractArray.length; i++) {
+            if (approvedContractArray[i] == _contractAddress) {
+                contractFoundInRegistry = true;
+                break;
+            }
+        }
+
+        require(contractFoundInRegistry);
+
+        approvedContractMapping[_contractAddress][_index] = GasCost({
+            callValue: _callValue,
+            gasCost: _gasCost,
+            gasPrice: _gasPrice
+        });
+
+        emit ContractGasCostSet(_contractAddress, _index);
+
     }
 
     /** @dev Add an approved token to be used.
@@ -97,8 +121,11 @@ contract Executor is Ownable {
     */
     function addApprovedToken(address _tokenAddress)
         public
+        onlyOwner
     {
-        // @TODO: Implementation
+        approvedTokenArray.push(_tokenAddress);
+        approvedTokenMapping[_tokenAddress] = true;
+        emit LogAuthorizedTokenAdded(_tokenAddress);
     }
 
     /** @dev Remove an approved subscription contract.
@@ -106,8 +133,18 @@ contract Executor is Ownable {
     */
     function removeApprovedContract(address _contractAddress)
         public
+        onlyOwner
     {
-        // @TODO: Implementation
+        for (uint i = 0; i < approvedContractArray.length; i++) {
+            if (approvedContractArray[i] == _contractAddress) {
+                approvedContractArray[i] = approvedContractArray[approvedContractArray.length - 1];
+                approvedContractArray.length--;
+
+                emit LogAuthorizedContractRemoved(_contractAddress);
+
+                break;
+            }
+        }
     }
 
     /** @dev Remove an approved contract call cost.
@@ -119,8 +156,11 @@ contract Executor is Ownable {
         uint _index
     )
         public
+        onlyOwner
     {
+        delete approvedContractMapping[_contractAddress][_index];
 
+        emit ContractGasCostRemoved(_contractAddress, _index);
     }
 
     /** @dev Remove an approved token to be used.
@@ -128,8 +168,40 @@ contract Executor is Ownable {
     */
     function removeApprovedToken(address _tokenAddress)
         public
+        onlyOwner
     {
-        // @TODO: Implementation
+        for (uint i = 0; i < approvedTokenArray.length; i++) {
+            if (approvedTokenArray[i] == _tokenAddress) {
+                approvedTokenArray[i] = approvedTokenArray[approvedTokenArray.length - 1];
+                approvedTokenArray.length--;
+
+                delete approvedTokenMapping[_tokenAddress];
+
+                emit LogAuthorizedTokenRemoved(_tokenAddress);
+
+                break;
+            }
+        }
+    }
+
+    /** @dev Get approved contract array.
+    */
+    function getApprovedContracts()
+        public
+        constant
+        returns (address[])
+    {
+        return approvedContractArray;
+    }
+
+    /** @dev Get approved token array.
+    */
+    function getApprovedTokens()
+        public
+        constant
+        returns (address[])
+    {
+        return approvedTokenArray;
     }
 
     /** @dev Active a subscription once it's been created (make the first payment).
