@@ -313,13 +313,31 @@ contract('Executor', function(accounts) {
 
     describe("when service nodes process subscriptions", () => {
 
-        it("should have enough funds in the user's wallet including gas cost", async function() {
+        it("should not be able to process an inactive subscription", async function() {
 
             // @TODO: Implementation
 
         });
 
+        it("should not be able to process a subscription before the due date", async function() {
+
+            // @TOOD: Implementation
+
+        });
+
         it("should be able to process a valid subscription", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should cancel the subscription if insufficient funds are present and be reimbursed for gas costs", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should not be able to process a subscription once it has already been processed", async function() {
 
             // @TODO: Implementation
 
