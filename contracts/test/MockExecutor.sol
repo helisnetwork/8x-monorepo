@@ -1,9 +1,9 @@
 pragma solidity 0.4.24;
 
 import "./MockTime.sol";
-import "../VolumeSubscription.sol";
+import "../Executor.sol";
 
 /** @title Mock contract in order to test time logic reliably. */
 /** @author Kerman Kohli - <kerman@TBD.com> */
 
-contract MockVolumeSubscription is VolumeSubscription, MockTime { }
+contract MockExecutor is Executor, MockTime { }
