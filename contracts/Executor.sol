@@ -241,7 +241,7 @@ contract Executor is Ownable {
         require(transactingTokenContract.balanceOf(from) >= amountDue);
 
         transferProxy.transferFrom(tokenAddress, from, to, amountDue);
-        subscription.setStartDate(block.timestamp, _subscriptionIdentifier);
+        subscription.setStartDate(currentTimestamp(), _subscriptionIdentifier);
 
         emit SubscriptionActivated(_subscriptionContract, _subscriptionIdentifier);
     }
@@ -260,6 +260,20 @@ contract Executor is Ownable {
 
         // @TODO: Implementation
 
+    }
+
+    /**
+      * INTERNAL FUNCTIONS
+    */
+    /** @dev Current timestamp returned via a function in order for mocks in tests
+    */
+    function currentTimestamp()
+        internal
+        view
+        returns (uint timetstamp)
+    {
+        // solhint-disable-next-line
+        return block.timestamp;
     }
 
 }
