@@ -224,14 +224,12 @@ contract('Executor', function(accounts) {
 
     describe("when users activate subscriptions", () => {
 
-        let fee = 10**17; // $0.10
+        let subscriptionCost = 10*10**18; // $10.00
 
         before(async function() {
 
-            let subscriptionCost = 10*10**18; // $10.00
-
             // Transfer tokens to the subscriber
-            await mockTokenContract.transfer(subscriber, subscriptionCost + fee, {from: contractOwner});
+            await mockTokenContract.transfer(subscriber, subscriptionCost, {from: contractOwner});
 
             // Give unlimited allowance to the transfer proxy (from subscriber)
             await mockTokenContract.approve(proxyContract.address, 10000*10**18, {from: subscriber});
@@ -272,8 +270,8 @@ contract('Executor', function(accounts) {
 
         it("should not be able to activate a subscription without enough funds", async function() {
 
-            // Subtract the fee from the wallet so insufficient funds are there
-            await mockTokenContract.transfer(contractOwner, fee, {from: subscriber});
+            // Subtract from the wallet so insufficient funds are there
+            await mockTokenContract.transfer(contractOwner, 10, {from: subscriber});
 
             // Make sure the relevant contracts and tokens have been authorised
             await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
@@ -282,8 +280,8 @@ contract('Executor', function(accounts) {
 
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
 
-            // Top up the fee again
-            await mockTokenContract.transfer(subscriber, fee, {from: contractOwner});
+            // Top up again
+            await mockTokenContract.transfer(subscriber, 10, {from: contractOwner});
 
         });
 
@@ -302,13 +300,12 @@ contract('Executor', function(accounts) {
 
         it("should not be able subscribe if it has already been activated", async function() {
 
-            let subscriptionCost = (10*10**18 + 10**17); // $10.10
-            await mockTokenContract.transfer(subscriber, subscriptionCost + fee, {from: contractOwner});
+            await mockTokenContract.transfer(subscriber, subscriptionCost, {from: contractOwner});
 
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
 
             // Reset balance to 0
-            await mockTokenContract.transfer(contractOwner, subscriptionCost + fee, {from: subscriber});
+            await mockTokenContract.transfer(contractOwner, subscriptionCost, {from: subscriber});
 
         });
 

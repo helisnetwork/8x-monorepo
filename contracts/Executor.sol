@@ -233,15 +233,14 @@ contract Executor is Ownable {
         require(approvedTokenMapping[tokenAddress]);
 
         uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
-        uint fee = subscription.getSubscriptionFee(_subscriptionIdentifier);
-
         (address from, address to) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+
         ERC20 transactingTokenContract = ERC20(tokenAddress);
 
         // Check that the balance of the user is enough to pay for the subscription
-        require(transactingTokenContract.balanceOf(from) >= (amountDue + fee));
+        require(transactingTokenContract.balanceOf(from) >= amountDue);
 
-        transferProxy.transferFrom(tokenAddress, from, to, amountDue + fee);
+        transferProxy.transferFrom(tokenAddress, from, to, amountDue);
         subscription.setStartDate(block.timestamp, _subscriptionIdentifier);
 
         emit SubscriptionActivated(_subscriptionContract, _subscriptionIdentifier);
