@@ -32,6 +32,10 @@ contract('Executor', function(accounts) {
     let planHash;
     let subscriptionHash;
 
+    let subscriptionCost = 10*10**18; // $10.00
+    let subscriptionFee = 10**17; // $0.10
+    let subscriptionInterval = 30 * 24 * 60 * 60;
+
     before(async function() {
 
         // Initialise the 8x token contract, the owner has all the initial token supply.
@@ -62,7 +66,7 @@ contract('Executor', function(accounts) {
 
         // Create a new subscription plan
         let newPlan = await subscriptionContract.createPlan(
-            business, mockTokenContract.address, "subscription.new", "test", "", 30, 10*10**18, 10**17, "{}", {from: business}
+            business, mockTokenContract.address, "subscription.new", "test", "", subscriptionInterval, subscriptionCost, subscriptionFee, "{}", {from: business}
         );
 
         // The hash that we can use to identify the plan
@@ -222,9 +226,9 @@ contract('Executor', function(accounts) {
 
     });
 
-    describe("when users activate subscriptions", () => {
+    let activationTime = (Date.new() / 1000);
 
-        let subscriptionCost = 10*10**18; // $10.00
+    describe("when users activate subscriptions", () => {
 
         before(async function() {
 
@@ -287,6 +291,9 @@ contract('Executor', function(accounts) {
 
         it("should be able to subscribe to an authorized subscription and token contract", async function() {
 
+            // Setup the time we want
+            await executorContract.setTime(activationTime);
+
             // Activate the subscription
             await executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber});
 
@@ -313,15 +320,46 @@ contract('Executor', function(accounts) {
 
     describe("when service nodes process subscriptions", () => {
 
+        let oneMonthLater = activationTime + subscriptionInterval;
+
+        before(async function() {
+
+            // Set the time forward by one month
+            await executorContract.setTime(oneMonthLater);
+
+            // Transfer some enough tokens for cost and fee
+            await mockTokenContract.transfer(subscriber, subscriptionCost, + subscriptionFee, {from: contractOwner});
+
+        });
+
         it("should not be able to process an inactive subscription", async function() {
 
-            // @TODO: Implementation
+            // This will have a different hash since the timestamp is different
+            let inactiveSubscription = await subscriptionContract.createSubscription(
+                planHash, "{}", {from: subscriber}
+            );
+
+            // The hash we can use to identify the subscription
+            let inactiveSubscriptionHash = newSubscription.logs[0].args.identifier;
+
+            await assertRevert(executorContract.collectPayment(subscriptionContract.address, inactiveSubscriptionHash, {from: serviceNode}));
 
         });
 
         it("should not be able to process a subscription before the due date", async function() {
 
-            // @TOOD: Implementation
+            // Set the time right before the due date
+            await executorContract.turnBackTime(5);
+
+            await assertRevert(executorContract.collectPayment(subscriptionContract.address, subscriptionHash, {from: serviceNode}));
+
+            await executorContract.turnBackTime(-5);
+
+        });
+
+        it("should not be able to process a subscription if the service node does not have enough staked tokens", async function() {
+
+            // @TODO: Implementation
 
         });
 
