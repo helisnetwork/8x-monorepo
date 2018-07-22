@@ -5,7 +5,7 @@ import "./EightExToken.sol";
 import "./base/math/SafeMath.sol";
 
 /** @title Stake Contract - Processors stake tokens to claim transactions */
-/** @author Kerman Kohli - <kerman@TBD.com> */
+/** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract StakeContract is Authorizable {
 

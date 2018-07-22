@@ -4,6 +4,6 @@ import "./MockTime.sol";
 import "../VolumeSubscription.sol";
 
 /** @title Mock contract in order to test time logic reliably. */
-/** @author Kerman Kohli - <kerman@TBD.com> */
+/** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract MockVolumeSubscription is VolumeSubscription, MockTime { }
