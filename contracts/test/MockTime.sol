@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 
 /** @title Mock contract in order to test time logic reliably. */
-/** @author Kerman Kohli - <kerman@TBD.com> */
+/** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract MockTime {
     // solhint-disable-next-line

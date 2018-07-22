@@ -9,7 +9,7 @@ import "./StakeContract.sol";
 import "./PaymentRegistry.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
-/** @author Kerman Kohli - <kerman@TBD.com> */
+/** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract Executor is Ownable {
 

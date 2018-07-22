@@ -3,7 +3,7 @@ pragma solidity 0.4.24;
 import "./Authorizable.sol";
 
 /** @title Transaction Registry - Stores a list of pending transactions */
-/** @author Kerman Kohli - <kerman@TBD.com> */
+/** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract PaymentRegistry is Authorizable {
 

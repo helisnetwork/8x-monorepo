@@ -3,7 +3,7 @@ pragma solidity 0.4.24;
 import "./Collectable.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
-/** @author Kerman Kohli - <kerman@TBD.com> */
+/** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract VolumeSubscription is Collectable {
 
