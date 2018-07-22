@@ -3,7 +3,7 @@ import keccak from './helpers/keccak.js';
 import { newSubscription, newSubscriptionFull, newPlan } from './helpers/volume_subscription.js';
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
-var Executor = artifacts.require("./Executor.sol");
+var Executor = artifacts.require("./test/MockExecutor.sol");
 var TransferProxy = artifacts.require("./TransferProxy.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
 var StakeContract = artifacts.require("./StakeContract.sol");
