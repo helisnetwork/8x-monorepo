@@ -258,6 +258,18 @@ contract Executor is Ownable {
         returns (bool success)
     {
 
+        Collectable subscription = Collectable(_subscriptionContract);
+
+        // Ensure the subscription is valid
+        require(subscription.isValidSubscription(_subscriptionIdentifier) == false);
+
+        address tokenAddress = subscription.getSubscriptionTokenAddress(_subscriptionIdentifier);
+
+        uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
+        uint fee = subscription.getSubscriptionFee(_subscriptionIdentifier);
+
+        ERC20 transactingTokenContract = ERC20(tokenAddress);
+
         // @TODO: Implementation
 
     }
