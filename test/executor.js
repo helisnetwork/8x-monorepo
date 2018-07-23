@@ -420,13 +420,18 @@ contract('Executor', function(accounts) {
             assert.equal(paymentInformation[6], 10);
 
             // Check if the service node got their reward, gas costs reimbursed and tokens locked up
-            // @TODO: Value for gas needs to be determined
+            // @TODO: Value for gas needs to be reimbursed
+            let serviceNodeStakeBalance = await stakeContract.getAvailableStake(serviceNode);
+            let serviceNodeTokenBalance = await mockTokenContract.balanceOf(serviceNode);
+
+            assert.equal(serviceNodeStakeBalance.toNumber(), 0);
+            assert.equal(serviceNodeTokenBalance.toNumber(), subscriptionFee);
 
             // Check if the balance of the user was subtracted
             let postUserBalance = await mockTokenContract.balanceOf(subscriber);
             assert.equal(postUserBalance.toNumber(), 0);
 
-            // Check if the businesses' account was credit
+            // Check if the businesses' account was credited
             let postBusinessBalance = await mockTokenContract.balanceOf(business);
             assert.equal(postBusinessBalance.toNumber(), (subscriptionCost - fee) * 2);
 
