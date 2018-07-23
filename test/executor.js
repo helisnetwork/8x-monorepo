@@ -7,7 +7,7 @@ var Executor = artifacts.require("./test/MockExecutor.sol");
 var TransferProxy = artifacts.require("./TransferProxy.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
 var StakeContract = artifacts.require("./StakeContract.sol");
-var PaymentRegistryContract = artifacts.require("./PaymentRegistry.sol");
+var PaymentRegistryContract = artifacts.require("./test/PaymentRegistry.sol");
 var MockToken = artifacts.require("./test/MockToken.sol");
 
 contract('Executor', function(accounts) {
@@ -25,7 +25,8 @@ contract('Executor', function(accounts) {
     let business = accounts[1]; // Plan owner that has a plan that costs $100/month
     let subscriber = accounts[2]; // User paying $100/month subscription
     let serviceNode = accounts[3]; // Collector party claiming payment
-    let unauthorisedAddress = accounts[4]; // Some random address.
+    let unauthorisedAddress = accounts[4]; // Some random address
+    let competingServiceNode = accounts[5]; // Another collector party claiming payment
 
     let planIdentifier;
 
@@ -86,16 +87,16 @@ contract('Executor', function(accounts) {
 
         it("should throw if someone other than the owner tries to set the multiplier", async function() {
 
-            await assertRevert(executorContract.updateMultiplier(2, {from: unauthorisedAddress}));
+            await assertRevert(executorContract.updateMultiplier(10, {from: unauthorisedAddress}));
 
         });
 
         it("should be able to set the multiplier as the owner", async function() {
 
-            await executorContract.updateMultiplier(1, {from: contractOwner});
+            await executorContract.updateMultiplier(10, {from: contractOwner});
 
             let multiplier = await executorContract.currentMultiplier.call();
-            assert.equal(multiplier.toNumber(), 1);
+            assert.equal(multiplier.toNumber(), 10);
 
         });
 
@@ -301,7 +302,10 @@ contract('Executor', function(accounts) {
             assert.isAbove(subscription[3].toNumber(), 0); // See if the start date has been set (subcription activated)
 
             let balance = await mockTokenContract.balanceOf(subscriber);
-            assert.equal(balance.toNumber(), 0) // Check to ensure the user has an empty wallet
+            assert.equal(balance.toNumber(), 0); // Check to ensure the user has an empty wallet
+
+            let businessBalance = await mockTokenContract.balanceOf(business);
+            assert.equal(businessBalance.toNumber(), subscriptionCost - fee); // Check to make sure the business received their funds
 
         });
 
@@ -326,9 +330,13 @@ contract('Executor', function(accounts) {
 
             // Set the time forward by one month
             await executorContract.setTime(oneMonthLater);
+            await paymentRegistryContract.setTime(oneMonthLater);
 
-            // Transfer some enough tokens for cost and fee
+            // Transfer some enough tokens for cost and fee for the service node
             await mockTokenContract.transfer(subscriber, subscriptionCost, + subscriptionFee, {from: contractOwner});
+
+            // Top up the user's account with funds for the next payment
+            await mockTokenContract.transfer(subscriber, subscriptionCost + fee, {from: contractOwner});
 
         });
 
@@ -357,27 +365,91 @@ contract('Executor', function(accounts) {
 
         });
 
+        it("should not be able to process a subscription if the service node does not have any staked tokens", async function() {
+
+            await assertRevert(executorContract.collectPayment(subscriptionContract.address, subscriptionHash, {from: serviceNode}));
+
+        });
+
         it("should not be able to process a subscription if the service node does not have enough staked tokens", async function() {
 
-            // @TODO: Implementation
+            // Transfer $10 * 10 (multiplier) worth of 8x tokens
+            let amount = (subscriptionCost * 10);
+            await nativeTokenContract.transfer(serviceNode,  amount, {from: contractOwner});
+
+            // Approve the stake contract to take 8x tokens from you
+            await nativeTokenContract.approve(stakeContract.address, amount, {from: serviceNode});
+
+            // Top up your stake in the stake contract less 100
+            await stakeContract.topUpStake(amount - 1000, {from: serviceNode});
+
+            // Check the balance to ensure it topped up the correct amount
+            let balance = await stakeContract.getAvailableStake(serviceNode.address);
+            assert.equal(balance, amount - 1000);
+
+            // Should fail when collecting payment since there aren't enough tokens
+            await assertRevert(executorContract.collectPayment(subscriptionContract.address, subscriptionHash, {from: serviceNode}));
 
         });
 
         it("should be able to process a valid subscription", async function() {
 
-            // @TODO: Implementation
+            // Check to ensure the user has enough funds
+            let preUserBalance = await mockTokenContract.balanceOf(subscriber);
+            assert.equal(preUserBalance.toNumber(), subscriptionCost + subscriptionFee);
 
-        });
+            // Top up stake by difference
+            await stakeContract.topUpStake(1000, {from: serviceNode});
 
-        it("should cancel the subscription if insufficient funds are present and be reimbursed for gas costs", async function() {
+            // Check the balance to ensure it topped up the correct amount
+            let balance = await stakeContract.getAvailableStake(serviceNode.address);
+            assert.equal(balance, amount);
 
-            // @TODO: Implementation
+            // Should be able to process now that the service node has enough staked tokens
+            await executorContract.collectPayment(subscriptionContract.address, subscriptionHash, {from: serviceNode});
+
+            // Check the payments registry has been updated
+            let paymentInformation = await paymentRegistryContract.payments.call(subscriptionHash);
+
+            assert.equal(paymentInformation[0], subscriptionContract.address);
+            assert.equal(paymentInformation[1], oneMonthLater + subscriptionInterval);
+            assert.equal(paymentInformation[2], subscriptionCost);
+            assert.equal(paymentInformation[3], oneMonthLater);
+            assert.equal(paymentInformation[4], serviceNode);
+            assert.equal(paymentInformation[5], 0); // We claimed it straight away
+            assert.equal(paymentInformation[6], 10);
+
+            // Check if the service node got their reward, gas costs reimbursed and tokens locked up
+            // @TODO: Value for gas needs to be determined
+
+            // Check if the balance of the user was subtracted
+            let postUserBalance = await mockTokenContract.balanceOf(subscriber);
+            assert.equal(postUserBalance.toNumber(), 0);
+
+            // Check if the businesses' account was credit
+            let postBusinessBalance = await mockTokenContract.balanceOf(business);
+            assert.equal(postBusinessBalance.toNumber(), (subscriptionCost - fee) * 2);
 
         });
 
         it("should not be able to process a subscription once it has already been processed", async function() {
 
-            // @TODO: Implementation
+            // Transfer $10 * 10 (multiplier) worth of 8x tokens
+            let amount = (subscriptionCost * 10);
+            await nativeTokenContract.transfer(competingServiceNode,  amount, {from: contractOwner});
+
+            // Approve the stake contract to take 8x tokens from you
+            await nativeTokenContract.approve(stakeContract.address, amount, {from: competingServiceNode});
+
+            // Top up your stake in the stake contract less 100
+            await stakeContract.topUpStake(amount, {from: competingServiceNode});
+
+            // Check the balance to ensure it topped up the correct amount
+            let balance = await stakeContract.getAvailableStake(competingServiceNode.address);
+            assert.equal(balance, amount);
+
+            // Should fail when collecting payment since it has already been claimed/processed
+            await assertRevert(executorContract.collectPayment(subscriptionContract.address, subscriptionHash, {from: competingServiceNode}));
 
         });
 
