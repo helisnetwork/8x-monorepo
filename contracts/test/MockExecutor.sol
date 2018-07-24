@@ -7,6 +7,7 @@ import "../TransferProxy.sol";
 import "../StakeContract.sol";
 import "../PaymentRegistry.sol";
 import "../KyberNetworkInterface.sol";
+import "../base/token/WETH.sol";
 
 /** @title Mock contract in order to test time logic reliably. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -35,7 +36,7 @@ contract MockExecutor is Executor, MockTime {
         transferProxy = TransferProxy(_transferProxyAddress);
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
-        wrappedEther = ERC20(_wrappedEtherAddress);
+        wrappedEther = WETH(_wrappedEtherAddress);
         kyberProxy = KyberNetworkInterface(_kyberAddress);
     }
 
