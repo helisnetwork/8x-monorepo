@@ -3,13 +3,13 @@ import keccak from './helpers/keccak.js';
 import { newSubscription, newSubscriptionFull, newPlan } from './helpers/volume_subscription.js';
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
-var Executor = artifacts.require("./test/MockExecutor.sol");
+var MockExecutor = artifacts.require("./test/MockExecutor.sol");
 var TransferProxy = artifacts.require("./TransferProxy.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
 var StakeContract = artifacts.require("./StakeContract.sol");
-var PaymentRegistryContract = artifacts.require("./test/PaymentRegistry.sol");
+var MockPaymentRegistryContract = artifacts.require("./test/MockPaymentRegistry.sol");
 var MockToken = artifacts.require("./test/MockToken.sol");
-var KyberContract = artifacts.require(".test/MockKyberNetworkInterface.sol");
+var KyberContract = artifacts.require("./test/MockKyberNetworkInterface.sol");
 
 contract('Executor', function(accounts) {
 
@@ -21,7 +21,8 @@ contract('Executor', function(accounts) {
 
     let executorContract;
     let nativeTokenContract;
-    let mockTokenContract;
+    let wrappedEtherContract;
+    let transactingCurrencyContract;
 
     let contractOwner = accounts[0]; // Admin role
     let business = accounts[1]; // Plan owner that has a plan that costs $100/month
@@ -53,14 +54,14 @@ contract('Executor', function(accounts) {
         subscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
         proxyContract = await TransferProxy.new({from: contractOwner});
         stakeContract = await StakeContract.new(nativeTokenContract.address, {from: contractOwner});
-        paymentRegistryContract = await PaymentRegistryContract.new({from: contractOwner});
+        paymentRegistryContract = await MockPaymentRegistryContract.new({from: contractOwner});
 
         // Initialise the Kyber Network contract and give it 1000 DAI
         kyberContract = await KyberContract.new({from: contractOwner});
         transactingCurrencyContract.transfer(kyberContract.address, 1000*10**18, {from: contractOwner});
 
         // Initialise the executor contract with all it's needed components
-        executorContract = await Executor.new(
+        executorContract = await MockExecutor.new(
             proxyContract.address,
             stakeContract.address,
             paymentRegistryContract.address,
@@ -237,7 +238,7 @@ contract('Executor', function(accounts) {
 
     });
 
-    let activationTime = (Date.new() / 1000);
+    let activationTime = (Date.now() / 1000);
 
     describe("when users activate subscriptions", () => {
 
@@ -321,12 +322,12 @@ contract('Executor', function(accounts) {
 
         it("should not be able subscribe if it has already been activated", async function() {
 
-            await mockTokenContract.transfer(subscriber, subscriptionCost, {from: contractOwner});
+            await wrappedEtherContract.transfer(subscriber, subscriptionCost, {from: contractOwner});
 
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
 
             // Reset balance to 0
-            await mockTokenContract.transfer(contractOwner, subscriptionCost, {from: subscriber});
+            await wrappedEtherContract.transfer(contractOwner, subscriptionCost, {from: subscriber});
 
         });
 
@@ -343,10 +344,7 @@ contract('Executor', function(accounts) {
             await paymentRegistryContract.setTime(oneMonthLater);
 
             // Transfer some enough tokens for cost and fee for the service node
-            await mockTokenContract.transfer(subscriber, subscriptionCost, + subscriptionFee, {from: contractOwner});
-
-            // Top up the user's account with funds for the next payment
-            await mockTokenContract.transfer(subscriber, subscriptionCost + fee, {from: contractOwner});
+            await wrappedEtherContract.transfer(subscriber, subscriptionCost + subscriptionFee, {from: contractOwner});
 
         });
 
