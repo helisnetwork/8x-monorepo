@@ -48,7 +48,7 @@ contract('Executor', function(accounts) {
         nativeTokenContract = await EightExToken.new({from: contractOwner});
 
         // Initialise a mock token contract, the owner has the initial supply
-        wrappedEtherContract = await WrappedEther.new({from: contractOwner});
+        wrappedEtherContract = await WrappedEther.new();
         transactingCurrencyContract = await MockToken.new({from: contractOwner});
 
         // Initialise all the other contracts the executor needs in order to function
