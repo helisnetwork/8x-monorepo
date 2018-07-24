@@ -9,6 +9,7 @@ var EightExToken = artifacts.require("./EightExToken.sol");
 var StakeContract = artifacts.require("./StakeContract.sol");
 var PaymentRegistryContract = artifacts.require("./test/PaymentRegistry.sol");
 var MockToken = artifacts.require("./test/MockToken.sol");
+var KyberContract = artifacts.require(".test/MockKyberNetworkInterface.sol");
 
 contract('Executor', function(accounts) {
 
@@ -16,6 +17,7 @@ contract('Executor', function(accounts) {
     let proxyContract;
     let stakeContract;
     let paymentRegistryContract;
+    let kyberContract;
 
     let executorContract;
     let nativeTokenContract;
@@ -53,12 +55,17 @@ contract('Executor', function(accounts) {
         stakeContract = await StakeContract.new(nativeTokenContract.address, {from: contractOwner});
         paymentRegistryContract = await PaymentRegistryContract.new({from: contractOwner});
 
+        // Initialise the Kyber Network contract and give it 1000 DAI
+        kyberContract = await KyberContract.new({from: contractOwner});
+        transactingCurrencyContract.transfer(kyberContract.address, 1000*10**18, {from: contractOwner});
+
         // Initialise the executor contract with all it's needed components
         executorContract = await Executor.new(
             proxyContract.address,
             stakeContract.address,
             paymentRegistryContract.address,
             wrappedEtherContract.address,
+            kyberContract.address,
             {from: contractOwner}
         );
 
