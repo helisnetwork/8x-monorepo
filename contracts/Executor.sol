@@ -240,7 +240,46 @@ contract Executor is Ownable {
         isValidSubscriptionContract(_subscriptionContract)
         returns (bool success)
     {
-        Collectable subscription = Collectable(_subscriptionContract);
+
+        // @TODO: Implementation
+
+    }
+
+    /** @dev Collect the payment due from the subscriber.
+      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
+    function collectPayment(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier
+    )
+        public
+        returns (bool success)
+    {
+
+        // @TODO: Implementation
+
+    }
+
+    /**
+      * INTERNAL FUNCTIONS
+    */
+    /** @dev Current timestamp returned via a function in order for mocks in tests
+    */
+    function currentTimestamp()
+        internal
+        view
+        returns (uint timetstamp)
+    {
+        // solhint-disable-next-line
+        return block.timestamp;
+    }
+
+}
+
+
+/*
+   Collectable subscription = Collectable(_subscriptionContract);
 
         // Ensure the subscription is valid
         require(subscription.isValidSubscription(_subscriptionIdentifier) == false);
@@ -265,21 +304,12 @@ contract Executor is Ownable {
         subscription.setStartDate(currentTimestamp(), _subscriptionIdentifier);
 
         emit SubscriptionActivated(_subscriptionContract, _subscriptionIdentifier);
-    }
 
-    /** @dev Collect the payment due from the subscriber.
-      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
-      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
-    */
-    function collectPayment(
-        address _subscriptionContract,
-        bytes32 _subscriptionIdentifier
-    )
-        public
-        returns (bool success)
-    {
+*/
 
-        Collectable subscription = Collectable(_subscriptionContract);
+/*
+
+ Collectable subscription = Collectable(_subscriptionContract);
 
         // Ensure the subscription is valid
         require(subscription.isValidSubscription(_subscriptionIdentifier) == false);
@@ -293,20 +323,4 @@ contract Executor is Ownable {
 
         // @TODO: Implementation
 
-    }
-
-    /**
-      * INTERNAL FUNCTIONS
-    */
-    /** @dev Current timestamp returned via a function in order for mocks in tests
-    */
-    function currentTimestamp()
-        internal
-        view
-        returns (uint timetstamp)
-    {
-        // solhint-disable-next-line
-        return block.timestamp;
-    }
-
-}
+*/
