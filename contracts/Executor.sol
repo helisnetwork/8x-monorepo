@@ -70,12 +70,15 @@ contract Executor is Ownable {
       * @param _transferProxyAddress the address for the designated transfer proxy.
       * @param _stakeContractAddress the address for the stake contract.
       * @param _paymentRegistryAddress the address for the payment registry.
+      * @param _wrappedEtherAddress the address for wrapped ether token.
+      * @param _kyberAddress the address for the kyber network contract.
     */
     constructor(
         address _transferProxyAddress,
         address _stakeContractAddress,
         address _paymentRegistryAddress,
-        address _wrappedEtherAddress
+        address _wrappedEtherAddress,
+        address _kyberAddress
     )
         public
     {
@@ -85,6 +88,7 @@ contract Executor is Ownable {
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
         wrappedEther = ERC20(_wrappedEtherAddress);
+        kyberProxy = KyberNetworkInterface(_kyberAddress);
     }
 
     /** @dev Add an approved subscription contract to be used.
