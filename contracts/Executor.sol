@@ -88,7 +88,7 @@ contract Executor is Ownable {
         transferProxy = TransferProxy(_transferProxyAddress);
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
-        wrappedEther = ERC20(_wrappedEtherAddress);
+        wrappedEther = WETH(_wrappedEtherAddress);
         kyberProxy = KyberNetworkInterface(_kyberAddress);
     }
 
@@ -253,26 +253,47 @@ contract Executor is Ownable {
 
         // Check if the token is authorised
         address tokenAddress = subscription.getSubscriptionTokenAddress(_subscriptionIdentifier);
+        ERC20 transactingToken = ERC20(tokenAddress);
+
         require(approvedTokenMapping[tokenAddress]);
 
-        // Check if the user has enough WETH. From = consumer. To = business.
-        (address from, address to) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+        // Check if the user has enough WETH.
+        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
         uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
 
         // Get the current exchange rate from Kyber, if we can't then Kyber shouldn't let it go through
-        (, uint minimumRate) = kyberProxy.getExpectedRate(ERC20(tokenAddress), wrappedEther, amountDue);
+        (, uint minimumRate) = kyberProxy.getExpectedRate(transactingToken, wrappedEther, amountDue);
 
         // @TODO: If this is 0 then we have to enable some kind of switch to turn on.
         uint amountToTake = minimumRate * amountDue;
 
-        require(wrappedEther.balanceOf(from) >= amountToTake);
+        require(wrappedEther.balanceOf(consumer) >= amountToTake);
 
-        // Withdraw a user's WETH and give it to 8x (credited under the user)
+        // Transfer part of the approval given to 8x to Kyber
+        wrappedEther.transferApproval(address(this), address(kyberProxy), consumer, amountToTake);
+
+        // Get the businesses balance before the transaction
+        uint balanceOfBusinessBeforeTransfer = transactingToken.balanceOf(business);
+
         // Send the ETH to Kyber and set the destination to the business
+        kyberProxy.swapTokenToTokenWithChange(
+            wrappedEther, // Source token
+            amountToTake, // Amount to send (convert)
+            transactingToken, // Destination token
+            tokenAddress, // Destination token address
+            consumer, // User to take ether from and refund change
+            amountToTake, // Maxmium amount we want after swap
+            minimumRate // Minimum conversion rate
+        );
+
+        // Check the business actually received the funds by checking the difference
+        require((transactingToken.balanceOf(business) - balanceOfBusinessBeforeTransfer) == amountToTake);
 
         // Start the user's subscription
-        // Emit the appropriate event to show subscription has been activated
+        subscription.setStartDate(currentTimestamp(), _subscriptionIdentifier);
 
+        // Emit the appropriate event to show subscription has been activated
+        emit SubscriptionActivated(_subscriptionContract, _subscriptionIdentifier);
     }
 
     /** @dev Collect the payment due from the subscriber.
