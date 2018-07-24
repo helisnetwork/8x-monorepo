@@ -8,68 +8,76 @@ contract WETH is ERC20 {
     string constant public NAME = "Wrapped Ether";
     string constant public SYMBOL = "WETH";
 
-    mapping (address => uint)                       public  balanceOf;
-    mapping (address => mapping (address => uint))  public  allowance;
+    mapping (address => uint)                       public  balances;
+    mapping (address => mapping (address => uint))  public  allowed;
 
-    event Approval(address indexed source, address indexed guy, uint amount);
-    event TransferApproval(address indexed source, address indexed dest, address indexed original, uint amount);
-    event Transfer(address indexed source, address indexed destination, uint amount);
+    event Approval(address indexed _from, address indexed guy, uint _value);
+    event TransferApproval(address indexed _from, address indexed _to, address indexed original, uint _value);
+    event Transfer(address indexed _from, address indexed _to, uint _value);
 
-    event Deposit(address indexed destination, uint amount);
-    event Withdrawal(address indexed source, uint amount);
+    event Deposit(address indexed _to, uint _value);
+    event Withdrawal(address indexed _from, uint _value);
 
     function() public payable {
         deposit();
     }
 
     function deposit() public payable {
-        balanceOf[msg.sender] += msg.value;
+        balances[msg.sender] += msg.value;
         emit Deposit(msg.sender, msg.value);
     }
 
-    function withdraw(uint amount) public {
-        require(balanceOf[msg.sender] >= amount);
-        balanceOf[msg.sender] -= amount;
-        msg.sender.transfer(amount);
-        emit Withdrawal(msg.sender, amount);
+    function withdraw(uint _value) public {
+        require(balances[msg.sender] >= _value);
+        balances[msg.sender] -= _value;
+        msg.sender.transfer(_value);
+        emit Withdrawal(msg.sender, _value);
     }
 
-    function totalSupply() public view returns (uint) {
+    function totalSupply() public view returns (uint256 tokenSupply) {
         return this.balance;
     }
 
-    function approve(address guy, uint amount) public returns (bool) {
-        allowance[msg.sender][guy] = amount;
-        emit Approval(msg.sender, guy, amount);
+    function balanceOf(address _account) public view returns (uint256 balance) {
+        return balances[_account];
+    }
+
+    function approve(address _spender, uint256 _value) public returns (bool success) {
+        allowed[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
         return true;
     }
 
-    function transferApproval(address source, address dest, address original, uint amount) public returns (bool) {
-        allowance[original][source] -= amount;
-        allowance[original][dest] += amount;
-
-        emit TransferApproval(source, dest, original, amount);
+    function allowance(address _owner, address _spender) public view returns (uint256 availableTokens) {
+        return allowed[_owner][_spender];
     }
 
-    function transfer(address destination, uint amount) public returns (bool) {
-        return transferFrom(msg.sender, destination, amount);
+    function transferApproval(address _from, address _to, address original, uint _value) public returns (bool) {
+        allowed[original][_from] -= _value;
+        allowed[original][_to] += _value;
+
+        emit TransferApproval(_from, _to, original, _value);
     }
 
-    function transferFrom(address source, address destination, uint amount)
+    function transfer(address _to, uint _value) public returns (bool success) {
+        return transferFrom(msg.sender, _to, _value);
+    }
+
+    function transferFrom(address _from, address _to, uint _value)
         public
         returns (bool)
     {
-        require(balanceOf[source] >= amount);
+        require(balances[_from] >= _value);
 
-        if (source != msg.sender && allowance[source][msg.sender] != uint(-1)) {
-            require(allowance[source][msg.sender] >= amount);
-            allowance[source][msg.sender] -= amount;
+        if (_from != msg.sender && allowed[_from][msg.sender] != uint(-1)) {
+            require(allowed[_from][msg.sender] >= _value);
+            allowed[_from][msg.sender] -= _value;
         }
 
-        balanceOf[source] -= amount;
-        balanceOf[destination] += amount;
+        balances[_from] -= _value;
+        balances[_to] += _value;
 
-        emit Transfer(source, destination, amount);
+        emit Transfer(_from, _to, _value);
 
         return true;
     }
