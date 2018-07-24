@@ -7,6 +7,7 @@ import "./Collectable.sol";
 import "./TransferProxy.sol";
 import "./StakeContract.sol";
 import "./PaymentRegistry.sol";
+import "./KyberNetworkInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -22,6 +23,7 @@ contract Executor is Ownable {
     TransferProxy public transferProxy;
     StakeContract public stakeContract;
     PaymentRegistry public paymentRegistry;
+    KyberNetworkInterface public kyberProxy;
     ERC20 public wrappedEther;
 
     mapping (address => bool) public approvedTokenMapping;
@@ -234,7 +236,6 @@ contract Executor is Ownable {
         isValidSubscriptionContract(_subscriptionContract)
         returns (bool success)
     {
-
         Collectable subscription = Collectable(_subscriptionContract);
 
         // Ensure the subscription is valid
@@ -245,7 +246,10 @@ contract Executor is Ownable {
         // Check it's an approved transacting token
         require(approvedTokenMapping[tokenAddress]);
 
+        // Get the amount due for the subscription
         uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
+
+        // Get the address of the consumer (from) and business (to)
         (address from, address to) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
         ERC20 transactingTokenContract = ERC20(tokenAddress);
