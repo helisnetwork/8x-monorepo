@@ -22,6 +22,7 @@ contract Executor is Ownable {
     TransferProxy public transferProxy;
     StakeContract public stakeContract;
     PaymentRegistry public paymentRegistry;
+    ERC20 public wrappedEther;
 
     mapping (address => bool) public approvedTokenMapping;
     mapping (address => mapping (uint => GasCost)) public approvedContractMapping;
@@ -40,6 +41,17 @@ contract Executor is Ownable {
     event ContractGasCostSet(address indexed contractAddress, uint indexed index);
     event ContractGasCostRemoved(address indexed contractAddress, uint indexed index);
 
+    uint public currentMultiplier;
+
+    /**
+      * MODIFIERS
+    */
+
+    modifier isValidSubscriptionContract(address _subscriptionContract) {
+        require(approvedContractMapping[_subscriptionContract][0].callValue > 0);
+        _;
+    }
+
     /**
       * PUBLIC FUNCTIONS
     */
@@ -47,7 +59,6 @@ contract Executor is Ownable {
       * @param _multiplier is the multiplier that would like to be set.
     */
 
-    uint public currentMultiplier;
 
     function updateMultiplier(uint _multiplier) public onlyOwner {
         currentMultiplier = _multiplier;
@@ -61,7 +72,8 @@ contract Executor is Ownable {
     constructor(
         address _transferProxyAddress,
         address _stakeContractAddress,
-        address _paymentRegistryAddress
+        address _paymentRegistryAddress,
+        address _wrappedEtherAddress
     )
         public
     {
@@ -70,6 +82,7 @@ contract Executor is Ownable {
         transferProxy = TransferProxy(_transferProxyAddress);
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
+        wrappedEther = ERC20(_wrappedEtherAddress);
     }
 
     /** @dev Add an approved subscription contract to be used.
@@ -218,10 +231,9 @@ contract Executor is Ownable {
         bytes32 _subscriptionIdentifier
     )
         public
+        isValidSubscriptionContract(_subscriptionContract)
         returns (bool success)
     {
-        // Make sure we have an approved subscription contract
-        require(approvedContractMapping[_subscriptionContract][0].callValue != 0);
 
         Collectable subscription = Collectable(_subscriptionContract);
 
@@ -230,6 +242,7 @@ contract Executor is Ownable {
 
         address tokenAddress = subscription.getSubscriptionTokenAddress(_subscriptionIdentifier);
 
+        // Check it's an approved transacting token
         require(approvedTokenMapping[tokenAddress]);
 
         uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
