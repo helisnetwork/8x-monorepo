@@ -2,6 +2,7 @@ pragma solidity 0.4.24;
 
 import "./base/ownership/Ownable.sol";
 import "./base/token/ERC20.sol";
+import "./base/token/WETH.sol";
 
 import "./Collectable.sol";
 import "./TransferProxy.sol";
@@ -24,7 +25,7 @@ contract Executor is Ownable {
     StakeContract public stakeContract;
     PaymentRegistry public paymentRegistry;
     KyberNetworkInterface public kyberProxy;
-    ERC20 public wrappedEther;
+    WETH public wrappedEther;
 
     mapping (address => bool) public approvedTokenMapping;
     mapping (address => mapping (uint => GasCost)) public approvedContractMapping;
