@@ -6,7 +6,7 @@ import "../base/token/ERC20.sol";
 /** @title Mock contract to test Kyber Network proxy interface */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract MockKyberNetworkInterface is KyberNetworkInterface {
+contract MockKyberNetworkInterface {
 
     /**
       * KYBER NETWORK INTERFACE FUNCTIONS
