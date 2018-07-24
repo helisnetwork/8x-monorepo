@@ -34,6 +34,7 @@ contract('Executor', function(accounts) {
     let subscriptionHash;
 
     let subscriptionCost = 10*10**18; // $10.00
+    let exchangeRate = 500*10**18; // $500.00 USD/ETH
     let subscriptionFee = 10**17; // $0.10
     let subscriptionInterval = 30 * 24 * 60 * 60;
 
@@ -43,7 +44,8 @@ contract('Executor', function(accounts) {
         nativeTokenContract = await EightExToken.new({from: contractOwner});
 
         // Initialise a mock token contract, the owner has the initial supply
-        mockTokenContract = await MockToken.new({from: contractOwner});
+        wrappedEtherContract = await MockToken.new({from: contractOwner});
+        transactingCurrencyContract = await MockToken.new({from: contractOwner});
 
         // Initialise all the other contracts the executor needs in order to function
         subscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
@@ -56,6 +58,7 @@ contract('Executor', function(accounts) {
             proxyContract.address,
             stakeContract.address,
             paymentRegistryContract.address,
+            wrappedEtherContract.address,
             {from: contractOwner}
         );
 
@@ -67,7 +70,7 @@ contract('Executor', function(accounts) {
 
         // Create a new subscription plan
         let newPlan = await subscriptionContract.createPlan(
-            business, mockTokenContract.address, "subscription.new", "test", "", subscriptionInterval, subscriptionCost, subscriptionFee, "{}", {from: business}
+            business, transactingCurrencyContract.address, "subscription.new", "test", "", subscriptionInterval, subscriptionCost, subscriptionFee, "{}", {from: business}
         );
 
         // The hash that we can use to identify the plan
@@ -191,15 +194,15 @@ contract('Executor', function(accounts) {
 
         it("should not be able to add a token as an unauthorised address", async function() {
 
-            await assertRevert(executorContract.addApprovedToken(mockTokenContract.address, {from: unauthorisedAddress}));
+            await assertRevert(executorContract.addApprovedToken(transactingCurrencyContract.address, {from: unauthorisedAddress}));
 
         });
 
         it("should be able to add a token as an authorised address", async function() {
 
-            await executorContract.addApprovedToken(mockTokenContract.address, {from: contractOwner});
+            await executorContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
 
-            let isApproved = await executorContract.approvedTokenMapping.call(mockTokenContract.address);
+            let isApproved = await executorContract.approvedTokenMapping.call(transactingCurrencyContract.address);
             assert(isApproved);
 
             let approvedArray = await executorContract.getApprovedTokens();
@@ -209,15 +212,15 @@ contract('Executor', function(accounts) {
 
         it("should not be able to remove a token as an unauthorised address", async function() {
 
-            await assertRevert(executorContract.removeApprovedToken(mockTokenContract.address, {from: unauthorisedAddress}));
+            await assertRevert(executorContract.removeApprovedToken(transactingCurrencyContract.address, {from: unauthorisedAddress}));
 
         });
 
         it("should be able to remove a token as an authorised address", async function() {
 
-            await executorContract.removeApprovedToken(mockTokenContract.address, {from: contractOwner});
+            await executorContract.removeApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
 
-            let approvedObject = await executorContract.approvedTokenMapping.call(mockTokenContract.address);
+            let approvedObject = await executorContract.approvedTokenMapping.call(transactingCurrencyContract.address);
             assert.equal(approvedObject, 0);
 
             let approvedArray = await executorContract.getApprovedTokens();
@@ -233,29 +236,29 @@ contract('Executor', function(accounts) {
 
         before(async function() {
 
-            // Transfer tokens to the subscriber
-            await mockTokenContract.transfer(subscriber, subscriptionCost, {from: contractOwner});
+            // Transfer wrapped Ether to the subscriber
+            await wrappedEtherContract.transfer(subscriber, subscriptionCost * exchangeRate, {from: contractOwner});
 
             // Give unlimited allowance to the transfer proxy (from subscriber)
-            await mockTokenContract.approve(proxyContract.address, 10000*10**18, {from: subscriber});
+            await wrappedEtherContract.approve(proxyContract.address, 1000000*10**18, {from: subscriber});
 
         })
 
         it("should not be able to subscribe to an unauthorized subscription contract", async function() {
 
-            await executorContract.addApprovedToken(mockTokenContract.address, {from: contractOwner});
+            await executorContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
 
             let fakeSubscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
 
             let fakePlan = await fakeSubscriptionContract.createPlan(
-                business, mockTokenContract.address, "subscription.unauthorised.contract", "test", "", 30, 100, 10, "{}", {from: business}
+                business, transactingCurrencyContract.address, "subscription.unauthorised.contract", "test", "", 30, 100, 10, "{}", {from: business}
             );
 
             let fakePlanHash = fakePlan.logs[0].args.identifier;
 
             await assertRevert(executorContract.activateSubscription(fakeSubscriptionContract.address, fakePlanHash, {from: subscriber}));
 
-            await executorContract.removeApprovedToken(mockTokenContract.address, {from: contractOwner});
+            await executorContract.removeApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
 
         });
 
@@ -276,17 +279,17 @@ contract('Executor', function(accounts) {
         it("should not be able to activate a subscription without enough funds", async function() {
 
             // Subtract from the wallet so insufficient funds are there
-            await mockTokenContract.transfer(contractOwner, 10, {from: subscriber});
+            await wrappedEtherContract.transfer(contractOwner, 10, {from: subscriber});
 
             // Make sure the relevant contracts and tokens have been authorised
             await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
             await executorContract.setApprovedContractCallCost(subscriptionContract.address, 0, 5**10*16, 10**5, 2*10**9);
-            await executorContract.addApprovedToken(mockTokenContract.address, {from: contractOwner});
+            await executorContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
 
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
 
             // Top up again
-            await mockTokenContract.transfer(subscriber, 10, {from: contractOwner});
+            await wrappedEtherContract.transfer(subscriber, 10, {from: contractOwner});
 
         });
 
@@ -295,17 +298,17 @@ contract('Executor', function(accounts) {
             // Setup the time we want
             await executorContract.setTime(activationTime);
 
-            // Activate the subscription
+            // Activate the subscription with enough funds in wrapper ether account
             await executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber});
 
             let subscription = await subscriptionContract.subscriptions.call(subscriptionHash);
             assert.isAbove(subscription[3].toNumber(), 0); // See if the start date has been set (subcription activated)
 
-            let balance = await mockTokenContract.balanceOf(subscriber);
+            let balance = await wrappedEtherContract.balanceOf(subscriber);
             assert.equal(balance.toNumber(), 0); // Check to ensure the user has an empty wallet
 
-            let businessBalance = await mockTokenContract.balanceOf(business);
-            assert.equal(businessBalance.toNumber(), subscriptionCost - fee); // Check to make sure the business received their funds
+            let businessBalance = await transactingCurrencyContract.balanceOf(business);
+            assert.equal(businessBalance.toNumber(), subscriptionCost); // Check to make sure the business received their funds
 
         });
 
