@@ -242,6 +242,20 @@ contract Executor is Ownable {
     {
 
         // @TODO: Implementation
+        // @TODO: Store extra data so gas can be refunded to the person activating
+
+        // Initiate an instance of the collectable subscription
+        // Check if the subscription is even valid
+        // Check if the token is authorised
+
+        // Iniate an instance of the Kyber contract
+        // Get the current exchange rate
+        // Check if the user has enough WETH
+        // Give approval to Kyber to take up to that amount of WETH
+        // Initiate the transfer so the business receive's their DAI
+
+        // Start the user's subscription
+        // Emit the appropriate event to show subscription has been activated
 
     }
 
