@@ -34,7 +34,7 @@ contract('Executor', function(accounts) {
     let subscriptionHash;
 
     let subscriptionCost = 10*10**18; // $10.00
-    let exchangeRate = 500*10**18; // $500.00 USD/ETH
+    let exchangeRate = 1/(500*10**18); // 0.002 ETH/USD
     let subscriptionFee = 10**17; // $0.10
     let subscriptionInterval = 30 * 24 * 60 * 60;
 
@@ -279,7 +279,7 @@ contract('Executor', function(accounts) {
         it("should not be able to activate a subscription without enough funds", async function() {
 
             // Subtract from the wallet so insufficient funds are there
-            await wrappedEtherContract.transfer(contractOwner, 10, {from: subscriber});
+            await wrappedEtherContract.transfer(contractOwner, 10**15, {from: subscriber});
 
             // Make sure the relevant contracts and tokens have been authorised
             await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
@@ -289,7 +289,7 @@ contract('Executor', function(accounts) {
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
 
             // Top up again
-            await wrappedEtherContract.transfer(subscriber, 10, {from: contractOwner});
+            await wrappedEtherContract.transfer(subscriber, 10**15, {from: contractOwner});
 
         });
 
@@ -305,7 +305,7 @@ contract('Executor', function(accounts) {
             assert.isAbove(subscription[3].toNumber(), 0); // See if the start date has been set (subcription activated)
 
             let balance = await wrappedEtherContract.balanceOf(subscriber);
-            assert.equal(balance.toNumber(), 0); // Check to ensure the user has an empty wallet
+            assert.equal(balance.toNumber(), 0); // Check to ensure the user has an empty wrapped ether wallet
 
             let businessBalance = await transactingCurrencyContract.balanceOf(business);
             assert.equal(businessBalance.toNumber(), subscriptionCost); // Check to make sure the business received their funds
