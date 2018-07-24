@@ -1,17 +1,22 @@
 pragma solidity ^0.4.24;
 
-contract WETH {
-    string public name     = "Wrapped Ether";
-    string public symbol   = "WETH";
-    uint8  public decimals = 18;
+import "./ERC20.sol";
 
-    event  Approval(address indexed src, address indexed guy, uint wad);
-    event  Transfer(address indexed src, address indexed dst, uint wad);
-    event  Deposit(address indexed dst, uint wad);
-    event  Withdrawal(address indexed src, uint wad);
+contract WETH is ERC20 {
+
+    uint8 constant public DECIMALS = 18;
+    string constant public NAME = "Wrapped Ether";
+    string constant public SYMBOL = "WETH";
 
     mapping (address => uint)                       public  balanceOf;
     mapping (address => mapping (address => uint))  public  allowance;
+
+    event Approval(address indexed source, address indexed guy, uint amount);
+    event TransferApproval(address indexed source, address indexed dest, address indexed original, uint amount);
+    event Transfer(address indexed source, address indexed destination, uint amount);
+
+    event Deposit(address indexed destination, uint amount);
+    event Withdrawal(address indexed source, uint amount);
 
     function() public payable {
         deposit();
@@ -22,42 +27,49 @@ contract WETH {
         emit Deposit(msg.sender, msg.value);
     }
 
-    function withdraw(uint wad) public {
-        require(balanceOf[msg.sender] >= wad);
-        balanceOf[msg.sender] -= wad;
-        msg.sender.transfer(wad);
-        emit Withdrawal(msg.sender, wad);
+    function withdraw(uint amount) public {
+        require(balanceOf[msg.sender] >= amount);
+        balanceOf[msg.sender] -= amount;
+        msg.sender.transfer(amount);
+        emit Withdrawal(msg.sender, amount);
     }
 
     function totalSupply() public view returns (uint) {
         return this.balance;
     }
 
-    function approve(address guy, uint wad) public returns (bool) {
-        allowance[msg.sender][guy] = wad;
-        emit Approval(msg.sender, guy, wad);
+    function approve(address guy, uint amount) public returns (bool) {
+        allowance[msg.sender][guy] = amount;
+        emit Approval(msg.sender, guy, amount);
         return true;
     }
 
-    function transfer(address dst, uint wad) public returns (bool) {
-        return transferFrom(msg.sender, dst, wad);
+    function transferApproval(address source, address dest, address original, uint amount) public returns (bool) {
+        allowance[original][source] -= amount;
+        allowance[original][dest] += amount;
+
+        emit TransferApproval(source, dest, original, amount);
     }
 
-    function transferFrom(address src, address dst, uint wad)
+    function transfer(address destination, uint amount) public returns (bool) {
+        return transferFrom(msg.sender, destination, amount);
+    }
+
+    function transferFrom(address source, address destination, uint amount)
         public
         returns (bool)
     {
-        require(balanceOf[src] >= wad);
+        require(balanceOf[source] >= amount);
 
-        if (src != msg.sender && allowance[src][msg.sender] != uint(-1)) {
-            require(allowance[src][msg.sender] >= wad);
-            allowance[src][msg.sender] -= wad;
+        if (source != msg.sender && allowance[source][msg.sender] != uint(-1)) {
+            require(allowance[source][msg.sender] >= amount);
+            allowance[source][msg.sender] -= amount;
         }
 
-        balanceOf[src] -= wad;
-        balanceOf[dst] += wad;
+        balanceOf[source] -= amount;
+        balanceOf[destination] += amount;
 
-        emit Transfer(src, dst, wad);
+        emit Transfer(source, destination, amount);
 
         return true;
     }
