@@ -53,17 +53,24 @@ interface KyberNetworkInterface {
       * PUBLIC FUNCTIONS
     */
 
-    /** @dev Swap one token with another token
-      * @param srcToken valid token address
+    /**
+      * @dev Swap an exact number of tokens
+      * @param srcToken a valid token address
       * @param srcQty in token wei
       * @param destToken valid token address
-      * @param destAddress where to send swapped tokens to
+      * @param destAddress where to send swap result
+      * @param user where to get tokens from and and send change to
+      * @param maxDestQty max number of tokens in swap outcome. will be sent to destAddress
+      * @param minRate minimum conversion rate for this swap
     */
-    function swapTokenToToken (
+    function swapTokenToTokenWithChange (
         ERC20 srcToken,
         uint srcQty,
         ERC20 destToken,
-        address destAddress
+        address destAddress,
+        address user,
+        uint maxDestQty,
+        uint minRate
     )
         public;
 

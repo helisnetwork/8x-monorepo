@@ -65,28 +65,23 @@ contract MockKyberNetworkInterface {
         return 0;
     }
 
-    /**
-      * PUBLIC FUNCTIONS
-    */
-
-    /** @dev Swap one token with another token
-      * @param srcToken valid token address
-      * @param srcQty in token wei
-      * @param destToken valid token address
-      * @param destAddress where to send swapped tokens to
-    */
-    function swapTokenToToken (
+    function swapTokenToTokenWithChange (
         ERC20 srcToken,
         uint srcQty,
         ERC20 destToken,
-        address destAddress
+        address destAddress,
+        address user,
+        uint maxDestQty,
+        uint minRate
     )
         public
     {
-        srcToken.transferFrom(msg.sender, address(this), srcQty);
 
-        (uint amount, ) = getExpectedRate(srcToken, destToken, srcQty);
-        destToken.transfer(destAddress, srcQty * amount);
+        require(srcToken.balanceOf(user) >= srcQty);
+
+        srcToken.transferFrom(user, address(this), srcQty);
+        destToken.transfer(destAddress, maxDestQty);
+
     }
 
 }

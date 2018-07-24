@@ -245,14 +245,29 @@ contract Executor is Ownable {
         // @TODO: Store extra data so gas can be refunded to the person activating
 
         // Initiate an instance of the collectable subscription
-        // Check if the subscription is even valid
-        // Check if the token is authorised
+        Collectable subscription = Collectable(_subscriptionContract);
 
-        // Iniate an instance of the Kyber contract
-        // Get the current exchange rate
-        // Check if the user has enough WETH
-        // Give approval to Kyber to take up to that amount of WETH
-        // Initiate the transfer so the business receive's their DAI
+        // Check if the subscription is even valid
+        require(subscription.isValidSubscription(_subscriptionIdentifier) == false);
+
+        // Check if the token is authorised
+        address tokenAddress = subscription.getSubscriptionTokenAddress(_subscriptionIdentifier);
+        require(approvedTokenMapping[tokenAddress]);
+
+        // Check if the user has enough WETH. From = consumer. To = business.
+        (address from, address to) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+        uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
+
+        // Get the current exchange rate from Kyber, if we can't then Kyber shouldn't let it go through
+        (, uint minimumRate) = kyberProxy.getExpectedRate(ERC20(tokenAddress), wrappedEther, amountDue);
+
+        // @TODO: If this is 0 then we have to enable some kind of switch to turn on.
+        uint amountToTake = minimumRate * amountDue;
+
+        require(wrappedEther.balanceOf(from) >= amountToTake);
+
+        // Withdraw a user's WETH and give it to 8x (credited under the user)
+        // Send the ETH to Kyber and set the destination to the business
 
         // Start the user's subscription
         // Emit the appropriate event to show subscription has been activated
