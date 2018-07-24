@@ -10,6 +10,7 @@ var StakeContract = artifacts.require("./StakeContract.sol");
 var MockPaymentRegistryContract = artifacts.require("./test/MockPaymentRegistry.sol");
 var MockToken = artifacts.require("./test/MockToken.sol");
 var KyberContract = artifacts.require("./test/MockKyberNetworkInterface.sol");
+var WrappedEther = artifacts.require("./base/token/WETH.sol");
 
 contract('Executor', function(accounts) {
 
@@ -47,7 +48,7 @@ contract('Executor', function(accounts) {
         nativeTokenContract = await EightExToken.new({from: contractOwner});
 
         // Initialise a mock token contract, the owner has the initial supply
-        wrappedEtherContract = await MockToken.new({from: contractOwner});
+        wrappedEtherContract = await WrappedEther.new({from: contractOwner});
         transactingCurrencyContract = await MockToken.new({from: contractOwner});
 
         // Initialise all the other contracts the executor needs in order to function
@@ -245,7 +246,7 @@ contract('Executor', function(accounts) {
         before(async function() {
 
             // Transfer wrapped Ether to the subscriber
-            await wrappedEtherContract.transfer(subscriber, subscriptionCost * exchangeRate, {from: contractOwner});
+            await wrappedEtherContract.deposit({from: subscriber, value: subscriptionCost * exchangeRate});
 
             // Give unlimited allowance to the transfer proxy (from subscriber)
             await wrappedEtherContract.approve(proxyContract.address, 1000000*10**18, {from: subscriber});
@@ -287,7 +288,7 @@ contract('Executor', function(accounts) {
         it("should not be able to activate a subscription without enough funds", async function() {
 
             // Subtract from the wallet so insufficient funds are there
-            await wrappedEtherContract.transfer(contractOwner, 10**15, {from: subscriber});
+            await wrappedEtherContract.widthdraw(10**15, {from: subscriber});
 
             // Make sure the relevant contracts and tokens have been authorised
             await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
@@ -297,7 +298,7 @@ contract('Executor', function(accounts) {
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
 
             // Top up again
-            await wrappedEtherContract.transfer(subscriber, 10**15, {from: contractOwner});
+            await wrappedEtherContract.deposit({from: contractOwner, value: 10**15});
 
         });
 
@@ -322,12 +323,12 @@ contract('Executor', function(accounts) {
 
         it("should not be able subscribe if it has already been activated", async function() {
 
-            await wrappedEtherContract.transfer(subscriber, subscriptionCost, {from: contractOwner});
+            await wrappedEtherContract.deposit({from: subscriber, value: subscriptionCost});
 
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
 
             // Reset balance to 0
-            await wrappedEtherContract.transfer(contractOwner, subscriptionCost, {from: subscriber});
+            await wrappedEtherContract.withdraw(subscriptionCost, {from: subscriber});
 
         });
 
@@ -344,7 +345,7 @@ contract('Executor', function(accounts) {
             await paymentRegistryContract.setTime(oneMonthLater);
 
             // Transfer some enough tokens for cost and fee for the service node
-            await wrappedEtherContract.transfer(subscriber, subscriptionCost + subscriptionFee, {from: contractOwner});
+            await wrappedEtherContract.deposit({from: subscriber, value: subscriptionCost + subscriptionFee});
 
         });
 
