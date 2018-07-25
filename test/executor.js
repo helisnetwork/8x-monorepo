@@ -102,9 +102,6 @@ contract('Executor', function(accounts) {
         etherSubscriptionHash = newEtherSubscription.logs[0].args.identifier;
         tokenSubscriptionHash = newTokenSubscription.logs[0].args.identifier;
 
-        console.log(etherSubscriptionHash);
-        console.log(tokenSubscriptionHash);
-
     });
 
     describe("basic tests", () => {
@@ -333,14 +330,6 @@ contract('Executor', function(accounts) {
             // Activate the subscription with enough funds in wrapper ether account
             await executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, true, {from: etherSubscriber});
 
-            let balanceOfConsumer = await transactingCurrencyContract.balanceOf(tokenSubscriber);
-            let amountDue = await subscriptionContract.getAmountDueFromSubscription(tokenSubscriptionHash);
-            let validTokenContract = await executorContract.approvedTokenMapping.call(transactingCurrencyContract.address);
-            let subscriptionValid = await subscriptionContract.isValidSubscription(tokenSubscriptionHash);
-            let approval = await transactingCurrencyContract.allowance(tokenSubscriber, proxyContract.address);
-
-            console.log(`Balance ${balanceOfConsumer} and due ${amountDue} and ${validTokenContract} and ${subscriptionValid} and ${approval}`);
-
             await executorContract.activateSubscription(subscriptionContract.address, tokenSubscriptionHash, false, {from: tokenSubscriber});
 
             let etherSubscription = await subscriptionContract.subscriptions.call(etherSubscriptionHash);
@@ -368,20 +357,12 @@ contract('Executor', function(accounts) {
             let result = await subscriptionContract.isValidSubscription(etherSubscriptionHash);
             let result2 = await subscriptionContract.isValidSubscription(tokenSubscriptionHash);
 
-            console.log("Eth sub valid: " + result);
-            console.log("Token sub valid: " + result2);
-
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, true, {from: etherSubscriber}));
-
-            console.log("1");
 
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, tokenSubscriptionHash, false, {from: tokenSubscriber}));
 
             // Reset balance to 0
-            console.log("2");
             await wrappedEtherContract.withdraw(subscriptionEthCost, {from: etherSubscriber});
-
-            console.log("3");
             await transactingCurrencyContract.transfer(contractOwner, subscriptionCost, {from: tokenSubscriber});
         });
 
