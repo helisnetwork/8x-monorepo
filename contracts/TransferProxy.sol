@@ -1,6 +1,7 @@
 pragma solidity 0.4.24;
 
 import "./base/token/ERC20.sol";
+import "./base/token/ExtendedERC20.sol";
 import "./Authorizable.sol";
 
 /** @title TokenTransferProxy - Transfers tokens on behalf of contracts. */
@@ -24,12 +25,26 @@ contract TransferProxy is Authorizable {
         address _token,
         address _from,
         address _to,
-        uint _value)
+        uint _value
+    )
         public
         onlyAuthorized
         returns (bool success)
     {
         return ERC20(_token).transferFrom(_from, _to, _value);
+    }
+
+    function transferApproval(
+        address _token,
+        address _from,
+        address _to,
+        address _original,
+        uint _value
+    )
+        public
+        returns (bool)
+    {
+        return ExtendedERC20(_token).transferApproval(_from, _to, _original, _value);
     }
 
 }

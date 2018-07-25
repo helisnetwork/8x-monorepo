@@ -22,7 +22,7 @@ contract MockKyberNetworkInterface {
         returns (uint expectedRate, uint slippageRate)
     {
         // 0.002 ETH/USD is the exchange rate we want. Assuming $500 USD/ETH.
-        return (10**15, 0);
+        return (2*10**15, 2*10**15);
     }
 
     function maxGasPrice()
