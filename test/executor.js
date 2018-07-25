@@ -27,18 +27,22 @@ contract('Executor', function(accounts) {
 
     let contractOwner = accounts[0]; // Admin role
     let business = accounts[1]; // Plan owner that has a plan that costs $100/month
-    let subscriber = accounts[2]; // User paying $100/month subscription
-    let serviceNode = accounts[3]; // Collector party claiming payment
-    let unauthorisedAddress = accounts[4]; // Some random address
-    let competingServiceNode = accounts[5]; // Another collector party claiming payment
+    let etherSubscriber = accounts[2]; // User paying $100/month subscription worth of ETH
+    let tokenSubscriber = accounts[3]; // User paying $100/month subscription directly (probably in DAI)
+    let serviceNode = accounts[4]; // Collector party claiming payment
+    let unauthorisedAddress = accounts[5]; // Some random address
+    let competingServiceNode = accounts[6]; // Another collector party claiming payment
 
     let planIdentifier;
 
     let planHash;
-    let subscriptionHash;
+    let etherSubscriptionHash;
+    let tokenSubscriptionHash;
 
     let subscriptionCost = 10*10**18; // $10.00
-    let exchangeRate = 1/(500*10**18); // 0.002 ETH/USD
+    let exchangeRate = 2*10**15; // 0.002 ETH/USD
+    let subscriptionEthCost = (subscriptionCost * exchangeRate) / (10**18);
+
     let subscriptionFee = 10**17; // $0.10
     let subscriptionInterval = 30 * 24 * 60 * 60;
 
@@ -86,12 +90,20 @@ contract('Executor', function(accounts) {
         planHash = newPlan.logs[0].args.identifier;
 
         // Create a new subscription (from a subscriber)
-        let newSubscription = await subscriptionContract.createSubscription(
-            planHash, "{}", {from: subscriber}
+        let newEtherSubscription = await subscriptionContract.createSubscription(
+            planHash, "{}", {from: etherSubscriber}
+        );
+
+        let newTokenSubscription = await subscriptionContract.createSubscription(
+            planHash, "{}", {from: tokenSubscriber}
         );
 
         // The hash we can use to identify the subscription
-        subscriptionHash = newSubscription.logs[0].args.identifier;
+        etherSubscriptionHash = newEtherSubscription.logs[0].args.identifier;
+        tokenSubscriptionHash = newTokenSubscription.logs[0].args.identifier;
+
+        console.log(etherSubscriptionHash);
+        console.log(tokenSubscriptionHash);
 
     });
 
@@ -246,10 +258,13 @@ contract('Executor', function(accounts) {
         before(async function() {
 
             // Transfer wrapped Ether to the subscriber
-            await wrappedEtherContract.deposit({from: subscriber, value: subscriptionCost * exchangeRate});
+            await wrappedEtherContract.deposit({from: etherSubscriber, value: subscriptionEthCost});
+            await transactingCurrencyContract.transfer(tokenSubscriber, subscriptionCost, {from: contractOwner});
 
             // Give unlimited allowance to the transfer proxy (from subscriber)
-            await wrappedEtherContract.approve(proxyContract.address, 1000000*10**18, {from: subscriber});
+            let approvalAmount = 1000000*10**18;
+            await wrappedEtherContract.approve(proxyContract.address, approvalAmount, {from: etherSubscriber});
+            await transactingCurrencyContract.approve(proxyContract.address, approvalAmount, {from: tokenSubscriber});
 
         })
 
@@ -265,7 +280,8 @@ contract('Executor', function(accounts) {
 
             let fakePlanHash = fakePlan.logs[0].args.identifier;
 
-            await assertRevert(executorContract.activateSubscription(fakeSubscriptionContract.address, fakePlanHash, {from: subscriber}));
+            await assertRevert(executorContract.activateSubscription(fakeSubscriptionContract.address, fakePlanHash, true, {from: etherSubscriber}));
+            await assertRevert(executorContract.activateSubscription(fakeSubscriptionContract.address, fakePlanHash, false, {from: tokenSubscriber}));
 
             await executorContract.removeApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
 
@@ -279,7 +295,8 @@ contract('Executor', function(accounts) {
             await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
             await executorContract.setApprovedContractCallCost(subscriptionContract.address, 0, 10, 20, 30, {from: contractOwner});
 
-            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
+            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, true, {from: etherSubscriber}));
+            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, tokenSubscriptionHash, false, {from: tokenSubscriber}));
 
             await executorContract.removeApprovedContract(subscriptionContract.address, {from: contractOwner});
 
@@ -287,18 +304,23 @@ contract('Executor', function(accounts) {
 
         it("should not be able to activate a subscription without enough funds", async function() {
 
-            // Subtract from the wallet so insufficient funds are there
-            await wrappedEtherContract.widthdraw(10**15, {from: subscriber});
+            let difference = 10**15;
 
-            // Make sure the relevant contracts and tokens have been authorised
+            // // Subtract from the wallet so insufficient funds are there
+            await wrappedEtherContract.withdraw(difference, {from: etherSubscriber});
+            await transactingCurrencyContract.transfer(contractOwner, difference, {from: tokenSubscriber});
+
+            // // Make sure the relevant contracts and tokens have been authorised
             await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
             await executorContract.setApprovedContractCallCost(subscriptionContract.address, 0, 5**10*16, 10**5, 2*10**9);
             await executorContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
 
-            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
+            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, true, {from: etherSubscriber}));
+            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, tokenSubscriptionHash, false, {from: tokenSubscriber}));
 
             // Top up again
-            await wrappedEtherContract.deposit({from: contractOwner, value: 10**15});
+            await wrappedEtherContract.deposit({from: etherSubscriber, value: difference});
+            await transactingCurrencyContract.transfer(tokenSubscriber, difference, {from: contractOwner});
 
         });
 
@@ -306,37 +328,68 @@ contract('Executor', function(accounts) {
 
             // Setup the time we want
             await executorContract.setTime(activationTime);
+            await subscriptionContract.setTime(activationTime);
 
             // Activate the subscription with enough funds in wrapper ether account
-            await executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber});
+            await executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, true, {from: etherSubscriber});
 
-            let subscription = await subscriptionContract.subscriptions.call(subscriptionHash);
-            assert.isAbove(subscription[3].toNumber(), 0); // See if the start date has been set (subcription activated)
+            let balanceOfConsumer = await transactingCurrencyContract.balanceOf(tokenSubscriber);
+            let amountDue = await subscriptionContract.getAmountDueFromSubscription(tokenSubscriptionHash);
+            let validTokenContract = await executorContract.approvedTokenMapping.call(transactingCurrencyContract.address);
+            let subscriptionValid = await subscriptionContract.isValidSubscription(tokenSubscriptionHash);
+            let approval = await transactingCurrencyContract.allowance(tokenSubscriber, proxyContract.address);
 
-            let balance = await wrappedEtherContract.balanceOf(subscriber);
-            assert.equal(balance.toNumber(), 0); // Check to ensure the user has an empty wrapped ether wallet
+            console.log(`Balance ${balanceOfConsumer} and due ${amountDue} and ${validTokenContract} and ${subscriptionValid} and ${approval}`);
+
+            await executorContract.activateSubscription(subscriptionContract.address, tokenSubscriptionHash, false, {from: tokenSubscriber});
+
+            let etherSubscription = await subscriptionContract.subscriptions.call(etherSubscriptionHash);
+            assert.isAbove(etherSubscription[3].toNumber(), 0); // See if the start date has been set (subcription activated)
+
+            let tokenSubscription = await subscriptionContract.subscriptions.call(tokenSubscriptionHash);
+            assert.isAbove(tokenSubscription[3].toNumber(), 0); // See if the start date has been set (subcription activated)
+
+            let userEtherBalance = await wrappedEtherContract.balanceOf(etherSubscriber);
+            assert.equal(userEtherBalance.toNumber(), 0); // Check to ensure the user has an empty wrapped ether wallet
+
+            let userTokenBalance = await transactingCurrencyContract.balanceOf(tokenSubscriber);
+            assert.equal(userTokenBalance.toNumber(), 0); // Check to ensure the user has an empty wrapped ether wallet
 
             let businessBalance = await transactingCurrencyContract.balanceOf(business);
-            assert.equal(businessBalance.toNumber(), subscriptionCost); // Check to make sure the business received their funds
+            assert.equal(businessBalance.toNumber(), subscriptionCost * 2); // Check to make sure the business received their funds from both parties
 
         });
 
         it("should not be able subscribe if it has already been activated", async function() {
 
-            await wrappedEtherContract.deposit({from: subscriber, value: subscriptionCost});
+            await wrappedEtherContract.deposit({from: etherSubscriber, value: subscriptionEthCost});
+            await transactingCurrencyContract.transfer(tokenSubscriber, subscriptionCost, {from: contractOwner});
 
-            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, {from: subscriber}));
+            let result = await subscriptionContract.isValidSubscription(etherSubscriptionHash);
+            let result2 = await subscriptionContract.isValidSubscription(tokenSubscriptionHash);
+
+            console.log("Eth sub valid: " + result);
+            console.log("Token sub valid: " + result2);
+
+            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, true, {from: etherSubscriber}));
+
+            console.log("1");
+
+            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, tokenSubscriptionHash, false, {from: tokenSubscriber}));
 
             // Reset balance to 0
-            await wrappedEtherContract.withdraw(subscriptionCost, {from: subscriber});
+            console.log("2");
+            await wrappedEtherContract.withdraw(subscriptionEthCost, {from: etherSubscriber});
 
+            console.log("3");
+            await transactingCurrencyContract.transfer(contractOwner, subscriptionCost, {from: tokenSubscriber});
         });
 
     });
 
     describe("when service nodes process subscriptions", () => {
 
-        let oneMonthLater = activationTime + subscriptionInterval;
+        /*let oneMonthLater = activationTime + subscriptionInterval;
 
         before(async function() {
 
@@ -465,7 +518,7 @@ contract('Executor', function(accounts) {
             // Should fail when collecting payment since it has already been claimed/processed
             await assertRevert(executorContract.collectPayment(subscriptionContract.address, subscriptionHash, {from: competingServiceNode}));
 
-        });
+        });*/
 
     });
 

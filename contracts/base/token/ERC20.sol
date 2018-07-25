@@ -16,5 +16,5 @@ contract ERC20 {
 
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event TransferTokens(address indexed from, address indexed to, uint256 value);
-    
+
 }

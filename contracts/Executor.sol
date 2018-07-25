@@ -229,13 +229,15 @@ contract Executor is Ownable {
         return approvedTokenArray;
     }
 
-    /** @dev Active a subscription once it's been created (make the first payment).
+    /** @dev Active a subscription once it's been created (make the first payment) paid from wrapped Ether.
       * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+      * @param _useEther flag to determine whether to pay using funds in wrapped ether contract or token.
     */
     function activateSubscription(
         address _subscriptionContract,
-        bytes32 _subscriptionIdentifier
+        bytes32 _subscriptionIdentifier,
+        bool _useEther
     )
         public
         isValidSubscriptionContract(_subscriptionContract)
@@ -243,7 +245,7 @@ contract Executor is Ownable {
     {
 
         // @TODO: Implementation
-        // @TODO: Store extra data so gas can be refunded to the person activating
+        // @TODO: Store extra data so gas can be refunded to the person cancelling
 
         // Initiate an instance of the collectable subscription
         Collectable subscription = Collectable(_subscriptionContract);
@@ -261,35 +263,20 @@ contract Executor is Ownable {
         (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
         uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
 
-        // Get the current exchange rate from Kyber, if we can't then Kyber shouldn't let it go through
-        (, uint minimumRate) = kyberProxy.getExpectedRate(transactingToken, wrappedEther, amountDue);
-
-        // @TODO: If this is 0 then we have to enable some kind of switch to turn on.
-        uint amountToTake = minimumRate * amountDue;
-
-        require(wrappedEther.balanceOf(consumer) >= amountToTake);
-
-        // Transfer part of the approval given to 8x to Kyber
-        wrappedEther.transferApproval(address(this), address(kyberProxy), consumer, amountToTake);
-
         // Get the businesses balance before the transaction
         uint balanceOfBusinessBeforeTransfer = transactingToken.balanceOf(business);
 
-        // Send the ETH to Kyber and set the destination to the business
-        kyberProxy.swapTokenToTokenWithChange(
-            wrappedEther, // Source token
-            amountToTake, // Amount to send (convert)
-            transactingToken, // Destination token
-            tokenAddress, // Destination token address
-            consumer, // User to take ether from and refund change
-            amountToTake, // Maxmium amount we want after swap
-            minimumRate // Minimum conversion rate
-        );
+        // Activate payment with Ether or Token
+        if (_useEther == true) {
+            activatePaymentWithEther(consumer, business, amountDue, tokenAddress);
+        } else {
+            activatePaymentWithTokens(consumer, business, amountDue, tokenAddress);
+        }
 
         // Check the business actually received the funds by checking the difference
-        require((transactingToken.balanceOf(business) - balanceOfBusinessBeforeTransfer) == amountToTake);
+        require((transactingToken.balanceOf(business) - balanceOfBusinessBeforeTransfer) == amountDue);
 
-        // Start the user's subscription
+        // Start the subscription
         subscription.setStartDate(currentTimestamp(), _subscriptionIdentifier);
 
         // Emit the appropriate event to show subscription has been activated
@@ -324,6 +311,68 @@ contract Executor is Ownable {
     {
         // solhint-disable-next-line
         return block.timestamp;
+    }
+
+    /**
+      * PRIVATE FUNCTIONS
+    */
+    function activatePaymentWithEther(
+        address consumer,
+        address business,
+        uint amountDue,
+        address tokenAddress
+    )
+        private
+    {
+        // Initialise the token contract
+        ERC20 transactingToken = ERC20(tokenAddress);
+
+        // Get the current exchange rate from Kyber, if we can't then Kyber shouldn't let it go through
+        (, uint minimumRate) = kyberProxy.getExpectedRate(transactingToken, wrappedEther, amountDue);
+
+        // @TODO: If this is 0 then we have to enable some kind of switch to turn on.
+        uint amountToTake = (minimumRate * amountDue) / (10**18);
+
+        require(wrappedEther.balanceOf(consumer) >= amountToTake);
+
+        // Transfer part of the approval given to 8x to Kyber
+        transferProxy.transferApproval(
+            address(wrappedEther),
+            address(transferProxy),
+            address(kyberProxy),
+            consumer,
+            amountToTake
+        );
+
+        // Send the ETH to Kyber and set the destination to the business
+        kyberProxy.swapTokenToTokenWithChange(
+            wrappedEther, // Source token
+            amountToTake, // Amount to send (convert)
+            transactingToken, // Destination token
+            business, // Destination address
+            consumer, // User to take ether from and refund change
+            amountDue, // Maxmium amount we want after swap
+            minimumRate // Minimum conversion rate
+        );
+
+    }
+
+    function activatePaymentWithTokens(
+        address consumer,
+        address business,
+        uint amountDue,
+        address tokenAddress
+    )
+        private
+    {
+        // Initialise the token contract
+        ERC20 transactingToken = ERC20(tokenAddress);
+
+        // Check if the user has enough funds
+        require(transactingToken.balanceOf(consumer) >= amountDue);
+
+        // Send ETH to the destination business
+        transferProxy.transferFrom(tokenAddress, consumer, business, amountDue);
     }
 
 }

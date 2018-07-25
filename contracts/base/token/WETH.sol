@@ -1,8 +1,9 @@
 pragma solidity ^0.4.24;
 
 import "./ERC20.sol";
+import "./ExtendedERC20.sol";
 
-contract WETH is ERC20 {
+contract WETH is ERC20, ExtendedERC20 {
 
     uint8 constant public DECIMALS = 18;
     string constant public NAME = "Wrapped Ether";
@@ -52,11 +53,11 @@ contract WETH is ERC20 {
         return allowed[_owner][_spender];
     }
 
-    function transferApproval(address _from, address _to, address original, uint _value) public returns (bool) {
-        allowed[original][_from] -= _value;
-        allowed[original][_to] += _value;
+    function transferApproval(address _from, address _to, address _original, uint _value) public returns (bool) {
+        allowed[_original][_from] -= _value;
+        allowed[_original][_to] += _value;
 
-        emit TransferApproval(_from, _to, original, _value);
+        emit TransferApproval(_from, _to, _original, _value);
     }
 
     function transfer(address _to, uint _value) public returns (bool success) {

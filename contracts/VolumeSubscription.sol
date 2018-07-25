@@ -104,7 +104,9 @@ contract VolumeSubscription is Collectable {
         returns (bool success)
     {
         // @TODO: Add tests for this.
+
         return (
+            plans[subscriptions[_subscription].planHash].terminationDate == 0 &&
             subscriptions[_subscription].terminationDate == 0 &&
             subscriptions[_subscription].startDate > 0
         );
@@ -147,10 +149,10 @@ contract VolumeSubscription is Collectable {
 
     function setStartDate(uint _date, bytes32 _subscription)
         public
-        //onlyAuthorized
+        onlyAuthorized
     {
-        //require(_date >= currentTimestamp());
-        //require(subscriptions[_subscription].startDate == 0);
+        require(_date >= currentTimestamp());
+        require(subscriptions[_subscription].startDate == 0);
 
         subscriptions[_subscription].startDate = _date;
 
