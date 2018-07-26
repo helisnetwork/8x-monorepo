@@ -49,6 +49,9 @@ contract('Executor', function(accounts) {
     let subscriptionInterval = 30 * 24 * 60 * 60;
     let multiplier = 10;
 
+    let activationTime = parseInt(Date.now() / 1000);
+    let oneMonthLater = parseInt(activationTime + subscriptionInterval);
+
     before(async function() {
 
         // Initialise the 8x token contract, the owner has all the initial token supply.
@@ -251,8 +254,6 @@ contract('Executor', function(accounts) {
 
     });
 
-    let activationTime = (Date.now() / 1000);
-
     describe("when users activate subscriptions", () => {
 
         before(async function() {
@@ -333,22 +334,48 @@ contract('Executor', function(accounts) {
             // Activate the subscription with enough funds in wrapper ether account
             await executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, true, {from: etherSubscriber});
 
+            // Activate the subscription with enough funds in the transacting token contract
             await executorContract.activateSubscription(subscriptionContract.address, tokenSubscriptionHash, false, {from: tokenSubscriber});
 
+            // Check if there is an element in the payment registry for the ether subscription
+            let etherPaymentInfo = await paymentRegistryContract.payments.call(etherSubscriptionHash);
+            assert.equal(etherPaymentInfo[0], subscriptionContract.address);
+            assert.equal(etherPaymentInfo[1].toNumber(), oneMonthLater);
+            assert.equal(etherPaymentInfo[2], subscriptionCost);
+            assert.equal(etherPaymentInfo[3], 0);
+            assert.equal(etherPaymentInfo[4], 0);
+            assert.equal(etherPaymentInfo[5], 0);
+            assert.equal(etherPaymentInfo[5], 0);
+
+            // Check if there is an element in the subscription registry for the token subscription
+            let tokenPaymentInfo = await paymentRegistryContract.payments.call(tokenSubscriptionHash);
+            assert.equal(tokenPaymentInfo[0], subscriptionContract.address);
+            assert.equal(tokenPaymentInfo[1].toNumber(), oneMonthLater);
+            assert.equal(tokenPaymentInfo[2], subscriptionCost);
+            assert.equal(tokenPaymentInfo[3], 0);
+            assert.equal(tokenPaymentInfo[4], 0);
+            assert.equal(tokenPaymentInfo[5], 0);
+            assert.equal(etherPaymentInfo[5], 0);
+
+            // See if the start date has been set (subcription activated) for the ether subscription
             let etherSubscription = await subscriptionContract.subscriptions.call(etherSubscriptionHash);
-            assert.isAbove(etherSubscription[3].toNumber(), 0); // See if the start date has been set (subcription activated)
+            assert.isAbove(etherSubscription[3].toNumber(), 0);
 
+            // See if the start date has been set (subcription activated) for the token subscription
             let tokenSubscription = await subscriptionContract.subscriptions.call(tokenSubscriptionHash);
-            assert.isAbove(tokenSubscription[3].toNumber(), 0); // See if the start date has been set (subcription activated)
+            assert.isAbove(tokenSubscription[3].toNumber(), 0);
 
+            // Check to ensure the user has an empty wrapped ether wallet
             let userEtherBalance = await wrappedEtherContract.balanceOf(etherSubscriber);
-            assert.equal(userEtherBalance.toNumber(), 0); // Check to ensure the user has an empty wrapped ether wallet
+            assert.equal(userEtherBalance.toNumber(), 0);
 
+            // Check to ensure the user has an empty token wallet
             let userTokenBalance = await transactingCurrencyContract.balanceOf(tokenSubscriber);
-            assert.equal(userTokenBalance.toNumber(), 0); // Check to ensure the user has an empty wrapped ether wallet
+            assert.equal(userTokenBalance.toNumber(), 0);
 
+            // Check to make sure the business received their funds from both parties
             let businessBalance = await transactingCurrencyContract.balanceOf(business);
-            assert.equal(businessBalance.toNumber(), subscriptionCost * 2); // Check to make sure the business received their funds from both parties
+            assert.equal(businessBalance.toNumber(), subscriptionCost * 2);
 
         });
 
@@ -362,7 +389,6 @@ contract('Executor', function(accounts) {
             let result2 = await subscriptionContract.isValidSubscription(tokenSubscriptionHash);
 
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, true, {from: etherSubscriber}));
-
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, tokenSubscriptionHash, false, {from: tokenSubscriber}));
 
             // Reset balance to 0
@@ -374,7 +400,6 @@ contract('Executor', function(accounts) {
 
     describe("when service nodes process subscriptions", () => {
 
-        let oneMonthLater = activationTime + subscriptionInterval;
         let stakeAmountForTwo = (subscriptionCost * multiplier) * 2;
         let difference = 1000;
 

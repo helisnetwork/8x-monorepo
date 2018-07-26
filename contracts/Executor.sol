@@ -259,6 +259,9 @@ contract Executor is Ownable {
 
         require(approvedTokenMapping[tokenAddress]);
 
+        // Get the interval for the subscription
+        uint subscriptionInterval = subscription.getSubscriptionInterval(_subscriptionIdentifier);
+
         // Check if the user has enough WETH.
         (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
         uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
@@ -275,6 +278,14 @@ contract Executor is Ownable {
 
         // Check the business actually received the funds by checking the difference
         require((transactingToken.balanceOf(business) - balanceOfBusinessBeforeTransfer) == amountDue);
+
+        // Create a new record in the payments registry
+        paymentRegistry.createNewPayment(
+            _subscriptionIdentifier,
+            _subscriptionContract,
+            currentTimestamp() + subscriptionInterval,
+            amountDue
+        );
 
         // Start the subscription
         subscription.setStartDate(currentTimestamp(), _subscriptionIdentifier);
