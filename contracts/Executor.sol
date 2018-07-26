@@ -289,7 +289,8 @@ contract Executor is Ownable {
     */
     function collectPayment(
         address _subscriptionContract,
-        bytes32 _subscriptionIdentifier
+        bytes32 _subscriptionIdentifier,
+        bool _useEther
     )
         public
         returns (bool success)
