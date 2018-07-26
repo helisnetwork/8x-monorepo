@@ -484,7 +484,7 @@ contract('Executor', function(accounts) {
 
             // Check to ensure the user has enough funds
             let preUserEthBalance = await wrappedEtherContract.balanceOf(etherSubscriber);
-            let preUserTokenBalance = await mockTokenContract.balanceOf(tokenSubscriber);
+            let preUserTokenBalance = await transactingCurrencyContract.balanceOf(tokenSubscriber);
 
             assert.equal(preUserBalance.toNumber(), subscriptionCost);
             assert.equal(preUserBalance.toNumber(), subscriptionEthCost);
@@ -526,8 +526,8 @@ contract('Executor', function(accounts) {
             // @TODO: Value for gas needs to be reimbursed
 
             // Check if the balance of the user was subtracted
-            let postEtherUserBalance = await mockTokenContract.balanceOf(etherSubscriber);
-            let postTokenUserBalance = await mockTokenContract.balanceOf(tokenSubscriber);
+            let postEtherUserBalance = await wrappedEtherContract.balanceOf(etherSubscriber);
+            let postTokenUserBalance = await transactingCurrencyContract.balanceOf(tokenSubscriber);
             assert.equal(postEtherUserBalance.toNumber(), 0);
             assert.equal(postTokenUserBalance.toNumber(), 0);
 
