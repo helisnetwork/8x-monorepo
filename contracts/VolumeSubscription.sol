@@ -129,6 +129,15 @@ contract VolumeSubscription is Collectable {
         return (subscriptions[_subscription].owner, plans[planHash].owner);
     }
 
+    function getSubscriptionInterval(bytes32 _subscription)
+        public
+        view
+        returns (uint interval)
+    {
+        bytes32 planHash = subscriptions[_subscription].planHash;
+        return plans[planHash].interval;
+    }
+
     function getAmountDueFromSubscription(bytes32 _subscription)
         public
         view
