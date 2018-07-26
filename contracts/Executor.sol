@@ -308,6 +308,19 @@ contract Executor is Ownable {
 
         // @TODO: Implementation
 
+        // Get the current payment registry object (if it doesn't exist fail)
+        // Check to make sure the payment is due
+        // Check to make sure it hasn't been claimed by someone else
+        // Check that the service node calling has enough staked tokens
+        // If the current multiplier is lower than the one in the object, free the difference
+        // Collect the payment in ether or tokens, make sure to send service node their cut
+        // If the payment failed (the user doesn't have enough funds), cancel the subscription (volume subscription)
+        // Update the payment registry based on successful payment collection or cancellation
+
+        // IMPORTANT:
+        // Reimburse the service node for the gas fees based on whether the payment happened or subscription cancelled.
+        // You can't throw have any require statement since service nodes need to be imbursed.
+
     }
 
     /**
