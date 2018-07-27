@@ -265,8 +265,6 @@ contract Executor is Ownable {
         returns (bool success)
     {
 
-        // @TODO: Store extra data so gas can be refunded to the person cancelling
-
         // Initiate an instance of the collectable subscription
         Collectable subscription = Collectable(_subscriptionContract);
 
