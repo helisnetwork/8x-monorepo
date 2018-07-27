@@ -314,7 +314,6 @@ contract Executor is Ownable {
         bytes32 _subscriptionIdentifier
     )
         public
-        returns (bool success)
     {
 
         // @TODO: Implementation
@@ -337,18 +336,39 @@ contract Executor is Ownable {
         // Check to make sure it hasn't been claimed by someone else or belongs to you
         require(claimant == msg.sender || claimant == 0);
 
+        // Check it isn't too late to claim (past execution) or too late
+        Collectable subscription = Collectable(_subscriptionContract);
+        uint interval = subscription.getSubscriptionInterval(_subscriptionIdentifier);
+        // @TODO: Implementation
+
         // Check that the service node calling has enough staked tokens
-        uint currentMultiplier = approvedTokenMapping[_subscriptionContract];
         if (stakeMultiplier == 0) {
-            require(stakeContract.getAvailableStake(msg.sender) >= currentMultiplier);
+            require(stakeContract.getAvailableStake(msg.sender) >= currentMultiplierFor(tokenAddress));
         }
 
-        // Collect the payment in the transacting currency
+        // Make payments to the business and service node
+        makeSafePayments(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            tokenAddress,
+            msg.sender,
+            amount,
+            fee
+        );
 
         // If the current multiplier is lower than the one in the object, free the difference
+        // @TODO: Implementation
 
-        // If the payment failed (the user doesn't have enough funds), cancel the subscription (volume subscription)
-        // Update the payment registry based on successful payment collection or cancellation
+        // Lock up staked tokens
+        stakeContract.stakeTokens(msg.sender, currentMultiplierFor(tokenAddress) * amount);
+
+        // Update the payment registry
+        paymentRegistry.claimPayment(
+            _subscriptionIdentifier, // Identifier of subscription
+            msg.sender, // The claimant
+            dueDate + interval, // Next payment due date
+            currentMultiplierFor(tokenAddress) // Current multiplier set for the currency
+        );
 
     }
 
@@ -369,6 +389,26 @@ contract Executor is Ownable {
     /**
       * PRIVATE FUNCTION
     */
+
+    function makeSafePayments(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier,
+        address _tokenAddress,
+        address _serviceNode,
+        uint _amount,
+        uint _fee
+    )
+        private
+    {
+        Collectable subscription = Collectable(_subscriptionContract);
+        ERC20 transactingToken = ERC20(_tokenAddress);
+
+        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+
+        makeSafePayment(transactingToken, consumer, business, _amount - _fee);
+        makeSafePayment(transactingToken, consumer, _serviceNode, _fee);
+    }
+
     function makeSafePayment(
         ERC20 _transactingToken,
         address _from,
@@ -388,6 +428,10 @@ contract Executor is Ownable {
 
         // Check the business actually received the funds by checking the difference
         require((_transactingToken.balanceOf(_from) - balanceOfBusinessBeforeTransfer) == _amount);
+    }
+
+    function currentMultiplierFor(address _tokenAddress) public returns(uint) {
+        return approvedTokenMapping[_tokenAddress];
     }
 
 }
