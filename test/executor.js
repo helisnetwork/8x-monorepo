@@ -432,7 +432,8 @@ contract('Executor', function(accounts) {
 
     describe("when service nodes process subscriptions", () => {
 
-        let stakeAmountForTwo = (subscriptionCost * multiplier) * 2;
+        let tokenStake = (subscriptionCost * multiplier);
+        let ethStake = (subscriptionEthCost * multiplier);
         let difference = 1000;
 
         before(async function() {
@@ -493,17 +494,17 @@ contract('Executor', function(accounts) {
 
         it("should not be able to process a subscription if the service node does not have enough staked tokens", async function() {
 
-            // Transfer $10 * multiplier * 2 worth of 8x tokens
-            await nativeTokenContract.transfer(serviceNode, stakeAmountForTwo, {from: contractOwner});
+            // Transfer 8x tokens
+            await nativeTokenContract.transfer(serviceNode, tokenStake + ethStake, {from: contractOwner});
 
             // Approve the stake contract to take 8x tokens from the service node
-            await nativeTokenContract.approve(stakeContract.address, stakeAmountForTwo, {from: serviceNode});
+            await nativeTokenContract.approve(stakeContract.address, tokenStake + ethStake, {from: serviceNode});
 
             // Top up your stake in the stake contract less 1000
             await stakeContract.topUpStake(difference, {from: serviceNode});
 
             // Check the balance to ensure it topped up the correct amount
-            let balance = await stakeContract.getAvailableStake(serviceNode.address);
+            let balance = await stakeContract.getAvailableStake(serviceNode);
             assert.equal(balance, difference);
 
             // Should fail when collecting payment since there aren't enough tokens staked
@@ -522,11 +523,11 @@ contract('Executor', function(accounts) {
             assert.equal(preUserEthBalance.toNumber(), subscriptionEthCost);
 
             // Top up stake by difference
-            await stakeContract.topUpStake(stakeAmountForTwo - 1000, {from: serviceNode});
+            await stakeContract.topUpStake(ethStake + tokenStake - 1000, {from: serviceNode});
 
             // Check the balance to ensure it topped up the correct amount
             let balance = await stakeContract.getAvailableStake(serviceNode.address);
-            assert.equal(balance, stakeAmountForTwo);
+            assert.equal(balance, ethStake + tokenStake);
 
             // Should be able to process now that the service node has enough staked tokens
             await executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
@@ -575,18 +576,17 @@ contract('Executor', function(accounts) {
         it("should not be able to process a subscription once it has already been processed", async function() {
 
             // Transfer some tokens to a competing service node
-            let amount = stakeAmountForTwo / 2;
-            await nativeTokenContract.transfer(competingServiceNode, amount, {from: contractOwner});
+            await nativeTokenContract.transfer(competingServiceNode, tokenStake + ethStake, {from: contractOwner});
 
             // Approve the stake contract to take 8x tokens from you
-            await nativeTokenContract.approve(stakeContract.address, amount, {from: competingServiceNode});
+            await nativeTokenContract.approve(stakeContract.address, tokenStake + ethStake, {from: competingServiceNode});
 
             // Top up your stake in the stake contract
-            await stakeContract.topUpStake(amount, {from: competingServiceNode});
+            await stakeContract.topUpStake(tokenStake + ethStake, {from: competingServiceNode});
 
             // Check the balance to ensure it topped up the correct amount
             let balance = await stakeContract.getAvailableStake(competingServiceNode);
-            assert.equal(balance, amount);
+            assert.equal(balance, tokenStake + ethStake);
 
             // Should fail when collecting payment since it has already been claimed/processed
             await assertRevert(executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
