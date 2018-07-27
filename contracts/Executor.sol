@@ -44,9 +44,6 @@ contract Executor is Ownable {
     event ContractGasCostSet(address indexed contractAddress, uint indexed index);
     event ContractGasCostRemoved(address indexed contractAddress, uint indexed index);
 
-
-    uint public currentMultiplier;
-
     /**
       * MODIFIERS
     */
@@ -292,11 +289,13 @@ contract Executor is Ownable {
         makeSafePayment(transactingToken, consumer, business, amountDue);
 
         // Create a new record in the payments registry
+        uint fee = subscription.getSubscriptionFee(_subscriptionIdentifier);
         paymentRegistry.createNewPayment(
             _subscriptionIdentifier,
             _subscriptionContract,
             currentTimestamp() + subscriptionInterval,
-            amountDue
+            amountDue,
+            fee
         );
 
         // Start the subscription
@@ -322,9 +321,10 @@ contract Executor is Ownable {
 
         // Get the current payment registry object (if it doesn't exist fail)
         (
-            , // address subscriptionContract
+            address tokenAddress,
             uint dueDate,
             uint amount,
+            uint fee,
             uint lastPaymentDate,
             address claimant,
             uint executionPeriod,
