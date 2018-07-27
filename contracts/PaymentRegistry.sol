@@ -161,12 +161,20 @@ contract PaymentRegistry is Authorizable {
             uint amount,                    // 2
             uint lastPaymentDate,           // 3
             address claimant,               // 4
-            uint executionPeriod            // 5
+            uint executionPeriod,           // 5
+            uint stakeMultiplier            // 6
         )
-    { // solhint-disable-line
-
-        // @TODO: Implementation
-
+    {
+        Payment memory payment = payments[_subscriptionIdenitifer];
+        return(
+            payment.subscriptionContract,
+            payment.dueDate,
+            payment.amount,
+            payment.lastPaymentDate,
+            payment.claimant,
+            payment.executionPeriod,
+            payment.stakeMultiplier
+        );
     }
 
      /**

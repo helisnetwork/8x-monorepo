@@ -288,17 +288,8 @@ contract Executor is Ownable {
         (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
         uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
 
-        // Get the businesses balance before the transaction
-        uint balanceOfBusinessBeforeTransfer = transactingToken.balanceOf(business);
-
-        // Check if the user has enough funds
-        require(transactingToken.balanceOf(consumer) >= amountDue);
-
-        // Send currency to the destination business
-        transferProxy.transferFrom(address(transactingToken), consumer, business, amountDue);
-
-        // Check the business actually received the funds by checking the difference
-        require((transactingToken.balanceOf(business) - balanceOfBusinessBeforeTransfer) == amountDue);
+        // Make the payment safely
+        makeSafePayment(transactingToken, consumer, business, amountDue);
 
         // Create a new record in the payments registry
         paymentRegistry.createNewPayment(
@@ -330,17 +321,34 @@ contract Executor is Ownable {
         // @TODO: Implementation
 
         // Get the current payment registry object (if it doesn't exist fail)
+        (
+            , // address subscriptionContract
+            uint dueDate,
+            uint amount,
+            uint lastPaymentDate,
+            address claimant,
+            uint executionPeriod,
+            uint stakeMultiplier
+        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+
         // Check to make sure the payment is due
-        // Check to make sure it hasn't been claimed by someone else
+        require(currentTimestamp() >= dueDate);
+
+        // Check to make sure it hasn't been claimed by someone else or belongs to you
+        require(claimant == msg.sender || claimant == 0);
+
         // Check that the service node calling has enough staked tokens
+        uint currentMultiplier = approvedTokenMapping[_subscriptionContract];
+        if (stakeMultiplier == 0) {
+            require(stakeContract.getAvailableStake(msg.sender) >= currentMultiplier);
+        }
+
+        // Collect the payment in the transacting currency
+
         // If the current multiplier is lower than the one in the object, free the difference
-        // Collect the payment in ether or tokens, make sure to send service node their cut
+
         // If the payment failed (the user doesn't have enough funds), cancel the subscription (volume subscription)
         // Update the payment registry based on successful payment collection or cancellation
-
-        // IMPORTANT:
-        // Reimburse the service node for the gas fees based on whether the payment happened or subscription cancelled.
-        // You can't throw have any require statement since service nodes need to be imbursed.
 
     }
 
@@ -356,6 +364,30 @@ contract Executor is Ownable {
     {
         // solhint-disable-next-line
         return block.timestamp;
+    }
+
+    /**
+      * PRIVATE FUNCTION
+    */
+    function makeSafePayment(
+        ERC20 _transactingToken,
+        address _from,
+        address _to,
+        uint _amount
+    )
+        private
+    {
+        // Get the businesses balance before the transaction
+        uint balanceOfBusinessBeforeTransfer = _transactingToken.balanceOf(_to);
+
+        // Check if the user has enough funds
+        require(_transactingToken.balanceOf(_from) >= _amount);
+
+        // Send currency to the destination business
+        transferProxy.transferFrom(address(_transactingToken), _from, _to, _amount);
+
+        // Check the business actually received the funds by checking the difference
+        require((_transactingToken.balanceOf(_from) - balanceOfBusinessBeforeTransfer) == _amount);
     }
 
 }
