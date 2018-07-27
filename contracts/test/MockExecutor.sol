@@ -18,14 +18,12 @@ contract MockExecutor is Executor, MockTime {
             address _transferProxyAddress,
             address _stakeContractAddress,
             address _paymentRegistryAddress,
-            address _wrappedEtherAddress,
             address _kyberAddress
         )
         Executor(
           _transferProxyAddress,
           _stakeContractAddress,
           _paymentRegistryAddress,
-          _wrappedEtherAddress,
           _kyberAddress
         )
         MockTime()
@@ -36,7 +34,6 @@ contract MockExecutor is Executor, MockTime {
         transferProxy = TransferProxy(_transferProxyAddress);
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
-        wrappedEther = WETH(_wrappedEtherAddress);
         kyberProxy = KyberNetworkInterface(_kyberAddress);
     }
 
