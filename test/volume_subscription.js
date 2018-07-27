@@ -61,16 +61,6 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
-        it("should throw when creating a plan with an invalid token address", async function() {
-
-            await assertRevert(
-              contract.createPlan(
-                business, 0, "plan.new.incorrect", "test", "", 30, 100, 5, "{}", {from: business}
-              )
-            );
-
-        });
-
         it("should throw when creating a plan with an invalid identifier", async function() {
 
             await assertRevert(
@@ -147,6 +137,34 @@ contract('VolumeSubscription', function(accounts) {
             );
 
             assert.equal(computedHash, planHash);
+
+        });
+
+        it("should throw when creating a plan with no token address", async function() {
+
+            let newPlan = await contract.createPlan(
+                business, 0, "plan.new.no_token", "test", "", 30, 100, 10, "{}", {from: business}
+              )
+
+              let planHash = newPlan.logs[0].args.identifier;
+              let plan = await contract.plans.call(planHash);
+
+              assert.equal(plan[0], business);
+              assert.equal(plan[1], 0);
+              assert.equal(plan[2], "plan.new.no_token");
+              assert.equal(plan[3], "test");
+              assert.equal(plan[4], "");
+              assert.equal(plan[5], 30);
+              assert.equal(plan[6], 100);
+              assert.equal(plan[7], 10);
+              assert.equal(plan[8], "{}");
+
+              let computedHash = keccak(
+                ["address", "address", "string", "string", "string", "uint", "uint", "uint", "string"],
+                [business, 0x0, "plan.new.no_token", "test", "", 30, 100, 10, "{}"]
+              );
+
+              assert.equal(computedHash, planHash);
 
         });
 

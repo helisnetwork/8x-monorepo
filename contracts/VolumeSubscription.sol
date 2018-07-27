@@ -200,7 +200,7 @@ contract VolumeSubscription is Collectable {
     */
     function createPlan(
         address _owner, // Required
-        address _tokenAddress, // Required
+        address _tokenAddress, // Empty field means payment to be made in ETH
         string _identifier, // Required
         string _name,
         string _description,
@@ -213,7 +213,6 @@ contract VolumeSubscription is Collectable {
     {
 
         require(_owner != 0x0);
-        require(_tokenAddress != 0x0);
         require(bytes(_identifier).length > 0);
         require(_interval > 0);
         require(_amount > 0);
