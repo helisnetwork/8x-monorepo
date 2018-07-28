@@ -1,9 +1,12 @@
 pragma solidity ^0.4.24;
 
+import "../math/SafeMath.sol";
 import "./ERC20.sol";
 import "./ExtendedERC20.sol";
 
 contract WETH is ERC20, ExtendedERC20 {
+
+    using SafeMath for uint256;
 
     uint8 constant public DECIMALS = 18;
     string constant public NAME = "Wrapped Ether";
@@ -60,26 +63,25 @@ contract WETH is ERC20, ExtendedERC20 {
         emit TransferApproval(_from, _to, _original, _value);
     }
 
-    function transfer(address _to, uint _value) public returns (bool success) {
-        return transferFrom(msg.sender, _to, _value);
+    function transfer(address _to, uint256 _value) public returns (bool success) {
+        require(_to != address(0));
+        require(_value <= balances[msg.sender]);
+
+        balances[msg.sender] = balances[msg.sender].sub(_value);
+        balances[_to] = balances[_to].add(_value);
+        emit TransferTokens(msg.sender, _to, _value);
+        return true;
     }
 
-    function transferFrom(address _from, address _to, uint _value)
-        public
-        returns (bool)
-    {
-        require(balances[_from] >= _value);
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
+        require(_to != address(0));
+        require(_value <= balances[_from]);
+        require(_value <= allowed[_from][msg.sender]);
 
-        if (_from != msg.sender && allowed[_from][msg.sender] != uint(-1)) {
-            require(allowed[_from][msg.sender] >= _value);
-            allowed[_from][msg.sender] -= _value;
-        }
-
-        balances[_from] -= _value;
-        balances[_to] += _value;
-
-        emit Transfer(_from, _to, _value);
-
+        balances[_from] = balances[_from].sub(_value);
+        balances[_to] = balances[_to].add(_value);
+        allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
+        emit TransferTokens(_from, _to, _value);
         return true;
     }
 }

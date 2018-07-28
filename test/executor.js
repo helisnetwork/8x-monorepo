@@ -368,23 +368,23 @@ contract('Executor', function(accounts) {
 
             // Check if there is an element in the payment registry for the ether subscription
             let etherPaymentInfo = await paymentRegistryContract.payments.call(etherSubscriptionHash);
-            assert.equal(etherPaymentInfo[0], subscriptionContract.address);
+            assert.equal(etherPaymentInfo[0], wrappedEtherContract.address);
             assert.equal(etherPaymentInfo[1].toNumber(), oneMonthLater);
             assert.equal(etherPaymentInfo[2], subscriptionEthCost);
-            assert.equal(etherPaymentInfo[3], 0);
+            assert.equal(etherPaymentInfo[3], subscriptionEthFee);
             assert.equal(etherPaymentInfo[4], 0);
             assert.equal(etherPaymentInfo[5], 0);
-            assert.equal(etherPaymentInfo[5], 0);
+            assert.equal(etherPaymentInfo[6], 0);
 
             // Check if there is an element in the subscription registry for the token subscription
             let tokenPaymentInfo = await paymentRegistryContract.payments.call(tokenSubscriptionHash);
-            assert.equal(tokenPaymentInfo[0], subscriptionContract.address);
+            assert.equal(tokenPaymentInfo[0], transactingCurrencyContract.address);
             assert.equal(tokenPaymentInfo[1].toNumber(), oneMonthLater);
             assert.equal(tokenPaymentInfo[2], subscriptionCost);
-            assert.equal(tokenPaymentInfo[3], 0);
+            assert.equal(tokenPaymentInfo[3], subscriptionFee);
             assert.equal(tokenPaymentInfo[4], 0);
             assert.equal(tokenPaymentInfo[5], 0);
-            assert.equal(etherPaymentInfo[5], 0);
+            assert.equal(etherPaymentInfo[6], 0);
 
             // See if the start date has been set (subcription activated) for the ether subscription
             let etherSubscription = await subscriptionContract.subscriptions.call(etherSubscriptionHash);
@@ -434,6 +434,7 @@ contract('Executor', function(accounts) {
 
         let tokenStake = (subscriptionCost * multiplier);
         let ethStake = (subscriptionEthCost * multiplier);
+        let totalStake = tokenStake + ethStake;
         let difference = 1000;
 
         before(async function() {
@@ -443,9 +444,12 @@ contract('Executor', function(accounts) {
             await subscriptionContract.setTime(oneMonthLater)
             await paymentRegistryContract.setTime(oneMonthLater);
 
-            // Transfer some enough tokens for cost and fee for the service node
-            await wrappedEtherContract.deposit({from: etherSubscriber, value: subscriptionEthCost + subscriptionEthFee});
-            await transactingCurrencyContract.transfer(tokenSubscriber, subscriptionCost + subscriptionFee, {from: contractOwner});
+            // Transfer tokens for the actual payment
+            await wrappedEtherContract.deposit({from: etherSubscriber, value: subscriptionEthCost});
+            await transactingCurrencyContract.transfer(tokenSubscriber, subscriptionCost, {from: contractOwner});
+
+            // Give tokens to service node
+            await nativeTokenContract.transfer(serviceNode, totalStake, {from: contractOwner});
 
         });
 
@@ -494,13 +498,8 @@ contract('Executor', function(accounts) {
 
         it("should not be able to process a subscription if the service node does not have enough staked tokens", async function() {
 
-            // Transfer 8x tokens
-            await nativeTokenContract.transfer(serviceNode, tokenStake + ethStake, {from: contractOwner});
-
-            // Approve the stake contract to take 8x tokens from the service node
-            await nativeTokenContract.approve(stakeContract.address, tokenStake + ethStake, {from: serviceNode});
-
-            // Top up your stake in the stake contract less 1000
+            // Top up your stake by 1000
+            await nativeTokenContract.approve(stakeContract.address, 1000, {from: serviceNode});
             await stakeContract.topUpStake(difference, {from: serviceNode});
 
             // Check the balance to ensure it topped up the correct amount
@@ -511,6 +510,12 @@ contract('Executor', function(accounts) {
             await assertRevert(executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
             await assertRevert(executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
 
+            // Withdraw tokens
+            await stakeContract.withdrawStake(difference, {from: serviceNode});
+
+            let postBalance = await stakeContract.getAvailableStake(serviceNode);
+            assert.equal(postBalance, 0);
+
         });
 
         it("should be able to process a valid subscription", async function() {
@@ -518,16 +523,27 @@ contract('Executor', function(accounts) {
             // Check to ensure the user has enough funds
             let preUserEthBalance = await wrappedEtherContract.balanceOf(etherSubscriber);
             let preUserTokenBalance = await transactingCurrencyContract.balanceOf(tokenSubscriber);
+            let preBusinessEthBalance = await wrappedEtherContract.balanceOf(business);
+            let preBusinessTokenBalance = await transactingCurrencyContract.balanceOf(business);
+
+            await nativeTokenContract.approve(stakeContract.address, totalStake, {from: serviceNode});
 
             assert.equal(preUserTokenBalance.toNumber(), subscriptionCost);
             assert.equal(preUserEthBalance.toNumber(), subscriptionEthCost);
 
             // Top up stake by difference
-            await stakeContract.topUpStake(ethStake + tokenStake - 1000, {from: serviceNode});
+            let getApproval = await nativeTokenContract.allowance(serviceNode, stakeContract.address);
+            let numberOfTokens = await nativeTokenContract.balanceOf(serviceNode);
+
+            await stakeContract.topUpStake(totalStake, {from: serviceNode});
 
             // Check the balance to ensure it topped up the correct amount
-            let balance = await stakeContract.getAvailableStake(serviceNode.address);
-            assert.equal(balance, ethStake + tokenStake);
+            let balance = await stakeContract.getAvailableStake(serviceNode);
+            assert.equal(balance.toNumber(), ethStake + tokenStake);
+
+            let transferProxyEthAllowance = await wrappedEtherContract.allowance(etherSubscriber, proxyContract.address);
+            let transferProxyTokenAllowance = await transactingCurrencyContract.allowance(tokenSubscriber, proxyContract.address);
+
 
             // Should be able to process now that the service node has enough staked tokens
             await executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
@@ -535,28 +551,28 @@ contract('Executor', function(accounts) {
 
             // Check the payments registry has been updated
             let etherPaymentInformation = await paymentRegistryContract.payments.call(etherSubscriptionHash);
-            assert.equal(etherPaymentInformation[0], subscriptionContract.address);
-            assert.equal(etherPaymentInformation[1], oneMonthLater + subscriptionInterval);
-            assert.equal(etherPaymentInformation[2], subscriptionCost);
-            assert.equal(etherPaymentInformation[3], oneMonthLater);
-            assert.equal(etherPaymentInformation[4], serviceNode);
-            assert.equal(etherPaymentInformation[5], 0); // We claimed it straight away
-            assert.equal(etherPaymentInformation[6], 10);
+            assert.equal(etherPaymentInformation[0], wrappedEtherContract.address);
+            assert.equal(etherPaymentInformation[1].toNumber(), oneMonthLater + subscriptionInterval);
+            assert.equal(etherPaymentInformation[2].toNumber(), subscriptionEthCost);
+            assert.equal(etherPaymentInformation[3].toNumber(), subscriptionEthFee);
+            assert.equal(etherPaymentInformation[4].toNumber(), oneMonthLater);
+            assert.equal(etherPaymentInformation[5], serviceNode);
+            assert.equal(etherPaymentInformation[6], 0); // We claimed it straight away
+            assert.equal(etherPaymentInformation[7].toNumber(), 10);
 
             let tokenPaymentInformation = await paymentRegistryContract.payments.call(tokenSubscriptionHash);
-            assert.equal(tokenPaymentInformation[0], subscriptionContract.address);
-            assert.equal(tokenPaymentInformation[1], oneMonthLater + subscriptionInterval);
-            assert.equal(tokenPaymentInformation[2], subscriptionCost);
-            assert.equal(tokenPaymentInformation[3], oneMonthLater);
-            assert.equal(tokenPaymentInformation[4], serviceNode);
-            assert.equal(tokenPaymentInformation[5], 0); // We claimed it straight away
-            assert.equal(tokenPaymentInformation[6], 10);
+            assert.equal(tokenPaymentInformation[0], transactingCurrencyContract.address);
+            assert.equal(tokenPaymentInformation[1].toNumber(), oneMonthLater + subscriptionInterval);
+            assert.equal(tokenPaymentInformation[2].toNumber(), subscriptionCost);
+            assert.equal(tokenPaymentInformation[3].toNumber(), subscriptionFee);
+            assert.equal(tokenPaymentInformation[4].toNumber(), oneMonthLater);
+            assert.equal(tokenPaymentInformation[5], serviceNode);
+            assert.equal(tokenPaymentInformation[6], 0); // We claimed it straight away
+            assert.equal(tokenPaymentInformation[7].toNumber(), 10);
 
-            // Check if the service node got their reward, gas costs reimbursed and tokens locked up
+            // Check if the service node got their reward and tokens locked up
             let serviceNodeStakeBalance = await stakeContract.getAvailableStake(serviceNode);
             assert.equal(serviceNodeStakeBalance.toNumber(), 0);
-
-            // @TODO: Value for gas needs to be reimbursed
 
             // Check if the balance of the user was subtracted
             let postEtherUserBalance = await wrappedEtherContract.balanceOf(etherSubscriber);
@@ -566,10 +582,10 @@ contract('Executor', function(accounts) {
 
             // Check if the businesses' account was credited
             let postBusinessTokenBalance = await transactingCurrencyContract.balanceOf(business);
-            assert.equal(postBusinessBalance.toNumber(), (subscriptionCost - fee));
+            assert.equal(postBusinessTokenBalance.toNumber() - preBusinessTokenBalance, (subscriptionCost - subscriptionFee));
 
             let postBusinessEthBalance = await wrappedEtherContract.balanceOf(business);
-            assert.equal(postBusinessEthBalance.toNumber(), (subscriptionEthCost - subscriptionEthFee));
+            assert.equal(postBusinessEthBalance.toNumber() - preBusinessEthBalance, (subscriptionEthCost - subscriptionEthFee));
 
         });
 

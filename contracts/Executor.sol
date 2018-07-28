@@ -289,11 +289,11 @@ contract Executor is Ownable {
         // Create a new record in the payments registry
         uint fee = subscription.getSubscriptionFee(_subscriptionIdentifier);
         paymentRegistry.createNewPayment(
-            _subscriptionIdentifier,
-            _subscriptionContract,
-            currentTimestamp() + subscriptionInterval,
-            amountDue,
-            fee
+            _subscriptionIdentifier, // Subscription identifier
+            address(transactingToken), // Token address
+            currentTimestamp() + subscriptionInterval, // Next due date
+            amountDue, // Amount due
+            fee // Fee
         );
 
         // Start the subscription
@@ -341,7 +341,7 @@ contract Executor is Ownable {
 
         // Check that the service node calling has enough staked tokens
         if (stakeMultiplier == 0) {
-            require(stakeContract.getAvailableStake(msg.sender) >= currentMultiplierFor(tokenAddress));
+            require(stakeContract.getAvailableStake(msg.sender) >= (currentMultiplierFor(tokenAddress) * amount));
         }
 
         // Make payments to the business and service node
@@ -425,7 +425,7 @@ contract Executor is Ownable {
         transferProxy.transferFrom(address(_transactingToken), _from, _to, _amount);
 
         // Check the business actually received the funds by checking the difference
-        require((_transactingToken.balanceOf(_from) - balanceOfBusinessBeforeTransfer) == _amount);
+        require((_transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount);
     }
 
     function currentMultiplierFor(address _tokenAddress) public returns(uint) {

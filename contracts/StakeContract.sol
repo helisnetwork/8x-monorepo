@@ -48,11 +48,9 @@ contract StakeContract is Authorizable {
         public
         onlyAuthorized
     {
-
         // Ensure that they can't unstake more than they actually have
         require(stakes[_staker].lockedUp >= _amount);
         stakes[_staker].lockedUp -= _amount;
-
     }
 
     /** @dev When the processor doesn't execute a transaction they claimed
@@ -73,7 +71,6 @@ contract StakeContract is Authorizable {
         stakes[_staker].lockedUp -= _amount;
 
         // @TODO: Actually slash the tokens somehow?
-
     }
 
     /** @dev Check how many tokens the processor has available at this moment.
@@ -84,9 +81,7 @@ contract StakeContract is Authorizable {
         view
         returns (uint available)
     {
-
         return (stakes[_staker].total - stakes[_staker].lockedUp);
-
     }
 
     // @TODO: Try to use ERC223 or something instead.
@@ -111,13 +106,11 @@ contract StakeContract is Authorizable {
     function withdrawStake(uint _amount)
         public
     {
-
         // Check that they're not taking out more than they actually have.
         require(getAvailableStake(msg.sender) >= _amount);
 
         stakes[msg.sender].total -= _amount;
         tokenContract.transfer(msg.sender, _amount);
-
     }
 
 }
