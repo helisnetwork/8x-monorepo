@@ -491,12 +491,19 @@ contract('Executor', function(accounts) {
 
         });
 
-        it("should be able to if it has not passed the cancellation period", async function() {
+        it("should not be able to as the wrong service node", async function() {
+
 
             // Set the time to one hour before the cancellation period
             await executorContract.turnBackTime(60 * 60);
             await subscriptionContract.turnBackTime(60 * 60);
             await paymentRegistryContract.turnBackTime(60 * 60);
+
+            await assertRevert(executorContract.releasePayment(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
+
+        })
+
+        it("should be able to if it has not passed the cancellation period", async function() {
 
             await executorContract.releasePayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
 
