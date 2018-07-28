@@ -6,12 +6,14 @@ import { newSubscription } from './helpers/volume_subscription.js';
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
 var MockPaymentRegistry= artifacts.require('./tests/MockPaymentRegistry.sol');
 var EightExToken = artifacts.require("./EightExToken.sol");
+var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
 
 contract('MockPaymentRegistry', function(accounts) {
 
     let paymentRegistry;
     let subscriptionContract;
     let tokenContract;
+    let approvedRegistryContract;
 
     let now = Date.now();
     let oneMonthLater = parseInt(now/1000) + (30*24*60*60);
@@ -22,11 +24,15 @@ contract('MockPaymentRegistry', function(accounts) {
     before(async function() {
 
         paymentRegistry = await MockPaymentRegistry.new({from: accounts[0]});
-        subscriptionContract = await MockVolumeSubscription.new({from: accounts[0]});
+        approvedRegistryContract = await ApprovedRegistry.new({from: accounts[0]});
+        subscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: accounts[0]});
         tokenContract = await EightExToken.new({from: accounts[0]});
 
         // Add accounts[0] as an authorized address
         await paymentRegistry.addAuthorizedAddress(accounts[0], {from: accounts[0]});
+
+        await approvedRegistryContract.addApprovedContract(subscriptionContract.address, {from: accounts[0]});
+        await approvedRegistryContract.addApprovedToken(tokenContract.address, {from: accounts[0]});
 
     });
 

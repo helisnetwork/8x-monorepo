@@ -1,6 +1,7 @@
 pragma solidity 0.4.24;
 
 import "./Collectable.sol";
+import "./ApprovedRegistry.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -37,6 +38,8 @@ contract VolumeSubscription is Collectable {
 
         string data;
     }
+
+    ApprovedRegistry public approvedRegistry;
 
     mapping (bytes32 => Plan) public plans;
     mapping (bytes32 => Subscription) public subscriptions;
@@ -189,6 +192,10 @@ contract VolumeSubscription is Collectable {
     /**
       * PUBLIC FUNCTIONS
     */
+    constructor(address _approvedRegistryAddress) public {
+        approvedRegistry = ApprovedRegistry(_approvedRegistryAddress);
+    }
+
     /** @dev This is the function for creating a new plan.
       * @param _owner the address which owns this contract and to which a payment will be made.
       * @param _identifier a way to uniquely identify a product for each vendor.
@@ -200,7 +207,7 @@ contract VolumeSubscription is Collectable {
     */
     function createPlan(
         address _owner, // Required
-        address _tokenAddress, // Empty field means payment to be made in ETH
+        address _tokenAddress, // Required
         string _identifier, // Required
         string _name,
         string _description,
@@ -213,11 +220,13 @@ contract VolumeSubscription is Collectable {
     {
 
         require(_owner != 0x0);
+        require(_tokenAddress != 0x0);
         require(bytes(_identifier).length > 0);
         require(_interval > 0);
         require(_amount > 0);
         require(_fee > 0);
         require(_fee < _amount);
+        require(approvedRegistry.isTokenAuthorised(_tokenAddress));
 
         bytes32 planHash = keccak256(
             abi.encodePacked(

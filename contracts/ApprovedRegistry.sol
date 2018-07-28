@@ -39,30 +39,12 @@ contract ApprovedRegistry is Ownable {
     }
 
     modifier hasContractBeenApproved(address _contractAddress, bool _expectedResult) {
-        bool contractFoundInRegistry = false;
-
-        for (uint i = 0; i < approvedContractArray.length; i++) {
-            if (approvedContractArray[i] == _contractAddress) {
-                contractFoundInRegistry = true;
-                break;
-            }
-        }
-
-        require(contractFoundInRegistry == _expectedResult);
+        require(isContractAuthorised(_contractAddress) == _expectedResult);
         _;
     }
 
     modifier hasTokenBeenApproved(address _tokenAddress, bool _expectedResult) {
-        bool tokenFoundInRegistry = false;
-
-        for (uint i = 0; i < approvedTokenArray.length; i++) {
-            if (approvedTokenArray[i] == _tokenAddress) {
-                tokenFoundInRegistry = true;
-                break;
-            }
-        }
-
-        require(tokenFoundInRegistry == _expectedResult);
+        require(isTokenAuthorised(_tokenAddress) == _expectedResult);
         _;
     }
 
@@ -213,6 +195,49 @@ contract ApprovedRegistry is Ownable {
         returns (address[])
     {
         return approvedTokenArray;
+    }
+
+    /** @dev Get multiplier for a token.
+      * @param _tokenAddress is the address for the token.
+    */
+    function getMultiplierFor(address _tokenAddress) public returns (uint) {
+        return approvedTokenMapping[_tokenAddress];
+    }
+
+    /** @dev Check if a subscription has been authorised.
+      * @param _contractAddress is the address of the contract.
+    */
+    function isContractAuthorised(address _contractAddress) public returns(bool) {
+        require(_contractAddress != 0);
+
+        bool contractFoundInRegistry = false;
+
+        for (uint i = 0; i < approvedContractArray.length; i++) {
+            if (approvedContractArray[i] == _contractAddress) {
+                contractFoundInRegistry = true;
+                break;
+            }
+        }
+
+        return contractFoundInRegistry;
+    }
+
+    /** @dev Check if a token has been authorised.
+      * @param _tokenAddress is the address of the token.
+    */
+    function isTokenAuthorised(address _tokenAddress) public returns(bool) {
+        require(_tokenAddress != 0);
+
+        bool tokenFoundInRegistry = false;
+
+        for (uint i = 0; i < approvedTokenArray.length; i++) {
+            if (approvedTokenArray[i] == _tokenAddress) {
+                tokenFoundInRegistry = true;
+                break;
+            }
+        }
+
+        return tokenFoundInRegistry;
     }
 
 
