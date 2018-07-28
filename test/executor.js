@@ -624,13 +624,16 @@ contract('Executor', function(accounts) {
 
         it("should not be to set the cancellation period as an unauthorised period", async function() {
 
-            // @TOOD: Implementation
+            await assertRevert(executorContract.setCancellationPeriod(cancellationPeriod, {from: unauthorisedAddress}));
 
         });
 
         it("should be able to set the cancellation period as an authorised address", async function() {
 
-            // @TODO: Implementation
+            await executorContract.setCancellationPeriod(cancellationPeriod, {from: contractOwner});
+
+            let period = await executorContract.cancellationPeriod.call();
+            assert.equal(period.toNumber(), cancellationPeriod);
 
         });
 
