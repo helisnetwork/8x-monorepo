@@ -32,6 +32,8 @@ contract Executor is Ownable {
     address[] public approvedContractArray;
     address[] public approvedTokenArray;
 
+    uint public cancellationPeriod;
+
     event LogAuthorizedContractAdded(address indexed target);
     event LogAuthorizedContractRemoved(address indexed target);
     event LogAuthorizedTokenAdded(address indexed target);
@@ -105,6 +107,13 @@ contract Executor is Ownable {
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
         kyberProxy = KyberNetworkInterface(_kyberAddress);
+    }
+
+    /** @dev Set the amount of time after a payment a service node has to cancel.
+      * @param _period is the amount of time they have.
+    */
+    function setCancellationPeriod(uint _period) public onlyOwner {
+        cancellationPeriod = _period;
     }
 
     /** @dev Add an approved subscription contract to be used.
