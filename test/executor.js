@@ -53,7 +53,7 @@ contract('Executor', function(accounts) {
 
     let activationTime = parseInt(Date.now() / 1000);
     let oneMonthLater = parseInt(activationTime + subscriptionInterval);
-    let twoMonthLaters = oneMonthLater + subscriptionInterval;
+    let twoMonthsLater = oneMonthLater + subscriptionInterval;
 
     before(async function() {
 
@@ -554,7 +554,7 @@ contract('Executor', function(accounts) {
             // Check the payments registry has been updated
             let etherPaymentInformation = await paymentRegistryContract.payments.call(etherSubscriptionHash);
             assert.equal(etherPaymentInformation[0], wrappedEtherContract.address);
-            assert.equal(etherPaymentInformation[1].toNumber(), oneMonthLater + subscriptionInterval);
+            assert.equal(etherPaymentInformation[1].toNumber(), twoMonthsLater);
             assert.equal(etherPaymentInformation[2].toNumber(), subscriptionEthCost);
             assert.equal(etherPaymentInformation[3].toNumber(), subscriptionEthFee);
             assert.equal(etherPaymentInformation[4].toNumber(), oneMonthLater);
@@ -564,7 +564,7 @@ contract('Executor', function(accounts) {
 
             let tokenPaymentInformation = await paymentRegistryContract.payments.call(tokenSubscriptionHash);
             assert.equal(tokenPaymentInformation[0], transactingCurrencyContract.address);
-            assert.equal(tokenPaymentInformation[1].toNumber(), oneMonthLater + subscriptionInterval);
+            assert.equal(tokenPaymentInformation[1].toNumber(), twoMonthsLater);
             assert.equal(tokenPaymentInformation[2].toNumber(), subscriptionCost);
             assert.equal(tokenPaymentInformation[3].toNumber(), subscriptionFee);
             assert.equal(tokenPaymentInformation[4].toNumber(), oneMonthLater);
@@ -622,6 +622,15 @@ contract('Executor', function(accounts) {
 
     describe("when service nodes cancel a subscription", () => {
 
+        before(async function() {
+
+            // Set the time forward by one month
+            await executorContract.setTime(twoMonthsLater);
+            await subscriptionContract.setTime(twoMonthsLater)
+            await paymentRegistryContract.setTime(twoMonthsLater);
+
+        });
+
         it("should not be to set the cancellation period as an unauthorised period", async function() {
 
             await assertRevert(executorContract.setCancellationPeriod(cancellationPeriod, {from: unauthorisedAddress}));
@@ -639,13 +648,34 @@ contract('Executor', function(accounts) {
 
         it("should not be able to if the due date has already passed cancellation period", async function() {
 
-            // @TODO: Implementation
+            // Set the time to right at the boundary of the cancellation period
+            await executorContract.turnBackTime(-cancellationPeriod);
+            await subscriptionContract.turnBackTime(-cancellationPeriod);
+            await paymentRegistryContract.turnBackTime(-cancellationPeriod);
+
+            await assertRevert(executorContract.releasePayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
 
         });
 
-        it("should be able to if it has been less than half of the cancellation period", async function() {
+        it("should be able to if it has not passed the cancellation period", async function() {
 
-            // @TODO: Implementation
+            // Set the time to one hour before the cancellation period
+            await executorContract.turnBackTime(60 * 60);
+            await subscriptionContract.turnBackTime(60 * 60);
+            await paymentRegistryContract.turnBackTime(60 * 60);
+
+            await executorContract.releasePayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+
+            // Check the payments registry has been updated
+            let etherPaymentInformation = await paymentRegistryContract.payments.call(etherSubscriptionHash);
+            assert.equal(etherPaymentInformation[0], wrappedEtherContract.address);
+            assert.equal(etherPaymentInformation[1].toNumber(), twoMonthsLater);
+            assert.equal(etherPaymentInformation[2].toNumber(), subscriptionEthCost);
+            assert.equal(etherPaymentInformation[3].toNumber(), subscriptionEthFee);
+            assert.equal(etherPaymentInformation[4].toNumber(), oneMonthLater);
+            assert.equal(etherPaymentInformation[5], 0); // No claimant
+            assert.equal(etherPaymentInformation[6], 0); // No execution time
+            assert.equal(etherPaymentInformation[7].toNumber(), 0); // Reset the multiplier
 
         });
 

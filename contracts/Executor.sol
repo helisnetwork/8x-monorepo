@@ -285,18 +285,16 @@ contract Executor is Ownable {
 
         require(approvedTokenMapping[address(transactingToken)] > 0);
 
-        // Get the interval for the subscription
+        // Get the detauls of the subscription
         uint subscriptionInterval = subscription.getSubscriptionInterval(_subscriptionIdentifier);
-
-        // Check if the user has enough WETH.
-        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
         uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
+        uint fee = subscription.getSubscriptionFee(_subscriptionIdentifier);
+        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
         // Make the payment safely
         makeSafePayment(transactingToken, consumer, business, amountDue);
 
         // Create a new record in the payments registry
-        uint fee = subscription.getSubscriptionFee(_subscriptionIdentifier);
         paymentRegistry.createNewPayment(
             _subscriptionIdentifier, // Subscription identifier
             address(transactingToken), // Token address
@@ -322,10 +320,7 @@ contract Executor is Ownable {
     )
         public
     {
-
-        // @TODO: Implementation
-
-        // Get the current payment registry object (if it doesn't exist fail)
+        // Get the current payment registry object (if it doesn't exist execution will eventually fail)
         (
             address tokenAddress,
             uint dueDate,
@@ -376,6 +371,21 @@ contract Executor is Ownable {
             dueDate + interval, // Next payment due date
             currentMultiplierFor(tokenAddress) // Current multiplier set for the currency
         );
+
+    }
+
+    /** @dev Release the payment/responsibility of a service node
+      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
+    function releasePayment(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier
+    )
+        public
+    {
+
+        // @TODO: Implementation
 
     }
 
