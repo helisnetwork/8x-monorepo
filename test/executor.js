@@ -455,20 +455,38 @@ contract('Executor', function(accounts) {
             await subscriptionContract.setTime(twoMonthsLater)
             await paymentRegistryContract.setTime(twoMonthsLater);
 
+            // Top up accounts again
+            await wrappedEtherContract.deposit({from: etherSubscriber, value: subscriptionEthCost});
+            await transactingCurrencyContract.transfer(tokenSubscriber, subscriptionCost, {from: contractOwner});
+
+            // Check the balance to ensure it topped up the correct amount
+            let preBalance = await stakeContract.getAvailableStake(serviceNode);
+            assert.equal(preBalance.toNumber(), 0);
+
+            // Reduce the multiplier
+            await approvedRegistryContract.setApprovedTokenMultiplier(transactingCurrencyContract.address, multiplier/2, {from: contractOwner});
+            await approvedRegistryContract.setApprovedTokenMultiplier(wrappedEtherContract.address, multiplier/2, {from: contractOwner});
+
+            // Should be able to process the subscription but will unstake token
+            await executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+            await executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode});
+
+            // Check the balance to ensure it topped up the correct amount
+            let postBalance = await stakeContract.getAvailableStake(serviceNode);
+            assert.equal(postBalance.toNumber(), totalStake/2);
+
+            // Check the payments registry has been updated
+            let etherPaymentInformation = await paymentRegistryContract.payments.call(etherSubscriptionHash);
+            assert.equal(etherPaymentInformation[7].toNumber(), multiplier/2);
+
+            let tokenPaymentInformation = await paymentRegistryContract.payments.call(tokenSubscriptionHash);
+            assert.equal(tokenPaymentInformation[7].toNumber(), multiplier/2);
+
         });
 
     });
 
     describe("when service nodes cancel a subscription", () => {
-
-        before(async function() {
-
-            // Set the time forward by another month
-            await executorContract.setTime(oneMonthLater);
-            await subscriptionContract.setTime(oneMonthLater)
-            await paymentRegistryContract.setTime(oneMonthLater);
-
-        });
 
         it("should not be to set the cancellation period as an unauthorised period", async function() {
 
@@ -515,10 +533,10 @@ contract('Executor', function(accounts) {
             // Check the payments registry has been updated
             let etherPaymentInformation = await paymentRegistryContract.payments.call(etherSubscriptionHash);
             assert.equal(etherPaymentInformation[0], wrappedEtherContract.address);
-            assert.equal(etherPaymentInformation[1].toNumber(), twoMonthsLater);
+            assert.equal(etherPaymentInformation[1].toNumber(), twoMonthsLater + subscriptionInterval);
             assert.equal(etherPaymentInformation[2].toNumber(), subscriptionEthCost);
             assert.equal(etherPaymentInformation[3].toNumber(), subscriptionEthFee);
-            assert.equal(etherPaymentInformation[4].toNumber(), oneMonthLater);
+            assert.equal(etherPaymentInformation[4].toNumber(), twoMonthsLater);
             assert.equal(etherPaymentInformation[5], 0); // No claimant
             assert.equal(etherPaymentInformation[6], 0); // No execution time
             assert.equal(etherPaymentInformation[7].toNumber(), 0); // Reset the multiplier

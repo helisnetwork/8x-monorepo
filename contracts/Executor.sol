@@ -157,10 +157,14 @@ contract Executor is Ownable {
         );
 
         // If the current multiplier is lower than the one in the object, free the difference
-        // @TODO: Implementation
-
-        // Lock up staked tokens
-        stakeContract.stakeTokens(msg.sender, currentMultiplierFor(tokenAddress) * amount);
+        if (stakeMultiplier > currentMultiplierFor(tokenAddress)) {
+            stakeContract.unstakeTokens(
+                msg.sender,
+                (stakeMultiplier - currentMultiplierFor(tokenAddress)) * amount
+            );
+        } else if (stakeMultiplier == 0) {
+            stakeContract.stakeTokens(msg.sender, currentMultiplierFor(tokenAddress) * amount);
+        }
 
         // Update the payment registry
         paymentRegistry.claimPayment(
