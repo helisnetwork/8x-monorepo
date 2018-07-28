@@ -3,6 +3,7 @@ import keccak from './helpers/keccak.js';
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
+var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
 
 contract('VolumeSubscription', function(accounts) {
 
@@ -14,10 +15,13 @@ contract('VolumeSubscription', function(accounts) {
     let business = accounts[2]; // The business who has a subscription they want to earn money from
     let subscriber = accounts[3]; // The user who is paying the business
     let unauthorizedAddress = accounts[4]; // Someone random
+    let approvedRegistryContract;
 
     before(async function() {
 
-        contract = await MockVolumeSubscription.new({from: accounts[0]});
+        approvedRegistryContract = await ApprovedRegistry.new({from: contractOwner});
+
+        contract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: accounts[0]});
         token = await EightExToken.new({from: accounts[0]});
 
         await contract.addAuthorizedAddress(executorContract);
@@ -71,6 +75,26 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
+        it("should throw when creating a plan with no token address", async function() {
+
+            await assertRevert(
+                contract.createPlan(
+                    business, 0, "plan.new.no_token", "test", "", 30, 100, 10, "{}", {from: business}
+                )
+            );
+
+        });
+
+        it("should throw when creating a plan with an unauthorised token", async function() {
+
+            await assertRevert(
+              contract.createPlan(
+                business, token.address, "plan.new", "test", "", 30, 100, 10, "{}", {from: business}
+              )
+            );
+
+        });
+
         it("should throw when creating a plan with the interval set to 0", async function() {
 
             await assertRevert(
@@ -114,6 +138,8 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to create a new plan correctly", async function() {
 
+            await approvedRegistryContract.addApprovedToken(token.address, {from: contractOwner});
+
             let newPlan = await contract.createPlan(
               business, token.address, "plan.new", "test", "", 30, 100, 10, "{}", {from: business}
             )
@@ -137,34 +163,6 @@ contract('VolumeSubscription', function(accounts) {
             );
 
             assert.equal(computedHash, planHash);
-
-        });
-
-        it("should throw when creating a plan with no token address", async function() {
-
-            let newPlan = await contract.createPlan(
-                business, 0, "plan.new.no_token", "test", "", 30, 100, 10, "{}", {from: business}
-              )
-
-              let planHash = newPlan.logs[0].args.identifier;
-              let plan = await contract.plans.call(planHash);
-
-              assert.equal(plan[0], business);
-              assert.equal(plan[1], 0);
-              assert.equal(plan[2], "plan.new.no_token");
-              assert.equal(plan[3], "test");
-              assert.equal(plan[4], "");
-              assert.equal(plan[5], 30);
-              assert.equal(plan[6], 100);
-              assert.equal(plan[7], 10);
-              assert.equal(plan[8], "{}");
-
-              let computedHash = keccak(
-                ["address", "address", "string", "string", "string", "uint", "uint", "uint", "string"],
-                [business, 0x0, "plan.new.no_token", "test", "", 30, 100, 10, "{}"]
-              );
-
-              assert.equal(computedHash, planHash);
 
         });
 

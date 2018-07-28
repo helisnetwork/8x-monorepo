@@ -11,6 +11,7 @@ var MockPaymentRegistryContract = artifacts.require("./test/MockPaymentRegistry.
 var MockToken = artifacts.require("./test/MockToken.sol");
 var KyberContract = artifacts.require("./test/MockKyberNetworkInterface.sol");
 var WrappedEther = artifacts.require("./base/token/WETH.sol");
+var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
 
 contract('Executor', function(accounts) {
 
@@ -19,6 +20,7 @@ contract('Executor', function(accounts) {
     let stakeContract;
     let paymentRegistryContract;
     let kyberContract;
+    let approvedRegistryContract;
 
     let executorContract;
     let nativeTokenContract;
@@ -57,6 +59,9 @@ contract('Executor', function(accounts) {
 
     before(async function() {
 
+        // Initialise the approved registry
+        approvedRegistryContract = await ApprovedRegistry.new({from: contractOwner});
+
         // Initialise the 8x token contract, the owner has all the initial token supply.
         nativeTokenContract = await EightExToken.new({from: contractOwner});
 
@@ -65,13 +70,14 @@ contract('Executor', function(accounts) {
         transactingCurrencyContract = await MockToken.new({from: contractOwner});
 
         // Initialise all the other contracts the executor needs in order to function
-        subscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
+        subscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: contractOwner});
         proxyContract = await TransferProxy.new({from: contractOwner});
         stakeContract = await StakeContract.new(nativeTokenContract.address, {from: contractOwner});
         paymentRegistryContract = await MockPaymentRegistryContract.new({from: contractOwner});
 
         // Initialise the Kyber Network contract and give it 1000 DAI
         kyberContract = await KyberContract.new({from: contractOwner});
+
         transactingCurrencyContract.transfer(kyberContract.address, 1000*10**18, {from: contractOwner});
 
         // Initialise the executor contract with all it's needed components
@@ -80,6 +86,7 @@ contract('Executor', function(accounts) {
             stakeContract.address,
             paymentRegistryContract.address,
             kyberContract.address,
+            approvedRegistryContract.address,
             {from: contractOwner}
         );
 
@@ -88,6 +95,18 @@ contract('Executor', function(accounts) {
         proxyContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
         stakeContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
         paymentRegistryContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
+
+        // We need to add the wrapped ether contract and token contract to the approved list
+        await approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
+        await approvedRegistryContract.addApprovedToken(wrappedEtherContract.address, {from: contractOwner});
+
+        // Now the multiplier can be set for each respective token in the system
+        await approvedRegistryContract.setApprovedTokenMultiplier(transactingCurrencyContract.address, multiplier, {from: contractOwner});
+        await approvedRegistryContract.setApprovedTokenMultiplier(wrappedEtherContract.address, multiplier, {from: contractOwner});
+
+        // Make sure the relevant contracts and tokens have been authorised
+        await approvedRegistryContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
+        await approvedRegistryContract.setApprovedContractCallCost(subscriptionContract.address, 0, 5**10*16, 10**5, 2*10**9);
 
         // Create a new subscription plan
         let newTokenPlan = await subscriptionContract.createPlan(
@@ -137,9 +156,7 @@ contract('Executor', function(accounts) {
 
         it("should not be able to subscribe to an unauthorized subscription contract", async function() {
 
-            await executorContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
-
-            let fakeSubscriptionContract = await MockVolumeSubscription.new({from: contractOwner});
+            let fakeSubscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: contractOwner});
 
             let fakePlan = await fakeSubscriptionContract.createPlan(
                 business, transactingCurrencyContract.address, "subscription.unauthorised.contract", "test", "", 30, 100, 10, "{}", {from: business}
@@ -150,23 +167,6 @@ contract('Executor', function(accounts) {
             await assertRevert(executorContract.activateSubscription(fakeSubscriptionContract.address, fakePlanHash, {from: etherSubscriber}));
             await assertRevert(executorContract.activateSubscription(fakeSubscriptionContract.address, fakePlanHash, {from: tokenSubscriber}));
 
-            await executorContract.removeApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
-
-        });
-
-        it("should not be able to subscribe to a plan with an unauthorised token contract", async function() {
-
-            // @TODO: Implementation
-            // Might need to implement this check in the create plan function in Volume Subscription.
-
-            await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
-            await executorContract.setApprovedContractCallCost(subscriptionContract.address, 0, 10, 20, 30, {from: contractOwner});
-
-            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: etherSubscriber}));
-            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: tokenSubscriber}));
-
-            await executorContract.removeApprovedContract(subscriptionContract.address, {from: contractOwner});
-
         });
 
         it("should not be able to activate a subscription without enough funds", async function() {
@@ -176,18 +176,6 @@ contract('Executor', function(accounts) {
             // Subtract from the wallet so insufficient funds are there
             await wrappedEtherContract.withdraw(difference, {from: etherSubscriber});
             await transactingCurrencyContract.transfer(contractOwner, difference, {from: tokenSubscriber});
-
-            // Make sure the relevant contracts and tokens have been authorised
-            await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
-            await executorContract.setApprovedContractCallCost(subscriptionContract.address, 0, 5**10*16, 10**5, 2*10**9);
-
-            // We need to add the wrapped ether contract and token contract to the approved list
-            await executorContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
-            await executorContract.addApprovedToken(wrappedEtherContract.address, {from: contractOwner});
-
-            // Now the multiplier can be set for each respective token in the system
-            await executorContract.setApprovedTokenMultiplier(transactingCurrencyContract.address, multiplier, {from: contractOwner});
-            await executorContract.setApprovedTokenMultiplier(wrappedEtherContract.address, multiplier, {from: contractOwner});
 
             // Both should fail since the users don't have enough funds
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: etherSubscriber}));

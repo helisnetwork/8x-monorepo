@@ -18,23 +18,18 @@ contract MockExecutor is Executor, MockTime {
             address _transferProxyAddress,
             address _stakeContractAddress,
             address _paymentRegistryAddress,
-            address _kyberAddress
+            address _kyberAddress,
+            address _approvedRegistryAddress
         )
         Executor(
           _transferProxyAddress,
           _stakeContractAddress,
           _paymentRegistryAddress,
-          _kyberAddress
+          _kyberAddress,
+          _approvedRegistryAddress
         )
         MockTime()
         public
-    {
-        // @TODO: Figure out how to add tests for this
-
-        transferProxy = TransferProxy(_transferProxyAddress);
-        stakeContract = StakeContract(_stakeContractAddress);
-        paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
-        kyberProxy = KyberNetworkInterface(_kyberAddress);
-    }
+    { }
 
 }

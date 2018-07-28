@@ -14,12 +14,13 @@ import "./ApprovedRegistry.sol";
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract Executor is Ownable, ApprovedRegistry {
+contract Executor is Ownable {
 
     TransferProxy public transferProxy;
     StakeContract public stakeContract;
     PaymentRegistry public paymentRegistry;
     KyberNetworkInterface public kyberProxy;
+    ApprovedRegistry public approvedRegistry;
 
     uint public cancellationPeriod;
 
@@ -40,7 +41,8 @@ contract Executor is Ownable, ApprovedRegistry {
         address _transferProxyAddress,
         address _stakeContractAddress,
         address _paymentRegistryAddress,
-        address _kyberAddress
+        address _kyberAddress,
+        address _approvedRegistryAddress
     )
         public
     {
@@ -50,6 +52,7 @@ contract Executor is Ownable, ApprovedRegistry {
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
         kyberProxy = KyberNetworkInterface(_kyberAddress);
+        approvedRegistry = ApprovedRegistry(_approvedRegistryAddress);
     }
 
     /** @dev Set the amount of time after a payment a service node has to cancel.
@@ -68,22 +71,18 @@ contract Executor is Ownable, ApprovedRegistry {
         bytes32 _subscriptionIdentifier
     )
         public
-        isValidSubscriptionContract(_subscriptionContract)
         returns (bool success)
     {
 
         // Initiate an instance of the collectable subscription
         Collectable subscription = Collectable(_subscriptionContract);
 
-        // Check if the subscription is even valid
+        // Check if the subscription is valid
+        require(approvedRegistry.isContractAuthorised(_subscriptionContract));
         require(subscription.isValidSubscription(_subscriptionIdentifier) == false);
 
-        // Check if the token is authorised
-        ERC20 transactingToken = ERC20(subscription.getSubscriptionTokenAddress(_subscriptionIdentifier));
-
-        require(approvedTokenMapping[address(transactingToken)] > 0);
-
         // Get the detauls of the subscription
+        ERC20 transactingToken = ERC20(subscription.getSubscriptionTokenAddress(_subscriptionIdentifier));
         uint subscriptionInterval = subscription.getSubscriptionInterval(_subscriptionIdentifier);
         uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
         uint fee = subscription.getSubscriptionFee(_subscriptionIdentifier);
@@ -246,7 +245,7 @@ contract Executor is Ownable, ApprovedRegistry {
     }
 
     function currentMultiplierFor(address _tokenAddress) public returns(uint) {
-        return approvedTokenMapping[_tokenAddress];
+        return approvedRegistry.getMultiplierFor(_tokenAddress);
     }
 
 }
