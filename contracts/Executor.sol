@@ -183,6 +183,12 @@ contract Executor is Ownable {
     {
 
         // @TODO: Implementation
+        // Get the payment registry information
+        // Make sure we're within the cancellation window
+        // Check that it belongs to the rightful claimant/service node
+        // Call the remove claim on payments registry
+        // Unstake tokens
+        // Emit the correct event
 
     }
 
