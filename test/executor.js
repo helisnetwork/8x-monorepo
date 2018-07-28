@@ -450,6 +450,11 @@ contract('Executor', function(accounts) {
 
             // @TODO: Implementation
 
+            // Set the time forward by another month
+            await executorContract.setTime(twoMonthsLater);
+            await subscriptionContract.setTime(twoMonthsLater)
+            await paymentRegistryContract.setTime(twoMonthsLater);
+
         });
 
     });
@@ -459,9 +464,9 @@ contract('Executor', function(accounts) {
         before(async function() {
 
             // Set the time forward by another month
-            await executorContract.setTime(twoMonthsLater);
-            await subscriptionContract.setTime(twoMonthsLater)
-            await paymentRegistryContract.setTime(twoMonthsLater);
+            await executorContract.setTime(oneMonthLater);
+            await subscriptionContract.setTime(oneMonthLater)
+            await paymentRegistryContract.setTime(oneMonthLater);
 
         });
 

@@ -25,7 +25,8 @@ contract Executor is Ownable {
     uint public cancellationPeriod;
 
     event SubscriptionActivated(address subscriptionAddress, bytes32 subscriptionIdentifer);
-    event SubscriptionProcessesed(address subscriptionAddress, bytes32 subscriptionIdentifer);
+    event SubscriptionProcessed(address subscriptionAddress, bytes32 subscriptionIdentifer, address claimant);
+    event SubscriptionReleased(address subscriptionAddress, bytes32 subscriptionIdentifier, address claimant);
 
     /**
       * PUBLIC FUNCTIONS
@@ -169,6 +170,9 @@ contract Executor is Ownable {
             currentMultiplierFor(tokenAddress) // Current multiplier set for the currency
         );
 
+        // Emit the subscription processed event
+        emit SubscriptionProcessed(_subscriptionContract, _subscriptionIdentifier, msg.sender);
+
     }
 
     /** @dev Release the payment/responsibility of a service node
@@ -182,13 +186,42 @@ contract Executor is Ownable {
         public
     {
 
-        // @TODO: Implementation
         // Get the payment registry information
+        (
+            ,
+            ,
+            uint amount,
+            ,
+            uint lastPaymentDate,
+            address claimant,
+            uint executionPeriod,
+            uint stakeMultiplier
+        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+
         // Make sure we're within the cancellation window
+        uint minimumDate = lastPaymentDate + executionPeriod;
+        require(
+            currentTimestamp() >= minimumDate && // Must be past last payment date and the execution period
+            currentTimestamp() < (minimumDate + cancellationPeriod) // Can't be past the cancellation period
+        );
+
         // Check that it belongs to the rightful claimant/service node
+        require(claimant == msg.sender);
+
         // Call the remove claim on payments registry
+        paymentRegistry.removeClaimant(
+            _subscriptionIdentifier,
+            msg.sender
+        );
+
         // Unstake tokens
+        stakeContract.unstakeTokens(
+            msg.sender,
+            amount * stakeMultiplier
+        );
+
         // Emit the correct event
+        emit SubscriptionReleased(_subscriptionContract, _subscriptionIdentifier, msg.sender);
 
     }
 
