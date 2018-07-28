@@ -157,6 +157,7 @@ contract('Executor', function(accounts) {
 
         it("should be able to set a contract's call costs as the owner", async function() {
 
+            // Random numbers plugged in here since we're going to be removing these and keeping the state fresh
             await executorContract.setApprovedContractCallCost(subscriptionContract.address, 0, 40, 20, 1, {from: contractOwner});
             await executorContract.setApprovedContractCallCost(subscriptionContract.address, 1, 30, 10, 1, {from: contractOwner});
 
@@ -180,6 +181,7 @@ contract('Executor', function(accounts) {
 
         it("should be able to remove a contract's call costs as an authorised address", async function() {
 
+            // State of approved contracts is reset here, and it's a test!
             await executorContract.removeApprovedContractCallCost(subscriptionContract.address, 0, {from: contractOwner});
             await executorContract.removeApprovedContractCallCost(subscriptionContract.address, 1, {from: contractOwner});
 
@@ -221,6 +223,7 @@ contract('Executor', function(accounts) {
 
         it("should be able to add a token as an authorised address", async function() {
 
+            // We're only adding the token for now since we want to test duplication + other things
             await executorContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
 
             let approvedArray = await executorContract.getApprovedTokens();
@@ -242,6 +245,7 @@ contract('Executor', function(accounts) {
 
         it("should be able to set the multiplier as the contract owner", async function() {
 
+            // Adding approved tokens, state will be reset later on. Simply using to test multiplier setting.
             await executorContract.addApprovedToken(wrappedEtherContract.address, {from: contractOwner});
 
             await executorContract.setApprovedTokenMultiplier(transactingCurrencyContract.address, multiplier, {from: contractOwner});
@@ -250,6 +254,7 @@ contract('Executor', function(accounts) {
             let currencyMultiplier = await executorContract.approvedTokenMapping.call(transactingCurrencyContract.address);
             let etherMultiplier = await executorContract.approvedTokenMapping.call(wrappedEtherContract.address);
 
+            // Check the values were actually set rather than relying on a revert
             assert.equal(currencyMultiplier.toNumber(), multiplier);
             assert.equal(etherMultiplier.toNumber(), multiplier);
 
@@ -263,6 +268,7 @@ contract('Executor', function(accounts) {
 
         it("should be able to remove a token as an authorised address", async function() {
 
+            // Remove approved tokens to reset the state
             await executorContract.removeApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
             await executorContract.removeApprovedToken(wrappedEtherContract.address, {from: contractOwner});
 
@@ -340,12 +346,15 @@ contract('Executor', function(accounts) {
             await executorContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
             await executorContract.setApprovedContractCallCost(subscriptionContract.address, 0, 5**10*16, 10**5, 2*10**9);
 
+            // We need to add the wrapped ether contract and token contract to the approved list
             await executorContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
             await executorContract.addApprovedToken(wrappedEtherContract.address, {from: contractOwner});
 
+            // Now the multiplier can be set for each respective token in the system
             await executorContract.setApprovedTokenMultiplier(transactingCurrencyContract.address, multiplier, {from: contractOwner});
             await executorContract.setApprovedTokenMultiplier(wrappedEtherContract.address, multiplier, {from: contractOwner});
 
+            // Both should fail since the users don't have enough funds
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: etherSubscriber}));
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: tokenSubscriber}));
 
@@ -422,6 +431,7 @@ contract('Executor', function(accounts) {
             let result = await subscriptionContract.isValidSubscription(etherSubscriptionHash);
             let result2 = await subscriptionContract.isValidSubscription(tokenSubscriptionHash);
 
+            // These will fail since the subscriptions have already been activated
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: etherSubscriber}));
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: tokenSubscriber}));
 
@@ -482,6 +492,7 @@ contract('Executor', function(accounts) {
             await subscriptionContract.turnBackTime(5);
             await paymentRegistryContract.turnBackTime(5);
 
+            // Collect the payments but we know they'll fail since it's before the due date
             await assertRevert(executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
             await assertRevert(executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
 
@@ -624,7 +635,7 @@ contract('Executor', function(accounts) {
 
         before(async function() {
 
-            // Set the time forward by one month
+            // Set the time forward by another month
             await executorContract.setTime(twoMonthsLater);
             await subscriptionContract.setTime(twoMonthsLater)
             await paymentRegistryContract.setTime(twoMonthsLater);
