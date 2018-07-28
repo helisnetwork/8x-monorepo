@@ -47,11 +47,13 @@ contract('Executor', function(accounts) {
     let subscriptionFee = 10**17; // $0.10
     let subscriptionEthFee = (subscriptionFee * exchangeRate) / (10**18);
 
-    let subscriptionInterval = 30 * 24 * 60 * 60;
+    let subscriptionInterval = 30 * 24 * 60 * 60; // 30 days
+    let cancellationPeriod = 6 * 60 * 60; // 6 hours
     let multiplier = 10;
 
     let activationTime = parseInt(Date.now() / 1000);
     let oneMonthLater = parseInt(activationTime + subscriptionInterval);
+    let twoMonthLaters = oneMonthLater + subscriptionInterval;
 
     before(async function() {
 
@@ -499,7 +501,7 @@ contract('Executor', function(accounts) {
         it("should not be able to process a subscription if the service node does not have enough staked tokens", async function() {
 
             // Top up your stake by 1000
-            await nativeTokenContract.approve(stakeContract.address, 1000, {from: serviceNode});
+            await nativeTokenContract.approve(stakeContract.address, difference, {from: serviceNode});
             await stakeContract.topUpStake(difference, {from: serviceNode});
 
             // Check the balance to ensure it topped up the correct amount
@@ -592,10 +594,10 @@ contract('Executor', function(accounts) {
         it("should not be able to process a subscription once it has already been processed", async function() {
 
             // Transfer some tokens to a competing service node
-            await nativeTokenContract.transfer(competingServiceNode, tokenStake + ethStake, {from: contractOwner});
+            await nativeTokenContract.transfer(competingServiceNode, totalStake, {from: contractOwner});
 
             // Approve the stake contract to take 8x tokens from you
-            await nativeTokenContract.approve(stakeContract.address, tokenStake + ethStake, {from: competingServiceNode});
+            await nativeTokenContract.approve(stakeContract.address, totalStake, {from: competingServiceNode});
 
             // Top up your stake in the stake contract
             await stakeContract.topUpStake(tokenStake + ethStake, {from: competingServiceNode});
@@ -610,17 +612,35 @@ contract('Executor', function(accounts) {
 
         });
 
-    });
-
-    describe("when service nodes cancel a subscription", () => {
-
-        it("should not be able to if the due date has already passed", async function() {
+        it("should reduce the number of locked up tokens if the multiplier is lowered at the time of claiming next time", async function() {
 
             // @TODO: Implementation
 
         });
 
-        it("should be able to before the due date", async function() {
+    });
+
+    describe("when service nodes cancel a subscription", () => {
+
+        it("should not be to set the cancellation period as an unauthorised period", async function() {
+
+            // @TOOD: Implementation
+
+        });
+
+        it("should be able to set the cancellation period as an authorised address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should not be able to if the due date has already passed cancellation period", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to if it has been less than half of the cancellation period", async function() {
 
             // @TODO: Implementation
 
@@ -637,22 +657,6 @@ contract('Executor', function(accounts) {
         });
 
         it("should not be able to as an unauthorised user", async function() {
-
-            // @TODO: Implementation
-
-        });
-
-    });
-
-    describe("when users don't have enough funds in their wallet", () => {
-
-        it("should not allow the subscription to be processed", async function() {
-
-            // @TODO: Implementation
-
-        });
-
-        it("should cancel the subscription", async function() {
 
             // @TODO: Implementation
 
