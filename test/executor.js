@@ -565,15 +565,15 @@ contract('Executor', function(accounts) {
 
     });
 
-    describe("when businesses cancel a subscription", () => {
+    describe("when a service node doesn't process a subscription", () => {
 
-        it("should not be able to cancel to an unauthorised subscription contract", async function() {
+        it("should not be able to slash before the due date and execution period", async function() {
 
-            // @TODO: Protocol
+            // @TODO: Implementation
 
         });
 
-        it("should not be able to as an unauthorised user", async function() {
+        it("should be able to slash after the due date and execution period", async function() {
 
             // @TODO: Implementation
 
