@@ -242,6 +242,7 @@ contract Executor is Ownable {
 
         // Get the payment object
         // First make sure it's past the due date and execution period
+        // Ensure the original claimant can't call this function
         // Call collect payment function as this caller
         // Slash the tokens and give them to this caller = $$$
     }
