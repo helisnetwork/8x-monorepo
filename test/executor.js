@@ -56,6 +56,11 @@ contract('Executor', function(accounts) {
     let activationTime = parseInt(Date.now() / 1000);
     let oneMonthLater = parseInt(activationTime + subscriptionInterval);
     let twoMonthsLater = oneMonthLater + subscriptionInterval;
+    let threeMonthsLater = twoMonthsLater + subscriptionInterval;
+
+    let tokenStake = (subscriptionCost * multiplier);
+    let ethStake = (subscriptionEthCost * multiplier);
+    let totalStake = tokenStake + ethStake;
 
     before(async function() {
 
@@ -267,9 +272,6 @@ contract('Executor', function(accounts) {
 
     describe("when service nodes process subscriptions", () => {
 
-        let tokenStake = (subscriptionCost * multiplier);
-        let ethStake = (subscriptionEthCost * multiplier);
-        let totalStake = tokenStake + ethStake;
         let difference = 1000;
 
         before(async function() {
@@ -393,27 +395,6 @@ contract('Executor', function(accounts) {
             // Should be able to process now that the service node has enough staked tokens
             await executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
             await executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode});
-
-            // Check the payments registry has been updated
-            let etherPaymentInformation = await paymentRegistryContract.payments.call(etherSubscriptionHash);
-            assert.equal(etherPaymentInformation[0], wrappedEtherContract.address);
-            assert.equal(etherPaymentInformation[1].toNumber(), twoMonthsLater);
-            assert.equal(etherPaymentInformation[2].toNumber(), subscriptionEthCost);
-            assert.equal(etherPaymentInformation[3].toNumber(), subscriptionEthFee);
-            assert.equal(etherPaymentInformation[4].toNumber(), oneMonthLater);
-            assert.equal(etherPaymentInformation[5], serviceNode);
-            assert.equal(etherPaymentInformation[6], 0); // We claimed it straight away
-            assert.equal(etherPaymentInformation[7].toNumber(), 10);
-
-            let tokenPaymentInformation = await paymentRegistryContract.payments.call(tokenSubscriptionHash);
-            assert.equal(tokenPaymentInformation[0], transactingCurrencyContract.address);
-            assert.equal(tokenPaymentInformation[1].toNumber(), twoMonthsLater);
-            assert.equal(tokenPaymentInformation[2].toNumber(), subscriptionCost);
-            assert.equal(tokenPaymentInformation[3].toNumber(), subscriptionFee);
-            assert.equal(tokenPaymentInformation[4].toNumber(), oneMonthLater);
-            assert.equal(tokenPaymentInformation[5], serviceNode);
-            assert.equal(tokenPaymentInformation[6], 0); // We claimed it straight away
-            assert.equal(tokenPaymentInformation[7].toNumber(), 10);
 
             // Check if the service node got their reward and tokens locked up
             let postServiceNodeEthBalance = await stakeContract.getAvailableStake(serviceNode, wrappedEtherContract.address);
@@ -553,7 +534,7 @@ contract('Executor', function(accounts) {
             // Check the payments registry has been updated
             let etherPaymentInformation = await paymentRegistryContract.payments.call(etherSubscriptionHash);
             assert.equal(etherPaymentInformation[0], wrappedEtherContract.address);
-            assert.equal(etherPaymentInformation[1].toNumber(), twoMonthsLater + subscriptionInterval);
+            assert.equal(etherPaymentInformation[1].toNumber(), threeMonthsLater);
             assert.equal(etherPaymentInformation[2].toNumber(), subscriptionEthCost);
             assert.equal(etherPaymentInformation[3].toNumber(), subscriptionEthFee);
             assert.equal(etherPaymentInformation[4].toNumber(), twoMonthsLater);
@@ -569,13 +550,75 @@ contract('Executor', function(accounts) {
 
         it("should not be able to slash before the due date and execution period", async function() {
 
-            // @TODO: Implementation
+            await executorContract.setTime(threeMonthsLater);
+            await subscriptionContract.setTime(threeMonthsLater);
+            await paymentRegistryContract.setTime(threeMonthsLater);
+
+            await assertRevert(executorContract.catchLatePayment(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
+            await assertRevert(executorContract.catchLatePayment(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
+
+        });
+
+        it("should not be able to slash as the original claimant", async function() {
+
+            await executorContract.turnBackTime(-60);
+            await subscriptionContract.turnBackTime(-60);
+            await paymentRegistryContract.turnBackTime(-60);
+
+            await assertRevert(executorContract.catchLatePayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
+            await assertRevert(executorContract.catchLatePayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
 
         });
 
         it("should be able to slash after the due date and execution period", async function() {
 
-            // @TODO: Implementation
+            // Get the stake balance of the original service node
+            let originalServiceNodePreEthBalance = await stakeContract.getTotalStake(serviceNode, wrappedEtherContract.address)
+            let originalServiceNodePreTokenBalance = await stakeContract.getTotalStake(serviceNode, transactingCurrencyContract.address)
+            assert.equal(originalServiceNodePreEthBalance.toNumber(), ethStake);
+            assert.equal(originalServiceNodePreTokenBalance.toNumber(), tokenStake);
+
+            // Get the stake balance of the competing service node
+            let competingServiceNodePreEthBalance = await stakeContract.getTotalStake(competingServiceNode, wrappedEtherContract.address)
+            let competingServiceNodePreTokenBalance = await stakeContract.getTotalStake(competingServiceNode, transactingCurrencyContract.address)
+            assert.equal(competingServiceNodePreEthBalance.toNumber(), ethStake);
+            assert.equal(competingServiceNodePreTokenBalance.toNumber(), tokenStake);
+
+            await executorContract.catchLatePayment(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode});
+            await executorContract.catchLatePayment(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode});
+
+            // Get the stake balance of the original service node afterwards
+            let originalServiceNodePostEthBalance = await stakeContract.getTotalStake(serviceNode, wrappedEtherContract.address)
+            let originalServiceNodePostTokenBalance = await stakeContract.getTotalStake(serviceNode, transactingCurrencyContract.address)
+            assert.equal(originalServiceNodePostEthBalance.toNumber(), ethStake/2);
+            assert.equal(originalServiceNodePostTokenBalance.toNumber(), tokenStake)/2;
+
+            // Get the stake balance of the competing service node afterwards
+            let competingServiceNodePostEthBalance = await stakeContract.getTotalStake(competingServiceNode, wrappedEtherContract.address)
+            let competingServiceNodePostTokenBalance = await stakeContract.getTotalStake(competingServiceNode, transactingCurrencyContract.address)
+            assert.equal(competingServiceNodePostEthBalance.toNumber(), ethStake * 1.5);
+            assert.equal(competingServiceNodePostTokenBalance.toNumber(), tokenStake * 1.5);
+
+            // Check the payments registry has been updated
+            let etherPaymentInformation = await paymentRegistryContract.payments.call(etherSubscriptionHash);
+            assert.equal(etherPaymentInformation[0], wrappedEtherContract.address);
+            assert.equal(etherPaymentInformation[1].toNumber(), threeMonthsLater + subscriptionInterval);
+            assert.equal(etherPaymentInformation[2].toNumber(), subscriptionEthCost);
+            assert.equal(etherPaymentInformation[3].toNumber(), subscriptionEthFee);
+            assert.equal(etherPaymentInformation[4].toNumber(), threeMonthsLater);
+            assert.equal(etherPaymentInformation[5], competingServiceNode);
+            assert.equal(etherPaymentInformation[6], 60); // We claimed it 60 seconds after it was due
+            assert.equal(etherPaymentInformation[7].toNumber(), multiplier/2);
+
+            let tokenPaymentInformation = await paymentRegistryContract.payments.call(tokenSubscriptionHash);
+            assert.equal(tokenPaymentInformation[0], transactingCurrencyContract.address);
+            assert.equal(tokenPaymentInformation[1].toNumber(), threeMonthsLater + subscriptionInterval);
+            assert.equal(tokenPaymentInformation[2].toNumber(), subscriptionCost);
+            assert.equal(tokenPaymentInformation[3].toNumber(), subscriptionFee);
+            assert.equal(tokenPaymentInformation[4].toNumber(), threeMonthsLater);
+            assert.equal(tokenPaymentInformation[5], competingServiceNode);
+            assert.equal(tokenPaymentInformation[6], 60); // We claimed it 60 seconds after it was due
+            assert.equal(tokenPaymentInformation[7].toNumber(), multiplier/2);
 
         });
 

@@ -76,6 +76,18 @@ contract StakeContract is Authorizable {
         // @TODO: Actually slash the tokens somehow?
     }
 
+    /** @dev Check how many tokens the processor has in total at this moment.
+      * @param _staker is the processor address.
+      * @param _tokenAddress token for which to stake for.
+    */
+    function getTotalStake(address _staker, address _tokenAddress)
+        public
+        view
+        returns (uint total)
+    {
+        return stakes[_staker][_tokenAddress].total;
+    }
+
     /** @dev Check how many tokens the processor has available at this moment.
       * @param _staker is the processor address.
       * @param _tokenAddress token for which to stake for.
@@ -86,6 +98,18 @@ contract StakeContract is Authorizable {
         returns (uint available)
     {
         return (stakes[_staker][_tokenAddress].total - stakes[_staker][_tokenAddress].lockedUp);
+    }
+
+    /** @dev Check how many tokens the processor has locked at this moment.
+      * @param _staker is the processor address.
+      * @param _tokenAddress token for which to stake for.
+    */
+    function getLockedStake(address _staker, address _tokenAddress)
+        public
+        view
+        returns (uint locked)
+    {
+        return stakes[_staker][_tokenAddress].lockedUp;
     }
 
     // @TODO: Try to use ERC223 or something instead.

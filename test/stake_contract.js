@@ -41,6 +41,8 @@ contract('StakeContract', function(accounts) {
         let availableAmount = await stakeContract.getAvailableStake(thirdAccount, mockToken.address, {from: thirdAccount});
         assert.equal(availableAmount.toNumber(), 100);
 
+        // @TODO: Check total and locked up
+
     });
 
     describe("when staking tokens", () => {
@@ -56,6 +58,8 @@ contract('StakeContract', function(accounts) {
             await stakeContract.stakeTokens(thirdAccount, mockToken.address, 100, {from: firstAccount});
             let availableAmount = await stakeContract.getAvailableStake(thirdAccount, mockToken.address);
             assert.equal(availableAmount.toNumber(), 0);
+
+            // @TODO: Check total and locked up
 
         });
 
@@ -78,6 +82,7 @@ contract('StakeContract', function(accounts) {
         it("should be able to slash a staked amount of tokens", async function() {
 
             await stakeContract.slashTokens(thirdAccount, mockToken.address, 50, {from: firstAccount});
+            // @TODO: Check total and locked up
 
         });
 
@@ -109,6 +114,8 @@ contract('StakeContract', function(accounts) {
             let availableAmount = await stakeContract.getAvailableStake(thirdAccount, mockToken.address);
             assert.equal(availableAmount.toNumber(), 50);
 
+            // @TODO: Check total and locked up
+
         });
 
     });
@@ -125,6 +132,7 @@ contract('StakeContract', function(accounts) {
         it('should be able to withdraw all the available tokens they have', async function() {
 
             await stakeContract.withdrawStake(50, mockToken.address, {from: thirdAccount});
+            // @TODO: Check total and locked up
 
         });
 
