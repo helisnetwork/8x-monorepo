@@ -143,7 +143,7 @@ contract Executor is Ownable {
 
         // Check that the service node calling has enough staked tokens
         if (stakeMultiplier == 0) {
-            require(stakeContract.getAvailableStake(msg.sender) >= (currentMultiplierFor(tokenAddress) * amount));
+            require(stakeContract.getAvailableStake(msg.sender, tokenAddress) >= (currentMultiplierFor(tokenAddress) * amount));
         }
 
         // Make payments to the business and service node
@@ -160,10 +160,11 @@ contract Executor is Ownable {
         if (stakeMultiplier > currentMultiplierFor(tokenAddress)) {
             stakeContract.unstakeTokens(
                 msg.sender,
+                tokenAddress,
                 (stakeMultiplier - currentMultiplierFor(tokenAddress)) * amount
             );
         } else if (stakeMultiplier == 0) {
-            stakeContract.stakeTokens(msg.sender, currentMultiplierFor(tokenAddress) * amount);
+            stakeContract.stakeTokens(msg.sender, tokenAddress, currentMultiplierFor(tokenAddress) * amount);
         }
 
         // Update the payment registry
@@ -192,7 +193,7 @@ contract Executor is Ownable {
 
         // Get the payment registry information
         (
-            ,
+            address tokenAddress,
             ,
             uint amount,
             ,
@@ -221,6 +222,7 @@ contract Executor is Ownable {
         // Unstake tokens
         stakeContract.unstakeTokens(
             msg.sender,
+            tokenAddress,
             amount * stakeMultiplier
         );
 

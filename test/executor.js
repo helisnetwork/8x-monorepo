@@ -335,22 +335,28 @@ contract('Executor', function(accounts) {
         it("should not be able to process a subscription if the service node does not have enough staked tokens", async function() {
 
             // Top up your stake by 1000
-            await nativeTokenContract.approve(stakeContract.address, difference, {from: serviceNode});
-            await stakeContract.topUpStake(difference, {from: serviceNode});
+            await nativeTokenContract.approve(stakeContract.address, difference * 2, {from: serviceNode});
+            await stakeContract.topUpStake(difference, wrappedEtherContract.address, {from: serviceNode});
+            await stakeContract.topUpStake(difference, transactingCurrencyContract.address, {from: serviceNode});
 
             // Check the balance to ensure it topped up the correct amount
-            let balance = await stakeContract.getAvailableStake(serviceNode);
-            assert.equal(balance, difference);
+            let ethBalance = await stakeContract.getAvailableStake(serviceNode, wrappedEtherContract.address);
+            let tokenBalance = await stakeContract.getAvailableStake(serviceNode, transactingCurrencyContract.address);
+            assert.equal(ethBalance.toNumber(), difference);
+            assert.equal(tokenBalance.toNumber(), difference);
 
             // Should fail when collecting payment since there aren't enough tokens staked
             await assertRevert(executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
             await assertRevert(executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
 
             // Withdraw tokens
-            await stakeContract.withdrawStake(difference, {from: serviceNode});
+            await stakeContract.withdrawStake(difference, wrappedEtherContract.address, {from: serviceNode});
+            await stakeContract.withdrawStake(difference, transactingCurrencyContract.address, {from: serviceNode});
 
-            let postBalance = await stakeContract.getAvailableStake(serviceNode);
-            assert.equal(postBalance, 0);
+            let postEthBalance = await stakeContract.getAvailableStake(serviceNode, wrappedEtherContract.address);
+            let postTokenBalance = await stakeContract.getAvailableStake(serviceNode, transactingCurrencyContract.address);
+            assert.equal(postEthBalance, 0);
+            assert.equal(postTokenBalance, 0);
 
         });
 
@@ -371,11 +377,14 @@ contract('Executor', function(accounts) {
             let getApproval = await nativeTokenContract.allowance(serviceNode, stakeContract.address);
             let numberOfTokens = await nativeTokenContract.balanceOf(serviceNode);
 
-            await stakeContract.topUpStake(totalStake, {from: serviceNode});
+            await stakeContract.topUpStake(ethStake, wrappedEtherContract.address, {from: serviceNode});
+            await stakeContract.topUpStake(tokenStake, transactingCurrencyContract.address, {from: serviceNode});
 
             // Check the balance to ensure it topped up the correct amount
-            let balance = await stakeContract.getAvailableStake(serviceNode);
-            assert.equal(balance.toNumber(), ethStake + tokenStake);
+            let ethBalance = await stakeContract.getAvailableStake(serviceNode, wrappedEtherContract.address);
+            let tokenBalance = await stakeContract.getAvailableStake(serviceNode, transactingCurrencyContract.address);
+            assert.equal(ethBalance.toNumber(), ethStake);
+            assert.equal(tokenBalance.toNumber(), tokenStake);
 
             let transferProxyEthAllowance = await wrappedEtherContract.allowance(etherSubscriber, proxyContract.address);
             let transferProxyTokenAllowance = await transactingCurrencyContract.allowance(tokenSubscriber, proxyContract.address);
@@ -407,8 +416,10 @@ contract('Executor', function(accounts) {
             assert.equal(tokenPaymentInformation[7].toNumber(), 10);
 
             // Check if the service node got their reward and tokens locked up
-            let serviceNodeStakeBalance = await stakeContract.getAvailableStake(serviceNode);
-            assert.equal(serviceNodeStakeBalance.toNumber(), 0);
+            let postServiceNodeEthBalance = await stakeContract.getAvailableStake(serviceNode, wrappedEtherContract.address);
+            let postServiceNodeTokenBalance = await stakeContract.getAvailableStake(serviceNode, transactingCurrencyContract.address);
+            assert.equal(postServiceNodeEthBalance, 0);
+            assert.equal(postServiceNodeTokenBalance, 0);
 
             // Check if the balance of the user was subtracted
             let postEtherUserBalance = await wrappedEtherContract.balanceOf(etherSubscriber);
@@ -434,11 +445,15 @@ contract('Executor', function(accounts) {
             await nativeTokenContract.approve(stakeContract.address, totalStake, {from: competingServiceNode});
 
             // Top up your stake in the stake contract
-            await stakeContract.topUpStake(tokenStake + ethStake, {from: competingServiceNode});
+            await stakeContract.topUpStake(ethStake, wrappedEtherContract.address, {from: competingServiceNode});
+            await stakeContract.topUpStake(tokenStake, transactingCurrencyContract.address, {from: competingServiceNode});
 
             // Check the balance to ensure it topped up the correct amount
-            let balance = await stakeContract.getAvailableStake(competingServiceNode);
-            assert.equal(balance, tokenStake + ethStake);
+            let ethBalance = await stakeContract.getAvailableStake(competingServiceNode, wrappedEtherContract.address);
+            let tokenBalance = await stakeContract.getAvailableStake(competingServiceNode, transactingCurrencyContract.address);
+
+            assert.equal(ethBalance.toNumber(), ethStake);
+            assert.equal(tokenBalance.toNumber(), tokenStake);
 
             // Should fail when collecting payment since it has already been claimed/processed
             await assertRevert(executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
@@ -459,9 +474,12 @@ contract('Executor', function(accounts) {
             await wrappedEtherContract.deposit({from: etherSubscriber, value: subscriptionEthCost});
             await transactingCurrencyContract.transfer(tokenSubscriber, subscriptionCost, {from: contractOwner});
 
-            // Check the balance to ensure it topped up the correct amount
-            let preBalance = await stakeContract.getAvailableStake(serviceNode);
-            assert.equal(preBalance.toNumber(), 0);
+            // Check to ensure all the tokens are locked up
+            let ethBalance = await stakeContract.getAvailableStake(serviceNode, wrappedEtherContract.address);
+            let tokenBalance = await stakeContract.getAvailableStake(serviceNode, transactingCurrencyContract.address);
+
+            assert.equal(ethBalance.toNumber(), 0);
+            assert.equal(tokenBalance.toNumber(), 0);
 
             // Reduce the multiplier
             await approvedRegistryContract.setApprovedTokenMultiplier(transactingCurrencyContract.address, multiplier/2, {from: contractOwner});
@@ -471,9 +489,11 @@ contract('Executor', function(accounts) {
             await executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
             await executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode});
 
-            // Check the balance to ensure it topped up the correct amount
-            let postBalance = await stakeContract.getAvailableStake(serviceNode);
-            assert.equal(postBalance.toNumber(), totalStake/2);
+            // Check the balance to ensure it reduced the right amount
+            let postEthBalance = await stakeContract.getAvailableStake(serviceNode, wrappedEtherContract.address);
+            let postTokenBalance = await stakeContract.getAvailableStake(serviceNode, transactingCurrencyContract.address);
+            assert.equal(postEthBalance.toNumber(), ethStake/2);
+            assert.equal(postTokenBalance.toNumber(), tokenStake/2);
 
             // Check the payments registry has been updated
             let etherPaymentInformation = await paymentRegistryContract.payments.call(etherSubscriptionHash);
