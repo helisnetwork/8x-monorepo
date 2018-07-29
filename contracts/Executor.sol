@@ -231,6 +231,17 @@ contract Executor is Ownable {
 
     }
 
+    function catchLatePayment(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier
+    )
+        public
+    {
+
+        // @TODO: Implementation
+
+    }
+
     /**
       * INTERNAL FUNCTIONS
     */
