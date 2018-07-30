@@ -3,20 +3,21 @@ pragma solidity 0.4.24;
 import "./Authorizable.sol";
 
 /** @title Transaction Registry - Stores a list of pending transactions */
-/** @author Kerman Kohli - <kerman@TBD.com> */
+/** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract PaymentRegistry is Authorizable {
 
     struct Payment {
-        address subscriptionContract;   // 0
+        address tokenAddress;           // 0
 
         uint dueDate;                   // 1
         uint amount;                    // 2
-        uint lastPaymentDate;           // 3
+        uint fee;                       // 3
+        uint lastPaymentDate;           // 4
 
-        address claimant;               // 4
-        uint executionPeriod;           // 5
-        uint stakeMultiplier;           // 6
+        address claimant;               // 5
+        uint executionPeriod;           // 6
+        uint stakeMultiplier;           // 7
     }
 
     // The bytes32 key is the subscription identifier
@@ -32,30 +33,35 @@ contract PaymentRegistry is Authorizable {
     */
 
     /** @dev Create a new payment object when a user initially subscribes to a plan.
-      * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface)
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+      * @param _tokenAddress is the transacting token.
       * @param _dueDate is when the payment is meant to be paid by.
       * @param _amount is how much the processors has staked in order to have the right to process the transaction.
+      * @param _fee is th service node's cut.
     */
     function createNewPayment(
-        bytes32 _subscriptionIdentifier, // solhint-disable-line
-        address _subscriptionContract, // solhint-disable-line
-        uint _dueDate, // solhint-disable-line
-        uint _amount) // solhint-disable-line
+        bytes32 _subscriptionIdentifier,
+        address _tokenAddress,
+        uint _dueDate,
+        uint _amount,
+        uint _fee
+    )
         public
         onlyAuthorized
         returns (bool success)
     {
 
         require(_subscriptionIdentifier[0] != 0);
-        require(_subscriptionContract != 0);
+        require(_tokenAddress != 0);
         require(_dueDate >= currentTimestamp());
         require(_amount > 0);
+        require(_fee > 0);
 
         Payment memory newPayment = Payment({
-            subscriptionContract: _subscriptionContract,
+            tokenAddress: _tokenAddress,
             dueDate: _dueDate,
             amount: _amount,
+            fee: _fee,
             lastPaymentDate: 0,
             claimant: 0,
             executionPeriod: 0,
@@ -156,17 +162,27 @@ contract PaymentRegistry is Authorizable {
         public
         view
         returns (
-            address subscriptionContract,   // 0
+            address tokenAddress,           // 0
             uint dueDate,                   // 1
             uint amount,                    // 2
-            uint lastPaymentDate,           // 3
-            address claimant,               // 4
-            uint executionPeriod            // 5
+            uint fee,                       // 3
+            uint lastPaymentDate,           // 4
+            address claimant,               // 5
+            uint executionPeriod,           // 6
+            uint stakeMultiplier            // 7
         )
-    { // solhint-disable-line
-
-        // @TODO: Implementation
-
+    {
+        Payment memory payment = payments[_subscriptionIdenitifer];
+        return(
+            payment.tokenAddress,
+            payment.dueDate,
+            payment.amount,
+            payment.fee,
+            payment.lastPaymentDate,
+            payment.claimant,
+            payment.executionPeriod,
+            payment.stakeMultiplier
+        );
     }
 
      /**

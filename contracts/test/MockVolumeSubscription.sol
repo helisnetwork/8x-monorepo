@@ -1,43 +1,13 @@
 pragma solidity 0.4.24;
 
+import "./MockTime.sol";
 import "../VolumeSubscription.sol";
 
 /** @title Mock contract in order to test time logic reliably. */
-/** @author Kerman Kohli - <kerman@TBD.com> */
+/** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract MockVolumeSubscription is VolumeSubscription {
-    // solhint-disable-next-line
-    uint public currentTime = block.timestamp;
+contract MockVolumeSubscription is VolumeSubscription, MockTime {
 
-    /** PUBLIC FUNCTIONS */
-    /** @dev Set the time in the contract
-      *
-    */
-    function setTime(uint _time)
-        public
-    {
-        currentTime = _time;
-    }
+    constructor(address _approvedRegistryAddress) VolumeSubscription(_approvedRegistryAddress) { }
 
-    /** @dev Turn back the time in the contract
-      *
-    */
-    function turnBackTime(uint _seconds)
-        public
-    {
-        currentTime -= _seconds;
-    }
-
-    /** INTERNAL FUNCTIONS */
-    /** @dev A mock of the current timsstamp
-      *
-    */
-    function currentTimestamp()
-        internal
-        view
-        returns (uint _timetstamp)
-    {
-        return currentTime;
-    }
-
-}
+ }
