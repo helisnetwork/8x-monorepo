@@ -72,8 +72,29 @@ contract StakeContract is Authorizable {
         // Reduce the total amount first
         stakes[_staker][_tokenAddress].total -= _amount;
         stakes[_staker][_tokenAddress].lockedUp -= _amount;
+    }
 
-        // @TODO: Actually slash the tokens somehow?
+    /** @dev When someone catches out another user for not processing
+      * their tokens are transferred to them.
+      * @param _staker is the processors who's tokens need to be slashed.
+      * @param _tokenAddress token for which to stake for.
+      * @param _amount is how many tokens need to be slashed.
+      * @param _destination is the person to transfer the stake to.
+    */
+    function transferStake(address _staker, address _tokenAddress, uint _amount, address _destination)
+        public
+        onlyAuthorized
+    {
+        // Make sure that an authorized address can't slash more tokens than
+        // they actually have locked up.
+        require(stakes[_staker][_tokenAddress].lockedUp >= _amount);
+
+        // Reduce the total amount first
+        stakes[_staker][_tokenAddress].total -= _amount;
+        stakes[_staker][_tokenAddress].lockedUp -= _amount;
+
+        // Transfer the stake
+        stakes[_destination][_tokenAddress].total += _amount;
     }
 
     /** @dev Check how many tokens the processor has in total at this moment.
