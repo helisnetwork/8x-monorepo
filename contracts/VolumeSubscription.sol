@@ -1,9 +1,10 @@
 pragma solidity 0.4.24;
 
 import "./Collectable.sol";
+import "./ApprovedRegistry.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
-/** @author Kerman Kohli - <kerman@TBD.com> */
+/** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract VolumeSubscription is Collectable {
 
@@ -37,6 +38,8 @@ contract VolumeSubscription is Collectable {
 
         string data;
     }
+
+    ApprovedRegistry public approvedRegistry;
 
     mapping (bytes32 => Plan) public plans;
     mapping (bytes32 => Subscription) public subscriptions;
@@ -104,7 +107,9 @@ contract VolumeSubscription is Collectable {
         returns (bool success)
     {
         // @TODO: Add tests for this.
+
         return (
+            plans[subscriptions[_subscription].planHash].terminationDate == 0 &&
             subscriptions[_subscription].terminationDate == 0 &&
             subscriptions[_subscription].startDate > 0
         );
@@ -127,6 +132,15 @@ contract VolumeSubscription is Collectable {
         return (subscriptions[_subscription].owner, plans[planHash].owner);
     }
 
+    function getSubscriptionInterval(bytes32 _subscription)
+        public
+        view
+        returns (uint interval)
+    {
+        bytes32 planHash = subscriptions[_subscription].planHash;
+        return plans[planHash].interval;
+    }
+
     function getAmountDueFromSubscription(bytes32 _subscription)
         public
         view
@@ -147,10 +161,10 @@ contract VolumeSubscription is Collectable {
 
     function setStartDate(uint _date, bytes32 _subscription)
         public
-        //onlyAuthorized
+        onlyAuthorized
     {
-        //require(_date >= currentTimestamp());
-        //require(subscriptions[_subscription].startDate == 0);
+        require(_date >= currentTimestamp());
+        require(subscriptions[_subscription].startDate == 0);
 
         subscriptions[_subscription].startDate = _date;
 
@@ -178,6 +192,10 @@ contract VolumeSubscription is Collectable {
     /**
       * PUBLIC FUNCTIONS
     */
+    constructor(address _approvedRegistryAddress) public {
+        approvedRegistry = ApprovedRegistry(_approvedRegistryAddress);
+    }
+
     /** @dev This is the function for creating a new plan.
       * @param _owner the address which owns this contract and to which a payment will be made.
       * @param _identifier a way to uniquely identify a product for each vendor.
@@ -208,6 +226,7 @@ contract VolumeSubscription is Collectable {
         require(_amount > 0);
         require(_fee > 0);
         require(_fee < _amount);
+        require(approvedRegistry.isTokenAuthorised(_tokenAddress));
 
         bytes32 planHash = keccak256(
             abi.encodePacked(

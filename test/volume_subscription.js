@@ -3,6 +3,7 @@ import keccak from './helpers/keccak.js';
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
+var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
 
 contract('VolumeSubscription', function(accounts) {
 
@@ -14,10 +15,13 @@ contract('VolumeSubscription', function(accounts) {
     let business = accounts[2]; // The business who has a subscription they want to earn money from
     let subscriber = accounts[3]; // The user who is paying the business
     let unauthorizedAddress = accounts[4]; // Someone random
+    let approvedRegistryContract;
 
     before(async function() {
 
-        contract = await MockVolumeSubscription.new({from: accounts[0]});
+        approvedRegistryContract = await ApprovedRegistry.new({from: contractOwner});
+
+        contract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: accounts[0]});
         token = await EightExToken.new({from: accounts[0]});
 
         await contract.addAuthorizedAddress(executorContract);
@@ -61,21 +65,31 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
-        it("should throw when creating a plan with an invalid token address", async function() {
-
-            await assertRevert(
-              contract.createPlan(
-                business, 0, "plan.new.incorrect", "test", "", 30, 100, 5, "{}", {from: business}
-              )
-            );
-
-        });
-
         it("should throw when creating a plan with an invalid identifier", async function() {
 
             await assertRevert(
               contract.createPlan(
                 business, token.address, "", "test", "", 30, 100, 5, "{}", {from: business}
+              )
+            );
+
+        });
+
+        it("should throw when creating a plan with no token address", async function() {
+
+            await assertRevert(
+                contract.createPlan(
+                    business, 0, "plan.new.no_token", "test", "", 30, 100, 10, "{}", {from: business}
+                )
+            );
+
+        });
+
+        it("should throw when creating a plan with an unauthorised token", async function() {
+
+            await assertRevert(
+              contract.createPlan(
+                business, token.address, "plan.new", "test", "", 30, 100, 10, "{}", {from: business}
               )
             );
 
@@ -123,6 +137,8 @@ contract('VolumeSubscription', function(accounts) {
         });
 
         it("should be able to create a new plan correctly", async function() {
+
+            await approvedRegistryContract.addApprovedToken(token.address, {from: contractOwner});
 
             let newPlan = await contract.createPlan(
               business, token.address, "plan.new", "test", "", 30, 100, 10, "{}", {from: business}

@@ -2,66 +2,69 @@ pragma solidity 0.4.24;
 
 import "./base/ownership/Ownable.sol";
 import "./base/token/ERC20.sol";
+import "./base/token/WETH.sol";
 
 import "./Collectable.sol";
 import "./TransferProxy.sol";
 import "./StakeContract.sol";
 import "./PaymentRegistry.sol";
+import "./KyberNetworkInterface.sol";
+import "./ApprovedRegistry.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
-/** @author Kerman Kohli - <kerman@TBD.com> */
+/** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract Executor is Ownable {
-
-    struct GasCost {
-        uint callValue;
-        uint gasCost;
-        uint gasPrice;
-    }
 
     TransferProxy public transferProxy;
     StakeContract public stakeContract;
     PaymentRegistry public paymentRegistry;
+    KyberNetworkInterface public kyberProxy;
+    ApprovedRegistry public approvedRegistry;
 
-    mapping (address => bool) public approvedTokenMapping;
-    mapping (address => mapping (uint => GasCost)) public approvedContractMapping;
+    uint public cancellationPeriod;
 
-    address[] public approvedContractArray;
-    address[] public approvedTokenArray;
+    event SubscriptionActivated(
+        address subscriptionAddress,
+        bytes32 subscriptionIdentifer
+    );
 
-    event LogAuthorizedContractAdded(address indexed target);
-    event LogAuthorizedContractRemoved(address indexed target);
-    event LogAuthorizedTokenAdded(address indexed target);
-    event LogAuthorizedTokenRemoved(address indexed target);
+    event SubscriptionProcessed(
+        address subscriptionAddress,
+        bytes32 subscriptionIdentifer,
+        address claimant
+    );
 
-    event SubscriptionActivated(address subscriptionAddress, bytes32 subscriptionIdentifer);
-    event SubscriptionProcessesed(address subscriptionAddress, bytes32 subscriptionIdentifer);
+    event SubscriptionReleased(
+        address subscriptionAddress,
+        bytes32 subscriptionIdentifier,
+        address claimant
+    );
 
-    event ContractGasCostSet(address indexed contractAddress, uint indexed index);
-    event ContractGasCostRemoved(address indexed contractAddress, uint indexed index);
+    event SubscriptionLatePaymentCaught(
+        address subscriptionAddress,
+        bytes32 subscriptionIdentifier,
+        address originalClaimant,
+        address newClaimant,
+        uint amountLost
+    );
 
     /**
       * PUBLIC FUNCTIONS
     */
-    /** @dev Set a multiplier for how many tokens you need in order to claim proportional to the payments.
-      * @param _multiplier is the multiplier that would like to be set.
-    */
-
-    uint public currentMultiplier;
-
-    function updateMultiplier(uint _multiplier) public onlyOwner {
-        currentMultiplier = _multiplier;
-    }
 
     /** @dev Set the addresses for the relevant contracts
       * @param _transferProxyAddress the address for the designated transfer proxy.
       * @param _stakeContractAddress the address for the stake contract.
       * @param _paymentRegistryAddress the address for the payment registry.
+      * @param _kyberAddress the address for the kyber network contract.
     */
     constructor(
         address _transferProxyAddress,
         address _stakeContractAddress,
-        address _paymentRegistryAddress
+        address _paymentRegistryAddress,
+        address _kyberAddress,
+        address _approvedRegistryAddress
     )
         public
     {
@@ -70,146 +73,18 @@ contract Executor is Ownable {
         transferProxy = TransferProxy(_transferProxyAddress);
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
+        kyberProxy = KyberNetworkInterface(_kyberAddress);
+        approvedRegistry = ApprovedRegistry(_approvedRegistryAddress);
     }
 
-    /** @dev Add an approved subscription contract to be used.
-      * @param _contractAddress is the address of the subscription contract.
+    /** @dev Set the amount of time after a payment a service node has to cancel.
+      * @param _period is the amount of time they have.
     */
-    function addApprovedContract(address _contractAddress)
-        public
-        onlyOwner
-    {
-        approvedContractArray.push(_contractAddress);
-        emit LogAuthorizedContractAdded(_contractAddress);
+    function setCancellationPeriod(uint _period) public onlyOwner {
+        cancellationPeriod = _period;
     }
 
-    /** @dev Set an approved contract call cost.
-      * @param _contractAddress is the address of the subscription contract.
-      * @param _index is the reference to the call (cancel, subscribe etc).
-      * @param _callValue is how much the transaction will cost.
-      * @param _gasCost is the amount of gas that will be used.
-      * @param _gasPrice is the gas price that will be reimbursed up to.
-    */
-    function setApprovedContractCallCost(
-        address _contractAddress,
-        uint _index,
-        uint _callValue,
-        uint _gasCost,
-        uint _gasPrice
-    )
-        public
-        onlyOwner
-    {
-        bool contractFoundInRegistry = false;
-
-        for (uint i = 0; i < approvedContractArray.length; i++) {
-            if (approvedContractArray[i] == _contractAddress) {
-                contractFoundInRegistry = true;
-                break;
-            }
-        }
-
-        require(contractFoundInRegistry);
-
-        approvedContractMapping[_contractAddress][_index] = GasCost({
-            callValue: _callValue,
-            gasCost: _gasCost,
-            gasPrice: _gasPrice
-        });
-
-        emit ContractGasCostSet(_contractAddress, _index);
-
-    }
-
-    /** @dev Add an approved token to be used.
-      * @param _tokenAddress is the address of the token to be used.
-    */
-    function addApprovedToken(address _tokenAddress)
-        public
-        onlyOwner
-    {
-        approvedTokenArray.push(_tokenAddress);
-        approvedTokenMapping[_tokenAddress] = true;
-        emit LogAuthorizedTokenAdded(_tokenAddress);
-    }
-
-    /** @dev Remove an approved subscription contract.
-      * @param _contractAddress is the address of the subscription contract.
-    */
-    function removeApprovedContract(address _contractAddress)
-        public
-        onlyOwner
-    {
-        for (uint i = 0; i < approvedContractArray.length; i++) {
-            if (approvedContractArray[i] == _contractAddress) {
-                approvedContractArray[i] = approvedContractArray[approvedContractArray.length - 1];
-                approvedContractArray.length--;
-
-                emit LogAuthorizedContractRemoved(_contractAddress);
-
-                break;
-            }
-        }
-    }
-
-    /** @dev Remove an approved contract call cost.
-      * @param _contractAddress is the address of the contract.
-      * @param _index is the reference to the call (cancel, subscribe etc).
-    */
-    function removeApprovedContractCallCost(
-        address _contractAddress,
-        uint _index
-    )
-        public
-        onlyOwner
-    {
-        delete approvedContractMapping[_contractAddress][_index];
-
-        emit ContractGasCostRemoved(_contractAddress, _index);
-    }
-
-    /** @dev Remove an approved token to be used.
-      * @param _tokenAddress is the address of the token to remove.
-    */
-    function removeApprovedToken(address _tokenAddress)
-        public
-        onlyOwner
-    {
-        for (uint i = 0; i < approvedTokenArray.length; i++) {
-            if (approvedTokenArray[i] == _tokenAddress) {
-                approvedTokenArray[i] = approvedTokenArray[approvedTokenArray.length - 1];
-                approvedTokenArray.length--;
-
-                delete approvedTokenMapping[_tokenAddress];
-
-                emit LogAuthorizedTokenRemoved(_tokenAddress);
-
-                break;
-            }
-        }
-    }
-
-    /** @dev Get approved contract array.
-    */
-    function getApprovedContracts()
-        public
-        constant
-        returns (address[])
-    {
-        return approvedContractArray;
-    }
-
-    /** @dev Get approved token array.
-    */
-    function getApprovedTokens()
-        public
-        constant
-        returns (address[])
-    {
-        return approvedTokenArray;
-    }
-
-    /** @dev Active a subscription once it's been created (make the first payment).
+    /** @dev Active a subscription once it's been created (make the first payment) paid from wrapped Ether.
       * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
@@ -220,30 +95,37 @@ contract Executor is Ownable {
         public
         returns (bool success)
     {
-        // Make sure we have an approved subscription contract
-        require(approvedContractMapping[_subscriptionContract][0].callValue != 0);
 
+        // Initiate an instance of the collectable subscription
         Collectable subscription = Collectable(_subscriptionContract);
 
-        // Ensure the subscription is valid
+        // Check if the subscription is valid
+        require(approvedRegistry.isContractAuthorised(_subscriptionContract));
         require(subscription.isValidSubscription(_subscriptionIdentifier) == false);
 
-        address tokenAddress = subscription.getSubscriptionTokenAddress(_subscriptionIdentifier);
-
-        require(approvedTokenMapping[tokenAddress]);
-
+        // Get the detauls of the subscription
+        ERC20 transactingToken = ERC20(subscription.getSubscriptionTokenAddress(_subscriptionIdentifier));
+        uint subscriptionInterval = subscription.getSubscriptionInterval(_subscriptionIdentifier);
         uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
         uint fee = subscription.getSubscriptionFee(_subscriptionIdentifier);
+        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
-        (address from, address to) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
-        ERC20 transactingTokenContract = ERC20(tokenAddress);
+        // Make the payment safely
+        makeSafePayment(transactingToken, consumer, business, amountDue);
 
-        // Check that the balance of the user is enough to pay for the subscription
-        require(transactingTokenContract.balanceOf(from) >= (amountDue + fee));
+        // Create a new record in the payments registry
+        paymentRegistry.createNewPayment(
+            _subscriptionIdentifier, // Subscription identifier
+            address(transactingToken), // Token address
+            currentTimestamp() + subscriptionInterval, // Next due date
+            amountDue, // Amount due
+            fee // Fee
+        );
 
-        transferProxy.transferFrom(tokenAddress, from, to, amountDue + fee);
-        subscription.setStartDate(block.timestamp, _subscriptionIdentifier);
+        // Start the subscription
+        subscription.setStartDate(currentTimestamp(), _subscriptionIdentifier);
 
+        // Emit the appropriate event to show subscription has been activated
         emit SubscriptionActivated(_subscriptionContract, _subscriptionIdentifier);
     }
 
@@ -256,11 +138,236 @@ contract Executor is Ownable {
         bytes32 _subscriptionIdentifier
     )
         public
-        returns (bool success)
     {
+        // Get the current payment registry object (if it doesn't exist execution will eventually fail)
+        (
+            address tokenAddress,
+            uint dueDate,
+            uint amount,
+            uint fee,
+            uint lastPaymentDate,
+            address claimant,
+            uint executionPeriod,
+            uint stakeMultiplier
+        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
 
+        // Check to make sure the payment is due
+        require(currentTimestamp() >= dueDate);
+
+        // Check to make sure it hasn't been claimed by someone else or belongs to you
+        require(claimant == msg.sender || claimant == 0);
+
+        // Check it isn't too late to claim (past execution) or too late
+        Collectable subscription = Collectable(_subscriptionContract);
+        uint interval = subscription.getSubscriptionInterval(_subscriptionIdentifier);
         // @TODO: Implementation
 
+        // Check that the service node calling has enough staked tokens
+        if (stakeMultiplier == 0) {
+            require(stakeContract.getAvailableStake(msg.sender, tokenAddress) >= (currentMultiplierFor(tokenAddress) * amount));
+        }
+
+        // Make payments to the business and service node
+        makeSafePayments(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            tokenAddress,
+            msg.sender,
+            amount,
+            fee
+        );
+
+        // If the current multiplier is lower than the one in the object, free the difference
+        if (stakeMultiplier > currentMultiplierFor(tokenAddress)) {
+            stakeContract.unstakeTokens(
+                msg.sender,
+                tokenAddress,
+                (stakeMultiplier - currentMultiplierFor(tokenAddress)) * amount
+            );
+        } else if (stakeMultiplier == 0) {
+            stakeContract.stakeTokens(msg.sender, tokenAddress, currentMultiplierFor(tokenAddress) * amount);
+        }
+
+        // Update the payment registry
+        paymentRegistry.claimPayment(
+            _subscriptionIdentifier, // Identifier of subscription
+            msg.sender, // The claimant
+            dueDate + interval, // Next payment due date
+            currentMultiplierFor(tokenAddress) // Current multiplier set for the currency
+        );
+
+        // Emit the subscription processed event
+        emit SubscriptionProcessed(_subscriptionContract, _subscriptionIdentifier, msg.sender);
+
+    }
+
+    /** @dev Release the payment/responsibility of a service node
+      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
+    function releasePayment(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier
+    )
+        public
+    {
+
+        // Get the payment registry information
+        (
+            address tokenAddress,
+            ,
+            uint amount,
+            ,
+            uint lastPaymentDate,
+            address claimant,
+            uint executionPeriod,
+            uint stakeMultiplier
+        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+
+        // Make sure we're within the cancellation window
+        uint minimumDate = lastPaymentDate + executionPeriod;
+        require(
+            currentTimestamp() >= minimumDate && // Must be past last payment date and the execution period
+            currentTimestamp() < (minimumDate + cancellationPeriod) // Can't be past the cancellation period
+        );
+
+        // Check that it belongs to the rightful claimant/service node
+        require(claimant == msg.sender);
+
+        // Call the remove claim on payments registry
+        paymentRegistry.removeClaimant(
+            _subscriptionIdentifier,
+            msg.sender
+        );
+
+        // Unstake tokens
+        stakeContract.unstakeTokens(
+            msg.sender,
+            tokenAddress,
+            amount * stakeMultiplier
+        );
+
+        // Emit the correct event
+        emit SubscriptionReleased(_subscriptionContract, _subscriptionIdentifier, msg.sender);
+
+    }
+
+    /** @dev Catch another service node who didn't collect their payment on time.
+      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
+    function catchLatePayment(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier
+    )
+        public
+    {
+
+        // Get the payment object
+        (
+            address tokenAddress,
+            uint dueDate,
+            uint amount,
+            ,
+            ,
+            address claimant,
+            uint executionPeriod,
+            uint stakeMultiplier
+        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+
+        // First make sure it's past the due date and execution period
+        require(currentTimestamp() > (dueDate + executionPeriod));
+
+        // Ensure the original claimant can't call this function
+        require(msg.sender != claimant);
+
+        // Slash the tokens and give them to this caller = $$$
+        stakeContract.transferStake(
+            claimant,
+            tokenAddress,
+            amount * stakeMultiplier,
+            msg.sender
+        );
+
+        // Remove as claimant
+        paymentRegistry.removeClaimant(
+            _subscriptionIdentifier,
+            claimant
+        );
+
+        // Call collect payment function as this caller
+        collectPayment(_subscriptionContract, _subscriptionIdentifier);
+
+        // Emit an event to say a late payment was caught and processed
+        emit SubscriptionLatePaymentCaught(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            claimant,
+            msg.sender,
+            amount * stakeMultiplier
+        );
+    }
+
+    /**
+      * INTERNAL FUNCTIONS
+    */
+    /** @dev Current timestamp returned via a function in order for mocks in tests
+    */
+    function currentTimestamp()
+        internal
+        view
+        returns (uint timetstamp)
+    {
+        // solhint-disable-next-line
+        return block.timestamp;
+    }
+
+    /**
+      * PRIVATE FUNCTION
+    */
+
+    function makeSafePayments(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier,
+        address _tokenAddress,
+        address _serviceNode,
+        uint _amount,
+        uint _fee
+    )
+        private
+    {
+        Collectable subscription = Collectable(_subscriptionContract);
+        ERC20 transactingToken = ERC20(_tokenAddress);
+
+        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+
+        makeSafePayment(transactingToken, consumer, business, _amount - _fee);
+        makeSafePayment(transactingToken, consumer, _serviceNode, _fee);
+    }
+
+    function makeSafePayment(
+        ERC20 _transactingToken,
+        address _from,
+        address _to,
+        uint _amount
+    )
+        private
+    {
+        // Get the businesses balance before the transaction
+        uint balanceOfBusinessBeforeTransfer = _transactingToken.balanceOf(_to);
+
+        // Check if the user has enough funds
+        require(_transactingToken.balanceOf(_from) >= _amount);
+
+        // Send currency to the destination business
+        transferProxy.transferFrom(address(_transactingToken), _from, _to, _amount);
+
+        // Check the business actually received the funds by checking the difference
+        require((_transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount);
+    }
+
+    function currentMultiplierFor(address _tokenAddress) public returns(uint) {
+        return approvedRegistry.getMultiplierFor(_tokenAddress);
     }
 
 }

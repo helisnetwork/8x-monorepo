@@ -3,7 +3,7 @@ pragma solidity 0.4.24;
 import "./Authorizable.sol";
 
 /** @title Gets details of the subscription and terminates it after detecting insufficient tokens */
-/** @author Kerman Kohli - <kerman@TBD.com> */
+/** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract Collectable is Authorizable {
 
@@ -39,6 +39,14 @@ contract Collectable is Authorizable {
         view
         returns (address from, address to);
 
+    /** @dev Returns the interval for the subscription.
+      * @param _subscription is the identifier of the customer's subscription with its relevant details.
+      * @return interval is the time period denoted in seconds.
+    */
+    function getSubscriptionInterval(bytes32 _subscription)
+        public
+        view
+        returns (uint interval);
 
     /** @dev Gets the token amount due from the subscription.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
