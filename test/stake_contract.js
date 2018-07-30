@@ -88,6 +88,28 @@ contract('StakeContract', function(accounts) {
 
     });
 
+    describe("when transferring tokens", () => {
+
+        it("should throw if transferring from an unauthorised address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should throw if transferring more than is available", async function () {
+
+            // @TODO: Implementation
+
+        });
+
+        it("should be able to transfer from an authorised address", async function() {
+
+            // @TODO: Implementation
+
+        });
+
+    });
+
     describe('when unstaking tokens', () => {
 
         it("should throw if the user tries to withdraw staked tokens", async function() {

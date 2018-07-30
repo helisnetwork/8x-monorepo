@@ -24,9 +24,30 @@ contract Executor is Ownable {
 
     uint public cancellationPeriod;
 
-    event SubscriptionActivated(address subscriptionAddress, bytes32 subscriptionIdentifer);
-    event SubscriptionProcessed(address subscriptionAddress, bytes32 subscriptionIdentifer, address claimant);
-    event SubscriptionReleased(address subscriptionAddress, bytes32 subscriptionIdentifier, address claimant);
+    event SubscriptionActivated(
+        address subscriptionAddress,
+        bytes32 subscriptionIdentifer
+    );
+
+    event SubscriptionProcessed(
+        address subscriptionAddress,
+        bytes32 subscriptionIdentifer,
+        address claimant
+    );
+
+    event SubscriptionReleased(
+        address subscriptionAddress,
+        bytes32 subscriptionIdentifier,
+        address claimant
+    );
+
+    event SubscriptionLatePaymentCaught(
+        address subscriptionAddress,
+        bytes32 subscriptionIdentifier,
+        address originalClaimant,
+        address newClaimant,
+        uint amountLost
+    );
 
     /**
       * PUBLIC FUNCTIONS
@@ -231,6 +252,10 @@ contract Executor is Ownable {
 
     }
 
+    /** @dev Catch another service node who didn't collect their payment on time.
+      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
     function catchLatePayment(
         address _subscriptionContract,
         bytes32 _subscriptionIdentifier
@@ -238,13 +263,49 @@ contract Executor is Ownable {
         public
     {
 
-        // @TODO: Implementation
-
         // Get the payment object
+        (
+            address tokenAddress,
+            uint dueDate,
+            uint amount,
+            ,
+            ,
+            address claimant,
+            uint executionPeriod,
+            uint stakeMultiplier
+        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+
         // First make sure it's past the due date and execution period
+        require(currentTimestamp() > (dueDate + executionPeriod));
+
         // Ensure the original claimant can't call this function
-        // Call collect payment function as this caller
+        require(msg.sender != claimant);
+
         // Slash the tokens and give them to this caller = $$$
+        stakeContract.transferStake(
+            claimant,
+            tokenAddress,
+            amount * stakeMultiplier,
+            msg.sender
+        );
+
+        // Remove as claimant
+        paymentRegistry.removeClaimant(
+            _subscriptionIdentifier,
+            claimant
+        );
+
+        // Call collect payment function as this caller
+        collectPayment(_subscriptionContract, _subscriptionIdentifier);
+
+        // Emit an event to say a late payment was caught and processed
+        emit SubscriptionLatePaymentCaught(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            claimant,
+            msg.sender,
+            amount * stakeMultiplier
+        );
     }
 
     /**
