@@ -58,6 +58,7 @@ contract Executor is Ownable {
       * @param _stakeContractAddress the address for the stake contract.
       * @param _paymentRegistryAddress the address for the payment registry.
       * @param _kyberAddress the address for the kyber network contract.
+      * @param _approvedRegistryAddress the address for the approved registry contract.
     */
     constructor(
         address _transferProxyAddress,
