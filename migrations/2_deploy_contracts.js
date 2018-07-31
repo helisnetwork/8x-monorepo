@@ -78,7 +78,8 @@ module.exports = function(deployer, network) {
         return Promise.all[
             transferProxy.addAuthorizedAddress(executor.address),
             stakeContract.addAuthorizedAddress(executor.address),
-            paymentRegistry.addAuthorizedAddress(executor.address)
+            paymentRegistry.addAuthorizedAddress(executor.address),
+            volumeSubscription.addAuthorizedAddress(executor.address)
         ];
     }).catch(function(error) {
         console.log("CATCH-ERROR " + error);
