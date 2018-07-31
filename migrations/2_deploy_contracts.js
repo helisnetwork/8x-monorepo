@@ -34,7 +34,7 @@ module.exports = function(deployer, network) {
      * Add WETH + DAi as approved tokens to registry
      * Deploy the volume subscription contract with approve registry in constructor
      * Deploy the executor with transfer proxy, stake contract, payment registry & approved registry
-     * Add the executor as an authorised contract to transfer proxy, stake contract & payment registry
+     * Add the executor as an authorised contract to transfer proxy, stake contract, volume subscription & payment registry
     */
 
     deployer.deploy(TransferProxy).then(function(instance) {
