@@ -26,19 +26,25 @@ contract Executor is Ownable {
 
     event SubscriptionActivated(
         address subscriptionAddress,
-        bytes32 subscriptionIdentifer
+        bytes32 subscriptionIdentifer,
+        address tokenAddress,
+        uint dueDate,
+        uint fee
     );
 
     event SubscriptionProcessed(
         address subscriptionAddress,
         bytes32 subscriptionIdentifer,
-        address claimant
+        address claimant,
+        uint staked
     );
 
     event SubscriptionReleased(
         address subscriptionAddress,
         bytes32 subscriptionIdentifier,
-        address claimant
+        address releasedBy,
+        uint dueDate,
+        uint fee
     );
 
     event SubscriptionLatePaymentCaught(
@@ -127,7 +133,7 @@ contract Executor is Ownable {
         subscription.setStartDate(currentTimestamp(), _subscriptionIdentifier);
 
         // Emit the appropriate event to show subscription has been activated
-        emit SubscriptionActivated(_subscriptionContract, _subscriptionIdentifier);
+        emit SubscriptionActivated(_subscriptionContract, _subscriptionIdentifier, address(transactingToken), amountDue, fee);
     }
 
     /** @dev Collect the payment due from the subscriber.
@@ -198,7 +204,7 @@ contract Executor is Ownable {
         );
 
         // Emit the subscription processed event
-        emit SubscriptionProcessed(_subscriptionContract, _subscriptionIdentifier, msg.sender);
+        emit SubscriptionProcessed(_subscriptionContract, _subscriptionIdentifier, msg.sender, currentMultiplierFor(tokenAddress) * amount);
 
     }
 
@@ -216,9 +222,9 @@ contract Executor is Ownable {
         // Get the payment registry information
         (
             address tokenAddress,
-            ,
+            uint dueDate,
             uint amount,
-            ,
+            uint fee,
             uint lastPaymentDate,
             address claimant,
             uint executionPeriod,
@@ -249,7 +255,7 @@ contract Executor is Ownable {
         );
 
         // Emit the correct event
-        emit SubscriptionReleased(_subscriptionContract, _subscriptionIdentifier, msg.sender);
+        emit SubscriptionReleased(_subscriptionContract, _subscriptionIdentifier, msg.sender, dueDate, fee);
 
     }
 
