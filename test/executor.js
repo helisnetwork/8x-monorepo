@@ -444,8 +444,6 @@ contract('Executor', function(accounts) {
 
         it("should reduce the number of locked up tokens if the multiplier is lowered at the time of claiming next time", async function() {
 
-            // @TODO: Implementation
-
             // Set the time forward by another month
             await executorContract.setTime(twoMonthsLater);
             await subscriptionContract.setTime(twoMonthsLater)
@@ -484,6 +482,18 @@ contract('Executor', function(accounts) {
             assert.equal(tokenPaymentInformation[7].toNumber(), multiplier/2);
 
         });
+
+        it("should be able to cancel and unstake tokens if subscription is not valid anymore", async function() {
+
+            // @TODO: Implementation
+
+        })
+
+        it("should be able to cancel and unstake tokens if the user doesn't have enough tokens in their wallet", async function() {
+
+            // @TODO: Implementation
+
+        })
 
     });
 
