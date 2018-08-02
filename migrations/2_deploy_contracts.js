@@ -9,7 +9,7 @@ var WrappedEther = artifacts.require("./base/token/WETH.sol");
 
 var VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
 
-module.exports = function(deployer, network) {
+module.exports = function(deployer, network, accounts) {
 
     let transferProxy;
     let stakeContract;
@@ -61,8 +61,8 @@ module.exports = function(deployer, network) {
             approvedRegistry.addApprovedContract(volumeSubscription.address),
             approvedRegistry.addApprovedToken(wrappedEther.address),
             approvedRegistry.addApprovedToken(daiAddress),
-            approvedRegistry.setApprovedTokenMultiplier(wrappedEther.address, 10),
-            approvedRegistry.setApprovedTokenMultiplier(daiAddress, 10)
+            approvedRegistry.setApprovedTokenMultiplier(wrappedEther.address, 1),
+            approvedRegistry.setApprovedTokenMultiplier(daiAddress, 1)
         ];
     }).then(function(instance) {
         return deployer.deploy(
@@ -81,8 +81,58 @@ module.exports = function(deployer, network) {
             paymentRegistry.addAuthorizedAddress(executor.address),
             volumeSubscription.addAuthorizedAddress(executor.address)
         ];
+    }).then(function(instance) {
+        if (network == 'development') {
+            let subscriptionIdentifier;
+            let planIdentifier;
+
+            let owner = accounts[0];
+            let business = accounts[1];
+            let user = accounts[2];
+            let serviceNode = accounts[3];
+
+            return volumeSubscription.createPlan(
+                business,
+                wrappedEther.address,
+                "8x.new.plan",
+                "",
+                "",
+                3600,
+                1*10**18,
+                10**17,
+                "",
+                {from: business}
+            ).then(function(result) {
+                planIdentifier = result.logs[0].args.identifier;
+                console.log(`Plan identifier is: ${planIdentifier}`);
+                return volumeSubscription.createSubscription(
+                    planIdentifier,
+                    "",
+                    {from: user}
+                );
+            }).then(function(result) {
+                subscriptionIdentifier = result.logs[0].args.identifier;
+                console.log(`Subscription identifier is: ${subscriptionIdentifier}`);
+                return wrappedEther.deposit({from: user, value: 10*10**18});
+            }).then(function(result) {
+                console.log(
+                    `Executor.at("${executor.address}").activateSubscription("${volumeSubscription.address}","${subscriptionIdentifier}", {from: "${user}"});`
+                );
+                return wrappedEther.approve(transferProxy.address, 10*10**18, {from: user});
+            }).then(function(result) {
+                return eightExToken.transfer(serviceNode, 100*10**18, {from: owner});
+            }).then(function(result) {
+                return eightExToken.approve(stakeContract.address, 100*10**18, {from: serviceNode})
+            }).then(function(result) {
+                return stakeContract.topUpStake(100*10*18, wrappedEther.address, {from: serviceNode});
+            });
+        }
+
+        return null;
     }).catch(function(error) {
         console.log("CATCH-ERROR " + error);
-    });
+    })
+
+
 
 };
