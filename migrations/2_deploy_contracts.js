@@ -97,7 +97,7 @@ module.exports = function(deployer, network, accounts) {
                 "8x.new.plan",
                 "",
                 "",
-                3600,
+                60,
                 1*10**18,
                 10**17,
                 "",
@@ -124,7 +124,10 @@ module.exports = function(deployer, network, accounts) {
             }).then(function(result) {
                 return eightExToken.approve(stakeContract.address, 100*10**18, {from: serviceNode})
             }).then(function(result) {
-                return stakeContract.topUpStake(100*10*18, wrappedEther.address, {from: serviceNode});
+                console.log(
+                    `Executor.at("${executor.address}").collectPayment("${volumeSubscription.address}","${subscriptionIdentifier}", {from: "${serviceNode}"});`
+                )
+                return stakeContract.topUpStake(100*10**18, wrappedEther.address, {from: serviceNode});
             });
         }
 
