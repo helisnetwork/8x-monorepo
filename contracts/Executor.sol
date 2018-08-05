@@ -25,32 +25,33 @@ contract Executor is Ownable {
     uint public cancellationPeriod;
 
     event SubscriptionActivated(
-        address subscriptionAddress,
-        bytes32 subscriptionIdentifer,
-        address tokenAddress,
+        address indexed subscriptionAddress,
+        bytes32 indexed subscriptionIdentifer,
+        address indexed tokenAddress,
         uint dueDate,
         uint fee
     );
 
     event SubscriptionProcessed(
-        address subscriptionAddress,
-        bytes32 subscriptionIdentifer,
-        address claimant,
+        address indexed subscriptionAddress,
+        bytes32 indexed subscriptionIdentifer,
+        address indexed claimant,
+        uint dueDate,
         uint staked
     );
 
     event SubscriptionReleased(
-        address subscriptionAddress,
-        bytes32 subscriptionIdentifier,
-        address releasedBy,
+        address indexed subscriptionAddress,
+        bytes32 indexed subscriptionIdentifier,
+        address indexed releasedBy,
         uint dueDate,
         uint fee
     );
 
     event SubscriptionLatePaymentCaught(
-        address subscriptionAddress,
-        bytes32 subscriptionIdentifier,
-        address originalClaimant,
+        address indexed subscriptionAddress,
+        bytes32 indexed subscriptionIdentifier,
+        address indexed originalClaimant,
         address newClaimant,
         uint amountLost
     );
@@ -170,8 +171,10 @@ contract Executor is Ownable {
         // @TODO: Implementation
 
         // Check that the service node calling has enough staked tokens
+        uint currentMultiplier = currentMultiplierFor(tokenAddress);
+        uint requiredStake = currentMultiplier * amount;
         if (stakeMultiplier == 0) {
-            require(stakeContract.getAvailableStake(msg.sender, tokenAddress) >= (currentMultiplierFor(tokenAddress) * amount));
+            require(stakeContract.getAvailableStake(msg.sender, tokenAddress) >= requiredStake);
         }
 
         // Make payments to the business and service node
@@ -189,10 +192,10 @@ contract Executor is Ownable {
             stakeContract.unstakeTokens(
                 msg.sender,
                 tokenAddress,
-                (stakeMultiplier - currentMultiplierFor(tokenAddress)) * amount
+                (stakeMultiplier - currentMultiplier) * amount
             );
         } else if (stakeMultiplier == 0) {
-            stakeContract.stakeTokens(msg.sender, tokenAddress, currentMultiplierFor(tokenAddress) * amount);
+            stakeContract.stakeTokens(msg.sender, tokenAddress, requiredStake);
         }
 
         // Update the payment registry
@@ -200,11 +203,11 @@ contract Executor is Ownable {
             _subscriptionIdentifier, // Identifier of subscription
             msg.sender, // The claimant
             dueDate + interval, // Next payment due date
-            currentMultiplierFor(tokenAddress) // Current multiplier set for the currency
+            currentMultiplier // Current multiplier set for the currency
         );
 
         // Emit the subscription processed event
-        emit SubscriptionProcessed(_subscriptionContract, _subscriptionIdentifier, msg.sender, currentMultiplierFor(tokenAddress) * amount);
+        emit SubscriptionProcessed(_subscriptionContract, _subscriptionIdentifier, msg.sender, dueDate + interval, requiredStake);
 
     }
 
@@ -314,6 +317,8 @@ contract Executor is Ownable {
             amount * stakeMultiplier
         );
     }
+
+    // @TODO: Handle stale payments
 
     /**
       * INTERNAL FUNCTIONS
