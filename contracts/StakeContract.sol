@@ -20,6 +20,8 @@ contract StakeContract is Authorizable {
 
     EightExToken public tokenContract;
 
+    // @TODO: Events
+
     /**
       * PUBLIC FUNCTIONS
     */
