@@ -20,7 +20,12 @@ contract StakeContract is Authorizable {
 
     EightExToken public tokenContract;
 
-    // @TODO: Events
+    event Staked(address staker, address tokenAddress, uint amount);
+    event Unstaked(address staker, address tokenAddress, uint amount);
+    event Slashed(address staker, address tokenAddress, uint amount);
+    event Transferred(address staker, address tokenAddress, uint amount, address destination);
+    event ToppedUp(address staker, address tokenAddress, uint amount);
+    event Withdrew(address staker, address tokenAddress, uint amount);
 
     /**
       * PUBLIC FUNCTIONS
@@ -41,6 +46,7 @@ contract StakeContract is Authorizable {
         require(getAvailableStake(_staker, _tokenAddress) >= _amount);
         stakes[_staker][_tokenAddress].lockedUp += _amount;
 
+        emit Staked(_staker, _tokenAddress, _amount);
     }
 
     /** @dev When a processor executes a transaction their tokens are unstaked.
@@ -55,6 +61,8 @@ contract StakeContract is Authorizable {
         // Ensure that they can't unstake more than they actually have
         require(stakes[_staker][_tokenAddress].lockedUp >= _amount);
         stakes[_staker][_tokenAddress].lockedUp -= _amount;
+
+        emit Unstaked(_staker, _tokenAddress, _amount);
     }
 
     /** @dev When the processor doesn't execute a transaction they claimed
@@ -74,6 +82,8 @@ contract StakeContract is Authorizable {
         // Reduce the total amount first
         stakes[_staker][_tokenAddress].total -= _amount;
         stakes[_staker][_tokenAddress].lockedUp -= _amount;
+
+        emit Slashed(_staker, _tokenAddress, _amount);
     }
 
     /** @dev When someone catches out another user for not processing
@@ -97,6 +107,8 @@ contract StakeContract is Authorizable {
 
         // Transfer the stake
         stakes[_destination][_tokenAddress].total += _amount;
+
+        emit Transferred(_staker, _tokenAddress, _amount, _destination);
     }
 
     /** @dev Check how many tokens the processor has in total at this moment.
@@ -150,6 +162,8 @@ contract StakeContract is Authorizable {
         } else {
             return false;
         }
+
+        emit ToppedUp(msg.sender, _tokenAddress, _amount);
     }
 
     /** @dev Withdraw your stake from the stake contract.
@@ -164,6 +178,8 @@ contract StakeContract is Authorizable {
 
         stakes[msg.sender][_tokenAddress].total -= _amount;
         tokenContract.transfer(msg.sender, _amount);
+
+        emit Withdrew(msg.sender, _tokenAddress, _amount);
     }
 
 }
