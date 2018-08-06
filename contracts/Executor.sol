@@ -134,7 +134,7 @@ contract Executor is Ownable {
         subscription.setStartDate(currentTimestamp(), _subscriptionIdentifier);
 
         // Emit the appropriate event to show subscription has been activated
-        emit SubscriptionActivated(_subscriptionContract, _subscriptionIdentifier, address(transactingToken), amountDue, fee);
+        emit SubscriptionActivated(_subscriptionContract, _subscriptionIdentifier, address(transactingToken), currentTimestamp() + subscriptionInterval, fee);
     }
 
     /** @dev Collect the payment due from the subscriber.
