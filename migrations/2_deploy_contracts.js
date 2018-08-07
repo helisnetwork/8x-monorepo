@@ -97,7 +97,7 @@ module.exports = function(deployer, network, accounts) {
                 "8x.new.plan",
                 "",
                 "",
-                60,
+                10,
                 1*10**18,
                 10**17,
                 "",

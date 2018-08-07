@@ -26,15 +26,16 @@ contract Executor is Ownable {
 
     event SubscriptionActivated(
         address indexed subscriptionAddress,
-        bytes32 indexed subscriptionIdentifer,
+        bytes32 indexed subscriptionIdentifier,
         address indexed tokenAddress,
         uint dueDate,
+        uint amount,
         uint fee
     );
 
     event SubscriptionProcessed(
         address indexed subscriptionAddress,
-        bytes32 indexed subscriptionIdentifer,
+        bytes32 indexed subscriptionIdentifier,
         address indexed claimant,
         uint dueDate,
         uint staked
@@ -44,8 +45,7 @@ contract Executor is Ownable {
         address indexed subscriptionAddress,
         bytes32 indexed subscriptionIdentifier,
         address indexed releasedBy,
-        uint dueDate,
-        uint fee
+        uint dueDate
     );
 
     event SubscriptionLatePaymentCaught(
@@ -134,7 +134,14 @@ contract Executor is Ownable {
         subscription.setStartDate(currentTimestamp(), _subscriptionIdentifier);
 
         // Emit the appropriate event to show subscription has been activated
-        emit SubscriptionActivated(_subscriptionContract, _subscriptionIdentifier, address(transactingToken), currentTimestamp() + subscriptionInterval, fee);
+        emit SubscriptionActivated(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            address(transactingToken),
+            amountDue,
+            currentTimestamp() + subscriptionInterval,
+            fee
+        );
     }
 
     /** @dev Collect the payment due from the subscriber.
@@ -189,13 +196,13 @@ contract Executor is Ownable {
 
         // If the current multiplier is lower than the one in the object, free the difference
         if (stakeMultiplier > currentMultiplierFor(tokenAddress)) {
-            stakeContract.unstakeTokens(
+            stakeContract.unlockTokens(
                 msg.sender,
                 tokenAddress,
                 (stakeMultiplier - currentMultiplier) * amount
             );
         } else if (stakeMultiplier == 0) {
-            stakeContract.stakeTokens(msg.sender, tokenAddress, requiredStake);
+            stakeContract.lockTokens(msg.sender, tokenAddress, requiredStake);
         }
 
         // Update the payment registry
@@ -227,7 +234,7 @@ contract Executor is Ownable {
             address tokenAddress,
             uint dueDate,
             uint amount,
-            uint fee,
+            ,
             uint lastPaymentDate,
             address claimant,
             uint executionPeriod,
@@ -251,14 +258,14 @@ contract Executor is Ownable {
         );
 
         // Unstake tokens
-        stakeContract.unstakeTokens(
+        stakeContract.unlockTokens(
             msg.sender,
             tokenAddress,
             amount * stakeMultiplier
         );
 
         // Emit the correct event
-        emit SubscriptionReleased(_subscriptionContract, _subscriptionIdentifier, msg.sender, dueDate, fee);
+        emit SubscriptionReleased(_subscriptionContract, _subscriptionIdentifier, msg.sender, dueDate);
 
     }
 

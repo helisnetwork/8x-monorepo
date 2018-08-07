@@ -39,7 +39,7 @@ contract StakeContract is Authorizable {
       * @param _tokenAddress token for which to stake for.
       * @param _amount is how much they would like to stake;
     */
-    function stakeTokens(address _staker, address _tokenAddress, uint _amount)
+    function lockTokens(address _staker, address _tokenAddress, uint _amount)
         public
         onlyAuthorized
     {
@@ -54,7 +54,7 @@ contract StakeContract is Authorizable {
       * @param _tokenAddress token for which to stake for.
       * @param _amount is how much they would like to unstake;
     */
-    function unstakeTokens(address _staker, address _tokenAddress, uint _amount)
+    function unlockTokens(address _staker, address _tokenAddress, uint _amount)
         public
         onlyAuthorized
     {
