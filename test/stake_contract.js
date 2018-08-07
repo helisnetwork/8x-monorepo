@@ -49,17 +49,17 @@ contract('StakeContract', function(accounts) {
 
     });
 
-    describe("when staking tokens", () => {
+    describe("when locking tokens", () => {
 
-        it("should throw when trying to stake as an unauthorized address", async function() {
+        it("should throw when trying to lock as an unauthorized address", async function() {
 
-            await assertRevert(stakeContract.stakeTokens(thirdAccount, mockToken.address, 50, {from: fourthAccount}));
+            await assertRevert(stakeContract.lockTokens(thirdAccount, mockToken.address, 50, {from: fourthAccount}));
 
         });
 
-        it("should be able to stake tokens in the contract and show the correct available balance", async function() {
+        it("should be able to lock tokens in the contract and show the correct available balance", async function() {
 
-            await stakeContract.stakeTokens(thirdAccount, mockToken.address, 100, {from: firstAccount});
+            await stakeContract.lockTokens(thirdAccount, mockToken.address, 100, {from: firstAccount});
             let availableAmount = await stakeContract.getAvailableStake(thirdAccount, mockToken.address);
             assert.equal(availableAmount.toNumber(), 0);
 
@@ -135,29 +135,29 @@ contract('StakeContract', function(accounts) {
 
     });
 
-    describe('when unstaking tokens', () => {
+    describe('when unlocking tokens', () => {
 
-        it("should throw if the user tries to withdraw staked tokens", async function() {
+        it("should throw if the user tries to withdraw locked tokens", async function() {
 
             await assertRevert(stakeContract.withdrawStake(50, mockToken.address, {from: firstAccount}));
 
         });
 
-        it("should throw if the user tries to unstake more tokens than they have staked", async function() {
+        it("should throw if the user tries to unlock more tokens than they have staked", async function() {
 
-            await assertRevert(stakeContract.unstakeTokens(thirdAccount, mockToken.address, 100, {from: firstAccount}));
-
-        });
-
-        it("should throw when an unauthorized address tries to unstake a user's tokens", async function() {
-
-            await assertRevert(stakeContract.unstakeTokens(thirdAccount, mockToken.address, 25, {from: fourthAccount}));
+            await assertRevert(stakeContract.unlockTokens(thirdAccount, mockToken.address, 100, {from: firstAccount}));
 
         });
 
-        it("should be able to unstake a user's tokens from an authorized address", async function() {
+        it("should throw when an unauthorized address tries to unlock a user's tokens", async function() {
 
-            await stakeContract.unstakeTokens(thirdAccount, mockToken.address, 25, {from: firstAccount});
+            await assertRevert(stakeContract.unlockTokens(thirdAccount, mockToken.address, 25, {from: fourthAccount}));
+
+        });
+
+        it("should be able to unlock a user's tokens from an authorized address", async function() {
+
+            await stakeContract.unlockTokens(thirdAccount, mockToken.address, 25, {from: firstAccount});
 
             let availableAmount = await stakeContract.getAvailableStake(thirdAccount, mockToken.address);
             assert.equal(availableAmount.toNumber(), 25);
