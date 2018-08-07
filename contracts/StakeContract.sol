@@ -20,8 +20,8 @@ contract StakeContract is Authorizable {
 
     EightExToken public tokenContract;
 
-    event Staked(address staker, address tokenAddress, uint amount);
-    event Unstaked(address staker, address tokenAddress, uint amount);
+    event Locked(address staker, address tokenAddress, uint amount);
+    event Unlocked(address staker, address tokenAddress, uint amount);
     event Slashed(address staker, address tokenAddress, uint amount);
     event Transferred(address staker, address tokenAddress, uint amount, address destination);
     event ToppedUp(address staker, address tokenAddress, uint amount);
@@ -46,7 +46,7 @@ contract StakeContract is Authorizable {
         require(getAvailableStake(_staker, _tokenAddress) >= _amount);
         stakes[_staker][_tokenAddress].lockedUp += _amount;
 
-        emit Staked(_staker, _tokenAddress, _amount);
+        emit Locked(_staker, _tokenAddress, _amount);
     }
 
     /** @dev When a processor executes a transaction their tokens are unstaked.
@@ -62,7 +62,7 @@ contract StakeContract is Authorizable {
         require(stakes[_staker][_tokenAddress].lockedUp >= _amount);
         stakes[_staker][_tokenAddress].lockedUp -= _amount;
 
-        emit Unstaked(_staker, _tokenAddress, _amount);
+        emit Unlocked(_staker, _tokenAddress, _amount);
     }
 
     /** @dev When the processor doesn't execute a transaction they claimed
