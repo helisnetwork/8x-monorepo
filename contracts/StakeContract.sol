@@ -16,16 +16,17 @@ contract StakeContract is Authorizable {
         uint total;
     }
 
-    mapping (address => mapping (address => Stake)) public stakes;
+    mapping (address => mapping (address => Stake)) public userStakes;
+    mapping (address => uint) tokenStakes;
 
     EightExToken public tokenContract;
 
-    event Locked(address staker, address tokenAddress, uint amount);
-    event Unlocked(address staker, address tokenAddress, uint amount);
-    event Slashed(address staker, address tokenAddress, uint amount);
-    event Transferred(address staker, address tokenAddress, uint amount, address destination);
-    event ToppedUp(address staker, address tokenAddress, uint amount);
-    event Withdrew(address staker, address tokenAddress, uint amount);
+    event Locked(address indexed staker, address indexed tokenAddress, uint indexed amount);
+    event Unlocked(address indexed staker, address indexed tokenAddress, uint indexed amount);
+    event Slashed(address indexed staker, address indexed tokenAddress, uint indexed amount);
+    event Transferred(address indexed staker, address indexed tokenAddress, uint indexed amount, address destination);
+    event ToppedUp(address indexed staker, address indexed tokenAddress, uint indexed amount);
+    event Withdrew(address indexed staker, address indexed tokenAddress, uint indexed amount);
 
     /**
       * PUBLIC FUNCTIONS
@@ -44,7 +45,7 @@ contract StakeContract is Authorizable {
         onlyAuthorized
     {
         require(getAvailableStake(_staker, _tokenAddress) >= _amount);
-        stakes[_staker][_tokenAddress].lockedUp += _amount;
+        userStakes[_staker][_tokenAddress].lockedUp += _amount;
 
         emit Locked(_staker, _tokenAddress, _amount);
     }
@@ -59,8 +60,8 @@ contract StakeContract is Authorizable {
         onlyAuthorized
     {
         // Ensure that they can't unstake more than they actually have
-        require(stakes[_staker][_tokenAddress].lockedUp >= _amount);
-        stakes[_staker][_tokenAddress].lockedUp -= _amount;
+        require(userStakes[_staker][_tokenAddress].lockedUp >= _amount);
+        userStakes[_staker][_tokenAddress].lockedUp -= _amount;
 
         emit Unlocked(_staker, _tokenAddress, _amount);
     }
@@ -77,11 +78,11 @@ contract StakeContract is Authorizable {
     {
         // Make sure that an authorized address can't slash more tokens than
         // they actually have locked up.
-        require(stakes[_staker][_tokenAddress].lockedUp >= _amount);
+        require(userStakes[_staker][_tokenAddress].lockedUp >= _amount);
 
         // Reduce the total amount first
-        stakes[_staker][_tokenAddress].total -= _amount;
-        stakes[_staker][_tokenAddress].lockedUp -= _amount;
+        userStakes[_staker][_tokenAddress].total -= _amount;
+        userStakes[_staker][_tokenAddress].lockedUp -= _amount;
 
         emit Slashed(_staker, _tokenAddress, _amount);
     }
@@ -99,14 +100,14 @@ contract StakeContract is Authorizable {
     {
         // Make sure that an authorized address can't slash more tokens than
         // they actually have locked up.
-        require(stakes[_staker][_tokenAddress].lockedUp >= _amount);
+        require(userStakes[_staker][_tokenAddress].lockedUp >= _amount);
 
         // Reduce the total amount first
-        stakes[_staker][_tokenAddress].total -= _amount;
-        stakes[_staker][_tokenAddress].lockedUp -= _amount;
+        userStakes[_staker][_tokenAddress].total -= _amount;
+        userStakes[_staker][_tokenAddress].lockedUp -= _amount;
 
         // Transfer the stake
-        stakes[_destination][_tokenAddress].total += _amount;
+        userStakes[_destination][_tokenAddress].total += _amount;
 
         emit Transferred(_staker, _tokenAddress, _amount, _destination);
     }
@@ -120,7 +121,7 @@ contract StakeContract is Authorizable {
         view
         returns (uint total)
     {
-        return stakes[_staker][_tokenAddress].total;
+        return userStakes[_staker][_tokenAddress].total;
     }
 
     /** @dev Check how many tokens the processor has available at this moment.
@@ -132,7 +133,7 @@ contract StakeContract is Authorizable {
         view
         returns (uint available)
     {
-        return (stakes[_staker][_tokenAddress].total - stakes[_staker][_tokenAddress].lockedUp);
+        return (userStakes[_staker][_tokenAddress].total - userStakes[_staker][_tokenAddress].lockedUp);
     }
 
     /** @dev Check how many tokens the processor has locked at this moment.
@@ -144,7 +145,7 @@ contract StakeContract is Authorizable {
         view
         returns (uint locked)
     {
-        return stakes[_staker][_tokenAddress].lockedUp;
+        return userStakes[_staker][_tokenAddress].lockedUp;
     }
 
     // @TODO: Try to use ERC223 or something instead.
@@ -157,7 +158,7 @@ contract StakeContract is Authorizable {
         returns (bool success)
     {
         if (tokenContract.transferFrom(msg.sender, address(this), _amount)) {
-            stakes[msg.sender][_tokenAddress].total += _amount;
+            userStakes[msg.sender][_tokenAddress].total += _amount;
             return true;
         } else {
             return false;
@@ -176,7 +177,7 @@ contract StakeContract is Authorizable {
         // Check that they're not taking out more than they actually have.
         require(getAvailableStake(msg.sender, _tokenAddress) >= _amount);
 
-        stakes[msg.sender][_tokenAddress].total -= _amount;
+        userStakes[msg.sender][_tokenAddress].total -= _amount;
         tokenContract.transfer(msg.sender, _amount);
 
         emit Withdrew(msg.sender, _tokenAddress, _amount);

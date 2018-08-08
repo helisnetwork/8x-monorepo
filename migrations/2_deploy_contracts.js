@@ -125,7 +125,7 @@ module.exports = function(deployer, network, accounts) {
                 return eightExToken.approve(stakeContract.address, 100*10**18, {from: serviceNode})
             }).then(function(result) {
                 console.log(
-                    `Executor.at("${executor.address}").collectPayment("${volumeSubscription.address}","${subscriptionIdentifier}", {from: "${serviceNode}"});`
+                    `Executor.at("${executor.address}").processSubscription("${volumeSubscription.address}","${subscriptionIdentifier}", {from: "${serviceNode}"});`
                 )
                 return stakeContract.topUpStake(100*10**18, wrappedEther.address, {from: serviceNode});
             });
