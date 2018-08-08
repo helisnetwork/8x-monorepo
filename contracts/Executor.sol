@@ -148,7 +148,7 @@ contract Executor is Ownable {
       * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
-    function collectPayment(
+    function processSubscription(
         address _subscriptionContract,
         bytes32 _subscriptionIdentifier
     )
@@ -222,7 +222,7 @@ contract Executor is Ownable {
       * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
-    function releasePayment(
+    function releaseSubscription(
         address _subscriptionContract,
         bytes32 _subscriptionIdentifier
     )
@@ -269,11 +269,11 @@ contract Executor is Ownable {
 
     }
 
-    /** @dev Catch another service node who didn't collect their payment on time.
+    /** @dev Catch another service node who didn't process their payment on time.
       * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
-    function catchLatePayment(
+    function catchLateSubscription(
         address _subscriptionContract,
         bytes32 _subscriptionIdentifier
     )
@@ -313,7 +313,7 @@ contract Executor is Ownable {
         );
 
         // Call collect payment function as this caller
-        collectPayment(_subscriptionContract, _subscriptionIdentifier);
+        processSubscription(_subscriptionContract, _subscriptionIdentifier);
 
         // Emit an event to say a late payment was caught and processed
         emit SubscriptionLatePaymentCaught(

@@ -305,8 +305,8 @@ contract('Executor', function(accounts) {
             let inactiveEtherSubscriptionHash = inactiveEtherSubscription.logs[0].args.identifier;
             let inactiveTokenSubscriptionHash = inactiveTokenSubscription.logs[0].args.identifier;
 
-            await assertRevert(executorContract.collectPayment(subscriptionContract.address, inactiveEtherSubscriptionHash, {from: serviceNode}));
-            await assertRevert(executorContract.collectPayment(subscriptionContract.address, inactiveTokenSubscriptionHash, {from: serviceNode}));
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, inactiveEtherSubscriptionHash, {from: serviceNode}));
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, inactiveTokenSubscriptionHash, {from: serviceNode}));
 
         });
 
@@ -318,8 +318,8 @@ contract('Executor', function(accounts) {
             await paymentRegistryContract.turnBackTime(5);
 
             // Collect the payments but we know they'll fail since it's before the due date
-            await assertRevert(executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
-            await assertRevert(executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
 
             await executorContract.turnBackTime(-5);
             await subscriptionContract.turnBackTime(-5);
@@ -329,8 +329,8 @@ contract('Executor', function(accounts) {
 
         it("should not be able to process a subscription if the service node does not have any staked tokens", async function() {
 
-            await assertRevert(executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
-            await assertRevert(executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
 
         });
 
@@ -348,8 +348,8 @@ contract('Executor', function(accounts) {
             assert.equal(tokenBalance.toNumber(), difference);
 
             // Should fail when collecting payment since there aren't enough tokens staked
-            await assertRevert(executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
-            await assertRevert(executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
 
             // Withdraw tokens
             await stakeContract.withdrawStake(difference, wrappedEtherContract.address, {from: serviceNode});
@@ -393,8 +393,8 @@ contract('Executor', function(accounts) {
 
 
             // Should be able to process now that the service node has enough staked tokens
-            await executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
-            await executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode});
+            await executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+            await executorContract.processSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode});
 
             // Check if the service node got their reward and tokens locked up
             let postServiceNodeEthBalance = await stakeContract.getAvailableStake(serviceNode, wrappedEtherContract.address);
@@ -437,8 +437,8 @@ contract('Executor', function(accounts) {
             assert.equal(tokenBalance.toNumber(), tokenStake);
 
             // Should fail when collecting payment since it has already been claimed/processed
-            await assertRevert(executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
-            await assertRevert(executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: competingServiceNode}));
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: competingServiceNode}));
 
         });
 
@@ -465,8 +465,8 @@ contract('Executor', function(accounts) {
             await approvedRegistryContract.setApprovedTokenMultiplier(wrappedEtherContract.address, multiplier/2, {from: contractOwner});
 
             // Should be able to process the subscription but will unstake token
-            await executorContract.collectPayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
-            await executorContract.collectPayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode});
+            await executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+            await executorContract.processSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode});
 
             // Check the balance to ensure it reduced the right amount
             let postEthBalance = await stakeContract.getAvailableStake(serviceNode, wrappedEtherContract.address);
@@ -521,7 +521,7 @@ contract('Executor', function(accounts) {
             await subscriptionContract.turnBackTime(-cancellationPeriod);
             await paymentRegistryContract.turnBackTime(-cancellationPeriod);
 
-            await assertRevert(executorContract.releasePayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
+            await assertRevert(executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
 
         });
 
@@ -533,13 +533,13 @@ contract('Executor', function(accounts) {
             await subscriptionContract.turnBackTime(60 * 60);
             await paymentRegistryContract.turnBackTime(60 * 60);
 
-            await assertRevert(executorContract.releasePayment(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
+            await assertRevert(executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
 
         })
 
         it("should be able to if it has not passed the cancellation period", async function() {
 
-            await executorContract.releasePayment(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+            await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
 
             // Check the payments registry has been updated
             let etherPaymentInformation = await paymentRegistryContract.payments.call(etherSubscriptionHash);
@@ -566,7 +566,7 @@ contract('Executor', function(accounts) {
             await subscriptionContract.setTime(threeMonthsLater);
             await paymentRegistryContract.setTime(threeMonthsLater);
 
-            await assertRevert(executorContract.catchLatePayment(subscriptionContract.address, tokenSubscriptionHash, {from: competingServiceNode}));
+            await assertRevert(executorContract.catchLateSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: competingServiceNode}));
 
         });
 
@@ -576,7 +576,7 @@ contract('Executor', function(accounts) {
             await subscriptionContract.turnBackTime(-claimDelay);
             await paymentRegistryContract.turnBackTime(-claimDelay);
 
-            await assertRevert(executorContract.catchLatePayment(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
+            await assertRevert(executorContract.catchLateSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: serviceNode}));
 
         });
 
@@ -593,7 +593,7 @@ contract('Executor', function(accounts) {
             let competingServiceNodePreTokenBalance = await stakeContract.getTotalStake(competingServiceNode, transactingCurrencyContract.address)
             assert.equal(competingServiceNodePreTokenBalance.toNumber(), tokenStake);
 
-            await executorContract.catchLatePayment(subscriptionContract.address, tokenSubscriptionHash, {from: competingServiceNode});
+            await executorContract.catchLateSubscription(subscriptionContract.address, tokenSubscriptionHash, {from: competingServiceNode});
 
             // Get the stake balance of the original service node afterwards
             let originalServiceNodePostTokenBalance = await stakeContract.getTotalStake(serviceNode, transactingCurrencyContract.address)
