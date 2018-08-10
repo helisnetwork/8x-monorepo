@@ -27,6 +27,7 @@ contract PaymentRegistry is Authorizable {
     event PaymentClaimed(bytes32 subscriptionIdentifer, address claimant);
     event PaymentClaimantRemoved(bytes32 subscriptionIdentifer, address claimant);
     event PaymentCancelled(bytes32 subscriptionIdentifer);
+    event PaymentDeleted(bytes32 subscriptionIdentifier);
 
     /**
       * PUBLIC FUNCTIONS
@@ -152,6 +153,18 @@ contract PaymentRegistry is Authorizable {
         emit PaymentCancelled(_subscriptionIdentifier);
 
         return true;
+    }
+
+    /** @dev Delete the payments registry object and refund gas
+      * @param _subscriptionIdentifier is the identifier of that customer's
+    */
+    function deletePayment(bytes32 _subscriptionIdentifier)
+        public
+        onlyAuthorized
+    {
+
+        delete payments[_subscriptionIdentifier];
+        emit PaymentDeleted(_subscriptionIdentifier);
     }
 
     /** @dev Get the infromation about a payment
