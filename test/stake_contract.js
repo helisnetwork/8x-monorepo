@@ -47,6 +47,12 @@ contract('StakeContract', function(accounts) {
         let lockedAmount = await stakeContract.getLockedStake(thirdAccount, mockToken.address, {from: thirdAccount});
         assert.equal(lockedAmount.toNumber(), 0);
 
+        let totalTokenAmount = await stakeContract.getTotalTokenStake(mockToken.address);
+        assert.equal(totalTokenAmount.toNumber(), 100);
+
+        let lockedTokenAmount = await stakeContract.getLockedTokenStake(mockToken.address);
+        assert.equal(lockedTokenAmount.toNumber(), 0);
+
     });
 
     describe("when locking tokens", () => {
@@ -68,6 +74,12 @@ contract('StakeContract', function(accounts) {
 
             let lockedAmount = await stakeContract.getLockedStake(thirdAccount, mockToken.address, {from: thirdAccount});
             assert.equal(lockedAmount.toNumber(), 100);
+
+            let totalTokenAmount = await stakeContract.getTotalTokenStake(mockToken.address);
+            assert.equal(totalTokenAmount.toNumber(), 100);
+
+            let lockedTokenAmount = await stakeContract.getLockedTokenStake(mockToken.address);
+            assert.equal(lockedTokenAmount.toNumber(), 100);
 
         });
 
@@ -100,6 +112,12 @@ contract('StakeContract', function(accounts) {
             let lockedAmount = await stakeContract.getLockedStake(thirdAccount, mockToken.address, {from: thirdAccount});
             assert.equal(lockedAmount.toNumber(), 50);
 
+            let totalTokenAmount = await stakeContract.getTotalTokenStake(mockToken.address);
+            assert.equal(totalTokenAmount.toNumber(), 50);
+
+            let lockedTokenAmount = await stakeContract.getLockedTokenStake(mockToken.address);
+            assert.equal(lockedTokenAmount.toNumber(), 50);
+
         });
 
     });
@@ -130,6 +148,12 @@ contract('StakeContract', function(accounts) {
 
             let lockedAmount = await stakeContract.getLockedStake(thirdAccount, mockToken.address, {from: thirdAccount});
             assert.equal(lockedAmount.toNumber(), 25);
+
+            let totalTokenAmount = await stakeContract.getTotalTokenStake(mockToken.address);
+            assert.equal(totalTokenAmount.toNumber(), 50);
+
+            let lockedTokenAmount = await stakeContract.getLockedTokenStake(mockToken.address);
+            assert.equal(lockedTokenAmount.toNumber(), 25);
 
         });
 
@@ -168,6 +192,12 @@ contract('StakeContract', function(accounts) {
             let lockedAmount = await stakeContract.getLockedStake(thirdAccount, mockToken.address, {from: thirdAccount});
             assert.equal(lockedAmount.toNumber(), 0);
 
+            let totalTokenAmount = await stakeContract.getTotalTokenStake(mockToken.address);
+            assert.equal(totalTokenAmount.toNumber(), 50);
+
+            let lockedTokenAmount = await stakeContract.getLockedTokenStake(mockToken.address);
+            assert.equal(lockedTokenAmount.toNumber(), 0);
+
         });
 
     });
@@ -193,6 +223,12 @@ contract('StakeContract', function(accounts) {
 
             let lockedAmount = await stakeContract.getLockedStake(thirdAccount, mockToken.address, {from: thirdAccount});
             assert.equal(lockedAmount.toNumber(), 0);
+
+            let totalTokenAmount = await stakeContract.getTotalTokenStake(mockToken.address);
+            assert.equal(totalTokenAmount.toNumber(), 25);
+
+            let lockedTokenAmount = await stakeContract.getLockedTokenStake(mockToken.address);
+            assert.equal(lockedTokenAmount.toNumber(), 0);
 
         });
 
