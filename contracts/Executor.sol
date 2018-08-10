@@ -247,15 +247,16 @@ contract Executor is Ownable {
             uint stakeMultiplier
         ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
 
+        // Check that it belongs to the rightful claimant/service node
+        // This also means we're not talking about a first time payment
+        require(claimant == msg.sender);
+
         // Make sure we're within the cancellation window
         uint minimumDate = lastPaymentDate + executionPeriod;
         require(
             currentTimestamp() >= minimumDate && // Must be past last payment date and the execution period
             currentTimestamp() < (minimumDate + cancellationPeriod) // Can't be past the cancellation period
         );
-
-        // Check that it belongs to the rightful claimant/service node
-        require(claimant == msg.sender);
 
         // Call the remove claim on payments registry
         paymentRegistry.removeClaimant(
