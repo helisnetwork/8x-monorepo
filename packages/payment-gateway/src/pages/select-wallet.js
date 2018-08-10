@@ -12,32 +12,41 @@ class SelectWallet extends React.Component {
           <p>Where are your funds stored?</p>
           <p>Please select an option</p>
         </div>
-        <div className="option-container">
-          <div className="metamask-container">
-            <div className="metamaskLogo">
+        <div className="options-container">
+          <div className="item">
+            <div className="logo">
               <img src={Images.metamaskLogo}/>
             </div>
-            <div className="metamaskText">
+            <div className="text">
               <p>Metamask</p>
               <p>MetaMask is a browser extension that allows you to store Ether and interact with decentralised apps.</p>
             </div>
           </div>
-          <div className="ledger-container">
-            <div className="ledgerLogo">
+          <div className="item">
+            <div className="logo">
               <img src={Images.ledgerLogo}/>
             </div>
-            <div className="ledger-text">
+            <div className="text">
               <p>Ledger</p>
               <p>You store your cryptocurrency on a Ledger Hardware Wallet.</p>
             </div>
           </div>
-          <div className="trezor-container">
-            <div className="trezorLogo">
+          <div className="item">
+            <div className="logo">
               <img src={Images.trezorLogo}/>
             </div>
-            <div className="trezor-text">
+            <div className="text">
               <p>Trezor</p>
               <p>You store your cryptocurrency on a Trezor Hardware Wallet.</p>
+            </div>
+          </div>
+          <div className="item">
+            <div className="logo">
+              <img src={Images.trezorLogo}/>
+            </div>
+            <div className="text">
+              <p>Exchange</p>
+              <p>You store your cryptocurrency on an exchange, such as Binance or Coinbase.</p>
             </div>
           </div>
         </div>
