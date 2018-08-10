@@ -1,0 +1,47 @@
+.main-card {
+	max-width: 35em;
+	margin: auto;
+
+	.card-header {
+		text-align: center;
+	}
+
+	.options-container {
+		margin: 1.5em 0;
+		
+		.item {
+			display: flex; 
+			justify-content: flex-start;
+			background-color: red;
+			padding: 1em 2em;
+			margin-bottom: 1.5em;
+			border-radius: 0.30em;
+			box-shadow: 2px 0 16px #EFEFEF;
+			//box-shadow: 0px 0.2em 20px 0px grey;
+
+			.logo {
+				display: flex;
+				align-items: center;
+				margin-right: 3.5em;
+			}
+
+		}
+
+		.metamask {
+			background-color: #FF9C3F;
+		}
+
+		.ledger {
+			background-color: #5460FF;
+		}
+
+		.trezor {
+			background-color: #53B167;
+		}
+
+		.exchange {
+			background-color: #2B2654;
+		}
+	}
+}
+
