@@ -119,7 +119,7 @@ contract Executor is Ownable {
         (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
         // Make the payment safely
-        makeSafePayment(transactingToken, consumer, business, amountDue);
+        attemptPayment(transactingToken, consumer, business, amountDue);
 
         // Create a new record in the payments registry
         paymentRegistry.createNewPayment(
@@ -180,26 +180,32 @@ contract Executor is Ownable {
         // Check that the service node calling has enough staked tokens
         uint currentMultiplier = currentMultiplierFor(tokenAddress);
         uint requiredStake = currentMultiplier * amount;
+
         if (stakeMultiplier == 0) {
             require(stakeContract.getAvailableStake(msg.sender, tokenAddress) >= requiredStake);
         }
 
         // Make payments to the business and service node
-        makeSafePayments(
+        if (attemptPaymentElseCancel(
             _subscriptionContract,
             _subscriptionIdentifier,
             tokenAddress,
             msg.sender,
             amount,
-            fee
-        );
+            fee,
+            stakeMultiplier
+        ) == false) {
+            // We cancel the subscription if payment couldn't be made
+            // Could be due to invalid subscription (cancelled) or insufficient funds
+            return;
+        }
 
         // If the current multiplier is lower than the one in the object, free the difference
         if (stakeMultiplier > currentMultiplierFor(tokenAddress)) {
             stakeContract.unlockTokens(
                 msg.sender,
                 tokenAddress,
-                (stakeMultiplier - currentMultiplier) * amount
+                (stakeMultiplier - (requiredStake/amount)) * amount
             );
         } else if (stakeMultiplier == 0) {
             stakeContract.lockTokens(msg.sender, tokenAddress, requiredStake);
@@ -229,7 +235,7 @@ contract Executor is Ownable {
         public
     {
 
-        // Get the payment registry information
+        // Get the payment registry informatio
         (
             address tokenAddress,
             uint dueDate,
@@ -345,32 +351,58 @@ contract Executor is Ownable {
       * PRIVATE FUNCTION
     */
 
-    function makeSafePayments(
+    function attemptPaymentElseCancel(
         address _subscriptionContract,
         bytes32 _subscriptionIdentifier,
         address _tokenAddress,
         address _serviceNode,
         uint _amount,
-        uint _fee
+        uint _fee,
+        uint _stakeMultiplier
     )
         private
+        returns (bool)
     {
         Collectable subscription = Collectable(_subscriptionContract);
         ERC20 transactingToken = ERC20(_tokenAddress);
 
         (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
-        makeSafePayment(transactingToken, consumer, business, _amount - _fee);
-        makeSafePayment(transactingToken, consumer, _serviceNode, _fee);
+        bool validSubscription = subscription.isValidSubscription(_subscriptionIdentifier);
+
+        if (transactingToken.balanceOf(consumer) >= _amount && validSubscription == true) {
+            // Make the payments
+            attemptPayment(transactingToken, consumer, business, _amount - _fee);
+            attemptPayment(transactingToken, consumer, _serviceNode, _fee);
+            return true;
+        } else {
+            // Terminate the subscription if it hasn't already
+            if (validSubscription == true) {
+                subscription.cancelSubscription(_subscriptionIdentifier);
+            }
+
+            // Refund the gas to the service node by freeing up storage
+            paymentRegistry.deletePayment(_subscriptionIdentifier);
+
+            // Unstake tokens
+            stakeContract.unlockTokens(
+                msg.sender,
+                _tokenAddress,
+                _amount * _stakeMultiplier
+            );
+
+            return false;
+        }
     }
 
-    function makeSafePayment(
+    function attemptPayment(
         ERC20 _transactingToken,
         address _from,
         address _to,
         uint _amount
     )
         private
+        returns (bool)
     {
         // Get the businesses balance before the transaction
         uint balanceOfBusinessBeforeTransfer = _transactingToken.balanceOf(_to);

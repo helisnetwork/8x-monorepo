@@ -204,4 +204,37 @@ contract('MockPaymentRegistry', function(accounts) {
 
     });
 
+    describe("when deleting a payment", () => {
+
+        let subscriptionHash;
+        let result;
+
+        before(async function() {
+            subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "delete");
+            result = await paymentRegistry.createNewPayment(subscriptionHash, tokenContract.address, twoMonthsLater, 400, 4, {from: accounts[0]});
+        });
+
+        it('should throw if being called from an unauthorized address', async function() {
+
+            await assertRevert(paymentRegistry.deletePayment(subscriptionHash, {from: accounts[1]}));
+
+        });
+
+        it("should be able to delete a payment", async function() {
+
+            let result = await paymentRegistry.cancelPayment(subscriptionHash, {from: accounts[0]});
+            let paymentInformation = await paymentRegistry.payments.call(subscriptionHash);
+            assert.equal(paymentInformation[0], 0);
+            assert.equal(paymentInformation[1], 0);
+            assert.equal(paymentInformation[2], 0);
+            assert.equal(paymentInformation[3], 0);
+            assert.equal(paymentInformation[4], 0);
+            assert.equal(paymentInformation[5], 0);
+            assert.equal(paymentInformation[6], 0);
+            assert.equal(paymentInformation[7], 0);
+
+        });
+
+    });
+
 });
