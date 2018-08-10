@@ -1,0 +1,73 @@
+@mixin mobile {
+  @media (max-device-width: 1200px) {
+    @content;
+  }
+}
+
+@font-face {
+  font-family: 'Avenir';
+  src: url('/assets/fonts/Avenir-Roman') format('truetype'),
+       url('/assets/fonts/Avenir-Medium') format('truetype'),
+       url('/assets/fonts/Avenir-Heavy') format('truetype');
+}
+
+body {
+  font-family: 'Avenir-Roman', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  margin: 0;
+
+  @include mobile {
+      font-size: 14px;
+  }
+}
+
+h1 {
+  font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2em;
+  font-size: 3em;
+  margin: 0;
+}
+
+h2 {
+  font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-weight: 500;
+  font-size: 1.75em;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+h3 {
+
+  font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-weight: 600;
+  font-size: 1.5em;
+  text-align: left;
+  margin: 0;
+
+}
+
+h4 {
+
+  font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-weight: 500;
+  font-size: 1.25em;
+  letter-spacing: 0.04em;
+  text-align: left;
+  margin: 0
+
+}
+
+h5 {
+  font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-weight: 600;
+  font-size: 1.25em;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+p {
+  margin: 0.5em 0;
+}
