@@ -1,14 +1,46 @@
 .main-card{
     margin: auto;
     max-width: 35em;
+    background-color: #F5F5F8;
 
     .card-buttons{
         display: flex;
         justify-content: space-between;
+        
+        .cancel{
+            border-color: #958DB7;
+        }
+
+        .close {
+            color: white;
+            background-color: #181039;
+            border-color: #958DB7;
+        }
+
+        p {
+            border-style: solid;
+            border-width: 0.05em;
+            border-radius: 0.25em;
+            padding: 0.5em 0.5em;
+        }
     }
     
     .hero{
+        text-align: center;
+    }
+
+    .button {
+        display: flex;
+        justify-content: center;
         
+        p {
+            border-style: solid;
+            border-width: 0.05em;
+            border-radius: 0.40em;
+            background-color: #5944EE;
+            padding: 2em;
+            color: white;
+        }
     }
 
 }
