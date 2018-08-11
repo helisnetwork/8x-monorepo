@@ -10,8 +10,8 @@ class ExchangeWarning extends React.Component {
       <div>
         <div className="main-card">
           <div className="card-buttons">
-            <p>Cancel</p>
-            <p>Close</p>
+            <p className="cancel">Cancel</p>
+            <p className="close">Close</p>
           </div>
           <div className="hero">
             <div className="icon">
@@ -26,13 +26,11 @@ class ExchangeWarning extends React.Component {
             <div className="text">
               <p>To pay for this subscription using cryptocurrency, will need to setup a personal wallet.</p>
             </div>
-            <div className="button">
-              <p>Setup a Personal Wallet</p>
-            </div>
           </div>
-        </div>
-        
-            
+          <div className="button">
+          	<p>Setup a Personal Wallet</p>
+          </div>
+        </div>     
       </div>
     );
   }
