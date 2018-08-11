@@ -10,7 +10,7 @@ class ExchangeWarning extends React.Component {
       <div>
         <div className="main-card">
           <div className="card-buttons">
-            <p className="cancel">Cancel</p>
+            <p className="cancel">Back</p>
             <p className="close">Close</p>
           </div>
           <div className="hero">
