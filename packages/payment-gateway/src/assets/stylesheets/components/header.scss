@@ -1,0 +1,25 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .back {
+        border-color: #958DB7;
+        color: #958DB7;
+
+    }
+
+    .close {
+        color: white;
+        background-color: #181039;
+        border-color: #958DB7;
+    }
+
+    .button {
+        border-style: solid;
+        border-width: 0.05em;
+        border-radius: 0.75em;
+        padding: 0.65em 1em;
+        font-weight: 200;
+    }
+}
