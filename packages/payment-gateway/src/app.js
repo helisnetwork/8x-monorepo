@@ -2,7 +2,7 @@
 import React from 'react';
 
 /* Import pages */
-import PersonalWalletExplain from './pages/personal-wallet-explain';
+import ExchangeWarning from './pages/exchange-warning';
 
 import './assets/stylesheets/app.scss';
 
@@ -12,7 +12,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <PersonalWalletExplain/>
+        <ExchangeWarning/>
       </div>
     );
   }

@@ -18,7 +18,7 @@ class ExchangeWarning extends React.Component {
             <div className="text">
               <h1>Funds stored on an exchange are not secure!</h1>
               <p className="middle-text">Funds that are stored on an exchange are vunerable to attacks and are always under the control of a third party.</p>
-              <h2>To pay for this subscription using cryptocurrency, will need to setup a personal wallet.</h2>
+              <h2>To pay for this subscription using cryptocurrency, you will need to setup a personal wallet.</h2>
             </div>
           </div>
           <div className="button">
