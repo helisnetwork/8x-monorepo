@@ -1,0 +1,20 @@
+.hero {
+    text-align: center;
+}
+
+.button {
+    display: flex;
+    justify-content: center;
+    
+    p {
+        border-style: solid;
+        border-width: 0.05em;
+        border-radius: 0.75em;
+        box-shadow: 2px 0 16px #EFEFEF;
+        background-color: #5944EE;
+        padding: 1em;
+        color: white;
+        font-weight: 500;
+    }
+}
+
