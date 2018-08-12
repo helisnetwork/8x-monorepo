@@ -10,21 +10,17 @@ class ExchangeWarning extends React.Component {
       <div>
         <div className="main-card">
           <div className="card-buttons">
-            <p className="cancel">Back</p>
+            <p className="back">Back</p>
             <p className="close">Close</p>
           </div>
           <div className="hero">
             <div className="icon">
-				   <img src={Images.alertLogo}/>
+				    	<img src={Images.alertLogo}/>
             </div>
             <div className="text">
-              <p>Funds stored on an Exchange are not secure!</p>
-            </div>
-            <div className="text">
-              <p>Funds that are stored on an exchange are vunerable to attacks and are always under the control of a third party.</p>
-            </div>
-            <div className="text">
-              <p>To pay for this subscription using cryptocurrency, will need to setup a personal wallet.</p>
+              <h1>Funds stored on an exchange are not secure!</h1>
+              <p className="middle-text">Funds that are stored on an exchange are vunerable to attacks and are always under the control of a third party.</p>
+              <h2>To pay for this subscription using cryptocurrency, will need to setup a personal wallet.</h2>
             </div>
           </div>
           <div className="button">
