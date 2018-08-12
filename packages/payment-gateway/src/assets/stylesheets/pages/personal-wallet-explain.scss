@@ -1,20 +1,51 @@
-.hero {
-    text-align: center;
-}
+.small-card {
+    padding-bottom: 3em;
 
-.button {
-    display: flex;
-    justify-content: center;
-    
-    p {
-        border-style: solid;
-        border-width: 0.05em;
-        border-radius: 0.75em;
-        box-shadow: 2px 0 16px #EFEFEF;
-        background-color: #5944EE;
-        padding: 1em;
-        color: white;
-        font-weight: 500;
+
+    .hero {
+        text-align: center;
+        margin: 2em 4em 0.5em 4em;
+        padding: 0em 1.5em;
+
+        .icon {
+            margin-bottom: 2em;
+        }
+
+        h1 {
+            font-size: 1.35em;
+            font-weight: 500;
+            padding: 0em 2em;
+            margin-bottom: 0.75em;
+        }
+
+        .middle-text {
+            margin-bottom: 2.5em;
+            font-weight: 300;
+            font-size: 0.85em;
+        }
+
+        h2 {
+            font-size: 0.75em;
+            font-weight: 400;
+            color: #4D25F9;
+        }
+    }
+
+
+    .button {
+        display: flex;
+        justify-content: center;
+        
+        p {
+            border-style: solid;
+            border-width: 0.05em;
+            border-radius: 0.75em;
+            box-shadow: 2px 0 16px #EFEFEF;
+            background-color: #5944EE;
+            padding: 1em 6em;
+            color: white;
+            font-weight: 500;
+        }
     }
 }
 
