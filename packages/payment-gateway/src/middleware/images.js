@@ -4,11 +4,14 @@ import ledgerLogo from '../assets/images/ledger.png';
 import trezorLogo from '../assets/images/trezor.png';
 import alertLogo from '../assets/images/alert.png';
 import walletImage from '../assets/images/wallet.png';
+import keyImage from '../assets/images/key.png';
 
 export default {
   metamaskLogo,
   ledgerLogo,
   trezorLogo,
   alertLogo,
-  walletImage
+  walletImage,
+  keyImage
+  
 };
