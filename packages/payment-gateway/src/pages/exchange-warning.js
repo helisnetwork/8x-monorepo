@@ -1,6 +1,7 @@
 /* Import statements */
 import React from 'react';
 
+import Header from '../components/header.js';
 import {default as Images} from '../middleware/images';
 
 /* App component */
@@ -9,10 +10,7 @@ class ExchangeWarning extends React.Component {
     return (
       <div>
         <div className="main-card">
-          <div className="card-buttons">
-            <p className="back">Back</p>
-            <p className="close">Close</p>
-          </div>
+          <Header/>
           <div className="hero">
             <div className="icon">
 				    	<img src={Images.alertLogo}/>
