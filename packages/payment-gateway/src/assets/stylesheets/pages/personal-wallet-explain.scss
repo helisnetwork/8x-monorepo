@@ -4,7 +4,7 @@
 
     .hero {
         text-align: center;
-        margin: 2em 4em 0.5em 4em;
+        //margin: 2em 4em 0.5em 4em;
         padding: 0em 1.5em;
 
         .icon {
@@ -22,6 +22,7 @@
             margin-bottom: 2.5em;
             font-weight: 300;
             font-size: 0.85em;
+            letter-spacing: 0.04em;
         }
 
         h2 {
@@ -32,19 +33,17 @@
     }
 
 
-    .button {
+    .cta-button {
         display: flex;
         justify-content: center;
-        
-        p {
-            border-style: solid;
-            border-width: 0.05em;
+
+        .text {
+            color: white;
+            font-weight: 500;
             border-radius: 0.75em;
             box-shadow: 2px 0 16px #EFEFEF;
             background-color: #5944EE;
             padding: 1em 6em;
-            color: white;
-            font-weight: 500;
         }
     }
 }
