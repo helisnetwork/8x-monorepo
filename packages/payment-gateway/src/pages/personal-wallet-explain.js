@@ -18,7 +18,7 @@ class PersonalWalletExplain extends React.Component {
             <div className="text">
               <h1>What is a Personal Wallet?</h1>
               <p className="middle-text">A personal wallet is an Ethereum Wallet, that you have full control, and responsibility of. By creating a personal wallet, you will recieve both it’s public address, and private keys.</p>
-              <h2>Learn more about Personal Wallets</h2>
+              <h2>Learn More about Personal Wallets</h2>
             </div>
           </div>
           <div className="button">
