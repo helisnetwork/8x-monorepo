@@ -5,7 +5,7 @@ import React from 'react';
 //import ExchangeWarning from './pages/exchange-warning';
 
 import './assets/stylesheets/app.scss';
-import PrivatekeyWarning from './pages/privatekey-warning';
+import Privatekey from './pages/privatekey';
 
 
 /* App component */
@@ -13,7 +13,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <PrivatekeyWarning/>
+        <Privatekey/>
       </div>
     );
   }
