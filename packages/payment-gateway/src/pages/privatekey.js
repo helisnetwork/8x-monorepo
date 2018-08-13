@@ -11,7 +11,7 @@ class Privatekey extends React.Component {
       <div>
         <div className="small-card">
           <Header title="Save your Private Keys"/>
-          <div className="hero header">
+          <div className="header">
             <h1>Please carefully write down your keys, or <span>print</span> them.</h1>
           </div>
           <div className="item">
