@@ -1,0 +1,62 @@
+.small-card {
+
+    .hero {
+        text-align: center;
+        padding-top: 1em;
+
+        .middle-text {
+            color: #958DB7;
+            font-weight: 300;
+            font-size: 0.85em;
+            margin-bottom: 2em;
+        }
+
+        h1 {
+            font-size: 1.25em;
+            margin-bottom: 1em;
+        }
+    }
+
+
+    
+    .confirm-box {
+        display: flex; 
+        flex-direction: column;
+        margin: 0em 5em 3em 5em;
+
+        .item {
+            display: flex;
+            align-items: center;
+            border-color: #6E5BB9;
+            border-radius: 0.50em;
+            background-color: white;
+            margin: 0.5em;
+            padding: 1em 1em;
+            box-shadow: 2px 0 16px #EFEFEF;
+            color: #958DB7;
+            
+
+            p {
+                font-size: 0.85em; 
+                font-weight: 300; 
+                padding-left: 1em;
+
+            }
+            
+            
+        }
+    }
+    
+    .cta-button {
+        display: flex;
+        justify-content: center;
+
+        p {
+            color: #958DB7;
+            border-radius: 0.75em;
+            padding: 1em 4em;
+            background-color: #EAEAF0;
+        }
+    }
+
+}
