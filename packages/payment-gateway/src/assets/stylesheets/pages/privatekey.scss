@@ -1,16 +1,96 @@
 .small-card {
-    padding-bottom: 20em;
+    padding-bottom: 3.5em;
 
-    .header {
+    .hero {
         text-align: center;
-        font-size: 1.35em;
-        font-weight: 500;
-        padding: 0em 2em;
-        margin-bottom: 0.75em;
+        padding: 2em 1em 2em 1em;
+
+        .header-text {
+            text-align: center;
+            font-size: 1em;
+            font-weight: 500;
+            padding: 0em 2em;
+            margin-bottom: 2em;
+
+            span {
+                color: #644DF0;
+            }
+        }
+
+        .item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 1.5em 0em;
+            background-color: white;
+            border-radius: 0.75em;
+            margin-bottom: 2em;
+            box-shadow: 2px 0 16px #EFEFEF;
+
+            p {
+                text-align: left;
+                width: 33%;
+                color: #958DB7;
+                font-weight: 300;
+                box-sizing: border-box;
+                padding: 0.5em 0em 0.5em 3em;
+                margin: 0em;
+            }
+        }
+
+        .middle-text {
+            color: #958DB7;
+            font-size: 0.85em;
+            margin-bottom: 2em;
+        }
+
+        .checkbox {
+            display: flex; 
+            flex-direction: column;
+            margin: 0em 5em 0em 5em;
+
+            .tick {
+                display: flex;
+                align-items: center;
+                border-color: #6E5BB9;
+                border-radius: 0.75em;
+                background-color: white;
+                margin: 0.5em;
+                padding: 0.6em 1em;
+                box-shadow: 2px 0 16px #EFEFEF;
+            
+
+                .square {
+                    background-color: #F5F5F8;
+                    height: 1.375em;
+                    width: 1.375em;
+                    border-radius: 0.30em;
+                    margin: 0.5em 1em 0.5em 0.5em;
+                    
+                }
+                
+                p {
+                    color: #958DB7; 
+                    font-weight: 300;
+                    font-size: 0.85em;
+                }
+            }
+
+           
+        }
+
     }
 
-    .item {
-        padding: 2em 2em;
-        background-color: white;
+
+    .cta-button {
+        display: flex;
+        justify-content: center;
+
+        p {
+            color: #958DB7;
+            border-radius: 0.75em;
+            padding: 1em 4em;
+            background-color: #EAEAF0;
+        }
     }
 }
