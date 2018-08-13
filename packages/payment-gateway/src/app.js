@@ -5,7 +5,7 @@ import React from 'react';
 //import ExchangeWarning from './pages/exchange-warning';
 
 import './assets/stylesheets/app.scss';
-import ConfirmKey from './pages/confirm-key';
+import Address from './pages/address';
 
 
 /* App component */
@@ -13,7 +13,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <ConfirmKey/>
+        <Address/>
       </div>
     );
   }
