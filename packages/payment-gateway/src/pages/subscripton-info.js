@@ -3,6 +3,7 @@ import React from 'react';
 
 import Header from '../components/header.js';
 import {default as Images} from '../middleware/images';
+import Dropdown from '../components/dropdown.js';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
@@ -26,13 +27,13 @@ class SubscriptionInfo extends React.Component {
                 <div className="text">
                   <p>I want to pay using</p>
                 </div>
+                <Dropdown/> 
                 <div className="dropdown">
                   <div className="label">
                     <img src={Images.ethLogo}/>
                     <p>Ethereum</p>
-                    <span>ETH</span>
+                    <p>ETH</p>
                     <p className="triangle"></p>
-                    
                   </div>
                   <ul className="dropdown-options">
                     <li>Dai</li>
