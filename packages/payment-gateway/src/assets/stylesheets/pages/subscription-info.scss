@@ -8,19 +8,69 @@
             display: flex;
             background-color: white;
             border-radius: 0.50em;
+            padding: 2em 1em 2em 1em;
+
+            .logo {
+              margin-right: 7em;
+              padding-left: 3em;
+            }
+
+            span {
+                color: #958DB7;
+            }
         }
 
         .option {
             display: flex;
+            justify-content: space-between;
 
             .currency {
                 display: flex;
                 flex-direction: column;
+                margin-right: 1em;
+
+                .dropdown {
+                  position: relative; /* Enable absolute positioning for children and pseudo elements */
+                  //width: 2p;
+                  //padding: 10px;
+                  margin: 0 auto;
+                  border-radius: 0.50em;
+
+                  /* Styles */
+                  background: white;
+                  color: black;
+                  outline: none;
+                  cursor: pointer;
+
+                  .label{ 
+                    display: flex;
+                    
+                    .triangle {
+                      content:"";
+                      width: 0;
+                      height: 0;
+                      border-left: 0.25em solid transparent;
+                      border-right: 0.25em solid transparent;
+                      border-top: 0.5em solid #958DB7;
+                    }
+
+                    span {
+                      color: #958DB7;
+                    }
+                  }
+
+                }
             }
 
             .time {
                 display: flex;
                 flex-direction: column;
+            }
+
+            .box {
+              background-color: white;
+              border-radius: 0.50em;
+              padding: 1em 2em 1em 2em;
             }
         }
     }
