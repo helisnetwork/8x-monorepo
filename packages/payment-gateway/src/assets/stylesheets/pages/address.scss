@@ -1,0 +1,73 @@
+.small-card {
+
+    .hero {
+        text-align: center;
+
+        .text {
+            margin-bottom: 2em;
+
+            h1 {
+                font-size: 1.5em;
+                font-weight: 700;
+                margin-bottom: 0.5em;
+            }
+
+            .middle-text {
+                font-size: 0.85em; 
+                font-weight: 300;
+                color: #958DB7;
+            }
+        }
+
+        .end-text {
+            font-size: 0.85em; 
+            font-weight: 400;
+            margin-bottom: 2em;
+
+            .warning {
+                color: #E8183B;
+                margin-bottom: 2em;
+                margin-top: 1em;
+            }
+
+            .proceed {
+                color: #958DB7;
+            }
+        }
+        
+    }
+
+    .address-item {
+        display: flex; 
+        flex-direction: column;
+        flex-wrap: wrap;
+        margin: 0em 2em 2em 2em;
+
+        .address-box {
+            display: flex;
+            align-items: left;
+            overflow: hidden;
+            border-color: #6E5BB9;
+            border-radius: 0.50em;
+            background-color: white;
+            margin: 0.5em;
+            padding: 1em 2em;
+            box-shadow: 2px 0 16px #EFEFEF;
+            color: #958DB7;
+        }
+    }
+
+    .cta-button {
+        display: flex;
+        justify-content: center;
+
+        .text {
+            color: white;
+            font-weight: 500;
+            border-radius: 0.75em;
+            box-shadow: 2px 0 16px #EFEFEF;
+            background-color: #5944EE;
+            padding: 1em 4em;
+        }
+    }
+}
