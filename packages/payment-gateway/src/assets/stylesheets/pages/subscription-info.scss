@@ -1,0 +1,27 @@
+.small-card {
+    
+    .hero {
+        display: flex;
+        flex-direction: column;
+
+        .main-item {
+            display: flex;
+            background-color: white;
+            border-radius: 0.50em;
+        }
+
+        .option {
+            display: flex;
+
+            .currency {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .time {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    }
+}
