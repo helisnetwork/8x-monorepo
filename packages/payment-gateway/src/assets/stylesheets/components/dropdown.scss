@@ -1,0 +1,15 @@
+.dropdown-container {
+  .button {
+    border: none;
+  }
+
+  .dropdown {
+    background-color:white; 
+    list-style: none;
+    border: none;
+
+    .label {
+      padding: 1em 4em 1em 1em;
+    }
+  }
+}
