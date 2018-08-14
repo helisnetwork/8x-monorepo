@@ -14,27 +14,38 @@ class SubscriptionInfo extends React.Component {
           <div className="hero">
             <div className="main-item">
               <div className="logo">
-                <p>Netflix</p>
+                <img src={Images.netflixLogo}/>
               </div>
               <div className="text">
-                <p>14</p>
+                <p>Netflix - Premium Account</p>
+                <span>$14USD billed monthly</span>
               </div>
             </div>
             <div className="option">
               <div className="currency">
                 <div className="text">
-                  <p>I want</p>
+                  <p>I want to pay using</p>
                 </div>
-                <div className="box">
-                  <p>Eth</p>
+                <div className="dropdown">
+                  <div className="label">
+                    <img src={Images.ethLogo}/>
+                    <p>Ethereum</p>
+                    <span>ETH</span>
+                    <p className="triangle"></p>
+                    
+                  </div>
+                  <ul className="dropdown-options">
+                    <li>Dai</li>
+                    <li>Shitcoin</li>
+                  </ul>
                 </div>
               </div>
               <div className="time">
                 <div className="text">
-                  <p>top up</p>
+                  <p>I want to top my account every</p>
                 </div>
-                <div className="box">
-                  <p>6</p>
+                <div className="box time">
+                  <p>6 months</p>
                 </div>
               </div>
             </div>
