@@ -6,11 +6,12 @@ pragma solidity 0.4.24;
 contract Multiplier {
 
     uint public minimumGiniCoefficient;
-    uint public maximumGiniCoefficinet;
+    uint public maximumGiniCoefficient;
 
     constructor(uint _minimum, uint _maximum) public {
-        minimumGiniCoefficient = _minimum;
-        maximumGiniCoefficinet = _maximum;
+
+        // @TODO: Implementation
+
     }
 
     function getRequiredStake(
@@ -24,7 +25,19 @@ contract Multiplier {
         returns (uint)
     {
 
-      // @TODO: Implementation
+        // @TODO: Implementation
+
+    }
+
+    function setMinimumCoefficient(uint _minimum) public {
+
+        // @TODO: Implementation
+
+    }
+
+    function setMaximumCoefficient(uint _maximum) public {
+
+        // @TODO: Implementation
 
     }
 
