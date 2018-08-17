@@ -19,6 +19,8 @@ contract StakeContract is Authorizable {
     struct TokenStake {
         uint lockedUp;
         uint total;
+        uint gini;
+        uint divideBy;
     }
 
     mapping (address => mapping (address => Stake)) public userStakes;
@@ -33,11 +35,34 @@ contract StakeContract is Authorizable {
     event ToppedUp(address indexed staker, address indexed tokenAddress, uint indexed amount);
     event Withdrew(address indexed staker, address indexed tokenAddress, uint indexed amount);
 
+    event GiniCoefficientUpdated(address indexed tokenAddress, uint indexed gini);
+    event DivideTotalUpdated(address indexed tokenAddress, uint indexed divideBy);
+
     /**
       * PUBLIC FUNCTIONS
     */
     constructor(address _tokenAddress) public {
         tokenContract = EightExToken(_tokenAddress);
+    }
+
+    /** @dev Set the gini co-efficient for a token.
+      * @param _tokenAddress token for which to set the gini coefficient for.
+      * @param _gini actual constant.
+    */
+    function setGiniCoefficient(address _tokenAddress, uint _gini) public onlyOwner {
+        tokenStakes[_tokenAddress].gini = _gini;
+
+        emit GiniCoefficientUpdated(_tokenAddress, _gini);
+    }
+
+    /** @dev Set the starting point for the minimum stake.
+      * @param _tokenAddress token for which to set the gini coefficient for.
+      * @param _divideBy how much of the total should be the starting amount be.
+    */
+    function setDivideTotalBy(address _tokenAddress, uint _divideBy) public onlyOwner {
+        tokenStakes[_tokenAddress].divideBy = _divideBy;
+
+        emit DivideTotalUpdated(_tokenAddress, _divideBy);
     }
 
     /** @dev When the processor claims a transaction their tokens are staked.

@@ -15,6 +15,9 @@ contract('StakeContract', function(accounts) {
     let thirdAccount = accounts[2]; // Staker
     let fourthAccount = accounts[3]; // Random malicious dude
 
+    let gini = 400;
+    let divideTotalBy = 15;
+
     before(async function() {
 
         tokenContract = await EightExToken.new({from: firstAccount});
@@ -52,6 +55,32 @@ contract('StakeContract', function(accounts) {
 
         let lockedTokenAmount = await stakeContract.getLockedTokenStake(mockToken.address);
         assert.equal(lockedTokenAmount.toNumber(), 0);
+
+    });
+
+    it("should not be able to set the gini coefficient as someone other than the owner", async function() {
+
+        await assertRevert(stakeContract.setGiniCoefficient(mockToken.address, 0.4, {from: accounts[1]}));
+
+    });
+
+    it("should not be able to set the total to divide by as someone other than the owner", async function() {
+
+        await assertRevert(stakeContract.setDivideTotalBy(mockToken.address, 0.9, {from: accounts[1]}));
+
+    });
+
+    it("should be able to set the gini coefficient as the ownner", async function() {
+
+        gini = 500;
+        await stakeContract.setGiniCoefficient(mockToken.address, gini, {from: accounts[0]});
+
+    });
+
+    it("should be able to set the total to divide by as the ownner", async function() {
+
+        divideTotalBy = 10;
+        await stakeContract.setDivideTotalBy(mockToken.address, divideTotalBy, {from: accounts[0]});
 
     });
 
