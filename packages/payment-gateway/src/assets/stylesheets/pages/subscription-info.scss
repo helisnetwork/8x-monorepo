@@ -3,12 +3,14 @@
     .hero {
         display: flex;
         flex-direction: column;
+        margin-top: 1em;
 
         .main-item {
             display: flex;
             background-color: white;
             border-radius: 0.50em;
             padding: 2em 1em 2em 1em;
+            margin-bottom: 1.5em;
 
             .logo {
               margin-right: 7em;
@@ -28,17 +30,29 @@
                 display: flex;
                 flex-direction: column;
                 margin-right: 1em;
+
+                .text {
+                    color: #958DB7;
+                    font-size: 0.85em;
+                    font-weight: 400;
+                }
             }
 
             .time {
                 display: flex;
                 flex-direction: column;
+
+                .text {
+                    color: #958DB7;
+                    font-size: 0.85em;
+                    font-weight: 400;
+                }
             }
 
             .box {
               background-color: white;
               border-radius: 0.50em;
-              padding: 1em 2em 1em 2em;
+              //padding: 1em 1em 1em 1em;
             }
         }
     }

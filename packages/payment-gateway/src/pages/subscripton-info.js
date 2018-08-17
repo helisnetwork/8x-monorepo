@@ -33,9 +33,7 @@ class SubscriptionInfo extends React.Component {
                 <div className="text">
                   <p>I want to top my account every</p>
                 </div>
-                <div className="box time">
-                  <p>6 months</p>
-                </div>
+                <Dropdown items={this.timeItems()}/>
               </div>
             </div>
           </div>
@@ -53,8 +51,21 @@ class SubscriptionInfo extends React.Component {
       },
       {
         image: Images.ethLogo,
-        name: 'Ethers',
-        ticker: 'ETH'
+        name: 'DAI',
+        ticker: 'DAI'
+      }
+    ];
+  }
+
+  timeItems(){
+    return [
+      {
+        name: '6',
+        ticker: 'months'
+      },
+      {
+        name: '5',
+        ticker: 'days'
       }
     ];
   }
