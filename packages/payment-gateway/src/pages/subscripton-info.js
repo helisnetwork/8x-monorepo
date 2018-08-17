@@ -33,7 +33,7 @@ class SubscriptionInfo extends React.Component {
                 <div className="text">
                   <p>I want to top my account every</p>
                 </div>
-                <Dropdown items={this.timeItems()}/>
+                {/*<Dropdown items={this.timeItems()}/>*/}
               </div>
             </div>
           </div>
