@@ -83,7 +83,7 @@ contract StakeContract is Authorizable {
 
     /** @dev When a processor executes a transaction their tokens are unstaked.
       * @param _staker is the processors who is staking thier tokens.
-      * @param _tokenAddress token for which to stake for.
+      * @param _tokenAddress token for which to unlock for.
       * @param _amount is how much they would like to unstake;
     */
     function unlockTokens(address _staker, address _tokenAddress, uint _amount)
@@ -101,7 +101,7 @@ contract StakeContract is Authorizable {
     /** @dev When the processor doesn't execute a transaction they claimed
       * their tokens are slashed.
       * @param _staker is the processors who's tokens need to be slashed.
-      * @param _tokenAddress token for which to stake for.
+      * @param _tokenAddress token for which to slash for.
       * @param _amount is how many tokens need to be slashed.
     */
     function slashTokens(address _staker, address _tokenAddress, uint _amount)
@@ -149,7 +149,7 @@ contract StakeContract is Authorizable {
 
     /** @dev Check how many tokens the processor has in total at this moment.
       * @param _staker is the processor address.
-      * @param _tokenAddress token for which to stake for.
+      * @param _tokenAddress token for which to return details for.
     */
     function getTotalStake(address _staker, address _tokenAddress)
         public
@@ -161,7 +161,7 @@ contract StakeContract is Authorizable {
 
     /** @dev Check how many tokens the processor has available at this moment.
       * @param _staker is the processor address.
-      * @param _tokenAddress token for which to stake for.
+      * @param _tokenAddress token for which to return details for.
     */
     function getAvailableStake(address _staker, address _tokenAddress)
         public
@@ -173,7 +173,7 @@ contract StakeContract is Authorizable {
 
     /** @dev Check how many tokens the processor has locked at this moment.
       * @param _staker is the processor address.
-      * @param _tokenAddress token for which to stake for.
+      * @param _tokenAddress token for which to return details for.
     */
     function getLockedStake(address _staker, address _tokenAddress)
         public
@@ -184,7 +184,7 @@ contract StakeContract is Authorizable {
     }
 
     /** @dev Check how many staked tokens the currency has in total at this moment.
-      * @param _tokenAddress token for which to stake for.
+      * @param _tokenAddress token for which to return details for.
     */
     function getTotalTokenStake(address _tokenAddress)
         public
@@ -195,7 +195,7 @@ contract StakeContract is Authorizable {
     }
 
     /** @dev Check how many tokens the currency has available at this moment.
-      * @param _tokenAddress token for which to stake for.
+      * @param _tokenAddress token for which to return details for.
     */
     function getAvailableTokenStake(address _tokenAddress)
         public
@@ -206,7 +206,7 @@ contract StakeContract is Authorizable {
     }
 
     /** @dev Check how many tokens the currency has locked at this moment.
-      * @param _tokenAddress token for which to stake for.
+      * @param _tokenAddress token for which to return details for.
     */
     function getLockedTokenStake(address _tokenAddress)
         public
@@ -214,6 +214,31 @@ contract StakeContract is Authorizable {
         returns (uint locked)
     {
         return tokenStakes[_tokenAddress].lockedUp;
+    }
+
+    /** @dev Get the details of the token stake struct.
+      * @param _tokenAddress token for which to return details for.
+    */
+    function getTokenStakeDetails(
+        address _tokenAddress
+    )
+        public
+        view
+        returns (
+            uint total,
+            uint lockedUp,
+            uint gini,
+            uint divideBy
+        )
+    {
+        TokenStake memory tokenStake = tokenStakes[_tokenAddress];
+
+        return (
+            tokenStake.total,
+            tokenStake.lockedUp,
+            tokenStake.gini,
+            tokenStake.divideBy
+        );
     }
 
 
@@ -238,7 +263,7 @@ contract StakeContract is Authorizable {
 
     /** @dev Withdraw your stake from the stake contract.
       * @param _amount is how much you would like to withdraw.
-      * @param _tokenAddress token for which to stake for.
+      * @param _tokenAddress token for which to withdraw for.
     */
     function withdrawStake(uint _amount, address _tokenAddress)
         public
