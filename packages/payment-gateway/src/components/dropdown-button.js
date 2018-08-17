@@ -7,9 +7,7 @@ class DropdownButton extends React.Component {
   render() {
     return (
       <div className="container">
-        <button className="button" onClick={() => {
-          return this.props.action();
-        }}>
+        <button className="button" onClick={() => this.props.action(this.props.item)}>
           <div className="label">
             <div className="left">
               <img className="logo" src={this.props.item.image}/>
