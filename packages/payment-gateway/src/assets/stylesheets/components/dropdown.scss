@@ -1,6 +1,14 @@
 .dropdown-container {
   .button {
+    background-color: white;
     border: none;
+    border-radius: 0.85em;
+    padding: 1em 6em 1em 1em;
+  }
+
+  .menu {
+    display: flex;
+    flex-direction: column;
   }
 
   .dropdown {
@@ -8,8 +16,32 @@
     list-style: none;
     border: none;
 
-    .label {
-      padding: 1em 4em 1em 1em;
+    .label{ 
+      display: flex;
+
+      .left {
+        display: flex;
+        padding-right: 2em; 
+      }
+
+      .right {
+        display: flex;
+        padding-left: 2em;
+      }
+      
+      .triangle {
+        content:"";
+        width: 0;
+        height: 0;
+        border-left: 0.25em solid transparent;
+        border-right: 0.25em solid transparent;
+        border-top: 0.5em solid #958DB7;
+        margin-top: 0.5em;
+      }
+
+      span {
+        color: #958DB7;
+      }
     }
   }
 }

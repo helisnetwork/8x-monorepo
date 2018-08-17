@@ -43,10 +43,14 @@ class Dropdown extends React.Component {
         <button className="button" onClick={this.showMenu}>
           <div className="dropdown">
             <div className="label">
-              <img src={Images.ethLogo}/>
-              <p>Ethereum</p>
-              <p>ETH</p>
-              <p className="triangle"></p>
+              <div className="left">
+                <img src={Images.ethLogo}/>
+                <p>Ethereum</p>
+              </div>
+              <div className="right">
+                <p>ETH</p>
+                <p className="triangle"></p>
+              </div>
             </div>
           </div>
         </button>
