@@ -3,6 +3,7 @@ import React from 'react';
 
 import Header from '../components/header.js';
 import {default as Images} from '../middleware/images';
+import DropdownButton from './dropdown-button.js';
 
 /* App component */
 
@@ -41,16 +42,14 @@ class Dropdown extends React.Component {
     return (
       <div className="dropdown-container">
         <button className="button" onClick={this.showMenu}>
-          <div className="dropdown">
-            <div className="label">
-              <div className="left">
-                <img src={Images.ethLogo}/>
-                <p>Ethereum</p>
-              </div>
-              <div className="right">
-                <p>ETH</p>
-                <p className="triangle"></p>
-              </div>
+          <div className="label">
+            <div className="left">
+              <img className="logo" src={this.props.images}/>
+              <p className="coin-name">{this.props.name}</p>
+            </div>
+            <div className="right">
+              <p className="coin-ticker">{this.props.ticker}</p>
+              <p className="triangle">{this.props.triangle}</p>
             </div>
           </div>
         </button>
@@ -64,9 +63,10 @@ class Dropdown extends React.Component {
                   this.dropdownMenu = element;
                 }}
               >
-                <button> Menu item 1 </button>
-                <button> Menu item 2 </button>
-                <button> Menu item 3 </button>
+                <DropdownButton/>
+                <DropdownButton/>
+                <DropdownButton/>
+                
               </div>
             )
             : (
