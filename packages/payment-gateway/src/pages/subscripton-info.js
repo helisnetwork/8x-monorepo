@@ -28,18 +28,6 @@ class SubscriptionInfo extends React.Component {
                   <p>I want to pay using</p>
                 </div>
                 <Dropdown/> 
-                <div className="dropdown">
-                  <div className="label">
-                    <img src={Images.ethLogo}/>
-                    <p>Ethereum</p>
-                    <p>ETH</p>
-                    <p className="triangle"></p>
-                  </div>
-                  <ul className="dropdown-options">
-                    <li>Dai</li>
-                    <li>Shitcoin</li>
-                  </ul>
-                </div>
               </div>
               <div className="time">
                 <div className="text">
