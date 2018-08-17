@@ -7,15 +7,9 @@ import "./RequirementsInterface.sol";
 
 contract Requirements is RequirementsInterface {
 
-    uint public giniCoefficient; // Minimum to underfit data, 3 decimal places.
-    uint public divideTotalBy;
-
-    constructor(uint _gini, uint _divideTotalBy) public {
-        giniCoefficient = _gini;
-        divideTotalBy = _divideTotalBy;
-    }
-
     function getStake(
+        uint _gini,
+        uint _divideBy,
         uint _startDate,
         uint _claimDate,
         uint _maximumClaimDate,
@@ -25,20 +19,12 @@ contract Requirements is RequirementsInterface {
         view
         returns (uint)
     {
-        uint startingPoint = _totalUnlocked / divideTotalBy;
+        uint startingPoint = _totalUnlocked / _divideBy;
         uint units = (_maximumClaimDate - _startDate) / (_claimDate - _startDate);
         uint xValue = (_claimDate - _startDate) / units;
         uint exponent = 1 / (xValue * startingPoint);
 
-        return startingPoint * ((giniCoefficient/1000) ** exponent);
-    }
-
-    function setGiniCoefficient(uint _gini) public onlyOwner {
-        giniCoefficient = _gini;
-    }
-
-    function setDivideTotalBy(uint _divideTotalBy) public onlyOwner {
-        divideTotalBy = _divideTotalBy;
+        return startingPoint * ((_gini/1000) ** exponent);
     }
 
 }
