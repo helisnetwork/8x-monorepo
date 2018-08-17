@@ -27,7 +27,7 @@ class SubscriptionInfo extends React.Component {
                 <div className="text">
                   <p>I want to pay using</p>
                 </div>
-                <Dropdown/> 
+                <Dropdown items={this.dropdownItems()}/>
               </div>
               <div className="time">
                 <div className="text">
@@ -42,6 +42,27 @@ class SubscriptionInfo extends React.Component {
         </div> 
       </div>
     );
+  }
+
+  dropdownItems() {
+    return [
+      {
+        image: Images.ethLogo,
+        name: 'Ethereum',
+        ticker: 'ETH'
+      },
+      {
+        image: Images.ethLogo,
+        name: 'Ethereum',
+        ticker: 'ETH'
+      }
+      ,
+      {
+        image: Images.ethLogo,
+        name: 'Ethereum',
+        ticker: 'ETH'
+      }
+    ];
   }
 };
 
