@@ -8,8 +8,10 @@ import DropdownButton from './dropdown-button.js';
 /* App component */
 
 class Dropdown extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
+    this.selectedItem = this.props.items[0];
     
     this.state = {
       showMenu: false,
@@ -38,40 +40,29 @@ class Dropdown extends React.Component {
     }
   }
 
+  returnDropdownButtons(items) {
+    let selectedItem = this.selectedItem;
+    return this.props.items.map(function(object, i) {
+      return selectedItem !== object ? <DropdownButton item={object} key={i} /> : null;
+    });
+  }
+
   render() {
     return (
       <div className="dropdown-container">
-        <button className="button" onClick={this.showMenu}>
-          <div className="label">
-            <div className="left">
-              <img className="logo" src={this.props.images}/>
-              <p className="coin-name">{this.props.name}</p>
-            </div>
-            <div className="right">
-              <p className="coin-ticker">{this.props.ticker}</p>
-              <p className="triangle">{this.props.triangle}</p>
-            </div>
-          </div>
-        </button>
+        <DropdownButton item={this.selectedItem} action={this.showMenu}/>
         
         {
           this.state.showMenu
             ? (
-              <div
+              <tbody
                 className="menu"
                 ref={(element) => {
                   this.dropdownMenu = element;
-                }}
-              >
-                <DropdownButton/>
-                <DropdownButton/>
-                <DropdownButton/>
-                
-              </div>
-            )
-            : (
-              null
-            )
+                }}>
+                {this.returnDropdownButtons()}
+              </tbody>
+            ): null
         }
       </div>
     );

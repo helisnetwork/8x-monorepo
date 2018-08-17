@@ -53,13 +53,7 @@ class SubscriptionInfo extends React.Component {
       },
       {
         image: Images.ethLogo,
-        name: 'Ethereum',
-        ticker: 'ETH'
-      }
-      ,
-      {
-        image: Images.ethLogo,
-        name: 'Ethereum',
+        name: 'Ether',
         ticker: 'ETH'
       }
     ];
