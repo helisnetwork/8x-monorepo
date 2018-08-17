@@ -5,7 +5,7 @@ import "./base/ownership/Ownable.sol";
 /** @title Interface for a contract which determines how many tokens are needed */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract MultiplierInterface is Ownable {
+contract RequirementsInterface is Ownable {
 
     /** @dev Get the amount of tokens required for a subscription.
       * @param _startDate is the date when the subscription was due.
@@ -14,7 +14,7 @@ contract MultiplierInterface is Ownable {
       * @param _totalUnlocked is the amount of tokens unstaked for that currency.
       * @return the amount of tokens required.
     */
-    function getMultiplier(
+    function getStake(
         uint _startDate,
         uint _claimDate,
         uint _maximumClaimDate,

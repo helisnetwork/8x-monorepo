@@ -1,11 +1,11 @@
 pragma solidity 0.4.24;
 
-import "./MultiplierInterface.sol";
+import "./RequirementsInterface.sol";
 
 /** @title Contract which determines how many tokens are needed for a subscription */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract Multiplier is MultiplierInterface {
+contract Requirements is RequirementsInterface {
 
     uint public giniCoefficient; // Minimum to underfit data, 3 decimal places.
     uint public divideTotalBy;
@@ -15,7 +15,7 @@ contract Multiplier is MultiplierInterface {
         divideTotalBy = _divideTotalBy;
     }
 
-    function getMultiplier(
+    function getStake(
         uint _startDate,
         uint _claimDate,
         uint _maximumClaimDate,
