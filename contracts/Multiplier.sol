@@ -1,44 +1,44 @@
 pragma solidity 0.4.24;
 
+import "./MultiplierInterface.sol";
+
 /** @title Contract which determines how many tokens are needed for a subscription */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract Multiplier {
+contract Multiplier is MultiplierInterface {
 
-    uint public minimumGiniCoefficient;
-    uint public maximumGiniCoefficient;
+    uint public giniCoefficient; // Minimum to underfit data, 3 decimal places.
+    uint public divideTotalBy;
 
-    constructor(uint _minimum, uint _maximum) public {
-
-        // @TODO: Implementation
-
+    constructor(uint _gini, uint _divideTotalBy) public {
+        giniCoefficient = _gini;
+        divideTotalBy = _divideTotalBy;
     }
 
-    function getRequiredStake(
-        uint _dueDate,
+    function getMultiplier(
+        uint _startDate,
         uint _claimDate,
         uint _maximumClaimDate,
-        uint _amount,
-        uint _totalUnstaked
+        uint _totalUnlocked
     )
         public
+        view
         returns (uint)
     {
+        uint startingPoint = _totalUnlocked / divideTotalBy;
+        uint units = (_maximumClaimDate - _startDate) / (_claimDate - _startDate);
+        uint xValue = (_claimDate - _startDate) / units;
+        uint exponent = 1 / (xValue * startingPoint);
 
-        // @TODO: Implementation
-
+        return startingPoint * ((giniCoefficient/1000) ** exponent);
     }
 
-    function setMinimumCoefficient(uint _minimum) public {
-
-        // @TODO: Implementation
-
+    function setGiniCoefficient(uint _gini) public onlyOwner {
+        giniCoefficient = _gini;
     }
 
-    function setMaximumCoefficient(uint _maximum) public {
-
-        // @TODO: Implementation
-
+    function setDivideTotalBy(uint _divideTotalBy) public onlyOwner {
+        divideTotalBy = _divideTotalBy;
     }
 
 }
