@@ -10,11 +10,11 @@ class DropdownButton extends React.Component {
         <button className="button" onClick={this.props.action}>
           <div className="label">
             <div className="left">
-              <img className="logo" src={this.props.image}/>
+              <img className="logo" src={this.props.item.image}/>
               <p className="coin-name">{this.props.item.name}</p>
             </div>
             <div className="right">
-              <p className="coin-ticker">{this.props.ticker}</p>
+              <p className="coin-ticker">{this.props.item.ticker}</p>
               {this.props.showTriangle ? <p className="triangle">{this.props.triangle}</p> : null}
             </div>
           </div>
