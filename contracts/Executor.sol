@@ -8,8 +8,7 @@ import "./Collectable.sol";
 import "./TransferProxy.sol";
 import "./StakeContract.sol";
 import "./PaymentRegistry.sol";
-import "./KyberNetworkInterface.sol";
-import "./ApprovedRegistry.sol";
+import "./ApprovedRegistryInterface.sol";
 import "./RequirementsInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
@@ -20,8 +19,7 @@ contract Executor is Ownable {
     TransferProxy public transferProxy;
     StakeContract public stakeContract;
     PaymentRegistry public paymentRegistry;
-    KyberNetworkInterface public kyberProxy;
-    ApprovedRegistry public approvedRegistry;
+    ApprovedRegistryInterface public approvedRegistry;
     RequirementsInterface public requirementsContract;
 
     uint public lockUpPercentage; // 1 Decimal Places (80.0% = 800).
@@ -75,10 +73,8 @@ contract Executor is Ownable {
         address _transferProxyAddress,
         address _stakeContractAddress,
         address _paymentRegistryAddress,
-        address _kyberAddress,
         address _approvedRegistryAddress,
         address _requirementsAddress,
-        uint _cancellationPeriod,
         uint _lockUpPercentage,
         uint _divisor
     )
@@ -89,10 +85,10 @@ contract Executor is Ownable {
         transferProxy = TransferProxy(_transferProxyAddress);
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
-        kyberProxy = KyberNetworkInterface(_kyberAddress);
-        approvedRegistry = ApprovedRegistry(_approvedRegistryAddress);
+        approvedRegistry = ApprovedRegistryInterface(_approvedRegistryAddress);
         requirementsContract = RequirementsInterface(_requirementsAddress);
         lockUpPercentage = _lockUpPercentage;
+        maximumIntervalDivisor = _divisor;
     }
 
     /** @dev Set the percentage of tokens to lock up.
