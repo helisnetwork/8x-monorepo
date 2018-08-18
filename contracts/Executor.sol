@@ -10,6 +10,7 @@ import "./StakeContract.sol";
 import "./PaymentRegistry.sol";
 import "./KyberNetworkInterface.sol";
 import "./ApprovedRegistry.sol";
+import "./RequirementsInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -21,8 +22,10 @@ contract Executor is Ownable {
     PaymentRegistry public paymentRegistry;
     KyberNetworkInterface public kyberProxy;
     ApprovedRegistry public approvedRegistry;
+    RequirementsInterface public requirementsContract;
 
-    uint public cancellationPeriod;
+    uint public lockUpPercentage; // 1 Decimal Places (80.0% = 800).
+    uint public maximumIntervalDivisor; // Latest to claim a payment or cancel.
 
     event SubscriptionActivated(
         address indexed subscriptionAddress,
@@ -66,13 +69,18 @@ contract Executor is Ownable {
       * @param _paymentRegistryAddress the address for the payment registry.
       * @param _kyberAddress the address for the kyber network contract.
       * @param _approvedRegistryAddress the address for the approved registry contract.
+      * @param _requirementsAddress the address for the requirements contract.
     */
     constructor(
         address _transferProxyAddress,
         address _stakeContractAddress,
         address _paymentRegistryAddress,
         address _kyberAddress,
-        address _approvedRegistryAddress
+        address _approvedRegistryAddress,
+        address _requirementsAddress,
+        uint _cancellationPeriod,
+        uint _lockUpPercentage,
+        uint _divisor
     )
         public
     {
@@ -83,13 +91,25 @@ contract Executor is Ownable {
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
         kyberProxy = KyberNetworkInterface(_kyberAddress);
         approvedRegistry = ApprovedRegistry(_approvedRegistryAddress);
+        requirementsContract = RequirementsInterface(_requirementsAddress);
+        lockUpPercentage = _lockUpPercentage;
     }
 
-    /** @dev Set the amount of time after a payment a service node has to cancel.
-      * @param _period is the amount of time they have.
+    /** @dev Set the percentage of tokens to lock up.
+      * @param _percentage is the percentage to 1 decimal place. 80.0% = 800;
     */
-    function setCancellationPeriod(uint _period) public onlyOwner {
-        cancellationPeriod = _period;
+    function setPercentageLockUp(uint _percentage) public onlyOwner {
+        // @TODO: Add tests for this.
+        lockUpPercentage = _percentage;
+    }
+
+    /** @dev Set the maximum time for a subscription to go on unprocessed or to cancel afterwards.
+      *      Expressed as a divisor of the interval.
+      * @param _divisor is the divisor (eg 30 days / 7 = ~4).
+    */
+    function setMaximumIntervalDivisor(uint _divisor) public onlyOwner {
+        // @TODO: Add tests for this.
+        maximumIntervalDivisor = _divisor;
     }
 
     /** @dev Active a subscription once it's been created (make the first payment) paid from wrapped Ether.
@@ -163,7 +183,7 @@ contract Executor is Ownable {
             uint lastPaymentDate,
             address claimant,
             uint executionPeriod,
-            uint stakeMultiplier
+            uint staked
         ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
 
         // Check to make sure the payment is due
@@ -172,43 +192,50 @@ contract Executor is Ownable {
         // Check to make sure it hasn't been claimed by someone else or belongs to you
         require(claimant == msg.sender || claimant == 0);
 
-        // Check it isn't too late to claim (past execution) or too late
         Collectable subscription = Collectable(_subscriptionContract);
-        uint interval = subscription.getSubscriptionInterval(_subscriptionIdentifier);
-        // @TODO: Implementation
+        uint interval = (lastPaymentDate - dueDate);
 
         // Check that the service node calling has enough staked tokens
-        uint currentMultiplier = currentMultiplierFor(tokenAddress);
-        uint requiredStake = currentMultiplier * amount;
+        uint requiredStake = determineStake(tokenAddress, dueDate, interval);
 
-        if (stakeMultiplier == 0) {
+        // First subscription being processed
+        if (staked == 0) {
+            // Check it isn't too late to process the subscription
+            require(currentTimestamp() < (dueDate + (interval / maximumIntervalDivisor)));
+
+            // Ensure there's enough tokens staked
             require(stakeContract.getAvailableStake(msg.sender, tokenAddress) >= requiredStake);
         }
 
         // Make payments to the business and service node
-        if (attemptPaymentElseCancel(
+        bool paymentResult = attemptPaymentElseCancel(
             _subscriptionContract,
             _subscriptionIdentifier,
             tokenAddress,
             msg.sender,
             amount,
             fee,
-            stakeMultiplier
-        ) == false) {
-            // We cancel the subscription if payment couldn't be made
-            // Could be due to invalid subscription (cancelled) or insufficient funds
+            staked
+        );
+
+        // We cancel the subscription if payment couldn't be made
+        // Could be due to invalid subscription (cancelled) or insufficient funds
+        if (paymentResult == false) {
+            // Stop execution
             return;
         }
 
-        // If the current multiplier is lower than the one in the object, free the difference
-        if (stakeMultiplier > currentMultiplierFor(tokenAddress)) {
+        // If the required stake is lower than the one in the object, free the difference.
+        // It the required stake is higher, do nothing.
+        if (staked > requiredStake) {
             stakeContract.unlockTokens(
                 msg.sender,
                 tokenAddress,
-                (stakeMultiplier - (requiredStake/amount)) * amount
+                staked - requiredStake
             );
-        } else if (stakeMultiplier == 0) {
-            stakeContract.lockTokens(msg.sender, tokenAddress, requiredStake);
+        } else if (staked == 0) {
+            // If there's no stake set, stake!
+            stakeContract.lockTokens(msg.sender, tokenAddress, requiredStake * (lockUpPercentage / 1000));
         }
 
         // Update the payment registry
@@ -216,7 +243,7 @@ contract Executor is Ownable {
             _subscriptionIdentifier, // Identifier of subscription
             msg.sender, // The claimant
             dueDate + interval, // Next payment due date
-            currentMultiplier // Current multiplier set for the currency
+            requiredStake // Number of tokens required
         );
 
         // Emit the subscription processed event
@@ -239,12 +266,12 @@ contract Executor is Ownable {
         (
             address tokenAddress,
             uint dueDate,
-            uint amount,
+            ,
             ,
             uint lastPaymentDate,
             address claimant,
             uint executionPeriod,
-            uint stakeMultiplier
+            uint staked
         ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
 
         // Check that it belongs to the rightful claimant/service node
@@ -253,9 +280,11 @@ contract Executor is Ownable {
 
         // Make sure we're within the cancellation window
         uint minimumDate = lastPaymentDate + executionPeriod;
+        uint maximumDate = (minimumDate + ((lastPaymentDate - dueDate) / maximumIntervalDivisor));
+
         require(
             currentTimestamp() >= minimumDate && // Must be past last payment date and the execution period
-            currentTimestamp() < (minimumDate + cancellationPeriod) // Can't be past the cancellation period
+            currentTimestamp() < maximumDate  // Can't be past the cancellation period
         );
 
         // Call the remove claim on payments registry
@@ -268,7 +297,7 @@ contract Executor is Ownable {
         stakeContract.unlockTokens(
             msg.sender,
             tokenAddress,
-            amount * stakeMultiplier
+            staked
         );
 
         // Emit the correct event
@@ -291,12 +320,12 @@ contract Executor is Ownable {
         (
             address tokenAddress,
             uint dueDate,
-            uint amount,
+            ,
             ,
             ,
             address claimant,
             uint executionPeriod,
-            uint stakeMultiplier
+            uint staked
         ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
 
         // First make sure it's past the due date and execution period
@@ -309,7 +338,7 @@ contract Executor is Ownable {
         stakeContract.transferStake(
             claimant,
             tokenAddress,
-            amount * stakeMultiplier,
+            staked,
             msg.sender
         );
 
@@ -328,7 +357,7 @@ contract Executor is Ownable {
             _subscriptionIdentifier,
             claimant,
             msg.sender,
-            amount * stakeMultiplier
+            staked
         );
     }
 
@@ -359,7 +388,7 @@ contract Executor is Ownable {
         address _serviceNode,
         uint _amount,
         uint _fee,
-        uint _stakeMultiplier
+        uint _staked
     )
         private
         returns (bool)
@@ -376,24 +405,24 @@ contract Executor is Ownable {
             attemptPayment(transactingToken, consumer, business, _amount - _fee);
             attemptPayment(transactingToken, consumer, _serviceNode, _fee);
             return true;
-        } else {
-            // Terminate the subscription if it hasn't already
-            if (validSubscription == true) {
-                subscription.cancelSubscription(_subscriptionIdentifier);
-            }
-
-            // Refund the gas to the service node by freeing up storage
-            paymentRegistry.deletePayment(_subscriptionIdentifier);
-
-            // Unstake tokens
-            stakeContract.unlockTokens(
-                msg.sender,
-                _tokenAddress,
-                _amount * _stakeMultiplier
-            );
-
-            return false;
         }
+
+        // Terminate the subscription if it hasn't already
+        if (validSubscription == true) {
+            subscription.cancelSubscription(_subscriptionIdentifier);
+        }
+
+        // Refund the gas to the service node by freeing up storage
+        paymentRegistry.deletePayment(_subscriptionIdentifier);
+
+        // Unstake tokens
+        stakeContract.unlockTokens(
+            msg.sender,
+            _tokenAddress,
+            _staked
+        );
+
+        return false;
     }
 
     function attemptPayment(
@@ -418,8 +447,30 @@ contract Executor is Ownable {
         require((_transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount);
     }
 
-    function currentMultiplierFor(address _tokenAddress) public returns(uint) {
-        return approvedRegistry.getMultiplierFor(_tokenAddress);
+    function determineStake(
+        address _tokenAddress,
+        uint _startDate,
+        uint _interval
+    )
+        public
+        returns(uint)
+    {
+        (
+            uint total,
+            uint lockedUp,
+            uint gini,
+            uint divideBy
+        ) = stakeContract.getTokenStakeDetails(_tokenAddress);
+
+        // @TODO: Make interval divide by changeable
+        return requirementsContract.getStake(
+            gini,
+            divideBy,
+            _startDate,
+            currentTimestamp(),
+            _interval,
+            total - lockedUp
+        );
     }
 
 }

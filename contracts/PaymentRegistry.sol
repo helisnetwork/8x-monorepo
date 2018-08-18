@@ -17,7 +17,7 @@ contract PaymentRegistry is Authorizable {
 
         address claimant;               // 5
         uint executionPeriod;           // 6
-        uint stakeMultiplier;           // 7
+        uint staked;                    // 7
     }
 
     // The bytes32 key is the subscription identifier
@@ -63,10 +63,10 @@ contract PaymentRegistry is Authorizable {
             dueDate: _dueDate,
             amount: _amount,
             fee: _fee,
-            lastPaymentDate: 0,
+            lastPaymentDate: currentTimestamp(),
             claimant: 0,
             executionPeriod: 0,
-            stakeMultiplier: 0
+            staked: 0
         });
 
         payments[_subscriptionIdentifier] = newPayment;
@@ -87,7 +87,7 @@ contract PaymentRegistry is Authorizable {
         bytes32 _subscriptionIdentifier,
         address _claimant,
         uint _nextPayment,
-        uint _stakeMultiplier)
+        uint _staked)
         public
         onlyAuthorized
         returns (bool success)
@@ -95,7 +95,7 @@ contract PaymentRegistry is Authorizable {
         Payment storage currentPayment = payments[_subscriptionIdentifier];
         require(currentTimestamp() >= currentPayment.dueDate);
         require(_nextPayment >= currentTimestamp());
-        require(_stakeMultiplier > 0);
+        require(_staked > 0);
 
         if (currentPayment.claimant != 0) {
             require(currentTimestamp() <= currentPayment.dueDate + currentPayment.executionPeriod);
@@ -109,7 +109,7 @@ contract PaymentRegistry is Authorizable {
         currentPayment.claimant = _claimant;
         currentPayment.dueDate = _nextPayment;
         currentPayment.lastPaymentDate = currentTimestamp();
-        currentPayment.stakeMultiplier = _stakeMultiplier;
+        currentPayment.staked = _staked;
 
         emit PaymentClaimed(_subscriptionIdentifier, _claimant);
 
@@ -132,7 +132,7 @@ contract PaymentRegistry is Authorizable {
 
         currentPayment.claimant = 0;
         currentPayment.executionPeriod = 0;
-        currentPayment.stakeMultiplier = 0;
+        currentPayment.staked = 0;
 
         emit PaymentClaimantRemoved(_subscriptionIdentifier, _claimant);
 
@@ -182,7 +182,7 @@ contract PaymentRegistry is Authorizable {
             uint lastPaymentDate,           // 4
             address claimant,               // 5
             uint executionPeriod,           // 6
-            uint stakeMultiplier            // 7
+            uint staked                     // 7
         )
     {
         Payment memory payment = payments[_subscriptionIdenitifer];
@@ -194,7 +194,7 @@ contract PaymentRegistry is Authorizable {
             payment.lastPaymentDate,
             payment.claimant,
             payment.executionPeriod,
-            payment.stakeMultiplier
+            payment.staked
         );
     }
 

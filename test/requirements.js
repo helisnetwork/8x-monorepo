@@ -8,10 +8,21 @@ contract('Requirements', function(accounts) {
 
     before(async function() {
 
-        requirementsContract = await Requirements.new();
+        requirementsContract = await Requirements.new(10, {from: accounts[0]});
 
     });
 
+    it("should not be able to set the divisor as someone other than the owner", async function() {
+
+        await assertRevert(requirementsContract.setIntervalDivisor(5, {from: accounts[1]}));
+
+    });
+
+    it("should be able to set the divisor as the owner", async function() {
+
+        await assertRevert(requirementsContract.setIntervalDivisor(7, {from: accounts[0]}));
+
+    });
 
     it("should be able to return the correct valid stake after 1 day", async function() {
 
