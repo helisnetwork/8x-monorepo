@@ -7,6 +7,14 @@ import "./RequirementsInterface.sol";
 
 contract Requirements is RequirementsInterface {
 
+    uint public intervalDivisor;
+
+    constructor(uint _divisor) public {
+        intervalDivisor = _divisor;
+    }
+
+
+
     function getStake(
         uint _gini,
         uint _divideBy,
