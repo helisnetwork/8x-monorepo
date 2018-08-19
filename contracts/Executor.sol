@@ -65,7 +65,6 @@ contract Executor is Ownable {
       * @param _transferProxyAddress the address for the designated transfer proxy.
       * @param _stakeContractAddress the address for the stake contract.
       * @param _paymentRegistryAddress the address for the payment registry.
-      * @param _kyberAddress the address for the kyber network contract.
       * @param _approvedRegistryAddress the address for the approved registry contract.
       * @param _requirementsAddress the address for the requirements contract.
     */
@@ -392,18 +391,17 @@ contract Executor is Ownable {
         returns (bool)
     {
         Collectable subscription = Collectable(_subscriptionContract);
-        ERC20 transactingToken = ERC20(_tokenAddress);
 
         (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
         bool validSubscription = subscription.isValidSubscription(_subscriptionIdentifier);
 
-        if (transactingToken.balanceOf(consumer) >= _amount && validSubscription == true) {
+        if (ERC20(_tokenAddress).balanceOf(consumer) >= _amount && validSubscription == true) {
             uint gasCost = approvedRegistry.getGasCost(_tokenAddress, _subscriptionContract, 0);
             // Make the payments
             // @TODO: Make tests for gas cost subtraction
-            attemptPayment(transactingToken, consumer, business, _amount - _fee - gasCost);
-            attemptPayment(transactingToken, consumer, _serviceNode, _fee + gasCost);
+            attemptPayment(ERC20(_tokenAddress), consumer, business, _amount - _fee - gasCost);
+            attemptPayment(ERC20(_tokenAddress), consumer, _serviceNode, _fee + gasCost);
             return true;
         }
 
