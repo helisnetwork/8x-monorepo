@@ -4,6 +4,7 @@ import keccak from './helpers/keccak.js';
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
+var Requirements = artifacts.require("./Requirements.sol");
 
 contract('VolumeSubscription', function(accounts) {
 
@@ -16,10 +17,12 @@ contract('VolumeSubscription', function(accounts) {
     let subscriber = accounts[3]; // The user who is paying the business
     let unauthorizedAddress = accounts[4]; // Someone random
     let approvedRegistryContract;
+    let requirementsContract;
 
     before(async function() {
 
-        approvedRegistryContract = await ApprovedRegistry.new({from: contractOwner});
+        requirementsContract = await Requirements.new({from: contractOwner});
+        approvedRegistryContract = await ApprovedRegistry.new(requirementsContract.address, {from: contractOwner});
 
         contract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: accounts[0]});
         token = await EightExToken.new({from: accounts[0]});
