@@ -14,8 +14,6 @@ contract VolumeSubscription is Collectable {
         address tokenAddress;
 
         string identifier;
-        string name;
-        string description;
 
         uint interval;
         uint amount;
@@ -199,8 +197,6 @@ contract VolumeSubscription is Collectable {
     /** @dev This is the function for creating a new plan.
       * @param _owner the address which owns this contract and to which a payment will be made.
       * @param _identifier a way to uniquely identify a product for each vendor.
-      * @param _name a front-end displaying name for the product.
-      * @param _description a front-end displaying description for the product.
       * @param _interval after how many days should a customer be charged.
       * @param _amount how much should the consumer be charged (in cents).
       * @param _data any extra data they'd like to store.
@@ -209,8 +205,6 @@ contract VolumeSubscription is Collectable {
         address _owner, // Required
         address _tokenAddress, // Required
         string _identifier, // Required
-        string _name,
-        string _description,
         uint _interval, // Required
         uint _amount, // Required
         uint _fee, // Required
@@ -233,8 +227,6 @@ contract VolumeSubscription is Collectable {
                 _owner,
                 _tokenAddress,
                 _identifier,
-                _name,
-                _description,
                 _interval,
                 _amount,
                 _fee,
@@ -248,8 +240,6 @@ contract VolumeSubscription is Collectable {
             owner: _owner,
             tokenAddress: _tokenAddress,
             identifier: _identifier,
-            name: _name,
-            description: _description,
             interval: _interval,
             amount: _amount,
             fee: _fee,
@@ -315,30 +305,6 @@ contract VolumeSubscription is Collectable {
         if (_owner != address(0)) {
             plans[_plan].owner = _owner;
         }
-    }
-
-    /** @dev Updates the name of the product (visible to the user).
-      * @param _plan is the hash of the user's plan.
-      * @param _name the name which they want to update it to.
-    */
-    function setPlanName(bytes32 _plan, string _name)
-        public
-        isOwnerOfPlan(_plan)
-        shouldEmitPlanChanges(_plan)
-    {
-        plans[_plan].name = _name;
-    }
-
-    /** @dev Updates the description of the product (visible to the user).
-      * @param _plan is the hash of the user's plan.
-      * @param _description the description which they want to update it to.
-    */
-    function setPlanDescription(bytes32 _plan, string _description)
-        public
-        isOwnerOfPlan(_plan)
-        shouldEmitPlanChanges(_plan)
-    {
-        plans[_plan].description = _description;
     }
 
     /** @dev Updates the data field which can be used to store anything extra.

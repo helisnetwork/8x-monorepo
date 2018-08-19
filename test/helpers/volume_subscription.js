@@ -8,8 +8,6 @@ const newPlan = async function(contract, token, account, identifier, interval, c
         account,
         token,
         identifier,
-        "Test",
-        "Description",
         interval || 30,
         cost || 30,
         fee || 1,
