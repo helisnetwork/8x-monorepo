@@ -36,6 +36,24 @@ class SubscriptionInfo extends React.Component {
                 <Dropdown items={this.timeItems()}/>
               </div>
             </div>
+            <div className="action">
+              <p className="text">To start your subscription, please send</p>
+              <h2>0.014 ETH </h2>
+              <p className="text">to your personal wallet</p>
+            </div>
+            <div className="item-address">
+              <p className="text-address">0x3551466a812dD2e7Dc9323d246d208B7FDd3fe8D</p>
+              <div className="text-button">
+                <p className="text-copy">Copy</p>
+              </div>
+            </div>
+            <div className="balance">
+              <p>Current Balance</p>
+              <p className="currency">0.00ETH</p>
+            </div>
+            <div className="transaction">
+              <p>Awaiting Transaction</p>
+            </div>
           </div>
         </div> 
       </div>
