@@ -8,6 +8,18 @@ import "./KyberNetworkInterface.sol";
 
 contract ApprovedRegistryInterface is Ownable {
 
+    /** @dev Get the gas costs for executing a transaction in a particular currency.
+      * @param _tokenAddress is the address of the token.
+      * @param _contractAddress is the address of the contract.
+      * @param _index for the calling contract function.
+    */
+    function getGasCost(
+        address _tokenAddress,
+        address _contractAddress,
+        uint _index
+    )
+        public returns (uint);
+
     /** @dev Get the current ETH exchange rate.
       * @param _tokenAddress is the address for the token in question.
       * @return the exchange rate.

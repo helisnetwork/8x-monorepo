@@ -327,6 +327,8 @@ contract Executor is Ownable {
         // First make sure it's past the due date and execution period
         require(currentTimestamp() > (dueDate + executionPeriod));
 
+        // @TODO: Check if the user has enough funds.
+
         // Ensure the original claimant can't call this function
         require(msg.sender != claimant);
 
@@ -357,7 +359,7 @@ contract Executor is Ownable {
         );
     }
 
-    // @TODO: Handle stale payments
+    // @TODO: Handle not enough funds
 
     /**
       * INTERNAL FUNCTIONS
@@ -397,9 +399,11 @@ contract Executor is Ownable {
         bool validSubscription = subscription.isValidSubscription(_subscriptionIdentifier);
 
         if (transactingToken.balanceOf(consumer) >= _amount && validSubscription == true) {
+            uint gasCost = approvedRegistry.getGasCost(_tokenAddress, _subscriptionContract, 0);
             // Make the payments
-            attemptPayment(transactingToken, consumer, business, _amount - _fee);
-            attemptPayment(transactingToken, consumer, _serviceNode, _fee);
+            // @TODO: Make tests for gas cost subtraction
+            attemptPayment(transactingToken, consumer, business, _amount - _fee - gasCost);
+            attemptPayment(transactingToken, consumer, _serviceNode, _fee + gasCost);
             return true;
         }
 
