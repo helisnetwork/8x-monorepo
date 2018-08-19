@@ -62,6 +62,50 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         kyberProxy = KyberNetworkInterface(_kyberAddress);
     }
 
+    /** @dev Get the gas costs for executing a transaction in a particular currency.
+      * @param _tokenAddress is the address of the token.
+      * @param _contractAddress is the address of the contract.
+      * @param _index for the calling contract function.
+    */
+    function getGasCost(
+        address _tokenAddress,
+        address _contractAddress,
+        uint _index
+    )
+        public returns (uint)
+    {
+        uint currentRate = getRateFor(_tokenAddress); // in wei
+        uint gasCost = approvedContractMapping[_contractAddress][_index].gasCost;
+        uint standardGasPrice = approvedContractMapping[_contractAddress][_index].gasPrice;
+        uint standardCost = ((gasCost * standardGasPrice) / (10**18) / currentRate);
+
+        // X = gas required * price of ETH/USD
+        // X = (one ether / gas required) * price of USD/ETH
+        // X = (300,000) / ((10**18) / (2*10**15)
+
+        return standardCost;
+
+    }
+
+    /** @dev Get exchange rate for token.
+      * @param _tokenAddress is the address for the token.
+    */
+    function getRateFor(address _tokenAddress) public returns (uint) {
+        (, uint rate) = kyberProxy.getExpectedRate(
+            ERC20(_tokenAddress),
+            ERC20(0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee),
+            10**18
+        );
+
+        if (rate > 0) {
+            approvedTokenMapping[_tokenAddress] = rate;
+            return rate;
+        }
+
+        // Gas spike hence return cached value
+        return approvedTokenMapping[_tokenAddress] = rate;
+    }
+
     /** @dev Add an approved subscription contract to be used.
       * @param _contractAddress is the address of the subscription contract.
     */
@@ -188,25 +232,6 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         returns (address[])
     {
         return approvedTokenArray;
-    }
-
-    /** @dev Get exchange rate for token.
-      * @param _tokenAddress is the address for the token.
-    */
-    function getRateFor(address _tokenAddress) public returns (uint) {
-        (, uint rate) = kyberProxy.getExpectedRate(
-            ERC20(0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee),
-            ERC20(_tokenAddress),
-            1
-        );
-
-        if (rate > 0) {
-            approvedTokenMapping[_tokenAddress] = rate;
-            return rate;
-        }
-
-        // Gas spike hence return cached value
-        return approvedTokenMapping[_tokenAddress] = rate;
     }
 
     /** @dev Check if a subscription has been authorised.
