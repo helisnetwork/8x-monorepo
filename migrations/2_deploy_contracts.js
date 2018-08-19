@@ -100,8 +100,6 @@ module.exports = function(deployer, network, accounts) {
                 business,
                 wrappedEther.address,
                 "8x.new.plan",
-                "",
-                "",
                 10,
                 1*10**18,
                 10**17,
