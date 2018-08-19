@@ -18,15 +18,19 @@ contract MockExecutor is Executor, MockTime {
             address _transferProxyAddress,
             address _stakeContractAddress,
             address _paymentRegistryAddress,
-            address _kyberAddress,
-            address _approvedRegistryAddress
+            address _approvedRegistryAddress,
+            address _requirementsAddress,
+            uint _lockUpPercentage,
+            uint _divisor
         )
         Executor(
           _transferProxyAddress,
           _stakeContractAddress,
           _paymentRegistryAddress,
-          _kyberAddress,
-          _approvedRegistryAddress
+          _approvedRegistryAddress,
+          _requirementsAddress,
+          _lockUpPercentage,
+          _divisor
         )
         MockTime()
         public

@@ -2,6 +2,7 @@ var TransferProxy = artifacts.require("./TransferProxy.sol");
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
 var PaymentRegistry = artifacts.require("./PaymentRegistry.sol");
 var StakeContract = artifacts.require("./StakeContract.sol");
+var Requirements = artifacts.require("./Requirements.sol");
 var Executor = artifacts.require("./Executor.sol");
 
 var EightExToken = artifacts.require("./EightExToken.sol");
@@ -16,6 +17,7 @@ module.exports = function(deployer, network, accounts) {
     let paymentRegistry;
     let approvedRegistry;
     let executor;
+    let requirementsContract;
 
     let eightExToken;
     let wrappedEther;
@@ -23,7 +25,7 @@ module.exports = function(deployer, network, accounts) {
     let volumeSubscription;
 
     let daiAddress = (network == 'live') ? '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359' : '0xc4375b7de8af5a38a93548eb8453a498222c4ff2';
-
+    let kyberNetwork = (network == 'live') ? '0x818E6FECD516Ecc3849DAf6845e3EC868087B755' : '0x7e6b8b9510D71BF8EF0f893902EbB9C865eEF4Df';
     /**
      * Deploy a transfer proxy
      * Deploy the 8x token
@@ -45,7 +47,7 @@ module.exports = function(deployer, network, accounts) {
         return deployer.deploy(StakeContract, eightExToken.address);
     }).then(function(instance) {
         stakeContract = instance;
-        return deployer.deploy(ApprovedRegistry)
+        return deployer.deploy(ApprovedRegistry, kyberNetwork)
     }).then(function(instance) {
         approvedRegistry = instance;
         return deployer.deploy(VolumeSubscription, approvedRegistry.address);
@@ -57,12 +59,13 @@ module.exports = function(deployer, network, accounts) {
         return deployer.deploy(PaymentRegistry)
     }).then(function(instance) {
         paymentRegistry = instance;
+        return deployer.deploy(Requirements);
+    }).then(function(instance) {
+        requirementsContract = instance;
         return Promise.all[
             approvedRegistry.addApprovedContract(volumeSubscription.address),
             approvedRegistry.addApprovedToken(wrappedEther.address),
-            approvedRegistry.addApprovedToken(daiAddress),
-            approvedRegistry.setApprovedTokenMultiplier(wrappedEther.address, 1),
-            approvedRegistry.setApprovedTokenMultiplier(daiAddress, 1)
+            approvedRegistry.addApprovedToken(daiAddress)
         ];
     }).then(function(instance) {
         return deployer.deploy(
@@ -70,8 +73,10 @@ module.exports = function(deployer, network, accounts) {
             transferProxy.address,
             stakeContract.address,
             paymentRegistry.address,
-            0,
-            approvedRegistry.address
+            approvedRegistry.address,
+            requirementsContract.address,
+            800,
+            7
         )
     }).then(function(instance) {
         executor = instance;
