@@ -141,7 +141,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to create a new plan correctly", async function() {
 
-            await approvedRegistryContract.addApprovedToken(token.address, {from: contractOwner});
+            await approvedRegistryContract.addApprovedToken(token.address, false, {from: contractOwner});
 
             let newPlan = await contract.createPlan(
               business, token.address, "plan.new", 30, 100, 10, "{}", {from: business}
