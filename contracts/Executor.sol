@@ -301,7 +301,7 @@ contract Executor is Ownable {
     }
 
     /** @dev Catch another service node who didn't process their payment on time.
-      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function catchLateSubscription(
@@ -358,7 +358,20 @@ contract Executor is Ownable {
         );
     }
 
-    // @TODO: Handle not enough funds
+    /** @dev Cancel a subscription if a user doesn't have enough funds.
+      * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
+    function cancelSubscription(
+        address _subscriptionContract,
+        address _subscriptionIdentifier
+    )
+        public
+    {
+
+        // @TODO: Implementation
+
+    }
 
     /**
       * INTERNAL FUNCTIONS
