@@ -231,5 +231,101 @@ contract('Executor', function(accounts) {
 
     });
 
+    describe("when processing a subscription", () => {
+
+        it("should not be able to process before the due date", async function() {
+
+        });
+
+        it("should not be able to process someone else's subscription", async function() {
+
+        });
+
+        it("should not be able to process a subscription after the processing period", async function() {
+
+        });
+
+        it("should not be able to process a subscription if a service node doesn't have enough staked tokens", async function() {
+
+        });
+
+        it("should not be able to process a subscription if the user doesn't have enough funds", async function() {
+
+        });
+
+        it("should be able to process a subscription successfully", async function() {
+
+        });
+
+        it("should be able to process a subscription the next month and free the difference", async function() {
+
+        });
+
+    });
+
+    describe("when releasing a subscription", () => {
+
+        it("should not be able to release someone else's subscription", async function() {
+
+        });
+
+        it("should not be able to release an unprocessed subscription", async function() {
+
+        });
+
+        it("should not be be able to release after the execution period + cancellation period (exclusive)", async function() {
+
+        });
+
+        it("should not be be able to release after the execution period + cancellation period (inclusive)", async function() {
+
+        });
+
+        it("should be able to rellease after the execution period but before the cancellation period", async function() {
+
+        });
+
+    });
+
+    describe("when catching a late subscription", () => {
+
+        it("should not be able to call as the original service node", async function() {
+
+        });
+
+        it("should not be able to call before the execution period", async function() {
+
+        });
+
+        it("should not be able to call if the user doesn't have enough funds in their wallet", async function() {
+
+        });
+
+        it("should be able to catch a valid late payment", async function() {
+
+        });
+
+    });
+
+    describe("when cancelling a subscription", () => {
+
+        it("should not be able to call if the user has enough funds", async function() {
+
+        });
+
+        it("should not be able to call before the due date", async function() {
+
+        });
+
+        it("should not be able to call as another user", async function() {
+
+        });
+
+        it("should be able to cancel if the user doesn't have enough funds", async function() {
+
+        });
+
+    });
+
 });
 
