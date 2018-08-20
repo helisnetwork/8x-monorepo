@@ -12,6 +12,13 @@ var VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
 
 module.exports = function(deployer, network, accounts) {
 
+    console.log(`Using: ${network}`);
+
+    if (network == 'local') {
+        return;
+    }
+
+
     let transferProxy;
     let stakeContract;
     let paymentRegistry;
@@ -26,6 +33,7 @@ module.exports = function(deployer, network, accounts) {
 
     let daiAddress = (network == 'live') ? '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359' : '0xc4375b7de8af5a38a93548eb8453a498222c4ff2';
     let kyberNetwork = (network == 'live') ? '0x818E6FECD516Ecc3849DAf6845e3EC868087B755' : '0x7e6b8b9510D71BF8EF0f893902EbB9C865eEF4Df';
+
     /**
      * Deploy a transfer proxy
      * Deploy the 8x token
@@ -138,7 +146,5 @@ module.exports = function(deployer, network, accounts) {
     }).catch(function(error) {
         console.log("CATCH-ERROR " + error);
     })
-
-
 
 };

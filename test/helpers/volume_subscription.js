@@ -40,22 +40,20 @@ const newSubscriptionFull = async function(contract, token, account, identifier,
     return [planHash, subscriptionHash];
 };
 
-const newActiveSubscription = async function(newSubscriptionDetails, cycles, contractsToAdvance, processLast) {
-
-    let subscriptionHash = await newSubscription(newSubscriptionDetails);
+const newActiveSubscription = async function(executor, contract, subscriptionHash, interval, account, cycles, contractsToAdvance, processLast) {
 
     let now = parseInt(Date.now()/1000);
     await setTimes(contractsToAdvance, now);
 
-    await newSubscriptionDetails.contract.activateSubscription(subscriptionHash, {from: newSubscriptionDetails.account});
+    await executor.activateSubscription(contract.address, subscriptionHash, {from: account});
 
     let globalTime = now;
-    for (i = 1; i <= cycles; i++) {
-      globalTime += (cycles * newSubscriptionDetails.interval);
+    for (var i = 1; i <= cycles; i++) {
+      globalTime += (cycles * interval);
       await setTimes(contractsToAdvance, globalTime);
 
       if (i == cycles && processLast == true) {
-        await newSubscriptionDetails.contract.processSubscription(subscriptionHash, {from: newSubscriptionDetails.account});
+        await executor.processSubscription(subscriptionHash, {from: account});
       }
     }
 
@@ -64,7 +62,7 @@ const newActiveSubscription = async function(newSubscriptionDetails, cycles, con
 };
 
 const setTimes = async function(contracts, time) {
-    contractsToAdvance.forEach((contract) => {
+    contracts.forEach((contract) => {
       contract.setTime(time);
     });
 };
@@ -74,4 +72,5 @@ module.exports = {
     newSubscription,
     newSubscriptionFull,
     newActiveSubscription,
+    setTimes
 };
