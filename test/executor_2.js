@@ -1,21 +1,21 @@
 import assertRevert from './helpers/assert_revert.js';
 import keccak from './helpers/keccak.js';
-import { newSubscription, newActiveSubscription } from './helpers/volume_subscription.js';
+import { newSubscription, newActiveSubscription, setTimes } from './helpers/volume_subscription.js';
 import { injectInTruffle } from "sol-trace-set";
+//injectInTruffle(web3, artifacts);
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
 var MockExecutor = artifacts.require("./test/MockExecutor.sol");
+var KyberContract = artifacts.require("./test/MockKyberNetworkInterface.sol");
+var MockToken = artifacts.require("./test/MockToken.sol");
+var MockPaymentRegistryContract = artifacts.require("./test/MockPaymentRegistry.sol");
+
 var TransferProxy = artifacts.require("./TransferProxy.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
 var StakeContract = artifacts.require("./StakeContract.sol");
-var MockPaymentRegistryContract = artifacts.require("./test/MockPaymentRegistry.sol");
-var MockToken = artifacts.require("./test/MockToken.sol");
-var KyberContract = artifacts.require("./test/MockKyberNetworkInterface.sol");
 var WrappedEther = artifacts.require("./base/token/WETH.sol");
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
 var Requirements = artifacts.require("./Requirements.sol");
-
-injectInTruffle(web3, artifacts);
 
 contract('Executor', function(accounts) {
 
@@ -55,6 +55,8 @@ contract('Executor', function(accounts) {
     let etherSubscription;
     let tokenSubscription;
 
+    let modifyTimeContracts;
+
     before(async function() {
 
         // Initialise a mock token contract, the owner has the initial supply
@@ -66,7 +68,6 @@ contract('Executor', function(accounts) {
         await tokenContract.transfer(kyberContract.address, 1000*10**18, {from: contractOwner});
 
         // Initialise the approved registry
-        console.log(kyberContract.address);
         approvedRegistryContract = await ApprovedRegistry.new(kyberContract.address, {from: contractOwner});
 
         // Initialise the 8x token contract, the owner has all the initial token supply.
@@ -106,14 +107,17 @@ contract('Executor', function(accounts) {
         // Make sure the relevant contracts and tokens have been authorised
         await approvedRegistryContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
         await approvedRegistryContract.setApprovedContractCallCost(subscriptionContract.address, 0, 2**10*15, 10**5, 2*10**9);
-  });
 
-    async function newEtherSubscription() {
+        modifyTimeContracts = [executorContract, subscriptionContract, paymentRegistryContract];
+
+    });
+
+    async function newEtherSubscription(identifier) {
         return await newSubscription(
             subscriptionContract,
             etherContract.address,
             etherSubscriber,
-            "subscrption.new.ether",
+            identifier,
             business,
             subscriptionInterval,
             subscriptionEthCost,
@@ -121,18 +125,31 @@ contract('Executor', function(accounts) {
         );
     };
 
-    async function newTokenSubscription() {
+    async function newTokenSubscription(identifier) {
         return await newSubscription(
             subscriptionContract,
             tokenContract.address,
             tokenSubscriber,
-            "subscription.new.plan",
+            identifier,
             business,
             subscriptionInterval,
             subscriptionCost,
             subscriptionFee
         );
     };
+
+    async function fastForwardSubscription(subscriptionHash, cycles, processLast) {
+        return await newActiveSubscription(
+            executorContract,
+            subscriptionContract,
+            subscriptionHash,
+            subscriptionInterval,
+            serviceNode,
+            cycles,
+            modifyTimeContracts,
+            processLast
+        );
+    }
 
     describe("when users activate subscriptions", () => {
 
@@ -141,7 +158,7 @@ contract('Executor', function(accounts) {
 
         before(async function() {
 
-            etherSubscriptionHash = await newEtherSubscription();
+            etherSubscriptionHash = await newEtherSubscription("activate.new");
 
             // Transfer wrapped Ether to the subscriber
             await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost});
@@ -157,7 +174,7 @@ contract('Executor', function(accounts) {
             let fakeSubscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: contractOwner});
 
             let fakePlan = await fakeSubscriptionContract.createPlan(
-                business, tokenContract.address, "subscription.unauthorised.contract", "test", "", 30, 100, 10, "{}", {from: business}
+                business, tokenContract.address, "subscription.unauthorised.contract", 30, 100, 10, "{}", {from: business}
             );
 
             let fakePlanHash = fakePlan.logs[0].args.identifier;
@@ -182,9 +199,7 @@ contract('Executor', function(accounts) {
         it("should be able to subscribe to an authorized subscription and token contract", async function() {
 
             // Setup the time we want
-            await executorContract.setTime(activationTime);
-            await subscriptionContract.setTime(activationTime);
-            await paymentRegistryContract.setTime(activationTime);
+            await setTimes(modifyTimeContracts, activationTime);
 
             // Activate the subscription with enough funds in wrapper ether account
             await executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: etherSubscriber});
@@ -219,7 +234,7 @@ contract('Executor', function(accounts) {
 
         it("should not be able subscribe if it has already been activated", async function() {
 
-            // Top up accounts
+            // Top up account
             await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost});
 
             // These will fail since the subscriptions have already been activated
@@ -233,55 +248,102 @@ contract('Executor', function(accounts) {
 
     describe("when processing a subscription", () => {
 
-        it("should not be able to process before the due date", async function() {
+        before(async function() {
+
+            await setTimes(modifyTimeContracts, (Date.now()/1000));
 
         });
 
+        it("should not be able to process before the due date", async function() {
+
+            // Transfer wrapped Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 2});
+
+            // Create a new subscription and fast forward one month
+            let etherSubscription = await newEtherSubscription("process.before_due_date");;
+            let details = await fastForwardSubscription(etherSubscription, 1, false);
+
+            // Rewind 5 seconds before it's due
+            await setTimes(modifyTimeContracts, details[1] - 5);
+
+            // Process the subscription before it's due
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, details[0]))
+
+        });
+
+        /*
+
         it("should not be able to process someone else's subscription", async function() {
+
+            // @TODO: Implementation
 
         });
 
         it("should not be able to process a subscription after the processing period", async function() {
 
+            // @TODO: Implementation
+
         });
 
         it("should not be able to process a subscription if a service node doesn't have enough staked tokens", async function() {
+
+            // @TODO: Implementation
 
         });
 
         it("should not be able to process a subscription if the user doesn't have enough funds", async function() {
 
+            // @TODO: Implementation
+
         });
 
         it("should be able to process a subscription successfully", async function() {
+
+            // @TODO: Implementation
 
         });
 
         it("should be able to process a subscription the next month and free the difference", async function() {
 
+            // @TODO: Implementation
+
         });
 
+        */
+
     });
+
+    /*
 
     describe("when releasing a subscription", () => {
 
         it("should not be able to release someone else's subscription", async function() {
 
+            // @TODO: Implementation
+
         });
 
         it("should not be able to release an unprocessed subscription", async function() {
+
+            // @TODO: Implementation
 
         });
 
         it("should not be be able to release after the execution period + cancellation period (exclusive)", async function() {
 
+            // @TODO: Implementation
+
         });
 
         it("should not be be able to release after the execution period + cancellation period (inclusive)", async function() {
 
+            // @TODO: Implementation
+
         });
 
         it("should be able to rellease after the execution period but before the cancellation period", async function() {
+
+            // @TODO: Implementation
 
         });
 
@@ -291,17 +353,25 @@ contract('Executor', function(accounts) {
 
         it("should not be able to call as the original service node", async function() {
 
+            // @TODO: Implementation
+
         });
 
         it("should not be able to call before the execution period", async function() {
+
+            // @TODO: Implementation
 
         });
 
         it("should not be able to call if the user doesn't have enough funds in their wallet", async function() {
 
+            // @TODO: Implementation
+
         });
 
         it("should be able to catch a valid late payment", async function() {
+
+            // @TODO: Implementation
 
         });
 
@@ -311,21 +381,31 @@ contract('Executor', function(accounts) {
 
         it("should not be able to call if the user has enough funds", async function() {
 
+            // @TODO: Implementation
+
         });
 
         it("should not be able to call before the due date", async function() {
+
+            // @TODO: Implementation
 
         });
 
         it("should not be able to call as another user", async function() {
 
+            // @TODO: Implementation
+
         });
 
         it("should be able to cancel if the user doesn't have enough funds", async function() {
 
+            // @TODO: Implementation
+
         });
 
     });
+
+    */
 
 });
 

@@ -6,7 +6,7 @@ var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.s
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
 var WrappedEther = artifacts.require("./base/token/WETH.sol");
 var MockToken = artifacts.require("./test/MockToken.sol");
-var Requirements = artifacts.require("./Requirements.sol");
+var MockKyber = artifacts.require("./test/MockKyberNetworkInterface.sol");
 
 contract('ApprovedRegistry', function(accounts) {
 
@@ -19,7 +19,7 @@ contract('ApprovedRegistry', function(accounts) {
     let tokenSubscriber = accounts[3]; // User paying $100/month subscription directly (probably in DAI)
     let serviceNode = accounts[4]; // Collector party claiming payment
     let unauthorisedAddress = accounts[5]; // Some random address
-    let requirementsContract;
+    let kyberContract;
 
     let wrappedEtherContract;
     let transactingCurrencyContract;
@@ -29,9 +29,9 @@ contract('ApprovedRegistry', function(accounts) {
     before(async function() {
 
         // Initialise all the other contracts the executor needs in order to function
-        requirementsContract = await Requirements.new({from: contractOwner});
+        kyberContract = await MockKyber.new({from: contractOwner});
 
-        approvedRegistryContract = await ApprovedRegistry.new(requirementsContract.address, {from: contractOwner});
+        approvedRegistryContract = await ApprovedRegistry.new(kyberContract.address, {from: contractOwner});
         subscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: contractOwner});
 
         // Initialise a mock token contract, the owner has the initial supply

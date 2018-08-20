@@ -38,8 +38,9 @@ contract ApprovedRegistryInterface is Ownable {
 
     /** @dev Add an approved token.
       * @param _tokenAddress is the address of the token.
+      * @param _isWETH whether the token is the wrapped ether address.
     */
-    function addApprovedToken(address _tokenAddress) public;
+    function addApprovedToken(address _tokenAddress, bool _isWETH) public;
 
     /** @dev Remove an approved token.
       * @param _tokenAddress is the address of the token.
