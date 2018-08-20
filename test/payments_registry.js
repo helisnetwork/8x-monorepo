@@ -32,7 +32,7 @@ contract('MockPaymentRegistry', function(accounts) {
         await paymentRegistry.addAuthorizedAddress(accounts[0], {from: accounts[0]});
 
         await approvedRegistryContract.addApprovedContract(subscriptionContract.address, {from: accounts[0]});
-        await approvedRegistryContract.addApprovedToken(tokenContract.address, {from: accounts[0]});
+        await approvedRegistryContract.addApprovedToken(tokenContract.address, false, {from: accounts[0]});
 
     });
 

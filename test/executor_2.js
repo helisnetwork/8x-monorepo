@@ -100,8 +100,8 @@ contract('Executor', function(accounts) {
         paymentRegistryContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
 
         // We need to add the wrapped ether contract and token contract to the approved list
-        await approvedRegistryContract.addApprovedToken(tokenContract.address, {from: contractOwner});
-        await approvedRegistryContract.addApprovedToken(etherContract.address, {from: contractOwner});
+        await approvedRegistryContract.addApprovedToken(tokenContract.address, false, {from: contractOwner});
+        await approvedRegistryContract.addApprovedToken(etherContract.address, true, {from: contractOwner});
 
         // Make sure the relevant contracts and tokens have been authorised
         await approvedRegistryContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});

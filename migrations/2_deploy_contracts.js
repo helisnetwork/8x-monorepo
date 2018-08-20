@@ -64,8 +64,8 @@ module.exports = function(deployer, network, accounts) {
         requirementsContract = instance;
         return Promise.all[
             approvedRegistry.addApprovedContract(volumeSubscription.address),
-            approvedRegistry.addApprovedToken(wrappedEther.address),
-            approvedRegistry.addApprovedToken(daiAddress)
+            approvedRegistry.addApprovedToken(wrappedEther.address, true),
+            approvedRegistry.addApprovedToken(daiAddress, false)
         ];
     }).then(function(instance) {
         return deployer.deploy(

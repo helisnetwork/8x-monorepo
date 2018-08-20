@@ -2,6 +2,7 @@ pragma solidity 0.4.24;
 
 import "./ApprovedRegistryInterface.sol";
 import "./KyberNetworkInterface.sol";
+import "./base/token/WETH.sol";
 
 /** @title Approved contract, tokens and gas prices. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -18,6 +19,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     mapping (address => mapping (uint => GasCost)) public approvedContractMapping;
 
     KyberNetworkInterface public kyberProxy;
+    WETH public wrappedEther;
 
     address[] public approvedContractArray;
     address[] public approvedTokenArray;
@@ -149,12 +151,18 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     /** @dev Add an approved token to be used.
       * @param _tokenAddress is the address of the token to be used.
     */
-    function addApprovedToken(address _tokenAddress)
+    function addApprovedToken(address _tokenAddress, bool _isWETH)
         public
         onlyOwner
         hasTokenBeenApproved(_tokenAddress, false)
     {
         approvedTokenArray.push(_tokenAddress);
+
+        if (_isWETH == true && address(wrappedEther) == 0) {
+            // @TODO: Write tests for this
+            wrappedEther = WETH(_tokenAddress);
+        }
+
         emit TokenAdded(_tokenAddress);
     }
 
@@ -211,6 +219,11 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
 
                 break;
             }
+        }
+
+        if (_tokenAddress == address(wrappedEther)) {
+            // @TODO: Write tests for this
+            delete wrappedEther;
         }
     }
 
