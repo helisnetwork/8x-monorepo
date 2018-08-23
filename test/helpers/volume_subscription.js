@@ -49,12 +49,15 @@ const newActiveSubscription = async function(executor, contract, subscriptionHas
 
     let globalTime = now;
     for (var i = 1; i <= cycles; i++) {
-      globalTime += (cycles * interval);
-      await setTimes(contractsToAdvance, globalTime);
+      globalTime = now + (i * interval);
 
-      if (i == cycles && processLast == true) {
-        await executor.processSubscription(subscriptionHash, {from: account});
-      }
+        await setTimes(contractsToAdvance, globalTime);
+
+        if (i == cycles && processLast == false) {
+            break;
+        }
+
+        await executor.processSubscription(contract.address, subscriptionHash, {from: account});
     }
 
     return [subscriptionHash, globalTime];
@@ -62,9 +65,9 @@ const newActiveSubscription = async function(executor, contract, subscriptionHas
 };
 
 const setTimes = async function(contracts, time) {
-    contracts.forEach((contract) => {
-      contract.setTime(time);
-    });
+    for (const contract of contracts) {
+        await contract.setTime(time);
+    };
 };
 
 module.exports = {

@@ -1,8 +1,8 @@
 import assertRevert from './helpers/assert_revert.js';
-import keccak from './helpers/keccak.js';
 import { newSubscription, newActiveSubscription, setTimes } from './helpers/volume_subscription.js';
-import { injectInTruffle } from "sol-trace-set";
-//injectInTruffle(web3, artifacts);
+
+// import { injectInTruffle } from './helpers/sol-trace';
+// injectInTruffle(web3, artifacts);
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
 var MockExecutor = artifacts.require("./test/MockExecutor.sol");
@@ -46,8 +46,12 @@ contract('Executor', function(accounts) {
     let exchangeRate = 2*10**15; // 0.002 ETH/USD
     let subscriptionInterval = 30 * 24 * 60 * 60; // 30 days
     let cancellationPeriod = 6 * 60 * 60; // 6 hours
-    let multiplier = 10;
-    let activationTime = parseInt(Date.now() / 1000);
+
+    let gini = 500;
+    let divideBy = 10;
+
+    let firstNodeStake = 1000;
+    let secondNodeStake = 1000;
 
     let subscriptionEthCost = (subscriptionCost * exchangeRate) / (10**18);
     let subscriptionEthFee = (subscriptionFee * exchangeRate) / (10**18);
@@ -76,8 +80,12 @@ contract('Executor', function(accounts) {
         // Initialise all the other contracts the executor needs in order to function
         subscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: contractOwner});
         proxyContract = await TransferProxy.new({from: contractOwner});
-        stakeContract = await StakeContract.new(nativeTokenContract.address, {from: contractOwner});
         paymentRegistryContract = await MockPaymentRegistryContract.new({from: contractOwner});
+
+        // Setup the stake contract
+        stakeContract = await StakeContract.new(nativeTokenContract.address, {from: contractOwner});
+        await stakeContract.setGiniCoefficient(etherContract.address, gini, {from: contractOwner});
+        await stakeContract.setDivideTotalBy(etherContract.address, divideBy, {from: contractOwner});
 
         // Initialise the requirements contract
         requirementsContract = await Requirements.new({from: contractOwner});
@@ -93,6 +101,8 @@ contract('Executor', function(accounts) {
             7,
             {from: contractOwner}
         );
+
+        console.log(`The executor contract adddress is: ${executorContract.address}`)
 
         // Add the executor contract as an authorised address for all the different components
         subscriptionContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
@@ -199,6 +209,7 @@ contract('Executor', function(accounts) {
         it("should be able to subscribe to an authorized subscription and token contract", async function() {
 
             // Setup the time we want
+            let activationTime = parseInt(Date.now() / 1000);
             await setTimes(modifyTimeContracts, activationTime);
 
             // Activate the subscription with enough funds in wrapper ether account
@@ -235,7 +246,7 @@ contract('Executor', function(accounts) {
         it("should not be able subscribe if it has already been activated", async function() {
 
             // Top up account
-            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost});
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost})
 
             // These will fail since the subscriptions have already been activated
             await assertRevert(executorContract.activateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: etherSubscriber}));
@@ -250,7 +261,17 @@ contract('Executor', function(accounts) {
 
         before(async function() {
 
+            // Set the time to now
             await setTimes(modifyTimeContracts, (Date.now()/1000));
+
+            // Give tokens to service node
+            await nativeTokenContract.transfer(serviceNode, firstNodeStake, {from: contractOwner});
+            await nativeTokenContract.approve(stakeContract.address, firstNodeStake * 100, {from: serviceNode});
+            await stakeContract.topUpStake(firstNodeStake, etherContract.address, {from: serviceNode});
+
+            await nativeTokenContract.transfer(competingServiceNode, firstNodeStake, {from: contractOwner});
+            await nativeTokenContract.approve(stakeContract.address, secondNodeStake * 100, {from: competingServiceNode});
+            await stakeContract.topUpStake(secondNodeStake, etherContract.address, {from: competingServiceNode});
 
         });
 
@@ -267,39 +288,97 @@ contract('Executor', function(accounts) {
             await setTimes(modifyTimeContracts, details[1] - 5);
 
             // Process the subscription before it's due
-            await assertRevert(executorContract.processSubscription(subscriptionContract.address, details[0]))
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, details[0], {from: serviceNode}));
+
+            // Reset balance to 0
+            await etherContract.withdraw(subscriptionEthCost, {from: etherSubscriber});
 
         });
 
-        /*
+        it("should cancel a subscription if the user doesn't have enough funds", async function() {
 
-        it("should not be able to process someone else's subscription", async function() {
+            // Transfer one months' worth of Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost});
 
-            // @TODO: Implementation
+            // Create a new subscription and fast forward one month
+            let etherSubscription = await newEtherSubscription("process.not_enough_funds");;
+            await fastForwardSubscription(etherSubscription, 1, true);
+
+            let subscriptionDetails = await subscriptionContract.isValidSubscription(etherSubscription);
+            assert.equal(subscriptionDetails, false);
 
         });
 
         it("should not be able to process a subscription after the processing period", async function() {
 
-            // @TODO: Implementation
+            // Transfer wrapped Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 2});
+
+            // Create a new subscription and fast forward one month
+            let etherSubscription = await newEtherSubscription("process.after_processing");;
+            let details = await fastForwardSubscription(etherSubscription, 1, false);
+
+            // One second after processing period closes
+            await setTimes(modifyTimeContracts, details[1] + subscriptionInterval/7 + 1);
+
+            // Process the subscription after it's maximum interval period
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, details[0], {from: serviceNode}));
+
+            // Reset balance to 0
+            await etherContract.withdraw(subscriptionEthCost, {from: etherSubscriber});
 
         });
 
         it("should not be able to process a subscription if a service node doesn't have enough staked tokens", async function() {
 
-            // @TODO: Implementation
+            // Withdraw stake
+            await stakeContract.withdrawStake(firstNodeStake, etherContract.address, {from: serviceNode});
 
-        });
+            // Transfer two months' worth of Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 2});
 
-        it("should not be able to process a subscription if the user doesn't have enough funds", async function() {
+            // Create a new subscription and fast forward one month
+            let etherSubscription = await newEtherSubscription("process.not_enough_tokens");;
+            await assertRevert(fastForwardSubscription(etherSubscription, 1, true));
 
-            // @TODO: Implementation
+            // Reset state
+            await stakeContract.topUpStake(firstNodeStake, etherContract.address, {from: serviceNode});
+            await etherContract.withdraw(subscriptionEthCost, {from: etherSubscriber});
 
         });
 
         it("should be able to process a subscription successfully", async function() {
 
-            // @TODO: Implementation
+            // Transfer two months' worth of Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 2});
+
+            // Create a new subscription and fast forward one month
+            let etherSubscriptionHash = await newEtherSubscription("process.success");
+
+            let details = await fastForwardSubscription(etherSubscriptionHash, 1, true);
+            let etherPaymentInfo = await paymentRegistryContract.payments.call(etherSubscriptionHash);
+
+            assert.equal(etherPaymentInfo[0], etherContract.address);
+            assert.equal(etherPaymentInfo[1].toNumber(), details[1] + subscriptionInterval);
+            assert.equal(etherPaymentInfo[2], subscriptionEthCost);
+            assert.equal(etherPaymentInfo[3], subscriptionEthFee);
+            assert.equal(etherPaymentInfo[4], details[1]);
+            assert.equal(etherPaymentInfo[5], serviceNode);
+            assert.equal(etherPaymentInfo[6], 0);
+            assert.equal(etherPaymentInfo[7].toNumber(), ((firstNodeStake + secondNodeStake) / divideBy) * 0.8);
+        });
+
+        it("should not be able to process someone else's subscription", async function() {
+
+            // Transfer three months' worth of Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 3});
+
+            // Create a new subscription and fast forward two months
+            let etherSubscriptionHash = await newEtherSubscription("process.competing_service_node");
+            await fastForwardSubscription(etherSubscriptionHash, 2, false);
+
+            // Try processing the subscription as the competing service node
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
 
         });
 
@@ -308,8 +387,6 @@ contract('Executor', function(accounts) {
             // @TODO: Implementation
 
         });
-
-        */
 
     });
 

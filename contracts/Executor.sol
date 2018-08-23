@@ -57,6 +57,8 @@ contract Executor is Ownable {
         uint amountLost
     );
 
+    event Checkpoint(uint number);
+
     /**
       * PUBLIC FUNCTIONS
     */
@@ -153,11 +155,13 @@ contract Executor is Ownable {
             _subscriptionContract,
             _subscriptionIdentifier,
             address(transactingToken),
-            amountDue,
             currentTimestamp() + subscriptionInterval,
+            amountDue,
             fee
         );
+
     }
+
 
     /** @dev Collect the payment due from the subscriber.
       * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
@@ -181,29 +185,19 @@ contract Executor is Ownable {
             uint staked
         ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
 
-        // Check to make sure the payment is due
+        // Ensure it's a fresh subscription or only the claimant
+        require(claimant == 0 || claimant == msg.sender);
+
+        // Make sure it's actually due
         require(currentTimestamp() >= dueDate);
 
-        // Check to make sure it hasn't been claimed by someone else or belongs to you
-        require(claimant == msg.sender || claimant == 0);
+        // Make sure it isn't too late to process
+        uint interval = (dueDate - lastPaymentDate);
+        require(currentTimestamp() < (dueDate + (interval / maximumIntervalDivisor)));
 
-        Collectable subscription = Collectable(_subscriptionContract);
-        uint interval = (lastPaymentDate - dueDate);
-
-        // Check that the service node calling has enough staked tokens
         uint requiredStake = determineStake(tokenAddress, dueDate, interval);
 
-        // First subscription being processed
-        if (staked == 0) {
-            // Check it isn't too late to process the subscription
-            require(currentTimestamp() < (dueDate + (interval / maximumIntervalDivisor)));
-
-            // Ensure there's enough tokens staked
-            require(stakeContract.getAvailableStake(msg.sender, tokenAddress) >= requiredStake);
-        }
-
-        // Make payments to the business and service node
-        bool paymentResult = attemptPaymentElseCancel(
+        bool canMakePayment = attemptPaymentElseCancel(
             _subscriptionContract,
             _subscriptionIdentifier,
             tokenAddress,
@@ -213,36 +207,86 @@ contract Executor is Ownable {
             staked
         );
 
-        // We cancel the subscription if payment couldn't be made
-        // Could be due to invalid subscription (cancelled) or insufficient funds
-        if (paymentResult == false) {
-            // Stop execution
+        if (canMakePayment == false) {
             return;
         }
 
-        // If the required stake is lower than the one in the object, free the difference.
-        // It the required stake is higher, do nothing.
-        if (staked > requiredStake) {
+        if (claimant == 0) {
+            firstProcess(
+                _subscriptionIdentifier,
+                tokenAddress,
+                dueDate,
+                staked,
+                interval,
+                requiredStake
+            );
+        } else if (claimant == msg.sender) {
+            existingProcess(
+                _subscriptionIdentifier,
+                tokenAddress,
+                dueDate,
+                staked,
+                interval,
+                requiredStake
+            );
+        }
+
+        emit SubscriptionProcessed(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            msg.sender,
+            dueDate + interval,
+            requiredStake
+        );
+    }
+
+    function firstProcess(
+        bytes32 subscriptionIdentifier,
+        address tokenAddress,
+        uint dueDate,
+        uint staked,
+        uint interval,
+        uint requiredStake
+    )
+        private
+    {
+        // Check if they have enough tokens available
+        require(stakeContract.getAvailableStake(msg.sender, tokenAddress) >= requiredStake);
+
+        stakeContract.lockTokens(msg.sender, tokenAddress, requiredStake);
+
+        paymentRegistry.claimPayment(
+            subscriptionIdentifier, // Identifier of subscription
+            msg.sender, // The claimant
+            dueDate + interval, // Next payment due date
+            (requiredStake * lockUpPercentage) / 1000
+        );
+    }
+
+    function existingProcess(
+        bytes32 subscriptionIdentifier,
+        address tokenAddress,
+        uint dueDate,
+        uint staked,
+        uint interval,
+        uint requiredStake
+    )
+        private
+    {
+        if (requiredStake < staked) {
             stakeContract.unlockTokens(
                 msg.sender,
                 tokenAddress,
                 staked - requiredStake
             );
-        } else if (staked == 0) {
-            // If there's no stake set, stake!
-            stakeContract.lockTokens(msg.sender, tokenAddress, requiredStake * (lockUpPercentage / 1000));
         }
 
-        // Update the payment registry
         paymentRegistry.claimPayment(
-            _subscriptionIdentifier, // Identifier of subscription
+            subscriptionIdentifier, // Identifier of subscription
             msg.sender, // The claimant
             dueDate + interval, // Next payment due date
-            requiredStake // Number of tokens required
+            requiredStake < staked ? requiredStake : staked
         );
-
-        // Emit the subscription processed event
-        emit SubscriptionProcessed(_subscriptionContract, _subscriptionIdentifier, msg.sender, dueDate + interval, requiredStake);
 
     }
 
@@ -299,6 +343,7 @@ contract Executor is Ownable {
         emit SubscriptionReleased(_subscriptionContract, _subscriptionIdentifier, msg.sender, dueDate);
 
     }
+
 
     /** @dev Catch another service node who didn't process their payment on time.
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface).
@@ -474,14 +519,16 @@ contract Executor is Ownable {
         ) = stakeContract.getTokenStakeDetails(_tokenAddress);
 
         // @TODO: Make interval divide by changeable
-        return requirementsContract.getStake(
+        uint stake = requirementsContract.getStake(
             gini,
             divideBy,
             _startDate,
             currentTimestamp(),
-            _interval,
+            _startDate + (_interval / maximumIntervalDivisor),
             total - lockedUp
         );
+
+        return stake;
     }
 
 }
