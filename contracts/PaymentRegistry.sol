@@ -77,6 +77,8 @@ contract PaymentRegistry is Authorizable {
 
     }
 
+    event Debug(uint one, uint two);
+
     /** @dev Claim the payment
       * @param _subscriptionIdentifier is the identifier of that customer's
       * subscription with it's relevant details.
@@ -92,7 +94,9 @@ contract PaymentRegistry is Authorizable {
         onlyAuthorized
         returns (bool success)
     {
-        Payment storage currentPayment = payments[_subscriptionIdentifier];
+        Payment memory currentPayment = payments[_subscriptionIdentifier];
+        emit Debug(currentTimestamp(), _nextPayment);
+
         require(currentTimestamp() >= currentPayment.dueDate);
         require(_nextPayment >= currentTimestamp());
         require(_staked > 0);
@@ -106,10 +110,12 @@ contract PaymentRegistry is Authorizable {
             currentPayment.executionPeriod = currentTimestamp() - currentPayment.dueDate;
         }
 
-        currentPayment.claimant = _claimant;
-        currentPayment.dueDate = _nextPayment;
-        currentPayment.lastPaymentDate = currentTimestamp();
-        currentPayment.staked = _staked;
+        uint oldDueDate = currentPayment.dueDate;
+
+        payments[_subscriptionIdentifier].claimant = _claimant;
+        payments[_subscriptionIdentifier].lastPaymentDate = oldDueDate;
+        payments[_subscriptionIdentifier].dueDate = _nextPayment;
+        payments[_subscriptionIdentifier].staked = _staked;
 
         emit PaymentClaimed(_subscriptionIdentifier, _claimant);
 

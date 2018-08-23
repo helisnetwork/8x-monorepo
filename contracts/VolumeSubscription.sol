@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 
 import "./Collectable.sol";
-import "./ApprovedRegistry.sol";
+import "./ApprovedRegistryInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -37,7 +37,7 @@ contract VolumeSubscription is Collectable {
         string data;
     }
 
-    ApprovedRegistry public approvedRegistry;
+    ApprovedRegistryInterface public approvedRegistry;
 
     mapping (bytes32 => Plan) public plans;
     mapping (bytes32 => Subscription) public subscriptions;
@@ -191,7 +191,7 @@ contract VolumeSubscription is Collectable {
       * PUBLIC FUNCTIONS
     */
     constructor(address _approvedRegistryAddress) public {
-        approvedRegistry = ApprovedRegistry(_approvedRegistryAddress);
+        approvedRegistry = ApprovedRegistryInterface(_approvedRegistryAddress);
     }
 
     /** @dev This is the function for creating a new plan.

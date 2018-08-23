@@ -14,10 +14,9 @@ module.exports = function(deployer, network, accounts) {
 
     console.log(`Using: ${network}`);
 
-    if (network == 'local') {
+    if (network == 'development') {
         return;
     }
-
 
     let transferProxy;
     let stakeContract;
@@ -95,7 +94,7 @@ module.exports = function(deployer, network, accounts) {
             volumeSubscription.addAuthorizedAddress(executor.address)
         ];
     }).then(function(instance) {
-        if (network == 'development') {
+        if (network == 'staging') {
             let subscriptionIdentifier;
             let planIdentifier;
 
