@@ -211,8 +211,9 @@ contract Executor is Ownable {
             return;
         }
 
+        uint lockUp = requiredStake;
         if (claimant == 0) {
-            firstProcess(
+            lockUp = firstProcess(
                 _subscriptionIdentifier,
                 tokenAddress,
                 dueDate,
@@ -236,7 +237,81 @@ contract Executor is Ownable {
             _subscriptionIdentifier,
             msg.sender,
             dueDate + interval,
-            requiredStake
+            lockUp
+        );
+    }
+
+    function processSubscriptionTwo(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier
+    )
+        public
+    {
+        // Get the current payment registry object (if it doesn't exist execution will eventually fail)
+        (
+            address tokenAddress,
+            uint dueDate,
+            uint amount,
+            uint fee,
+            uint lastPaymentDate,
+            address claimant,
+            uint executionPeriod,
+            uint staked
+        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+
+        // Ensure it's a fresh subscription or only the claimant
+        require(claimant == 0 || claimant == msg.sender);
+
+        // Make sure it's actually due
+        require(currentTimestamp() >= dueDate);
+
+        // Make sure it isn't too late to process
+        uint interval = (dueDate - lastPaymentDate);
+        require(currentTimestamp() < (dueDate + (interval / maximumIntervalDivisor)));
+
+        uint requiredStake = determineStake(tokenAddress, dueDate, interval);
+
+        bool canMakePayment = attemptPaymentElseCancel(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            tokenAddress,
+            msg.sender,
+            amount,
+            fee,
+            staked
+        );
+
+        if (canMakePayment == false) {
+            return;
+        }
+
+        uint lockUp = requiredStake;
+        if (claimant == 0) {
+            lockUp = firstProcess(
+                _subscriptionIdentifier,
+                tokenAddress,
+                dueDate,
+                staked,
+                interval,
+                requiredStake
+            );
+        } else if (claimant == msg.sender) {
+            existingProcess(
+                _subscriptionIdentifier,
+                tokenAddress,
+                dueDate,
+                staked,
+                interval,
+                requiredStake
+            );
+        }
+
+        emit SubscriptionProcessed(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            msg.sender,
+            dueDate + interval,
+            lockUp
         );
     }
 
@@ -249,18 +324,23 @@ contract Executor is Ownable {
         uint requiredStake
     )
         private
+        returns (uint)
     {
         // Check if they have enough tokens available
-        require(stakeContract.getAvailableStake(msg.sender, tokenAddress) >= requiredStake);
+        uint availableStake = stakeContract.getAvailableStake(msg.sender, tokenAddress);
+        require(availableStake >= requiredStake);
 
-        stakeContract.lockTokens(msg.sender, tokenAddress, requiredStake);
+        uint lockUp = (availableStake * lockUpPercentage) / 1000;
+        stakeContract.lockTokens(msg.sender, tokenAddress, lockUp);
 
         paymentRegistry.claimPayment(
             subscriptionIdentifier, // Identifier of subscription
             msg.sender, // The claimant
             dueDate + interval, // Next payment due date
-            (requiredStake * lockUpPercentage) / 1000
+            lockUp
         );
+
+        return lockUp;
     }
 
     function existingProcess(
@@ -273,19 +353,25 @@ contract Executor is Ownable {
     )
         private
     {
+        uint lockUp = requiredStake;
+
         if (requiredStake < staked) {
+            uint difference = staked - requiredStake;
+
             stakeContract.unlockTokens(
                 msg.sender,
                 tokenAddress,
-                staked - requiredStake
+                difference
             );
+        } else {
+            lockUp = staked;
         }
 
         paymentRegistry.claimPayment(
             subscriptionIdentifier, // Identifier of subscription
             msg.sender, // The claimant
             dueDate + interval, // Next payment due date
-            requiredStake < staked ? requiredStake : staked
+            lockUp
         );
 
     }
