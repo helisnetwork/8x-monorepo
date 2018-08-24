@@ -366,6 +366,9 @@ contract('Executor', function(accounts) {
             assert.equal(etherPaymentInfo[5], serviceNode);
             assert.equal(etherPaymentInfo[6], 0);
             assert.equal(etherPaymentInfo[7].toNumber(), ((firstNodeStake + secondNodeStake) / divideBy) * 0.8);
+
+            // Release subscription
+            await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
         });
 
         it("should not be able to process someone else's subscription", async function() {
@@ -379,6 +382,9 @@ contract('Executor', function(accounts) {
 
             // Try processing the subscription as the competing service node
             await assertRevert(executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
+
+            // Release subscription
+            await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
 
         });
 
