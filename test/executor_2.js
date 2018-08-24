@@ -384,6 +384,7 @@ contract('Executor', function(accounts) {
             await assertRevert(executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
 
             // Release subscription
+            await executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode})
             await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
 
         });
@@ -420,41 +421,66 @@ contract('Executor', function(accounts) {
 
     });
 
-    /*
-
     describe("when releasing a subscription", () => {
 
-        it("should not be able to release someone else's subscription", async function() {
+        let etherSubscriptionHash;
+        let globalTime;
 
-            // @TODO: Implementation
+        before(async function() {
 
-        });
+            // Transfer two months' worth of Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 3});
 
-        it("should not be able to release an unprocessed subscription", async function() {
+            // Create a new subscription and fast forward one month
+            etherSubscriptionHash = await newEtherSubscription("releasing");
 
-            // @TODO: Implementation
+            let details = await fastForwardSubscription(etherSubscriptionHash, 1, true);
+            globalTime = details[1];
 
         });
 
         it("should not be be able to release after the execution period + cancellation period (exclusive)", async function() {
 
-            // @TODO: Implementation
+            await setTimes(modifyTimeContracts, globalTime + (subscriptionInterval / 7) + 1);
+            await assertRevert(executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
 
         });
 
         it("should not be be able to release after the execution period + cancellation period (inclusive)", async function() {
 
-            // @TODO: Implementation
+            await setTimes(modifyTimeContracts, globalTime + (subscriptionInterval / 7));
+            await assertRevert(executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
 
         });
 
-        it("should be able to rellease after the execution period but before the cancellation period", async function() {
+        it("should not be able to release an unprocessed subscription", async function() {
 
-            // @TODO: Implementation
+            await setTimes(modifyTimeContracts, globalTime + subscriptionInterval);
+            await assertRevert(executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
+
+        });
+
+        it("should not be able to release someone else's subscription", async function() {
+
+            await assertRevert(executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
+
+        });
+
+        it("should be able to release after the execution period but before the cancellation period", async function() {
+
+            await executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+            await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+
+            let paymentDetails = await paymentRegistryContract.payments.call(etherSubscriptionHash);
+            assert.equal(paymentDetails[5], 0);
+            assert.equal(paymentDetails[6], 0);
+            assert.equal(paymentDetails[7], 0);
 
         });
 
     });
+
+    /*
 
     describe("when catching a late subscription", () => {
 

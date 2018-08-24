@@ -405,7 +405,8 @@ contract Executor is Ownable {
 
         // Make sure we're within the cancellation window
         uint minimumDate = lastPaymentDate + executionPeriod;
-        uint maximumDate = (minimumDate + ((lastPaymentDate - dueDate) / maximumIntervalDivisor));
+        uint interval = dueDate - lastPaymentDate;
+        uint maximumDate = minimumDate + (interval / maximumIntervalDivisor);
 
         require(
             currentTimestamp() >= minimumDate && // Must be past last payment date and the execution period
