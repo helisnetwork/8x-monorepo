@@ -106,7 +106,7 @@ contract PaymentRegistry is Authorizable {
             require(currentPayment.claimant == _claimant);
         }
 
-        if (currentPayment.executionPeriod == 0) {
+        if (currentPayment.executionPeriod == 0 && currentPayment.claimant == 0) {
             currentPayment.executionPeriod = currentTimestamp() - currentPayment.dueDate;
         }
 

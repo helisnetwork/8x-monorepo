@@ -365,7 +365,7 @@ contract('Executor', function(accounts) {
             assert.equal(etherPaymentInfo[4], details[1]);
             assert.equal(etherPaymentInfo[5], serviceNode);
             assert.equal(etherPaymentInfo[6], 0);
-            assert.equal(etherPaymentInfo[7].toNumber(), ((firstNodeStake + secondNodeStake) / divideBy) * 0.8);
+            assert.equal(etherPaymentInfo[7].toNumber(), firstNodeStake * 0.8);
 
             // Release subscription
             await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
@@ -390,7 +390,31 @@ contract('Executor', function(accounts) {
 
         it("should be able to process a subscription the next month and free the difference", async function() {
 
-            // @TODO: Implementation
+            // Transfer two months' worth of Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 3});
+
+            // Create a new subscription and fast forward one month
+            let etherSubscriptionHash = await newEtherSubscription("process.free_difference");
+            await fastForwardSubscription(etherSubscriptionHash, 2, false);
+
+            let oneMonthLaterDetails = await paymentRegistryContract.payments.call(etherSubscriptionHash);
+            let oneMonthLaterStake = await stakeContract.getAvailableStake(serviceNode, etherContract.address);
+
+            let expectedStake = firstNodeStake * 0.8
+            assert.equal(oneMonthLaterDetails[7].toNumber(), expectedStake);
+            assert.equal(oneMonthLaterStake.toNumber(), firstNodeStake - expectedStake);
+
+            // Process the subscription with less tokens in the system so some should be freed up
+            await executorContract.processSubscriptionTwo(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+            let twoMonthsLaterDetails = await paymentRegistryContract.payments.call(etherSubscriptionHash);
+            let twoMonthsLaterStake = await stakeContract.getAvailableStake(serviceNode, etherContract.address);
+
+            let requiredStake =  (firstNodeStake - expectedStake + secondNodeStake) / 10;
+            assert.equal(twoMonthsLaterDetails[7].toNumber(), requiredStake);
+            assert.equal(twoMonthsLaterStake.toNumber(), firstNodeStake - requiredStake);
+
+            // Release subscription
+            await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
 
         });
 
