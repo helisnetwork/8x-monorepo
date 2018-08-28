@@ -26,6 +26,7 @@ contract PaymentRegistry is Authorizable {
     event PaymentCreated(bytes32 subscriptionIdentifer);
     event PaymentClaimed(bytes32 subscriptionIdentifer, address claimant);
     event PaymentClaimantRemoved(bytes32 subscriptionIdentifer, address claimant);
+    event PaymentClaimantTransferred(bytes32 subscriptionIdentifer, address claimant);
     event PaymentCancelled(bytes32 subscriptionIdentifer);
     event PaymentDeleted(bytes32 subscriptionIdentifier);
 
@@ -126,6 +127,7 @@ contract PaymentRegistry is Authorizable {
       * transaction
       * @param _subscriptionIdentifier is the identifier of that customer's
       * subscription with it's relevant details.
+      * @param _claimant is the service node.
     */
     function removeClaimant(
         bytes32 _subscriptionIdentifier,
@@ -141,6 +143,30 @@ contract PaymentRegistry is Authorizable {
         currentPayment.staked = 0;
 
         emit PaymentClaimantRemoved(_subscriptionIdentifier, _claimant);
+
+        return true;
+    }
+
+    /** @dev Allows a claimant to transfer their responsibility to process a
+      * transaction
+      * @param _subscriptionIdentifier is the identifier of that customer's
+      * subscription with it's relevant details.
+      * @param _claimant is the service node.
+    */
+    function transferClaimant(
+        bytes32 _subscriptionIdentifier,
+        address _claimant)
+        public
+        onlyAuthorized
+        returns (bool success)
+    {
+        // @TODO: Write tests
+        Payment storage currentPayment = payments[_subscriptionIdentifier];
+
+        currentPayment.claimant = _claimant;
+        currentPayment.executionPeriod = currentTimestamp() - currentPayment.dueDate;
+
+        emit PaymentClaimantTransferred(_subscriptionIdentifier, _claimant);
 
         return true;
     }

@@ -317,7 +317,7 @@ contract Executor is Ownable {
         (
             address tokenAddress,
             uint dueDate,
-            ,
+            uint amount,
             ,
             uint lastPaymentDate,
             address claimant,
@@ -373,8 +373,8 @@ contract Executor is Ownable {
         (
             address tokenAddress,
             uint dueDate,
-            ,
-            ,
+            uint amount,
+            uint fee,
             ,
             address claimant,
             uint executionPeriod,
@@ -384,7 +384,10 @@ contract Executor is Ownable {
         // First make sure it's past the due date and execution period
         require(currentTimestamp() > (dueDate + executionPeriod));
 
-        // @TODO: Check if the user has enough funds.
+        // Check if the user has enough funds.
+        Collectable subscription = Collectable(_subscriptionContract);
+        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+        require(ERC20(tokenAddress).balanceOf(consumer) >= amount);
 
         // Ensure the original claimant can't call this function
         require(msg.sender != claimant);
@@ -397,14 +400,16 @@ contract Executor is Ownable {
             msg.sender
         );
 
-        // Remove as claimant
-        paymentRegistry.removeClaimant(
+        // Transfer claimant
+        paymentRegistry.transferClaimant(
             _subscriptionIdentifier,
-            claimant
+            msg.sender
         );
 
         // Call collect payment function as this caller
-        processSubscription(_subscriptionContract, _subscriptionIdentifier);
+        uint gasCost = approvedRegistry.getGasCost(tokenAddress, _subscriptionContract, 0);
+        attemptPayment(ERC20(tokenAddress), consumer, business, amount - fee - gasCost);
+        attemptPayment(ERC20(tokenAddress), consumer, msg.sender, fee + gasCost);
 
         // Emit an event to say a late payment was caught and processed
         emit SubscriptionLatePaymentCaught(
