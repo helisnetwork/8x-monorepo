@@ -1,5 +1,6 @@
 /* Import statements */
 import React from 'react';
+import TrezorConnect from 'trezor-connect';
 
 import {default as Images} from '../middleware/images';
 
@@ -7,14 +8,14 @@ import {default as Images} from '../middleware/images';
 class SelectWallet extends React.Component {
   render() {
     return (
-      <div>
+      <div className="small-card">
         <div className="main-card">
           <div className="card-header">
-            <p>Where are your funds stored?</p>
+            <h1>Where are your funds stored?</h1>
             <p>Please select an option</p>
           </div>
           <div className="options-container">
-            <div className="item metamask">
+            <a className="item metamask" href="www.8xprotocol.com/metamask">
               <div className="logo">
                 <img src={Images.metamaskLogo}/>
               </div>
@@ -22,8 +23,8 @@ class SelectWallet extends React.Component {
                 <p>Metamask</p>
                 <p>MetaMask is a browser extension that allows you to store Ether and interact with decentralised apps.</p>
               </div>
-            </div>
-            <div className="item ledger">
+            </a>
+            <a className="item ledger" href="www.8xprotocol.com/ledger">
               <div className="logo">
                 <img src={Images.ledgerLogo}/>
               </div>
@@ -31,8 +32,8 @@ class SelectWallet extends React.Component {
                 <p>Ledger</p>
                 <p>You store your cryptocurrency on a Ledger Hardware Wallet.</p>
               </div>
-            </div>
-            <div className="item trezor">
+            </a>
+            <a className="item trezor" href="www.8xprotocol.com/trezor">
               <div className="logo">
                 <img src={Images.trezorLogo}/>
               </div>
@@ -40,8 +41,8 @@ class SelectWallet extends React.Component {
                 <p>Trezor</p>
                 <p>You store your cryptocurrency on a Trezor Hardware Wallet.</p>
               </div>
-            </div>
-            <div className="item exchange">
+            </a>
+            <a className="item exchange">
               <div className="logo">
                 <img src={Images.trezorLogo}/>
               </div>
@@ -49,7 +50,7 @@ class SelectWallet extends React.Component {
                 <p>Exchange</p>
                 <p>You store your cryptocurrency on an exchange, such as Binance or Coinbase.</p>
               </div>
-            </div>
+            </a>
           </div>
         </div>
       </div>

@@ -1,11 +1,8 @@
 /* Import statements */
 import React from 'react';
 
-/* Import pages */
-//import ExchangeWarning from './pages/exchange-warning';
-
 import './assets/stylesheets/app.scss';
-import SubscriptionInfo from './pages/subscripton-info';
+import SelectWallet from './pages/select-wallet';
 
 
 /* App component */
@@ -13,7 +10,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <SubscriptionInfo/>
+        <SelectWallet/>
       </div>
     );
   }

@@ -2,8 +2,18 @@
 	max-width: 35em;
 	margin: auto;
 
+	a {
+		text-decoration: inherit;
+		color: inherit;
+		cursor: pointer;
+	}
+
 	.card-header {
 		text-align: center;
+
+		p {
+			color: #958DB7;
+		}
 	}
 
 	.options-container {
@@ -15,8 +25,10 @@
 			background-color: red;
 			padding: 1em 2em;
 			margin-bottom: 1.5em;
-			border-radius: 0.30em;
+			border-radius: 0.5em;
 			box-shadow: 2px 0 16px #EFEFEF;
+			color: white;
+			font-weight: 200;
 			//box-shadow: 0px 0.2em 20px 0px grey;
 
 			.logo {
@@ -41,6 +53,7 @@
 
 		.exchange {
 			background-color: #2B2654;
+			display: none;
 		}
 	}
 }
