@@ -1,11 +1,13 @@
 pragma solidity 0.4.24;
 
-import "./base/ownership/Ownable.sol";
+import "./ApprovedRegistryInterface.sol";
+import "./KyberNetworkInterface.sol";
+import "./base/token/WETH.sol";
 
 /** @title Approved contract, tokens and gas prices. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract ApprovedRegistry is Ownable {
+contract ApprovedRegistry is ApprovedRegistryInterface {
 
     struct GasCost {
         uint callValue;
@@ -13,8 +15,11 @@ contract ApprovedRegistry is Ownable {
         uint gasPrice;
     }
 
-    mapping (address => uint) public approvedTokenMapping;
+    mapping (address => uint) public approvedTokenMapping; // Exchange rate cache (in case Kyber is down).
     mapping (address => mapping (uint => GasCost)) public approvedContractMapping;
+
+    KyberNetworkInterface public kyberProxy;
+    WETH public wrappedEther;
 
     address[] public approvedContractArray;
     address[] public approvedTokenArray;
@@ -24,7 +29,6 @@ contract ApprovedRegistry is Ownable {
 
     event TokenAdded(address indexed target);
     event TokenRemoved(address indexed target);
-    event TokenMultiplierSet(address indexed tokenAddress, uint indexed multiplier);
 
     event ContractGasCostSet(address indexed contractAddress, uint indexed index);
     event ContractGasCostRemoved(address indexed contractAddress, uint indexed index);
@@ -51,6 +55,58 @@ contract ApprovedRegistry is Ownable {
     /**
       * PUBLIC FUNCTIONS
     */
+
+    /** @dev Set the addresses for the relevant contracts
+      * @param _kyberAddress the address for the kyber network contract.
+    */
+    constructor(address _kyberAddress) public {
+        // @TODO: Figure out how to add tests for this
+        kyberProxy = KyberNetworkInterface(_kyberAddress);
+    }
+
+    /** @dev Get the gas costs for executing a transaction in a particular currency.
+      * @param _tokenAddress is the address of the token.
+      * @param _contractAddress is the address of the contract.
+      * @param _index for the calling contract function.
+    */
+    function getGasCost(
+        address _tokenAddress,
+        address _contractAddress,
+        uint _index
+    )
+        public returns (uint)
+    {
+        uint currentRate = getRateFor(_tokenAddress); // in wei
+        uint gasCost = approvedContractMapping[_contractAddress][_index].gasCost;
+        uint standardGasPrice = approvedContractMapping[_contractAddress][_index].gasPrice;
+        uint standardCost = ((gasCost * standardGasPrice) / (10**18) / currentRate);
+
+        // X = gas required * price of ETH/USD
+        // X = (one ether / gas required) * price of USD/ETH
+        // X = (300,000) / ((10**18) / (2*10**15)
+
+        return standardCost;
+
+    }
+
+    /** @dev Get exchange rate for token.
+      * @param _tokenAddress is the address for the token.
+    */
+    function getRateFor(address _tokenAddress) public returns (uint) {
+        (, uint rate) = kyberProxy.getExpectedRate(
+            ERC20(_tokenAddress),
+            ERC20(0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee),
+            10**18
+        );
+
+        if (rate > 0) {
+            approvedTokenMapping[_tokenAddress] = rate;
+            return rate;
+        }
+
+        // Gas spike hence return cached value
+        return approvedTokenMapping[_tokenAddress] = rate;
+    }
 
     /** @dev Add an approved subscription contract to be used.
       * @param _contractAddress is the address of the subscription contract.
@@ -95,30 +151,19 @@ contract ApprovedRegistry is Ownable {
     /** @dev Add an approved token to be used.
       * @param _tokenAddress is the address of the token to be used.
     */
-    function addApprovedToken(address _tokenAddress)
+    function addApprovedToken(address _tokenAddress, bool _isWETH)
         public
         onlyOwner
         hasTokenBeenApproved(_tokenAddress, false)
     {
         approvedTokenArray.push(_tokenAddress);
+
+        if (_isWETH == true && address(wrappedEther) == 0) {
+            // @TODO: Write tests for this
+            wrappedEther = WETH(_tokenAddress);
+        }
+
         emit TokenAdded(_tokenAddress);
-    }
-
-    /** @dev Set an approved token multiplier.
-      * @param _tokenAddress is the address of the token to be used.
-      * @param _multiplier is the amount of this token required for each subscription.
-    */
-    function setApprovedTokenMultiplier(
-        address _tokenAddress,
-        uint _multiplier
-    )
-        public
-        onlyOwner
-        hasTokenBeenApproved(_tokenAddress, true)
-    {
-        approvedTokenMapping[_tokenAddress] = _multiplier;
-        emit TokenMultiplierSet(_tokenAddress, _multiplier);
-
     }
 
     /** @dev Remove an approved subscription contract.
@@ -175,6 +220,11 @@ contract ApprovedRegistry is Ownable {
                 break;
             }
         }
+
+        if (_tokenAddress == address(wrappedEther)) {
+            // @TODO: Write tests for this
+            delete wrappedEther;
+        }
     }
 
     /** @dev Get approved contract array.
@@ -197,17 +247,10 @@ contract ApprovedRegistry is Ownable {
         return approvedTokenArray;
     }
 
-    /** @dev Get multiplier for a token.
-      * @param _tokenAddress is the address for the token.
-    */
-    function getMultiplierFor(address _tokenAddress) public returns (uint) {
-        return approvedTokenMapping[_tokenAddress];
-    }
-
     /** @dev Check if a subscription has been authorised.
       * @param _contractAddress is the address of the contract.
     */
-    function isContractAuthorised(address _contractAddress) public returns(bool) {
+    function isContractAuthorised(address _contractAddress) public returns (bool) {
         require(_contractAddress != 0);
 
         bool contractFoundInRegistry = false;
@@ -225,7 +268,7 @@ contract ApprovedRegistry is Ownable {
     /** @dev Check if a token has been authorised.
       * @param _tokenAddress is the address of the token.
     */
-    function isTokenAuthorised(address _tokenAddress) public returns(bool) {
+    function isTokenAuthorised(address _tokenAddress) public returns (bool) {
         require(_tokenAddress != 0);
 
         bool tokenFoundInRegistry = false;

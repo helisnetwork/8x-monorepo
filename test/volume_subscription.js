@@ -1,9 +1,10 @@
 import assertRevert from './helpers/assert_revert.js';
 import keccak from './helpers/keccak.js';
 
-var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
+var MockVolumeSubscription = artifacts.require("./test/MockVolumeSubscription.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
+var MockKyberNetworkInterface = artifacts.require("./test/MockKyberNetworkInterface.sol");
 
 contract('VolumeSubscription', function(accounts) {
 
@@ -16,10 +17,12 @@ contract('VolumeSubscription', function(accounts) {
     let subscriber = accounts[3]; // The user who is paying the business
     let unauthorizedAddress = accounts[4]; // Someone random
     let approvedRegistryContract;
+    let kyberNetwork;
 
     before(async function() {
 
-        approvedRegistryContract = await ApprovedRegistry.new({from: contractOwner});
+        kyberNetwork = await MockKyberNetworkInterface.new({from: contractOwner});
+        approvedRegistryContract = await ApprovedRegistry.new(kyberNetwork.address, {from: contractOwner});
 
         contract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: accounts[0]});
         token = await EightExToken.new({from: accounts[0]});
@@ -59,7 +62,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                0, token.address, "plan.new.incorrect", "test", "", 30, 100, 5, "{}", {from: business}
+                0, token.address, "plan.new.incorrect", 30, 100, 5, "{}", {from: business}
               )
             );
 
@@ -69,7 +72,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                business, token.address, "", "test", "", 30, 100, 5, "{}", {from: business}
+                business, token.address, "", 30, 100, 5, "{}", {from: business}
               )
             );
 
@@ -79,7 +82,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
                 contract.createPlan(
-                    business, 0, "plan.new.no_token", "test", "", 30, 100, 10, "{}", {from: business}
+                    business, 0, "plan.new.no_token", 30, 100, 10, "{}", {from: business}
                 )
             );
 
@@ -89,7 +92,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                business, token.address, "plan.new", "test", "", 30, 100, 10, "{}", {from: business}
+                business, token.address, "plan.new", 30, 100, 10, "{}", {from: business}
               )
             );
 
@@ -99,7 +102,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
             contract.createPlan(
-              business, token.address, "plan.new.incorrect", "test", "", 0, 100, 5, "{}", {from: business}
+              business, token.address, "plan.new.incorrect", 0, 100, 5, "{}", {from: business}
             )
           );
 
@@ -109,7 +112,7 @@ contract('VolumeSubscription', function(accounts) {
 
           await assertRevert(
             contract.createPlan(
-              business, token.address, "plan.new.incorrect", "test", "", 30, 0, 5, "{}", {from: business}
+              business, token.address, "plan.new.incorrect", 30, 0, 5, "{}", {from: business}
             )
           );
 
@@ -120,7 +123,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                business, token.address, "plan.new.incorrect", "test", "", 30, 100, 0, "{}", {from: business}
+                business, token.address, "plan.new.incorrect", 30, 100, 0, "{}", {from: business}
               )
             );
 
@@ -130,7 +133,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                business, token.address, "plan.new.incorrect", "test", "", 30, 100, 100, "{}", {from: business}
+                business, token.address, "plan.new.incorrect", 30, 100, 100, "{}", {from: business}
               )
             );
 
@@ -138,10 +141,10 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to create a new plan correctly", async function() {
 
-            await approvedRegistryContract.addApprovedToken(token.address, {from: contractOwner});
+            await approvedRegistryContract.addApprovedToken(token.address, false, {from: contractOwner});
 
             let newPlan = await contract.createPlan(
-              business, token.address, "plan.new", "test", "", 30, 100, 10, "{}", {from: business}
+              business, token.address, "plan.new", 30, 100, 10, "{}", {from: business}
             )
 
             let planHash = newPlan.logs[0].args.identifier;
@@ -150,16 +153,14 @@ contract('VolumeSubscription', function(accounts) {
             assert.equal(plan[0], business);
             assert.equal(plan[1], token.address);
             assert.equal(plan[2], "plan.new");
-            assert.equal(plan[3], "test");
-            assert.equal(plan[4], "");
-            assert.equal(plan[5], 30);
-            assert.equal(plan[6], 100);
-            assert.equal(plan[7], 10);
-            assert.equal(plan[8], "{}");
+            assert.equal(plan[3], 30);
+            assert.equal(plan[4], 100);
+            assert.equal(plan[5], 10);
+            assert.equal(plan[6], "{}");
 
             let computedHash = keccak(
-              ["address", "address", "string", "string", "string", "uint", "uint", "uint", "string"],
-              [business, token.address, "plan.new", "test", "", 30, 100, 10, "{}"]
+              ["address", "address", "string", "uint", "uint", "uint", "string"],
+              [business, token.address, "plan.new", 30, 100, 10, "{}"]
             );
 
             assert.equal(computedHash, planHash);
@@ -170,7 +171,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                business, token.address, "plan.new", "test", "", 30, 100, 10, "{}", {from: business}
+                business, token.address, "plan.new", 30, 100, 10, "{}", {from: business}
               )
             );
 
@@ -186,7 +187,7 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, "plan.update", "test", "", 30, 100, 10, "{}", {from: business}
+              business, token.address, "plan.update", 30, 100, 10, "{}", {from: business}
             );
 
             planHash = newPlan.logs[0].args.identifier;
@@ -210,48 +211,18 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
-        it("should throw when setting the name from an unauthorized address", async function() {
-
-            await assertRevert(contract.setPlanName(planHash, "Test", {from: unauthorizedAddress}));
-
-        });
-
-        it("should be able to update the name", async function() {
-
-            await contract.setPlanName(planHash, "Test", {from: business});
-
-            let returnedPlan = await contract.plans.call(planHash);
-            assert(returnedPlan[3], "Test");
-
-        });
-
-        it("should throw when setting the description from an unauthorized address", async function() {
-
-            await assertRevert(contract.setPlanDescription(planHash, "This is a long description.", {from: unauthorizedAddress}));
-
-        });
-
-        it("should be able to update the description", async function() {
-
-            await contract.setPlanDescription(planHash, "This is a long description.", {from: business});
-
-            let returnedPlan = await contract.plans.call(planHash);
-            assert(returnedPlan[4], "This is a long description.");
-
-        });
-
         it("should throw when setting the data from an unauthorized address", async function() {
 
             await assertRevert(contract.setPlanData(planHash, "{foo: bar}", {from: unauthorizedAddress}));
 
         });
 
-        it("should be able to update the name", async function() {
+        it("should be able to update the data", async function() {
 
             await contract.setPlanData(planHash, "{foo: bar}", {from: business});
 
             let returnedPlan = await contract.plans.call(planHash);
-            assert(returnedPlan[8], "{foo: bar}");
+            assert(returnedPlan[6], "{foo: bar}");
 
         });
 
@@ -265,7 +236,7 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, "plan.terminate", "test", "", 30, 100, 10, "{}", {from: business}
+              business, token.address, "plan.terminate", 30, 100, 10, "{}", {from: business}
             );
 
             planHash = newPlan.logs[0].args.identifier;
@@ -295,7 +266,7 @@ contract('VolumeSubscription', function(accounts) {
             await contract.terminatePlan(planHash, terminationDate, {from: business});
 
             let plan = await contract.plans.call(planHash);
-            assert.equal(plan[9], terminationDate);
+            assert.equal(plan[7], terminationDate);
 
         });
 
@@ -313,7 +284,7 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, "subscription.new", "test", "", 30, 100, 10, "{}", {from: business}
+              business, token.address, "subscription.new", 30, 100, 10, "{}", {from: business}
             );
 
             planHash = newPlan.logs[0].args.identifier;
@@ -413,7 +384,7 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, "subscription.update", "test", "", 30, 100, 10, "{}", {from: business}
+              business, token.address, "subscription.update", 30, 100, 10, "{}", {from: business}
             );
 
             planHash = newPlan.logs[0].args.identifier;
@@ -455,7 +426,7 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, "subscription.cancel", "test", "", 30, 100, 10, "{}", {from: business}
+              business, token.address, "subscription.cancel", 30, 100, 10, "{}", {from: business}
             );
 
             planHash = newPlan.logs[0].args.identifier;

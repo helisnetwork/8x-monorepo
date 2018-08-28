@@ -6,6 +6,7 @@ var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.s
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
 var WrappedEther = artifacts.require("./base/token/WETH.sol");
 var MockToken = artifacts.require("./test/MockToken.sol");
+var MockKyber = artifacts.require("./test/MockKyberNetworkInterface.sol");
 
 contract('ApprovedRegistry', function(accounts) {
 
@@ -18,6 +19,7 @@ contract('ApprovedRegistry', function(accounts) {
     let tokenSubscriber = accounts[3]; // User paying $100/month subscription directly (probably in DAI)
     let serviceNode = accounts[4]; // Collector party claiming payment
     let unauthorisedAddress = accounts[5]; // Some random address
+    let kyberContract;
 
     let wrappedEtherContract;
     let transactingCurrencyContract;
@@ -27,12 +29,15 @@ contract('ApprovedRegistry', function(accounts) {
     before(async function() {
 
         // Initialise all the other contracts the executor needs in order to function
-        approvedRegistryContract = await ApprovedRegistry.new({from: contractOwner});
+        kyberContract = await MockKyber.new({from: contractOwner});
+
+        approvedRegistryContract = await ApprovedRegistry.new(kyberContract.address, {from: contractOwner});
         subscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: contractOwner});
 
         // Initialise a mock token contract, the owner has the initial supply
         wrappedEtherContract = await WrappedEther.new();
         transactingCurrencyContract = await MockToken.new({from: contractOwner});
+
 
     });
 
@@ -133,14 +138,14 @@ contract('ApprovedRegistry', function(accounts) {
 
         it("should not be able to add a token as an unauthorised address", async function() {
 
-            await assertRevert(approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, {from: unauthorisedAddress}));
+            await assertRevert(approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, false, {from: unauthorisedAddress}));
 
         });
 
         it("should be able to add a token as an authorised address", async function() {
 
             // We're only adding the token for now since we want to test duplication + other things
-            await approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
+            await approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, false, {from: contractOwner});
 
             let approvedArray = await approvedRegistryContract.getApprovedTokens();
             assert.equal(approvedArray.length, 1);
@@ -149,36 +154,13 @@ contract('ApprovedRegistry', function(accounts) {
 
         it("should be able to add a duplicate token as an authorised address", async function() {
 
-            await assertRevert(approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner}));
-
-        });
-
-        it("should not be able to set the multiplier for an unauthorised token", async function() {
-
-            await assertRevert(approvedRegistryContract.setApprovedTokenMultiplier(wrappedEtherContract.address, multiplier, {from: contractOwner}));
-
-        });
-
-        it("should be able to set the multiplier as the contract owner", async function() {
-
-            // Adding approved tokens, state will be reset later on. Simply using to test multiplier setting.
-            await approvedRegistryContract.addApprovedToken(wrappedEtherContract.address, {from: contractOwner});
-
-            await approvedRegistryContract.setApprovedTokenMultiplier(transactingCurrencyContract.address, multiplier, {from: contractOwner});
-            await approvedRegistryContract.setApprovedTokenMultiplier(wrappedEtherContract.address, multiplier, {from: contractOwner});
-
-            let currencyMultiplier = await approvedRegistryContract.approvedTokenMapping.call(transactingCurrencyContract.address);
-            let etherMultiplier = await approvedRegistryContract.approvedTokenMapping.call(wrappedEtherContract.address);
-
-            // Check the values were actually set rather than relying on a revert
-            assert.equal(currencyMultiplier.toNumber(), multiplier);
-            assert.equal(etherMultiplier.toNumber(), multiplier);
+            await assertRevert(approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, false, {from: contractOwner}));
 
         });
 
         it("should not be able to remove a token as an unauthorised address", async function() {
 
-            await assertRevert(approvedRegistryContract.removeApprovedToken(transactingCurrencyContract.address, {from: unauthorisedAddress}));
+            await assertRevert(approvedRegistryContract.removeApprovedToken(transactingCurrencyContract.address, false, {from: unauthorisedAddress}));
 
         });
 

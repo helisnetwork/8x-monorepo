@@ -109,8 +109,8 @@ contract('Executor', function(accounts) {
         paymentRegistryContract.addAuthorizedAddress(executorContract.address, {from: contractOwner});
 
         // We need to add the wrapped ether contract and token contract to the approved list
-        await approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
-        await approvedRegistryContract.addApprovedToken(wrappedEtherContract.address, {from: contractOwner});
+        await approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, false, {from: contractOwner});
+        await approvedRegistryContract.addApprovedToken(wrappedEtherContract.address, true, {from: contractOwner});
 
         // Now the multiplier can be set for each respective token in the system
         await approvedRegistryContract.setApprovedTokenMultiplier(transactingCurrencyContract.address, multiplier, {from: contractOwner});
