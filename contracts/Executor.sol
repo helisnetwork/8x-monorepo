@@ -8,8 +8,8 @@ import "./Collectable.sol";
 import "./TransferProxy.sol";
 import "./StakeContract.sol";
 import "./PaymentRegistry.sol";
-import "./KyberNetworkInterface.sol";
-import "./ApprovedRegistry.sol";
+import "./ApprovedRegistryInterface.sol";
+import "./RequirementsInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -19,10 +19,11 @@ contract Executor is Ownable {
     TransferProxy public transferProxy;
     StakeContract public stakeContract;
     PaymentRegistry public paymentRegistry;
-    KyberNetworkInterface public kyberProxy;
-    ApprovedRegistry public approvedRegistry;
+    ApprovedRegistryInterface public approvedRegistry;
+    RequirementsInterface public requirementsContract;
 
-    uint public cancellationPeriod;
+    uint public lockUpPercentage; // 1 Decimal Places (80.0% = 800).
+    uint public maximumIntervalDivisor; // Latest to claim a payment or cancel.
 
     event SubscriptionActivated(
         address indexed subscriptionAddress,
@@ -56,6 +57,13 @@ contract Executor is Ownable {
         uint amountLost
     );
 
+    event SubscriptionCancelled(
+        address indexed subscriptionAddress,
+        bytes32 indexed subscriptionIdentifier
+    );
+
+    event Checkpoint(uint number);
+
     /**
       * PUBLIC FUNCTIONS
     */
@@ -64,15 +72,17 @@ contract Executor is Ownable {
       * @param _transferProxyAddress the address for the designated transfer proxy.
       * @param _stakeContractAddress the address for the stake contract.
       * @param _paymentRegistryAddress the address for the payment registry.
-      * @param _kyberAddress the address for the kyber network contract.
       * @param _approvedRegistryAddress the address for the approved registry contract.
+      * @param _requirementsAddress the address for the requirements contract.
     */
     constructor(
         address _transferProxyAddress,
         address _stakeContractAddress,
         address _paymentRegistryAddress,
-        address _kyberAddress,
-        address _approvedRegistryAddress
+        address _approvedRegistryAddress,
+        address _requirementsAddress,
+        uint _lockUpPercentage,
+        uint _divisor
     )
         public
     {
@@ -81,15 +91,27 @@ contract Executor is Ownable {
         transferProxy = TransferProxy(_transferProxyAddress);
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
-        kyberProxy = KyberNetworkInterface(_kyberAddress);
-        approvedRegistry = ApprovedRegistry(_approvedRegistryAddress);
+        approvedRegistry = ApprovedRegistryInterface(_approvedRegistryAddress);
+        requirementsContract = RequirementsInterface(_requirementsAddress);
+        lockUpPercentage = _lockUpPercentage;
+        maximumIntervalDivisor = _divisor;
     }
 
-    /** @dev Set the amount of time after a payment a service node has to cancel.
-      * @param _period is the amount of time they have.
+    /** @dev Set the percentage of tokens to lock up.
+      * @param _percentage is the percentage to 1 decimal place. 80.0% = 800;
     */
-    function setCancellationPeriod(uint _period) public onlyOwner {
-        cancellationPeriod = _period;
+    function setPercentageLockUp(uint _percentage) public onlyOwner {
+        // @TODO: Add tests for this.
+        lockUpPercentage = _percentage;
+    }
+
+    /** @dev Set the maximum time for a subscription to go on unprocessed or to cancel afterwards.
+      *      Expressed as a divisor of the interval.
+      * @param _divisor is the divisor (eg 30 days / 7 = ~4).
+    */
+    function setMaximumIntervalDivisor(uint _divisor) public onlyOwner {
+        // @TODO: Add tests for this.
+        maximumIntervalDivisor = _divisor;
     }
 
     /** @dev Active a subscription once it's been created (make the first payment) paid from wrapped Ether.
@@ -138,11 +160,13 @@ contract Executor is Ownable {
             _subscriptionContract,
             _subscriptionIdentifier,
             address(transactingToken),
-            amountDue,
             currentTimestamp() + subscriptionInterval,
+            amountDue,
             fee
         );
+
     }
+
 
     /** @dev Collect the payment due from the subscriber.
       * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
@@ -163,64 +187,123 @@ contract Executor is Ownable {
             uint lastPaymentDate,
             address claimant,
             uint executionPeriod,
-            uint stakeMultiplier
+            uint staked
         ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
 
-        // Check to make sure the payment is due
+        // Ensure it's a fresh subscription or only the claimant
+        require(claimant == 0 || claimant == msg.sender);
+
+        // Make sure it's actually due
         require(currentTimestamp() >= dueDate);
 
-        // Check to make sure it hasn't been claimed by someone else or belongs to you
-        require(claimant == msg.sender || claimant == 0);
+        // Make sure it isn't too late to process
+        uint interval = (dueDate - lastPaymentDate);
+        require(currentTimestamp() < (dueDate + (interval / maximumIntervalDivisor)));
 
-        // Check it isn't too late to claim (past execution) or too late
-        Collectable subscription = Collectable(_subscriptionContract);
-        uint interval = subscription.getSubscriptionInterval(_subscriptionIdentifier);
-        // @TODO: Implementation
+        uint requiredStake = determineStake(tokenAddress, dueDate, interval);
 
-        // Check that the service node calling has enough staked tokens
-        uint currentMultiplier = currentMultiplierFor(tokenAddress);
-        uint requiredStake = currentMultiplier * amount;
-
-        if (stakeMultiplier == 0) {
-            require(stakeContract.getAvailableStake(msg.sender, tokenAddress) >= requiredStake);
-        }
-
-        // Make payments to the business and service node
-        if (attemptPaymentElseCancel(
+        bool canMakePayment = attemptPaymentElseCancel(
             _subscriptionContract,
             _subscriptionIdentifier,
             tokenAddress,
             msg.sender,
             amount,
             fee,
-            stakeMultiplier
-        ) == false) {
-            // We cancel the subscription if payment couldn't be made
-            // Could be due to invalid subscription (cancelled) or insufficient funds
+            staked
+        );
+
+        if (canMakePayment == false) {
             return;
         }
 
-        // If the current multiplier is lower than the one in the object, free the difference
-        if (stakeMultiplier > currentMultiplierFor(tokenAddress)) {
+        uint lockUp = requiredStake;
+        if (claimant == 0) {
+            lockUp = firstProcess(
+                _subscriptionIdentifier,
+                tokenAddress,
+                dueDate,
+                staked,
+                interval,
+                requiredStake
+            );
+        } else if (claimant == msg.sender) {
+            existingProcess(
+                _subscriptionIdentifier,
+                tokenAddress,
+                dueDate,
+                staked,
+                interval,
+                requiredStake
+            );
+        }
+
+        emit SubscriptionProcessed(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            msg.sender,
+            dueDate + interval,
+            lockUp
+        );
+    }
+
+    function firstProcess(
+        bytes32 subscriptionIdentifier,
+        address tokenAddress,
+        uint dueDate,
+        uint staked,
+        uint interval,
+        uint requiredStake
+    )
+        private
+        returns (uint)
+    {
+        // Check if they have enough tokens available
+        uint availableStake = stakeContract.getAvailableStake(msg.sender, tokenAddress);
+        require(availableStake >= requiredStake);
+
+        uint lockUp = (availableStake * lockUpPercentage) / 1000;
+        stakeContract.lockTokens(msg.sender, tokenAddress, lockUp);
+
+        paymentRegistry.claimPayment(
+            subscriptionIdentifier, // Identifier of subscription
+            msg.sender, // The claimant
+            dueDate + interval, // Next payment due date
+            lockUp
+        );
+
+        return lockUp;
+    }
+
+    function existingProcess(
+        bytes32 subscriptionIdentifier,
+        address tokenAddress,
+        uint dueDate,
+        uint staked,
+        uint interval,
+        uint requiredStake
+    )
+        private
+    {
+        uint lockUp = requiredStake;
+
+        if (requiredStake < staked) {
+            uint difference = staked - requiredStake;
+
             stakeContract.unlockTokens(
                 msg.sender,
                 tokenAddress,
-                (stakeMultiplier - (requiredStake/amount)) * amount
+                difference
             );
-        } else if (stakeMultiplier == 0) {
-            stakeContract.lockTokens(msg.sender, tokenAddress, requiredStake);
+        } else {
+            lockUp = staked;
         }
 
-        // Update the payment registry
         paymentRegistry.claimPayment(
-            _subscriptionIdentifier, // Identifier of subscription
+            subscriptionIdentifier, // Identifier of subscription
             msg.sender, // The claimant
             dueDate + interval, // Next payment due date
-            currentMultiplier // Current multiplier set for the currency
+            lockUp
         );
-
-        // Emit the subscription processed event
-        emit SubscriptionProcessed(_subscriptionContract, _subscriptionIdentifier, msg.sender, dueDate + interval, requiredStake);
 
     }
 
@@ -244,18 +327,24 @@ contract Executor is Ownable {
             uint lastPaymentDate,
             address claimant,
             uint executionPeriod,
-            uint stakeMultiplier
+            uint staked
         ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
 
         // Check that it belongs to the rightful claimant/service node
         // This also means we're not talking about a first time payment
         require(claimant == msg.sender);
 
+        // Ensure it's a valid subscription
+        require(Collectable(_subscriptionContract).isValidSubscription(_subscriptionIdentifier) == true);
+
         // Make sure we're within the cancellation window
         uint minimumDate = lastPaymentDate + executionPeriod;
+        uint interval = dueDate - lastPaymentDate;
+        uint maximumDate = minimumDate + (interval / maximumIntervalDivisor);
+
         require(
             currentTimestamp() >= minimumDate && // Must be past last payment date and the execution period
-            currentTimestamp() < (minimumDate + cancellationPeriod) // Can't be past the cancellation period
+            currentTimestamp() < maximumDate  // Can't be past the cancellation period
         );
 
         // Call the remove claim on payments registry
@@ -268,7 +357,7 @@ contract Executor is Ownable {
         stakeContract.unlockTokens(
             msg.sender,
             tokenAddress,
-            amount * stakeMultiplier
+            staked
         );
 
         // Emit the correct event
@@ -277,10 +366,103 @@ contract Executor is Ownable {
     }
 
     /** @dev Catch another service node who didn't process their payment on time.
-      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function catchLateSubscription(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier
+    )
+        public
+    {
+        // Get the payment object
+        (
+            address tokenAddress,
+            uint dueDate,
+            uint amount,
+            uint fee,
+            uint lastPaymentDate,
+            address claimant,
+            uint executionPeriod,
+            uint staked
+        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+
+        // First make sure it's past the due date and execution period
+        require(currentTimestamp() > (dueDate + executionPeriod));
+
+        // Ensure the original claimant can't call this function
+        require(msg.sender != claimant);
+
+        // Check that the subscription is valid
+        require(Collectable(_subscriptionContract).isValidSubscription(_subscriptionIdentifier) == true);
+
+        // Make the payment
+        transferSubscription(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            tokenAddress,
+            claimant,
+            amount,
+            fee,
+            staked,
+            dueDate,
+            lastPaymentDate
+        );
+
+        // Emit an event to say a late payment was caught and processed
+        emit SubscriptionLatePaymentCaught(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            claimant,
+            msg.sender,
+            staked
+        );
+    }
+
+    function transferSubscription(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier,
+        address _tokenAddress,
+        address _claimant,
+        uint _amount,
+        uint _fee,
+        uint _staked,
+        uint _dueDate,
+        uint _lastPaymentDate
+    )
+        private
+    {
+        // Check if the user has enough funds.
+        Collectable subscription = Collectable(_subscriptionContract);
+        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+        require(ERC20(_tokenAddress).balanceOf(consumer) >= _amount);
+
+        // Call collect payment function as this caller
+        uint gasCost = approvedRegistry.getGasCost(_tokenAddress, _subscriptionContract, 0);
+        attemptPayment(ERC20(_tokenAddress), consumer, business, _amount - _fee - gasCost);
+        attemptPayment(ERC20(_tokenAddress), consumer, msg.sender, _fee + gasCost);
+
+        // Slash the tokens and give them to this caller = $$$
+        stakeContract.transferStake(
+            _claimant,
+            _tokenAddress,
+            _staked,
+            msg.sender
+        );
+
+        // Transfer claimant
+        paymentRegistry.transferClaimant(
+            _subscriptionIdentifier,
+            msg.sender,
+            _dueDate + (_dueDate - _lastPaymentDate)
+        );
+    }
+
+    /** @dev Cancel a subscription if a user doesn't have enough funds or the subscription is invalid.
+      * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
+    function cancelSubscription(
         address _subscriptionContract,
         bytes32 _subscriptionIdentifier
     )
@@ -295,44 +477,45 @@ contract Executor is Ownable {
             ,
             ,
             address claimant,
-            uint executionPeriod,
-            uint stakeMultiplier
+            ,
+            uint staked
         ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
 
-        // First make sure it's past the due date and execution period
-        require(currentTimestamp() > (dueDate + executionPeriod));
+        Collectable subscription = Collectable(_subscriptionContract);
+        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+        bool validSubscription = subscription.isValidSubscription(_subscriptionIdentifier);
 
-        // Ensure the original claimant can't call this function
-        require(msg.sender != claimant);
-
-        // Slash the tokens and give them to this caller = $$$
-        stakeContract.transferStake(
-            claimant,
-            tokenAddress,
-            amount * stakeMultiplier,
-            msg.sender
+        // Check if the user has enough funds, the subscription is invalid or allowance revoked
+        require(
+            ERC20(tokenAddress).balanceOf(consumer) < amount ||
+            validSubscription == false ||
+            ERC20(tokenAddress).allowance(consumer, address(transferProxy)) < amount
         );
 
-        // Remove as claimant
-        paymentRegistry.removeClaimant(
-            _subscriptionIdentifier,
-            claimant
-        );
+        // Only the original claimant can cancel
+        require(msg.sender == claimant);
 
-        // Call collect payment function as this caller
-        processSubscription(_subscriptionContract, _subscriptionIdentifier);
+        // Ensure it's past the due date
+        require(currentTimestamp() >= dueDate);
 
-        // Emit an event to say a late payment was caught and processed
-        emit SubscriptionLatePaymentCaught(
-            _subscriptionContract,
-            _subscriptionIdentifier,
-            claimant,
+        // Terminate the subscription if it hasn't already
+        if (validSubscription == true) {
+            subscription.cancelSubscription(_subscriptionIdentifier);
+        }
+
+        // Refund the gas to the service node by freeing up storage
+        paymentRegistry.deletePayment(_subscriptionIdentifier);
+
+        // Unstake tokens
+        stakeContract.unlockTokens(
             msg.sender,
-            amount * stakeMultiplier
+            tokenAddress,
+            staked
         );
-    }
 
-    // @TODO: Handle stale payments
+        emit SubscriptionCancelled(_subscriptionContract, _subscriptionIdentifier);
+
+    }
 
     /**
       * INTERNAL FUNCTIONS
@@ -359,41 +542,42 @@ contract Executor is Ownable {
         address _serviceNode,
         uint _amount,
         uint _fee,
-        uint _stakeMultiplier
+        uint _staked
     )
         private
         returns (bool)
     {
         Collectable subscription = Collectable(_subscriptionContract);
-        ERC20 transactingToken = ERC20(_tokenAddress);
 
         (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
         bool validSubscription = subscription.isValidSubscription(_subscriptionIdentifier);
 
-        if (transactingToken.balanceOf(consumer) >= _amount && validSubscription == true) {
+        if (ERC20(_tokenAddress).balanceOf(consumer) >= _amount && validSubscription == true) {
+            uint gasCost = approvedRegistry.getGasCost(_tokenAddress, _subscriptionContract, 0);
             // Make the payments
-            attemptPayment(transactingToken, consumer, business, _amount - _fee);
-            attemptPayment(transactingToken, consumer, _serviceNode, _fee);
+            // @TODO: Make tests for gas cost subtraction
+            attemptPayment(ERC20(_tokenAddress), consumer, business, _amount - _fee - gasCost);
+            attemptPayment(ERC20(_tokenAddress), consumer, _serviceNode, _fee + gasCost);
             return true;
-        } else {
-            // Terminate the subscription if it hasn't already
-            if (validSubscription == true) {
-                subscription.cancelSubscription(_subscriptionIdentifier);
-            }
-
-            // Refund the gas to the service node by freeing up storage
-            paymentRegistry.deletePayment(_subscriptionIdentifier);
-
-            // Unstake tokens
-            stakeContract.unlockTokens(
-                msg.sender,
-                _tokenAddress,
-                _amount * _stakeMultiplier
-            );
-
-            return false;
         }
+
+        // Terminate the subscription if it hasn't already
+        if (validSubscription == true) {
+            subscription.cancelSubscription(_subscriptionIdentifier);
+        }
+
+        // Refund the gas to the service node by freeing up storage
+        paymentRegistry.deletePayment(_subscriptionIdentifier);
+
+        // Unstake tokens
+        stakeContract.unlockTokens(
+            msg.sender,
+            _tokenAddress,
+            _staked
+        );
+
+        return false;
     }
 
     function attemptPayment(
@@ -418,8 +602,32 @@ contract Executor is Ownable {
         require((_transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount);
     }
 
-    function currentMultiplierFor(address _tokenAddress) public returns(uint) {
-        return approvedRegistry.getMultiplierFor(_tokenAddress);
+    function determineStake(
+        address _tokenAddress,
+        uint _startDate,
+        uint _interval
+    )
+        public
+        returns(uint)
+    {
+        (
+            uint total,
+            uint lockedUp,
+            uint gini,
+            uint divideBy
+        ) = stakeContract.getTokenStakeDetails(_tokenAddress);
+
+        // @TODO: Make interval divide by changeable
+        uint stake = requirementsContract.getStake(
+            gini,
+            divideBy,
+            _startDate,
+            currentTimestamp(),
+            _startDate + (_interval / maximumIntervalDivisor),
+            total - lockedUp
+        );
+
+        return stake;
     }
 
 }

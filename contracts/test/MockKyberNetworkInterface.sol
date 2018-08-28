@@ -1,12 +1,11 @@
 pragma solidity 0.4.24;
 
 import "../KyberNetworkInterface.sol";
-import "../base/token/ERC20.sol";
 
 /** @title Mock contract to test Kyber Network proxy interface */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract MockKyberNetworkInterface {
+contract MockKyberNetworkInterface is KyberNetworkInterface {
 
     /**
       * KYBER NETWORK INTERFACE FUNCTIONS

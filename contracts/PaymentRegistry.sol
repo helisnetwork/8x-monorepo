@@ -17,7 +17,7 @@ contract PaymentRegistry is Authorizable {
 
         address claimant;               // 5
         uint executionPeriod;           // 6
-        uint stakeMultiplier;           // 7
+        uint staked;                    // 7
     }
 
     // The bytes32 key is the subscription identifier
@@ -26,6 +26,7 @@ contract PaymentRegistry is Authorizable {
     event PaymentCreated(bytes32 subscriptionIdentifer);
     event PaymentClaimed(bytes32 subscriptionIdentifer, address claimant);
     event PaymentClaimantRemoved(bytes32 subscriptionIdentifer, address claimant);
+    event PaymentClaimantTransferred(bytes32 subscriptionIdentifer, address claimant);
     event PaymentCancelled(bytes32 subscriptionIdentifer);
     event PaymentDeleted(bytes32 subscriptionIdentifier);
 
@@ -63,10 +64,10 @@ contract PaymentRegistry is Authorizable {
             dueDate: _dueDate,
             amount: _amount,
             fee: _fee,
-            lastPaymentDate: 0,
+            lastPaymentDate: currentTimestamp(),
             claimant: 0,
             executionPeriod: 0,
-            stakeMultiplier: 0
+            staked: 0
         });
 
         payments[_subscriptionIdentifier] = newPayment;
@@ -76,6 +77,8 @@ contract PaymentRegistry is Authorizable {
         return true;
 
     }
+
+    event Debug(uint one, uint two);
 
     /** @dev Claim the payment
       * @param _subscriptionIdentifier is the identifier of that customer's
@@ -87,29 +90,33 @@ contract PaymentRegistry is Authorizable {
         bytes32 _subscriptionIdentifier,
         address _claimant,
         uint _nextPayment,
-        uint _stakeMultiplier)
+        uint _staked)
         public
         onlyAuthorized
         returns (bool success)
     {
         Payment storage currentPayment = payments[_subscriptionIdentifier];
+        emit Debug(currentTimestamp(), _nextPayment);
+
         require(currentTimestamp() >= currentPayment.dueDate);
         require(_nextPayment >= currentTimestamp());
-        require(_stakeMultiplier > 0);
+        require(_staked > 0);
 
         if (currentPayment.claimant != 0) {
             require(currentTimestamp() <= currentPayment.dueDate + currentPayment.executionPeriod);
             require(currentPayment.claimant == _claimant);
         }
 
-        if (currentPayment.executionPeriod == 0) {
+        if (currentPayment.executionPeriod == 0 && currentPayment.claimant == 0) {
             currentPayment.executionPeriod = currentTimestamp() - currentPayment.dueDate;
         }
 
+        uint oldDueDate = currentPayment.dueDate;
+
         currentPayment.claimant = _claimant;
+        currentPayment.lastPaymentDate = oldDueDate;
         currentPayment.dueDate = _nextPayment;
-        currentPayment.lastPaymentDate = currentTimestamp();
-        currentPayment.stakeMultiplier = _stakeMultiplier;
+        currentPayment.staked = _staked;
 
         emit PaymentClaimed(_subscriptionIdentifier, _claimant);
 
@@ -120,6 +127,7 @@ contract PaymentRegistry is Authorizable {
       * transaction
       * @param _subscriptionIdentifier is the identifier of that customer's
       * subscription with it's relevant details.
+      * @param _claimant is the service node.
     */
     function removeClaimant(
         bytes32 _subscriptionIdentifier,
@@ -132,9 +140,41 @@ contract PaymentRegistry is Authorizable {
 
         currentPayment.claimant = 0;
         currentPayment.executionPeriod = 0;
-        currentPayment.stakeMultiplier = 0;
+        currentPayment.staked = 0;
 
         emit PaymentClaimantRemoved(_subscriptionIdentifier, _claimant);
+
+        return true;
+    }
+
+    /** @dev Allows a claimant to transfer their responsibility to process a
+      * transaction
+      * @param _subscriptionIdentifier is the identifier of that customer's
+      * subscription with it's relevant details.
+      * @param _claimant is the service node.
+    */
+    function transferClaimant(
+        bytes32 _subscriptionIdentifier,
+        address _claimant,
+        uint _nextPayment
+    )
+        public
+        onlyAuthorized
+        returns (bool success)
+    {
+        // @TODO: Write tests
+        require(_nextPayment >= currentTimestamp());
+
+        Payment storage currentPayment = payments[_subscriptionIdentifier];
+
+        uint oldDueDate = currentPayment.dueDate;
+
+        currentPayment.executionPeriod = currentTimestamp() - oldDueDate;
+        currentPayment.claimant = _claimant;
+        currentPayment.lastPaymentDate = oldDueDate;
+        currentPayment.dueDate = _nextPayment;
+
+        emit PaymentClaimantTransferred(_subscriptionIdentifier, _claimant);
 
         return true;
     }
@@ -182,7 +222,7 @@ contract PaymentRegistry is Authorizable {
             uint lastPaymentDate,           // 4
             address claimant,               // 5
             uint executionPeriod,           // 6
-            uint stakeMultiplier            // 7
+            uint staked                     // 7
         )
     {
         Payment memory payment = payments[_subscriptionIdenitifer];
@@ -194,7 +234,7 @@ contract PaymentRegistry is Authorizable {
             payment.lastPaymentDate,
             payment.claimant,
             payment.executionPeriod,
-            payment.stakeMultiplier
+            payment.staked
         );
     }
 
