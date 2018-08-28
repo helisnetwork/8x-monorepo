@@ -46,7 +46,6 @@ class Dropdown extends React.Component {
     return (
       <div className="dropdown-container">
         <DropdownButton item={this.state.selectedItem} action={this.showMenu} showTriangle={true} />
-        
         {
           this.state.showMenu
             ? (
