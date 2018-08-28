@@ -57,6 +57,11 @@ contract Executor is Ownable {
         uint amountLost
     );
 
+    event SubscriptionCancelled(
+        address indexed subscriptionAddress,
+        bytes32 indexed subscriptionIdentifier
+    );
+
     event Checkpoint(uint number);
 
     /**
@@ -329,6 +334,9 @@ contract Executor is Ownable {
         // This also means we're not talking about a first time payment
         require(claimant == msg.sender);
 
+        // Ensure it's a valid subscription
+        require(Collectable(_subscriptionContract).isValidSubscription(_subscriptionIdentifier) == true);
+
         // Make sure we're within the cancellation window
         uint minimumDate = lastPaymentDate + executionPeriod;
         uint interval = dueDate - lastPaymentDate;
@@ -357,7 +365,6 @@ contract Executor is Ownable {
 
     }
 
-
     /** @dev Catch another service node who didn't process their payment on time.
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
@@ -368,14 +375,13 @@ contract Executor is Ownable {
     )
         public
     {
-
         // Get the payment object
         (
             address tokenAddress,
             uint dueDate,
             uint amount,
             uint fee,
-            ,
+            uint lastPaymentDate,
             address claimant,
             uint executionPeriod,
             uint staked
@@ -384,32 +390,24 @@ contract Executor is Ownable {
         // First make sure it's past the due date and execution period
         require(currentTimestamp() > (dueDate + executionPeriod));
 
-        // Check if the user has enough funds.
-        Collectable subscription = Collectable(_subscriptionContract);
-        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
-        require(ERC20(tokenAddress).balanceOf(consumer) >= amount);
-
         // Ensure the original claimant can't call this function
         require(msg.sender != claimant);
 
-        // Slash the tokens and give them to this caller = $$$
-        stakeContract.transferStake(
-            claimant,
-            tokenAddress,
-            staked,
-            msg.sender
-        );
+        // Check that the subscription is valid
+        require(Collectable(_subscriptionContract).isValidSubscription(_subscriptionIdentifier) == true);
 
-        // Transfer claimant
-        paymentRegistry.transferClaimant(
+        // Make the payment
+        transferSubscription(
+            _subscriptionContract,
             _subscriptionIdentifier,
-            msg.sender
+            tokenAddress,
+            claimant,
+            amount,
+            fee,
+            staked,
+            dueDate,
+            lastPaymentDate
         );
-
-        // Call collect payment function as this caller
-        uint gasCost = approvedRegistry.getGasCost(tokenAddress, _subscriptionContract, 0);
-        attemptPayment(ERC20(tokenAddress), consumer, business, amount - fee - gasCost);
-        attemptPayment(ERC20(tokenAddress), consumer, msg.sender, fee + gasCost);
 
         // Emit an event to say a late payment was caught and processed
         emit SubscriptionLatePaymentCaught(
@@ -421,18 +419,101 @@ contract Executor is Ownable {
         );
     }
 
-    /** @dev Cancel a subscription if a user doesn't have enough funds.
+    function transferSubscription(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier,
+        address _tokenAddress,
+        address _claimant,
+        uint _amount,
+        uint _fee,
+        uint _staked,
+        uint _dueDate,
+        uint _lastPaymentDate
+    )
+        private
+    {
+        // Check if the user has enough funds.
+        Collectable subscription = Collectable(_subscriptionContract);
+        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+        require(ERC20(_tokenAddress).balanceOf(consumer) >= _amount);
+
+        // Call collect payment function as this caller
+        uint gasCost = approvedRegistry.getGasCost(_tokenAddress, _subscriptionContract, 0);
+        attemptPayment(ERC20(_tokenAddress), consumer, business, _amount - _fee - gasCost);
+        attemptPayment(ERC20(_tokenAddress), consumer, msg.sender, _fee + gasCost);
+
+        // Slash the tokens and give them to this caller = $$$
+        stakeContract.transferStake(
+            _claimant,
+            _tokenAddress,
+            _staked,
+            msg.sender
+        );
+
+        // Transfer claimant
+        paymentRegistry.transferClaimant(
+            _subscriptionIdentifier,
+            msg.sender,
+            _dueDate + (_dueDate - _lastPaymentDate)
+        );
+    }
+
+    /** @dev Cancel a subscription if a user doesn't have enough funds or the subscription is invalid.
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function cancelSubscription(
         address _subscriptionContract,
-        address _subscriptionIdentifier
+        bytes32 _subscriptionIdentifier
     )
         public
     {
 
-        // @TODO: Implementation
+        // Get the payment object
+        (
+            address tokenAddress,
+            uint dueDate,
+            uint amount,
+            ,
+            ,
+            address claimant,
+            ,
+            uint staked
+        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+
+        Collectable subscription = Collectable(_subscriptionContract);
+        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+        bool validSubscription = subscription.isValidSubscription(_subscriptionIdentifier);
+
+        // Check if the user has enough funds, the subscription is invalid or allowance revoked
+        require(
+            ERC20(tokenAddress).balanceOf(consumer) < amount ||
+            validSubscription == false ||
+            ERC20(tokenAddress).allowance(consumer, address(transferProxy)) < amount
+        );
+
+        // Only the original claimant can cancel
+        require(msg.sender == claimant);
+
+        // Ensure it's past the due date
+        require(currentTimestamp() >= dueDate);
+
+        // Terminate the subscription if it hasn't already
+        if (validSubscription == true) {
+            subscription.cancelSubscription(_subscriptionIdentifier);
+        }
+
+        // Refund the gas to the service node by freeing up storage
+        paymentRegistry.deletePayment(_subscriptionIdentifier);
+
+        // Unstake tokens
+        stakeContract.unlockTokens(
+            msg.sender,
+            tokenAddress,
+            staked
+        );
+
+        emit SubscriptionCancelled(_subscriptionContract, _subscriptionIdentifier);
 
     }
 
