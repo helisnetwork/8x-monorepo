@@ -527,53 +527,99 @@ contract('Executor', function(accounts) {
 
         });
 
+        it("should not be able to catch late if the user has cancelled the subscription", async function() {
+
+            // @TODO: Implementation
+
+        });
+
         it("should be able to catch a valid late payment", async function() {
 
             // Catch a late payment
             await executorContract.catchLateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode});
 
             let etherPaymentInfo = await paymentRegistryContract.payments.call(etherSubscriptionHash);
+            assert.equal(etherPaymentInfo[0], etherContract.address);
+            assert.equal(etherPaymentInfo[1].toNumber(), globalTime + subscriptionInterval);
+            assert.equal(etherPaymentInfo[2], subscriptionEthCost);
+            assert.equal(etherPaymentInfo[3], subscriptionEthFee);
+            assert.equal(etherPaymentInfo[4], globalTime);
             assert.equal(etherPaymentInfo[5], competingServiceNode);
             assert.equal(etherPaymentInfo[6].toNumber(), 10);
+            assert.equal(etherPaymentInfo[7].toNumber(), firstNodeStake * 0.8);
+
+            await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode});
 
             let newStake = await stakeContract.getAvailableStake(competingServiceNode, etherContract.address);
             assert.equal(newStake.toNumber(), secondNodeStake + 800);
+
+            await stakeContract.withdrawStake(800, etherContract.address, {from: competingServiceNode});
+            await nativeTokenContract.transfer(serviceNode, 800, {from: competingServiceNode});
+            await stakeContract.topUpStake(800, etherContract.address, {from: serviceNode});
 
         });
 
     });
 
-    /*
-
     describe("when cancelling a subscription", () => {
 
-        it("should not be able to call if the user has enough funds", async function() {
+        let etherSubscriptionHash;
+        let globalTime;
 
-            // @TODO: Implementation
+        before(async function() {
+
+            // Transfer two months' worth of Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 2});
+
+            // Create a new subscription and fast forward one month
+            etherSubscriptionHash = await newEtherSubscription("cancel");
+
+            let details = await fastForwardSubscription(etherSubscriptionHash, 2, false);
+            globalTime = details[1];
 
         });
 
         it("should not be able to call before the due date", async function() {
 
-            // @TODO: Implementation
+            await setTimes(modifyTimeContracts, globalTime - 5);
+            await assertRevert(executorContract.cancelSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
 
         });
 
         it("should not be able to call as another user", async function() {
 
-            // @TODO: Implementation
+            await setTimes(modifyTimeContracts, globalTime);
+            await assertRevert(executorContract.cancelSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
+
+        });
+
+        it("should not be able to call if the user has enough funds", async function() {
+
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost});
+            await assertRevert(executorContract.cancelSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
+            await etherContract.withdraw(subscriptionEthCost, {from: etherSubscriber});
 
         });
 
         it("should be able to cancel if the user doesn't have enough funds", async function() {
+
+            await executorContract.cancelSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+
+            let subscriptionDetails = await subscriptionContract.isValidSubscription(etherSubscriptionHash);
+            assert.equal(subscriptionDetails, false);
+
+            let stake = await stakeContract.getAvailableStake(serviceNode, etherContract.address);
+            assert.equal(stake.toNumber(), firstNodeStake);
+
+        });
+
+        it("should be able to cancel if the user hasn't given approval", async function() {
 
             // @TODO: Implementation
 
         });
 
     });
-
-    */
 
 });
 

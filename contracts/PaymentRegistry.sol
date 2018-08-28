@@ -95,7 +95,7 @@ contract PaymentRegistry is Authorizable {
         onlyAuthorized
         returns (bool success)
     {
-        Payment memory currentPayment = payments[_subscriptionIdentifier];
+        Payment storage currentPayment = payments[_subscriptionIdentifier];
         emit Debug(currentTimestamp(), _nextPayment);
 
         require(currentTimestamp() >= currentPayment.dueDate);
@@ -113,10 +113,10 @@ contract PaymentRegistry is Authorizable {
 
         uint oldDueDate = currentPayment.dueDate;
 
-        payments[_subscriptionIdentifier].claimant = _claimant;
-        payments[_subscriptionIdentifier].lastPaymentDate = oldDueDate;
-        payments[_subscriptionIdentifier].dueDate = _nextPayment;
-        payments[_subscriptionIdentifier].staked = _staked;
+        currentPayment.claimant = _claimant;
+        currentPayment.lastPaymentDate = oldDueDate;
+        currentPayment.dueDate = _nextPayment;
+        currentPayment.staked = _staked;
 
         emit PaymentClaimed(_subscriptionIdentifier, _claimant);
 
@@ -155,16 +155,24 @@ contract PaymentRegistry is Authorizable {
     */
     function transferClaimant(
         bytes32 _subscriptionIdentifier,
-        address _claimant)
+        address _claimant,
+        uint _nextPayment
+    )
         public
         onlyAuthorized
         returns (bool success)
     {
         // @TODO: Write tests
+        require(_nextPayment >= currentTimestamp());
+
         Payment storage currentPayment = payments[_subscriptionIdentifier];
 
+        uint oldDueDate = currentPayment.dueDate;
+
+        currentPayment.executionPeriod = currentTimestamp() - oldDueDate;
         currentPayment.claimant = _claimant;
-        currentPayment.executionPeriod = currentTimestamp() - currentPayment.dueDate;
+        currentPayment.lastPaymentDate = oldDueDate;
+        currentPayment.dueDate = _nextPayment;
 
         emit PaymentClaimantTransferred(_subscriptionIdentifier, _claimant);
 

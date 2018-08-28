@@ -142,7 +142,7 @@ contract StakeContract is Authorizable {
 
         // Transfer the stake
         userStakes[_destination][_tokenAddress].total += _amount;
-        userStakes[_staker][_tokenAddress].lockedUp += _amount;
+        userStakes[_destination][_tokenAddress].lockedUp += _amount;
 
         emit Transferred(_staker, _tokenAddress, _amount, _destination);
     }
