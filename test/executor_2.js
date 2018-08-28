@@ -406,7 +406,7 @@ contract('Executor', function(accounts) {
             assert.equal(oneMonthLaterStake.toNumber(), firstNodeStake - expectedStake);
 
             // Process the subscription with less tokens in the system so some should be freed up
-            await executorContract.processSubscriptionTwo(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+            await executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
             let twoMonthsLaterDetails = await paymentRegistryContract.payments.call(etherSubscriptionHash);
             let twoMonthsLaterStake = await stakeContract.getAvailableStake(serviceNode, etherContract.address);
 
@@ -480,35 +480,70 @@ contract('Executor', function(accounts) {
 
     });
 
-    /*
-
     describe("when catching a late subscription", () => {
+
+        let etherSubscriptionHash;
+        let globalTime;
+
+        before(async function() {
+
+            // Transfer two months' worth of Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 3});
+
+            // Create a new subscription and fast forward one month
+            etherSubscriptionHash = await newEtherSubscription("catch.late");
+
+            let details = await fastForwardSubscription(etherSubscriptionHash, 2, false);
+            globalTime = details[1];
+
+        });
 
         it("should not be able to call as the original service node", async function() {
 
-            // @TODO: Implementation
+            await assertRevert(executorContract.catchLateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
 
         });
 
         it("should not be able to call before the execution period", async function() {
 
-            // @TODO: Implementation
+            await setTimes(modifyTimeContracts, globalTime - 5);
+            await assertRevert(executorContract.catchLateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
 
         });
 
         it("should not be able to call if the user doesn't have enough funds in their wallet", async function() {
 
-            // @TODO: Implementation
+            // Set time past execution date
+            await setTimes(modifyTimeContracts, globalTime + 10);
+
+            // Withdraw ether
+            await etherContract.withdraw(subscriptionEthCost, {from: etherSubscriber});
+
+            // Should not be able to catch out
+            await assertRevert(executorContract.catchLateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
+
+            // Retop-up
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost});
 
         });
 
         it("should be able to catch a valid late payment", async function() {
 
-            // @TODO: Implementation
+            // Catch a late payment
+            await executorContract.catchLateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode});
+
+            let etherPaymentInfo = await paymentRegistryContract.payments.call(etherSubscriptionHash);
+            assert.equal(etherPaymentInfo[5], competingServiceNode);
+            assert.equal(etherPaymentInfo[6].toNumber(), 10);
+
+            let newStake = await stakeContract.getAvailableStake(competingServiceNode, etherContract.address);
+            assert.equal(newStake.toNumber(), secondNodeStake + 800);
 
         });
 
     });
+
+    /*
 
     describe("when cancelling a subscription", () => {
 
