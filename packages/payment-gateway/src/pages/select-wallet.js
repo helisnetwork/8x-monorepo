@@ -22,7 +22,7 @@ class SelectWallet extends React.Component {
                   <img src={Images.metamaskLogo}/>
                 </div>
                 <div className="text">
-                  <h2>MetaMask</h2>
+                  <h2>MetaMask test</h2>
                   <p>MetaMask is a browser extension that allows you to store Ether and interact with decentralised apps.</p>
                 </div>
               </div>
