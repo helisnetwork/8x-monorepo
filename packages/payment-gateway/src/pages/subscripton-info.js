@@ -9,7 +9,7 @@ import Dropdown from '../components/dropdown.js';
 class SubscriptionInfo extends React.Component {
   //Swapped tenary operator for ease in testing
   render() {
-    return this.props.loaded ? this.renderWaiting() : this.renderLoaded();
+    return this.props.loaded ? this.renderLoaded() : this.renderWaiting();
   }
 
   renderLoaded() {

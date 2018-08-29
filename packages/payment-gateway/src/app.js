@@ -10,6 +10,7 @@ import {
   Route,
   Switch,
 } from 'react-router-dom';
+import MetamaskHandler from './pages/metamask-handler';
 
 /* App component */
 class App extends React.Component {
@@ -19,7 +20,7 @@ class App extends React.Component {
         <MemoryRouter>
           <Switch>
             <Route exact path="/" component={SelectWallet}/>
-            <Route path="/subscription-info" component={SubscriptionInfo}/>
+            <Route path="/metamask-handler" component={MetamaskHandler}/>
           </Switch>
         </MemoryRouter>
       </div>
