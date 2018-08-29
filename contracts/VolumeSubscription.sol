@@ -46,10 +46,31 @@ contract VolumeSubscription is Collectable {
     event UpdatedPlan(bytes32 indexed identifier, address indexed owner);
     event TerminatedPlan(bytes32 indexed identifier, address indexed owner, uint terminationDate);
 
-    event CreatedSubscription(bytes32 indexed identifier, address indexed owner);
-    event FirstPaymentToSubscription(bytes32 indexed identifier, address indexed owner, uint date);
-    event UpdatedSubscription(bytes32 indexed identifier, address indexed owner);
-    event TerminatedSubscription(bytes32 indexed identifier, address indexed owner, uint terminationDate);
+    event CreatedSubscription(
+        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed planIdentifier,
+        address indexed owner
+    );
+
+    event FirstPaymentToSubscription(
+        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed planIdentifier,
+        address indexed owner,
+        uint date
+    );
+
+    event UpdatedSubscription(
+        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed planIdentifier,
+        address indexed owner
+    );
+
+    event TerminatedSubscription(
+        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed planIdentifier,
+        address indexed owner,
+        uint terminationDate
+    );
 
     /**
       * Modifiers
@@ -71,7 +92,7 @@ contract VolumeSubscription is Collectable {
 
     modifier shouldEmitSubscriptionChanges(bytes32 _subscription) {
         _;
-        emit UpdatedSubscription(_subscription, subscriptions[_subscription].owner);
+        emit UpdatedSubscription(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner);
     }
 
     /**
@@ -166,7 +187,7 @@ contract VolumeSubscription is Collectable {
 
         subscriptions[_subscription].startDate = _date;
 
-        emit FirstPaymentToSubscription(_subscription, subscriptions[_subscription].owner, _date);
+        emit FirstPaymentToSubscription(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner, _date);
     }
 
     function cancelSubscription(bytes32 _subscription)
@@ -184,7 +205,7 @@ contract VolumeSubscription is Collectable {
         uint cancellationTimestamp = currentTimestamp();
         subscriptions[_subscription].terminationDate = cancellationTimestamp;
 
-        emit TerminatedSubscription(_subscription, subscriptions[_subscription].owner, cancellationTimestamp);
+        emit TerminatedSubscription(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner, cancellationTimestamp);
     }
 
     /**
@@ -288,7 +309,7 @@ contract VolumeSubscription is Collectable {
 
         subscriptions[subscriptionHash] = newSubscription;
 
-        emit CreatedSubscription(subscriptionHash, msg.sender);
+        emit CreatedSubscription(subscriptionHash, _planHash, msg.sender);
 
         return subscriptionHash;
     }
