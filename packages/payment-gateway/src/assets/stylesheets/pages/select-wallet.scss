@@ -1,5 +1,5 @@
 @mixin mobile {
-	@media (max-device-width: 1200px) {
+	@media (max-device-width: 450px) {
 	  @content;
 	}
   }

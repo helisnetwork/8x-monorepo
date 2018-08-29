@@ -1,5 +1,5 @@
 @mixin mobile {
-	@media (max-device-width: 1200px) {
+	@media (max-device-width: 450px) {
 	  @content;
 	}
   }
@@ -22,6 +22,17 @@
             .logo {
               margin-right: 7em;
               padding-left: 3em;
+
+              @include mobile {
+                  margin-right: 0em; 
+                  padding: 0em 1em 0em 0.5em;
+
+                  img {
+                      @include mobile {
+                        width: 2em; 
+                      }
+                  }
+              }
             }
 
             span {
@@ -34,11 +45,20 @@
             //justify-content: space-between;
             padding-bottom: 0.5em;
 
+            @include mobile {
+                flex-direction: column;
+                width: 100%;
+            }
+
             .currency {
                 display: flex;
                 flex-direction: column;
                 margin-right: 1em;
                 width: 55%;
+
+                @include mobile {
+                    width: 100%;
+                }
 
                 .text {
                     color: #958DB7;
@@ -52,6 +72,10 @@
                 display: flex;
                 flex-direction: column;
                 width: 45%;
+
+                @include mobile {
+                    width: 100%;
+                }
 
                 .text {
                     color: #958DB7;
