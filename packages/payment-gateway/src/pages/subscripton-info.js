@@ -11,7 +11,7 @@ class SubscriptionInfo extends React.Component {
     return (
       <div>
         <div className="small-card">
-          <Header title="Subscription Information"/>
+          <Header title="Subscription Information" previousPage="/"/>
           <div className="hero">
             <div className="main-item">
               <div className="logo">
