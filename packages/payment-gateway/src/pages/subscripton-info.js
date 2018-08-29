@@ -57,7 +57,7 @@ class SubscriptionInfo extends React.Component {
               <p className="currency">0.00ETH</p>
             </div>
             <div className="transaction">
-              <p onClick={this.props.payAction}>Awaiting Transaction</p>
+              <p onClick={this.props.payAction}>Pay</p>
             </div>
           </div>
         </div> 

@@ -1,3 +1,9 @@
+@mixin mobile {
+	@media (max-device-width: 1200px) {
+	  @content;
+	}
+  }
+
 .small-card {
     
     .hero {
@@ -8,7 +14,8 @@
         .main-item {
             display: flex;
             background-color: white;
-            border-radius: 0.50em;
+            border-radius: 0.85em;
+            box-shadow: 2px 0 20px #EFEFEF;
             padding: 2em 1em 2em 1em;
             margin-bottom: 1.5em;
 
@@ -24,13 +31,14 @@
 
         .option {
             display: flex;
-            justify-content: space-between;
+            //justify-content: space-between;
+            padding-bottom: 0.5em;
 
             .currency {
                 display: flex;
                 flex-direction: column;
                 margin-right: 1em;
-                width: 50%;
+                width: 55%;
 
                 .text {
                     color: #958DB7;
@@ -43,6 +51,7 @@
             .time {
                 display: flex;
                 flex-direction: column;
+                width: 45%;
 
                 .text {
                     color: #958DB7;
@@ -65,6 +74,9 @@
 
             h2 {
                 color: black;
+                font-size: 1.50em;
+                font-weight: 400;
+                padding: 0.50em 0em; 
             }
         }
 
@@ -72,13 +84,14 @@
             display: flex;
             justify-content: space-between;
             background-color: white;
-            margin: 0em 2em;
-            border-radius: 0.5em;
+            border-radius: 0.85em;
+            box-shadow: 2px 0 20px #EFEFEF;
             padding: 0.5em;
 
             .text-address {
                 color: #958DB7;
-                padding: 0.5em 0em 0.5em 1em;
+                padding: 0.5em 1em 0.5em 1em;
+                font-weight: 300;
 
             }
 
@@ -88,19 +101,15 @@
                 border-radius: 0.5em;
                 padding: 0.5em 1em;
             }
-
-            .text-button {
-                padding-right: 1em;
-            }
-
         }
 
         .balance {
             display: flex;
             justify-content: space-between;
-            margin: 0em 2em;
             color: #958DB7;
             margin-bottom: 1em;
+            padding-top: 0.85em;
+            padding-bottom: 1em;
 
             .currency {
                 color: black;
@@ -111,13 +120,13 @@
         .transaction {
             display: flex;
             justify-content: center;
-            background-color: #EAEAF0;
+            background-color: black;
             margin: 0 2em;
             border-radius: 0.5em;
             padding: 0.5em;
 
             p {
-                color: #958DB7;
+                color: white;
                 font-weight: 700;
             }
         }
