@@ -19,26 +19,28 @@ contract ActionProxy {
 
     /** @dev A first time 8x user will need to give allowance to the contract.
       * @param _subscriptionContract is the address of the contract.
-      * @param _subscriptionIdentifier is the identifier of the subscription.
+      * @param _planIdentifier is the identifier of the plan.
     */
     function newAddress(
         address _subscriptionContract,
-        bytes32 _subscriptionIdentifier
+        bytes32 _planIdentifier
     )
         public
+        returns (bytes32 _subscriptionIdentifier)
     {
 
     }
 
     /** @dev An existing 8x user subscribing to a new subscription.
       * @param _subscriptionContract is the address of the contract.
-      * @param _subscriptionIdentifier is the identifier of the subscription.
+      * @param _planIdentifier is the identifier of the plan.
     */
     function existingAddress(
         address _subscriptionContract,
-        bytes32 _subscriptionIdentifier
+        bytes32 _planIdentifier
     )
         public
+        returns (bytes32 _subscriptionIdentifier)
     {
 
     }
