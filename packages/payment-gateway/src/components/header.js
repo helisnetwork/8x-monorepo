@@ -1,17 +1,21 @@
 /* Import statements */
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 import {default as Images} from '../middleware/images';
+
 
 class Header extends React.Component {
   render() {
     return (
-		  <div className="header">
-			  <p className="back button">Back</p>
+      <div className="header">
+        <Link className="back button" to={this.props.previousPage}>
+          Back
+        </Link>
         <p className="heading-label">{this.props.title}</p>
-			  <p className="close button">Close</p>
-		  </div>
-	  );
+        <p className="close button">Close</p>
+      </div>
+    );
   }
 }
 

@@ -2,6 +2,7 @@
 import React from 'react';
 import TrezorConnect from 'trezor-connect';
 
+import { Link } from 'react-router-dom'; 
 import {default as Images} from '../middleware/images';
 
 /* App component */
@@ -15,15 +16,17 @@ class SelectWallet extends React.Component {
             <p>Please select an option</p>
           </div>
           <div className="options-container">
-            <a className="item metamask" href="www.8xprotocol.com/metamask">
-              <div className="logo">
-                <img src={Images.metamaskLogo}/>
+            <Link to='/subscription-info'>
+              <div className="item metamask">
+                <div className="logo">
+                  <img src={Images.metamaskLogo}/>
+                </div>
+                <div className="text">
+                  <p>Metamask</p>
+                  <p>MetaMask is a browser extension that allows you to store Ether and interact with decentralised apps.</p>
+                </div>
               </div>
-              <div className="text">
-                <p>Metamask</p>
-                <p>MetaMask is a browser extension that allows you to store Ether and interact with decentralised apps.</p>
-              </div>
-            </a>
+            </Link>
             <a className="item ledger" href="www.8xprotocol.com/ledger">
               <div className="logo">
                 <img src={Images.ledgerLogo}/>
