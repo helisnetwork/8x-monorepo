@@ -16,7 +16,7 @@ class SelectWallet extends React.Component {
             <p>Please select an option</p>
           </div>
           <div className="options-container">
-            <Link to='/subscription-info'>
+            <Link to='/subscription-info'> 
               <div className="item metamask">
                 <div className="logo">
                   <img src={Images.metamaskLogo}/>

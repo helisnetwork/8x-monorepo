@@ -7,6 +7,7 @@ import Dropdown from '../components/dropdown.js';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
+  
   render() {
     return (
       <div>
@@ -52,7 +53,7 @@ class SubscriptionInfo extends React.Component {
               <p className="currency">0.00ETH</p>
             </div>
             <div className="transaction">
-              <p>Awaiting Transaction</p>
+              <p onClick={this.props.payAction}>Awaiting Transaction</p>
             </div>
           </div>
         </div> 
