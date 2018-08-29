@@ -22,7 +22,7 @@ class SelectWallet extends React.Component {
                   <img src={Images.metamaskLogo}/>
                 </div>
                 <div className="text">
-                  <p>Metamask</p>
+                  <h2>MetaMask</h2>
                   <p>MetaMask is a browser extension that allows you to store Ether and interact with decentralised apps.</p>
                 </div>
               </div>
@@ -32,7 +32,7 @@ class SelectWallet extends React.Component {
                 <img src={Images.ledgerLogo}/>
               </div>
               <div className="text">
-                <p>Ledger</p>
+                <h2>Ledger</h2>
                 <p>You store your cryptocurrency on a Ledger Hardware Wallet.</p>
               </div>
             </a>
@@ -41,7 +41,7 @@ class SelectWallet extends React.Component {
                 <img src={Images.trezorLogo}/>
               </div>
               <div className="text">
-                <p>Trezor</p>
+                <h2>Trezor</h2>
                 <p>You store your cryptocurrency on a Trezor Hardware Wallet.</p>
               </div>
             </a>
@@ -50,7 +50,7 @@ class SelectWallet extends React.Component {
                 <img src={Images.trezorLogo}/>
               </div>
               <div className="text">
-                <p>Exchange</p>
+                <h2>Exchange</h2>
                 <p>You store your cryptocurrency on an exchange, such as Binance or Coinbase.</p>
               </div>
             </a>

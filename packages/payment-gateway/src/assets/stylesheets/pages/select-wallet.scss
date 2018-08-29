@@ -1,3 +1,9 @@
+@mixin mobile {
+	@media (max-device-width: 1200px) {
+	  @content;
+	}
+  }
+
 .main-card {
 	max-width: 35em;
 	margin: auto;
@@ -10,9 +16,17 @@
 
 	.card-header {
 		text-align: center;
+		padding-top: 1em;
 
 		p {
 			color: #958DB7;
+			font-weight: 200; 
+			font-size: 0.85em;
+		}
+
+		h1 {
+			font-size: 1.25em; 
+			font-weight: 600;
 		}
 	}
 
@@ -23,32 +37,58 @@
 			display: flex; 
 			justify-content: flex-start;
 			background-color: red;
-			padding: 1em 2em;
+			padding: 2em 2em;
 			margin-bottom: 1.5em;
-			border-radius: 0.5em;
-			box-shadow: 2px 0 16px #EFEFEF;
+			border-radius: 0.85em;
+			box-shadow: 2px 0 20px #EFEFEF;
 			color: white;
 			font-weight: 200;
-			//box-shadow: 0px 0.2em 20px 0px grey;
+			height: 33%;
+
+			@include mobile {
+				flex-direction: column;
+			}
+			
 
 			.logo {
 				display: flex;
 				align-items: center;
 				margin-right: 3.5em;
+
+				@include mobile {
+					padding-bottom: 0.75em;
+				}
+
+			}
+
+			.text {
+				
+				h2 {
+					font-size: 1em; 
+					font-weight: 600;
+				}
+
+				p {
+					font-size: 1em; 
+					font-weight: 300; 
+				}
 			}
 
 		}
 
 		.metamask {
-			background-color: #FF9C3F;
+			background-image: linear-gradient(to bottom right,#FF9C3F, #F6D365);
 		}
 
 		.ledger {
-			background-color: #5460FF;
+			background-image: linear-gradient(to bottom right,#8894FC, #BC75FF);
+			//padding: 1.5em 2em; 
+
 		}
 
 		.trezor {
-			background-color: #53B167;
+			background-image: linear-gradient(to bottom right,#EC8C69, #ED6EA0);
+			//padding: 1.5em 2em;
 		}
 
 		.exchange {
@@ -56,5 +96,7 @@
 			display: none;
 		}
 	}
+
+
 }
 

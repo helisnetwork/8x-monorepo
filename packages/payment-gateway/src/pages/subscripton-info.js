@@ -7,8 +7,12 @@ import Dropdown from '../components/dropdown.js';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
-  
+  //Swapped tenary operator for ease in testing
   render() {
+    return this.props.loaded ? this.renderWaiting() : this.renderLoaded();
+  }
+
+  renderLoaded() {
     return (
       <div>
         <div className="small-card">
@@ -56,6 +60,17 @@ class SubscriptionInfo extends React.Component {
               <p onClick={this.props.payAction}>Awaiting Transaction</p>
             </div>
           </div>
+        </div> 
+      </div>
+    );
+  }
+
+  renderWaiting() {
+    return (
+      <div>
+        <div className="small-card">
+          <Header title="Subscription Information" previousPage="/"/>
+          <p>Loading...</p>
         </div> 
       </div>
     );
