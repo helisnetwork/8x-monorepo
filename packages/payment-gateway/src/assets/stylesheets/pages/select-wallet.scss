@@ -43,10 +43,10 @@
 			box-shadow: 2px 0 20px #EFEFEF;
 			color: white;
 			font-weight: 200;
-			height: 33%;
+			min-height: 33%;
 
 			@include mobile {
-				flex-direction: column;
+				padding: 1em 1em 0.5em 1em;
 			}
 			
 
@@ -56,7 +56,14 @@
 				margin-right: 3.5em;
 
 				@include mobile {
-					padding-bottom: 0.75em;
+					margin: 1em;
+				}
+
+				img {
+					@include mobile {
+						padding-bottom: 0.75em;
+						width: 3em;
+					}
 				}
 
 			}
@@ -66,11 +73,20 @@
 				h2 {
 					font-size: 1em; 
 					font-weight: 600;
+
+					@include mobile {
+						font-size: 0.85em;
+						margin-top: 0.75em;
+					}
 				}
 
 				p {
 					font-size: 1em; 
 					font-weight: 300; 
+
+					@include mobile {
+						font-size: 0.85em;
+					}
 				}
 			}
 
@@ -82,13 +98,10 @@
 
 		.ledger {
 			background-image: linear-gradient(to bottom right,#8894FC, #BC75FF);
-			//padding: 1.5em 2em; 
-
 		}
 
 		.trezor {
 			background-image: linear-gradient(to bottom right,#EC8C69, #ED6EA0);
-			//padding: 1.5em 2em;
 		}
 
 		.exchange {
