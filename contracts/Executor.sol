@@ -35,25 +35,22 @@ contract Executor is Ownable {
     );
 
     event SubscriptionProcessed(
-        address indexed subscriptionAddress,
         bytes32 indexed subscriptionIdentifier,
         address indexed claimant,
-        uint dueDate,
+        uint indexed dueDate,
         uint staked
     );
 
     event SubscriptionReleased(
-        address indexed subscriptionAddress,
         bytes32 indexed subscriptionIdentifier,
         address indexed releasedBy,
-        uint dueDate
+        uint indexed dueDate
     );
 
     event SubscriptionLatePaymentCaught(
-        address indexed subscriptionAddress,
         bytes32 indexed subscriptionIdentifier,
         address indexed originalClaimant,
-        address newClaimant,
+        address indexed newClaimant,
         uint amountLost
     );
 
@@ -361,7 +358,7 @@ contract Executor is Ownable {
         );
 
         // Emit the correct event
-        emit SubscriptionReleased(_subscriptionContract, _subscriptionIdentifier, msg.sender, dueDate);
+        emit SubscriptionReleased(_subscriptionIdentifier, msg.sender, dueDate);
 
     }
 
@@ -411,7 +408,6 @@ contract Executor is Ownable {
 
         // Emit an event to say a late payment was caught and processed
         emit SubscriptionLatePaymentCaught(
-            _subscriptionContract,
             _subscriptionIdentifier,
             claimant,
             msg.sender,
