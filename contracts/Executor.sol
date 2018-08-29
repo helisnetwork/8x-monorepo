@@ -235,7 +235,6 @@ contract Executor is Ownable {
         }
 
         emit SubscriptionProcessed(
-            _subscriptionContract,
             _subscriptionIdentifier,
             msg.sender,
             dueDate + interval,
