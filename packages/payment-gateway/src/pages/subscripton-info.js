@@ -7,12 +7,21 @@ import Dropdown from '../components/dropdown.js';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
-  //Swapped tenary operator for ease in testing
+
   render() {
-    return this.props.loaded ? this.renderLoaded() : this.renderWaiting();
+    if (this.props.status === 'unlocked') {
+      return this.renderUnlocked();
+    } 
+    else if (this.props.status === 'locked') {
+      return this.renderLocked();
+    }
+    else if (this.props.status === 'not installed') {
+      return this.renderInstallPrompt();
+    }
+    //return this.props.status === 'installed' ? this.props.status = 'unlocked' ? this.renderUnlocked() : this.renderWaiting();
   }
 
-  renderLoaded() {
+  renderUnlocked() {
     return (
       <div>
         <div className="small-card">
@@ -65,16 +74,29 @@ class SubscriptionInfo extends React.Component {
     );
   }
 
-  renderWaiting() {
+  renderLocked() {
     return (
       <div>
         <div className="small-card">
           <Header title="Subscription Information" previousPage="/"/>
-          <p>Loading...</p>
+          <p>Please unlock metaMask</p>
         </div> 
       </div>
     );
   }
+
+  renderInstallPrompt() {
+    return (
+      <div>
+        <div className="small-card">
+          <Header title="Subscription Information" previousPage="/"/>
+          <p>Install metaMask here</p>
+        </div> 
+      </div>
+    );
+  }
+
+  
 
   dropdownItems() {
     return [
