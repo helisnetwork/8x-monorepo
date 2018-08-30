@@ -11,14 +11,11 @@ class SubscriptionInfo extends React.Component {
   render() {
     if (this.props.status === 'unlocked') {
       return this.renderUnlocked();
-    } 
-    else if (this.props.status === 'locked') {
+    } else if (this.props.status === 'locked') {
       return this.renderLocked();
-    }
-    else if (this.props.status === 'not installed') {
+    } else if (this.props.status === 'not installed') {
       return this.renderInstallPrompt();
     }
-    //return this.props.status === 'installed' ? this.props.status = 'unlocked' ? this.renderUnlocked() : this.renderWaiting();
   }
 
   renderUnlocked() {
