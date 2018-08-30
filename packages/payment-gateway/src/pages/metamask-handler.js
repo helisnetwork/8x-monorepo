@@ -11,34 +11,44 @@ class MetamaskHandler extends React.Component {
       status: 'not installed'
     };
 
-    //this.metamaskInstalled = this.metamaskInstalled.bind(this);
-    //this.metamaskUnlocked = this.metamaskUnlocked.bind(this);
-
-    //Statement that checks whether metamask is installed
-    if (typeof web3 !== 'undefined') {
-      var provider = web3.currentProvider;
-      this.updateStatus('installed');
-      console.log('Metamask is installed');
-
-      web3.eth.getAccounts((err, accounts) => {
-        if (err != null) {
-          console.log(err);
-        }
-        else if (accounts.length === 0) {
-          console.log('MetaMask is locked');
-          this.updateStatus('locked');
-        }
-        else {
-          console.log('MetaMask is unlocked');
-          this.updateStatus('unlocked');
-        }
-      });
-    } else {
-      console.log('No web3? You should consider trying MetaMask!');
-      this.updateStatus('not installed');
-    }
+    this.checkMetaMaskState();
   }
 
+  checkMetaMaskState() {
+
+    if (typeof web3 === 'undefined') {
+      console.log('No web3? You should consider trying MetaMask!');
+      this.updateStatus('not installed');
+      return;
+    }
+
+    this.updateStatus('installed');
+    console.log('Metamask is installed');
+
+    var provider = web3.currentProvider;
+
+    web3.eth.getAccounts((err, accounts) => {
+      if (err != null) {
+        console.log(err);
+        this.updateStatus('error');
+      } else if (accounts.length === 0) {
+        console.log('MetaMask is locked');
+        this.updateStatus('locked');
+      } else {
+        console.log('MetaMask is unlocked');
+        this.updateStatus('unlocked');
+      }
+    });
+
+    var account = web3.eth.accounts[0];
+    var accountInterval = setInterval(() => {
+      if (web3.eth.accounts[0] !== account) {
+        account = web3.eth.accounts[0];
+        this.updateStatus('unlocked');
+      }
+    }, 100);
+
+  }
 
   render() {
     return ( 
