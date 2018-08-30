@@ -23,21 +23,28 @@ class Dropdown extends React.Component {
   }
   
   showMenu(event) {    
-    this.setState({ showMenu: true }, () => {
+    this.setState({ 
+      showMenu: true 
+    }, () => {
       document.addEventListener('click', this.closeMenu);
     });
   }
   
   closeMenu(event) {
     if (!this.dropdownMenu.contains(event.target)) {
-      this.setState({ showMenu: false }, () => {
+      this.setState({
+        showMenu: false 
+      }, () => {
         document.removeEventListener('click', this.closeMenu);
       });  
     }
   }
 
   itemSelected(object) {
-    this.setState({ selectedItem: object, showMenu: false }, () => {
+    this.setState({
+      selectedItem: object, 
+      showMenu: false 
+    }, () => {
       document.removeEventListener('click', this.closeMenu);
     }); 
   }
@@ -63,13 +70,12 @@ class Dropdown extends React.Component {
     );
   }
 
-  returnDropdownButtons(items) {
-    let parent = this;
-    return this.props.items.map(function(object, i) {
+  returnDropdownButtons(items) { 
+    return this.props.items.map((object, i) => {
       return (
-        parent.state.selectedItem !== object ? 
-          <DropdownButton item={object} key={i} action={parent.itemSelected}/> : 
-          null
+        this.state.selectedItem !== object ? 
+          <DropdownButton item={object} key={i} action={this.itemSelected}/> 
+          : null
       );
     });
   }
