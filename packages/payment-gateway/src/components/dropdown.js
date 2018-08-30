@@ -56,13 +56,13 @@ class Dropdown extends React.Component {
         {
           this.state.showMenu
             ? (
-              <tbody
+              <div
                 className="menu"
                 ref={(element) => {
                   this.dropdownMenu = element;
                 }}>
                 {this.returnDropdownButtons()}
-              </tbody>
+              </div>
             ): null
         }
           
