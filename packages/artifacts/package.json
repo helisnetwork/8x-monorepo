@@ -1,0 +1,9 @@
+{
+  "name": "artifacts",
+  "version": "0.1.0",
+  "main": "index.js",
+  "dependencies": {
+    "bignumber.js": "^5.0.0",
+    "web3": "0.20.x"
+  }
+}

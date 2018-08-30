@@ -18,7 +18,7 @@ var rimraf = require('rimraf');
 const BUILD_DIR = './build/contracts/';
 
 // Output of this script
-const EXPORT_DIR = '../migrations/artifacts/'+PACKAGE.version;
+const EXPORT_DIR = '../artifacts/json';
 
 rimraf.sync(EXPORT_DIR);
 fs.mkdirSync(EXPORT_DIR);

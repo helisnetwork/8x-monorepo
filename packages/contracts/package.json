@@ -11,16 +11,21 @@
     "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "ethereumjs-abi": "^0.6.5"
+    "ethereumjs-abi": "^0.6.5",
+    "typechain": "^0.2.7",
+    "bignumber.js": "^5.0.0",
+    "web3": "0.20.x"
   },
+  "peerDependencies": {},
   "scripts": {
     "test-contracts": "truffle test || true",
     "clean": "rimraf -rf ./build ./export",
-    "build": "npm run clean && truffle compile && node exportArtifacts",
     "lint-base": "solhint contracts/**/*.sol || true",
     "lint-test": "solhint contracts/**/**/*.sol || true",
     "lint-contracts": "solhint contracts/*.sol || true",
     "test": "npm-run-all test-contracts lint-base lint-test lint-contracts",
-    "lint": "npm-run-all lint-base lint-test lint-contracts"
+    "lint": "npm-run-all lint-base lint-test lint-contracts",
+    "generate-ts": "node_modules/.bin/typechain \"../artifacts/json/*.json\" --outDir ../artifacts/ts",
+    "build": "npm run clean && truffle compile && node exportArtifacts && npm run generate-ts"
   }
 }
