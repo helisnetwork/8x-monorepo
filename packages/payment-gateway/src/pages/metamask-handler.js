@@ -3,7 +3,6 @@ import React from 'react';
 import SubscriptionInfo from './subscripton-info';
 
 class MetamaskHandler extends React.Component {
-
   constructor (props) {
     super(props);
     
