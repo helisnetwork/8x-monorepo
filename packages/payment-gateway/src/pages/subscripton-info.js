@@ -4,6 +4,7 @@ import React from 'react';
 import Header from '../components/header.js';
 import {default as Images} from '../middleware/images';
 import Dropdown from '../components/dropdown.js';
+import MetaMaskInstall from '../components/metamask-install.js';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
@@ -87,12 +88,7 @@ class SubscriptionInfo extends React.Component {
 
   renderInstallPrompt() {
     return (
-      <div>
-        <div className="small-card">
-          <Header title="Subscription Information" previousPage="/"/>
-          <p>Install metaMask here</p>
-        </div> 
-      </div>
+      <MetaMaskInstall/>
     );
   }
 

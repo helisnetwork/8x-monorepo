@@ -9,6 +9,7 @@ import netflixLogo from '../assets/images/netflix.png';
 import spinner from '../assets/images/spinner.png';
 import ethLogo from '../assets/images/eth.png';
 import dropDown from '../assets/images/dropdown.png';
+import downloadMetaMask from '../assets/images/download-metamask.png';
 
 export default {
   metamaskLogo,
@@ -20,6 +21,7 @@ export default {
   netflixLogo,
   spinner,
   ethLogo,
-  dropDown
+  dropDown,
+  downloadMetaMask
 
 };
