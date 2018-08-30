@@ -1,0 +1,20 @@
+.small-card {
+
+    .hero {
+        display: flex;
+        align-items: center;
+
+        .install {
+            text-align: center;
+            font-size: 1em; 
+            font-weight: 600;
+        }
+
+        .metamask-download {
+            justify-content: center;
+            width: 18em;
+            
+            
+        }
+    }
+}
