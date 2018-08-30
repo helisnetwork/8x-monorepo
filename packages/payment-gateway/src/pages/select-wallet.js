@@ -36,15 +36,17 @@ class SelectWallet extends React.Component {
                 <p>You store your cryptocurrency on a Ledger Hardware Wallet.</p>
               </div>
             </a>
-            <a className="item trezor" href="www.8xprotocol.com/trezor">
-              <div className="logo">
-                <img src={Images.trezorLogo}/>
+            <Link to='/trezor-handler'>
+              <div className="item trezor">
+                <div className="logo">
+                  <img src={Images.trezorLogo}/>
+                </div>
+                <div className="text">
+                  <h2>Trezor</h2>
+                  <p>You store your cryptocurrency on a Trezor Hardware Wallet.</p>
+                </div>
               </div>
-              <div className="text">
-                <h2>Trezor</h2>
-                <p>You store your cryptocurrency on a Trezor Hardware Wallet.</p>
-              </div>
-            </a>
+            </Link>
             <a className="item exchange">
               <div className="logo">
                 <img src={Images.trezorLogo}/>

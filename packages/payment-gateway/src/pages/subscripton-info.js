@@ -16,6 +16,9 @@ class SubscriptionInfo extends React.Component {
     } else if (this.props.status === 'not installed') {
       return this.renderInstallPrompt();
     }
+
+    // @TODO: Change this to error
+    // return this.renderInstallPrompt();
   }
 
   renderUnlocked() {

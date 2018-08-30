@@ -3,14 +3,15 @@ import React from 'react';
 
 import './assets/stylesheets/app.scss';
 import SelectWallet from './pages/select-wallet';
-import SubscriptionInfo from './pages/subscripton-info';
 
 import {
   MemoryRouter,
   Route,
   Switch,
 } from 'react-router-dom';
+
 import MetamaskHandler from './pages/metamask-handler';
+import TrezorHandler from './pages/trezor-handler';
 
 /* App component */
 class App extends React.Component {
@@ -21,6 +22,7 @@ class App extends React.Component {
           <Switch>
             <Route exact path="/" component={SelectWallet}/>
             <Route path="/metamask-handler" component={MetamaskHandler}/>
+            <Route path="/trezor-handler" component={TrezorHandler}/>
           </Switch>
         </MemoryRouter>
       </div>
