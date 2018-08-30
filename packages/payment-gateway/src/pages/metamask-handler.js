@@ -27,6 +27,19 @@ class MetamaskHandler extends React.Component {
 
     var provider = web3.currentProvider;
 
+    this.checkMetaMaskLogin();
+
+    var account = web3.eth.accounts[0];
+    var accountInterval = setInterval(() => {
+      if (web3.eth.accounts[0] !== account) {
+        account = web3.eth.accounts[0];
+        this.checkMetaMaskLogin();
+      }
+    }, 100);
+
+  }
+
+  checkMetaMaskLogin () {
     web3.eth.getAccounts((err, accounts) => {
       if (err != null) {
         console.log(err);
@@ -39,15 +52,6 @@ class MetamaskHandler extends React.Component {
         this.updateStatus('unlocked');
       }
     });
-
-    var account = web3.eth.accounts[0];
-    var accountInterval = setInterval(() => {
-      if (web3.eth.accounts[0] !== account) {
-        account = web3.eth.accounts[0];
-        this.updateStatus('unlocked');
-      }
-    }, 100);
-
   }
 
   render() {
