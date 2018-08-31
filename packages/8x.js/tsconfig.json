@@ -11,7 +11,7 @@
     "declarationDir": "dist/types",
     "outDir": "dist",
     "typeRoots": [
-      "node_modules/@types"
+      "types"
     ]
   },
   "include": [

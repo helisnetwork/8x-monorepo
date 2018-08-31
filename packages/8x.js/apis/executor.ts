@@ -1,26 +1,73 @@
+import { AddressBook } from "../types/address_book";
+import * as Types from "../types/common";
+
 export default class ExecutorAPI {
 
-  public async activateSubscription() {
+  public web3: any;
+  public addressBook: AddressBook;
+
+  constructor(web3: any, addressBook: AddressBook) {
 
   }
 
-  public async processSubscription() {
+  public async activateSubscription(
+    subscriptionContract: Types.Address,
+    subscriptionIdentifier: Types.Bytes32
+  ): Promise<boolean> {
+
+    // @TODO: Implementation
+    return Promise.resolve(true);
 
   }
 
-  public async releaseSubscription() {
+  public async processSubscription(
+    subscriptionContract: Types.Address,
+    subscriptionIdentifier: Types.Bytes32
+  ): Promise<boolean> {
+
+    // @TODO: Implementation
+    return Promise.resolve(true);
 
   }
 
-  public async catchLateSubscription() {
+  public async releaseSubscription(
+    subscriptionContract: Types.Address,
+    subscriptionIdentifier: Types.Bytes32
+  ): Promise<boolean> {
+
+    // @TODO: Implementation
+    return Promise.resolve(true);
 
   }
 
-  public async cancelSubscription() {
+  public async catchLateSubscription(
+    subscriptionContract: Types.Address,
+    subscriptionIdentifier: Types.Bytes32
+  ): Promise<boolean> {
+
+    // @TODO: Implementation
+    return Promise.resolve(true);
 
   }
 
-  public async determineStake() {
+  public async cancelSubscription(
+    subscriptionContract: Types.Address,
+    subscriptionIdentifier: Types.Bytes32
+  ): Promise<boolean> {
+
+    // @TODO: Implementation
+    return Promise.resolve(true);
+
+  }
+
+  public async determineStake(
+    tokenAddress: Types.Address,
+    startDate: Types.UInt,
+    interval: Types.UInt
+  ): Promise<boolean> {
+
+    // @TODO: Implementation
+    return Promise.resolve(true);
 
   }
 
