@@ -16,7 +16,7 @@
             background-color: white;
             border-radius: 0.85em;
             box-shadow: 2px 0 20px #EFEFEF;
-            padding: 2em 1em 2em 1em;
+            padding: 2em 1em 1em 1em;
             margin-bottom: 1.5em;
 
             .logo {
@@ -44,6 +44,7 @@
             display: flex;
             //justify-content: space-between;
             padding-bottom: 0.5em;
+            text-align: left;
 
             @include mobile {
                 flex-direction: column;

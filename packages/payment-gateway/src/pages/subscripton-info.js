@@ -80,7 +80,7 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className="balance">
               <p>Current Balance</p>
-              <p className="currency">0.00ETH</p>
+              <p className="currency">{this.props.balance}</p>
             </div>
             <div className="transaction">
               <p onClick={this.props.payAction}>Pay</p>
