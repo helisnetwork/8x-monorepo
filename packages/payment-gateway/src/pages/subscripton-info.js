@@ -6,6 +6,7 @@ import Dropdown from '../components/dropdown.js';
 import Header from '../components/header.js';
 import MetaMaskInstall from '../components/metamask-install.js';
 import MetaMaskLocked from '../components/metamask-locked.js';
+import MetaMaskHandler from './metamask-handler.js';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
@@ -61,7 +62,7 @@ class SubscriptionInfo extends React.Component {
               <p className="text">to your personal wallet</p>
             </div>
             <div className="item-address">
-              <p className="text-address">0x3551466a812dD2e7Dc9323d246d208B7FDd3fe8D</p>
+              <p className="text-address">{this.props.useraddress}</p>
               <div className="text-button">
                 <p className="text-copy">Copy</p>
               </div>
