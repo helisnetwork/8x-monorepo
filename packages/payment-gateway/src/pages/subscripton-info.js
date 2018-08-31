@@ -1,13 +1,12 @@
 /* Import statements */
 import React from 'react';
-import {CopyToClipboard} from 'react-copy-to-clipboard';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
-import {default as Images} from '../middleware/images';
+import { default as Images } from '../middleware/images';
 import Dropdown from '../components/dropdown.js';
 import Header from '../components/header.js';
 import MetaMaskInstall from '../components/metamask-install.js';
 import MetaMaskLocked from '../components/metamask-locked.js';
-import MetaMaskHandler from './metamask-handler.js';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
