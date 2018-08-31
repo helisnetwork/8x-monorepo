@@ -3,11 +3,13 @@
     .prompt {
         display: flex;
         align-items: center;
+        flex-direction: column;
 
         .install {
             text-align: center;
             font-size: 1em; 
-            font-weight: 600;
+            padding-top: 1em;
+            padding-bottom: 1em;
         }
 
         .metamask-download {

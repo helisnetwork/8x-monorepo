@@ -15,7 +15,7 @@ class MetaMaskInstall extends React.Component {
         <div className="small-card">
           <Header title="MetaMask Not Installed" previousPage="/"/>
           <div className="prompt">
-            <p className="install">8x cannot detect MetaMask on your browser</p>
+            <h2 className="install">8x cannot detect MetaMask on your browser</h2>
             <a href="www.metamask.io">
               <img className="metamask-download" src={Images.downloadMetaMask}/>
             </a>

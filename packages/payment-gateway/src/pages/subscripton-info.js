@@ -1,25 +1,29 @@
 /* Import statements */
 import React from 'react';
 
-import Header from '../components/header.js';
 import {default as Images} from '../middleware/images';
 import Dropdown from '../components/dropdown.js';
+import Header from '../components/header.js';
 import MetaMaskInstall from '../components/metamask-install.js';
+import MetaMaskLocked from '../components/metamask-locked.js';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
 
   render() {
-    if (this.props.status === 'unlocked') {
+    switch(this.props.status)  {
+    case 'unlocked':
       return this.renderUnlocked();
-    } else if (this.props.status === 'locked') {
+      break;
+    case 'locked':
       return this.renderLocked();
-    } else if (this.props.status === 'not installed') {
+      break; 
+    case 'not installed':
       return this.renderInstallPrompt();
+      break;
+    default: 
+      return this.renderError();
     }
-
-    // @TODO: Change this to error
-    // return this.renderInstallPrompt();
   }
 
   renderUnlocked() {
@@ -77,12 +81,7 @@ class SubscriptionInfo extends React.Component {
 
   renderLocked() {
     return (
-      <div>
-        <div className="small-card">
-          <Header title="Subscription Information" previousPage="/"/>
-          <p>Please unlock metaMask</p>
-        </div> 
-      </div>
+      <MetaMaskLocked/>
     );
   }
 
