@@ -1,5 +1,6 @@
 /* Import statements */
 import React from 'react';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 import {default as Images} from '../middleware/images';
 import Dropdown from '../components/dropdown.js';
@@ -10,6 +11,14 @@ import MetaMaskHandler from './metamask-handler.js';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
+  constructor() {
+    super(); 
+    this.state = {
+      value: '',
+      copied: false
+    };
+
+  }
 
   render() {
     switch(this.props.status)  {
@@ -63,9 +72,11 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className="item-address">
               <p className="text-address">{this.props.useraddress}</p>
-              <div className="text-button">
-                <p className="text-copy">Copy</p>
-              </div>
+              <CopyToClipboard text={this.props.useraddress} onCopy={() => this.setState({copied: true})}>
+                <div className="text-button">
+                  <p className="text-copy">Copy</p>
+                </div>
+              </CopyToClipboard>
             </div>
             <div className="balance">
               <p>Current Balance</p>
