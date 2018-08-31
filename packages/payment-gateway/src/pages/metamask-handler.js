@@ -5,13 +5,14 @@ import SubscriptionInfo from './subscripton-info';
 class MetamaskHandler extends React.Component {
   constructor (props) {
     super(props);
-    
     this.state = {
       status: 'not installed',
       address: ''
     };
-
+    //@TODO fix changing state before component render (warning on console)
+    
     this.checkMetaMaskState();
+
   }
 
   checkMetaMaskState() {
@@ -55,12 +56,6 @@ class MetamaskHandler extends React.Component {
     });
   }
 
-  render() {
-    return ( 
-      <SubscriptionInfo status={this.state.status} useraddress={this.state.address}/>
-    );
-  }
-
   updateStatus(status,address) {
     this.setState({
       status: status,
@@ -72,6 +67,12 @@ class MetamaskHandler extends React.Component {
     const metamaskaddress = web3.eth.accounts[0];
     this.updateStatus(this.state.status,metamaskaddress);  
   };
+
+  render() {
+    return ( 
+      <SubscriptionInfo status={this.state.status} useraddress={this.state.address}/>
+    );
+  }
 
 };
 
