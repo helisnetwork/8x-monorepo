@@ -7,7 +7,8 @@ class MetamaskHandler extends React.Component {
     super(props);
     
     this.state = {
-      status: 'not installed'
+      status: 'not installed',
+      address: ''
     };
 
     this.checkMetaMaskState();
@@ -49,21 +50,27 @@ class MetamaskHandler extends React.Component {
       } else {
         console.log('MetaMask is unlocked');
         this.updateStatus('unlocked');
+        this.getMetaMaskAddress(); 
       }
     });
   }
 
   render() {
     return ( 
-      //loaded is passed boolean to decide whether to render the payment page
-      <SubscriptionInfo status={this.state.status}/>
+      <SubscriptionInfo status={this.state.status} useraddress={this.state.address}/>
     );
   }
 
-  updateStatus(update) {
+  updateStatus(status,address) {
     this.setState({
-      status: update
+      status: status,
+      address: address
     });
+  };
+
+  getMetaMaskAddress() {
+    const metamaskaddress = web3.eth.accounts[0];
+    this.updateStatus(this.state.status,metamaskaddress);  
   };
 
 };
