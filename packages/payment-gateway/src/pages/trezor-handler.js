@@ -9,7 +9,7 @@ class TrezorHandler extends React.Component {
     super(props);
     
     this.state = {
-      status: 'not installed'
+      status: 'loading'
     };
 
     this.trezorLogin();
@@ -26,12 +26,16 @@ class TrezorHandler extends React.Component {
   requestLogin () {
     TrezorConnect.requestLogin('hosticon', 'challenge_hidden', 'challenge_visual', function (response) {
       if (response.success) {
+        console.log('Address', reponse.address);// Test if this works
         console.log('Public key:', response.public_key); // pubkey in hex
         console.log('Signature:', response.signature); // signature in hex
         console.log('Version 2:', response.version === 2); // version field
+        this.updateStatus('unlocked');
       } else {
         console.error('Error:', response.error);
+        this.updateStatus('locked');
       }
+      console.log('hi');
       document.getElementById('response').innerHTML = JSON.stringify(response, undefined, 2);
     });
   };

@@ -13,6 +13,7 @@
     "@ledgerhq/hw-transport-u2f": "^4.21.0",
     "@ledgerhq/web3-subprovider": "^4.21.0",
     "clean-webpack-plugin": "^0.1.19",
+    "ethereumjs-ledger": "^2.1.5",
     "history": "^4.7.2",
     "prop-types": "^15.6.2",
     "react": "^16.4.2",
