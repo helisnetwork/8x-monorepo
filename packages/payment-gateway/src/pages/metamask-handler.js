@@ -3,20 +3,31 @@ import React from 'react';
 import SubscriptionInfo from './subscripton-info';
 
 class MetamaskHandler extends React.Component {
+
   constructor (props) {
     super(props);
     this.state = {
       status: 'not installed',
       address: '',
-      balance: []
+      balance: ''
     };
-    //@TODO fix changing state before component render (warning on console)
-    
-    this.checkMetaMaskState();
+
+    // @TODO: Fix changing state before component render (warning on console)
+    this.initialiseMetaMask();
 
   }
 
-  checkMetaMaskState() {
+  // Function used to update the state of MetaMask Handler.
+  updateStatus(status,address,balance) {
+    this.setState({
+      status: status,
+      address: address,
+      balance: balance
+    });
+  };
+  
+  // Checks if MetaMask is installed on the browser and calls MetaMask state functions
+  initialiseMetaMask() {
 
     if (typeof web3 === 'undefined') {
       console.log('No web3? You should consider trying MetaMask!');
@@ -27,21 +38,13 @@ class MetamaskHandler extends React.Component {
     this.updateStatus('installed');
     console.log('Metamask is installed');
 
-    var provider = web3.currentProvider;
-
-    this.checkMetaMaskLogin();
-
-    var account = web3.eth.accounts[0];
-    var accountInterval = setInterval(() => {
-      if (web3.eth.accounts[0] !== account) {
-        account = web3.eth.accounts[0];
-        this.checkMetaMaskLogin();
-      }
-    }, 100);
+    this.checkMetaMaskState();
+    this.watchMetaMaskState();
 
   }
 
-  checkMetaMaskLogin () {
+  // Checks if user is logged into MetaMask
+  checkMetaMaskState () {
     web3.eth.getAccounts((err, accounts) => {
       if (err != null) {
         console.log(err);
@@ -52,44 +55,48 @@ class MetamaskHandler extends React.Component {
       } else {
         console.log('MetaMask is unlocked');
         this.updateStatus('unlocked');
-        this.getMetaMaskAddress(); 
-        this.getMetaMaskBalance();
+        this.getMetaMaskData();
       }
     });
   }
 
-  updateStatus(status,address,balance) {
-    this.setState({
-      status: status,
-      address: address,
-      balance: balance
-    });
-  };
-
-  getMetaMaskAddress() {
-    var metamaskaddress = web3.eth.accounts[0];
-    this.updateStatus(this.state.status,metamaskaddress);  
-  };
-
-  getMetaMaskBalance() {
-    web3.eth.getBalance(this.state.address, (err,result) => {
-      if (!err){
-        this.updateStatus(this.state.status,this.state.address,result.toNumber() + 'ETH');
+  // Checks for user account changes (login, logout) on metamask and updates state if valid.  
+  watchMetaMaskState() {
+    var account = web3.eth.accounts[0];
+    var accountInterval = setInterval(() => {
+      if (web3.eth.accounts[0] !== account) {
+        account = web3.eth.accounts[0];
+        this.checkMetaMaskState();
       }
-      else {
+    }, 100);
+  }
+
+  // Supplies components with MetaMask address and balance
+  getMetaMaskData() {
+    var address = web3.eth.accounts[0];
+    web3.eth.getBalance(address, (err,result) => {
+      if (!err){
+        this.updateStatus(
+          this.state.status, 
+          address, 
+          result.toNumber() + 'ETH'
+        );
+      } else {
         console.log('error');
       }
     });
-    
-  };
-
-  render() {
-    return ( 
-      <SubscriptionInfo status={this.state.status} useraddress={this.state.address} balance={this.state.balance}/>
-    );
   }
 
+  // Renders subscription payment page ref @TODO
+  render() {
+    return ( 
+      <SubscriptionInfo 
+        status={this.state.status} 
+        useraddress={this.state.address} 
+        balance={this.state.balance}
+      />
+    );
+  }
 };
-
 
 export default MetamaskHandler;
