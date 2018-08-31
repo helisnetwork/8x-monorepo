@@ -10,8 +10,10 @@ import MetaMaskLocked from '../components/metamask-locked.js';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
+
   constructor() {
     super(); 
+
     this.state = {
       value: '',
       copied: false
@@ -19,6 +21,7 @@ class SubscriptionInfo extends React.Component {
 
   }
 
+  // Conditions on which page to render depending on status provided by handlers
   render() {
     switch(this.props.status)  {
     case 'unlocked':
@@ -29,6 +32,9 @@ class SubscriptionInfo extends React.Component {
       break; 
     case 'not installed':
       return this.renderInstallPrompt();
+      break;
+    case 'loading':
+      return this.renderLoading();
       break;
     default: 
       return this.renderError();
@@ -102,7 +108,12 @@ class SubscriptionInfo extends React.Component {
     );
   }
 
-  
+  // @TODO: Add a page for loading trezor and ledger screens
+  renderLoading() {
+    return (
+      <div></div>
+    );
+  }
 
   dropdownItems() {
     return [
