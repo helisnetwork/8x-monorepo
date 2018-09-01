@@ -39,6 +39,8 @@ export default class ExecutorAPI {
     * @response
     * ```
     * true
+    * is
+    * lit
     * ```
     *
     * @param subscriptionContract The subscription contract you'd like to
