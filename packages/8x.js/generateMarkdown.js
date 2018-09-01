@@ -1,8 +1,5 @@
 var fs = require('fs');
-
 var json = JSON.parse(fs.readFileSync('./docs.json', 'utf8'));
-json = JSON.parse(JSON.stringify(json).replace(/\\n/g, ''));
-
 var dedent = require('dedent-js');
 
 let classes = json.children.filter((object) => {
@@ -31,11 +28,12 @@ let classes = json.children.filter((object) => {
     };
 
     let parameters = (realObject.parameters || []).map((paramater) => {
-      let parameterComment = paramater.comment || {'text' : ''};
+      let strippedParameter = JSON.parse(JSON.stringify(paramater).replace(/\\n/g, ''))
+      let parameterComment = strippedParameter.comment || {'text' : ''};
       return {
-        'name': paramater.name || '',
+        'name': strippedParameter.name || '',
         'comment': parameterComment.text || '',
-        'type': paramater.type.name || ''
+        'type': strippedParameter.type.name || ''
       }
     });
 
@@ -73,7 +71,7 @@ let markdown = classes.map((object) => {
     }
 
     let parameters = method.parameters.map((parameter) => {
-      return `${parameter.name} | ${parameter.type} | ${parameter.comment}`
+      return `${parameter.name} | ${parameter.type} | ${parameter.comment} \r`
     }).join("");
 
     let exampleText = (
@@ -95,17 +93,17 @@ let markdown = classes.map((object) => {
     let parametersText = (
       method.parameters.length > 0 ?
         dedent(`\r### Request Parameters
-        Name | Type | Comment
-        ---- | ---- | -------
+        Name | Type | Comment \r
+        ---- | ---- | ------- \r
         ${parameters}\r`) : ''
     )
 
     return dedent(
       `## ${method.name}
+      ${methodText}
       ${exampleText}
       ${responseText}
       ${method.description}
-      ${methodText}
       ${parametersText}\r\r`)
   }).join("");
 
@@ -118,6 +116,4 @@ let markdown = classes.map((object) => {
 
 }).join("");
 
-console.log(markdown);
-fs.writeFile('./output.md', markdown, 'utf-8');
-//fs.writeFile('../docs/output.json', JSON.stringify(classes, null, 2), 'utf-8');
+fs.writeFile('../docs/docs.md', markdown, 'utf-8');
