@@ -15,7 +15,10 @@ class DropdownButton extends React.Component {
             </div>
             <div className="right">
               <p className="coin-ticker">{this.props.item.ticker}</p>
-              <p className="triangle" style={this.props.showTriangle ? null : {'visibility': 'none'}}>{this.props.triangle}</p>
+              {this.props.showTriangle
+                ? <p className="triangle"/>
+                : <p/>
+              }
             </div>
           </div>
         </button>
