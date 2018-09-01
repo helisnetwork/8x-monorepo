@@ -16,7 +16,7 @@ class SubscriptionInfo extends React.Component {
 
     this.state = {
       value: '',
-      copied: false
+      copied: false,
     };
 
   }
@@ -152,11 +152,15 @@ class SubscriptionInfo extends React.Component {
   timeItems(){
     return [
       {
+        name: '3',
+        ticker: 'months'
+      },
+      {
         name: '6',
         ticker: 'months'
       },
       {
-        name: '5',
+        name:'9',
         ticker: 'months'
       }
     ];

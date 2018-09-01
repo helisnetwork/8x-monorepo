@@ -1,24 +1,19 @@
-.dropdown-container {
-    max-width: 100%;
+.dropdown-wrapper {
+    position: relative;
 
-    .menu {
-        display: flex;
-        flex-direction: column;
-        position: absolute;
-        z-index: 1000;
-        //min-width: 100%;
-        box-sizing: border-box;
-        //max-width: 17.5em;
-        //width: 100%;
-        
-        /*.button {
-            background-color: black;
-            border: none;
-            border-radius: 0.85em;
+
+    .dropdown-container {
+        max-width: 100%;
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            position: absolute;
+            min-width: inherit;
             width: 100%;
-            padding: 1em 1em 1em 1em;
-        }*/
-
-        
+            
+        }
     }
+
 }
