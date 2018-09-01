@@ -76,7 +76,7 @@ class Dropdown extends React.Component {
     return this.props.items.filter((object) => {
       return this.state.selectedItem.name !== object.name;
     }).map((object, i) => {
-      return <DropdownButton item={object} key={i} action={this.itemSelected}/>;
+      return <DropdownButton item={object} key={i} action={this.itemSelected} showTriangle={false}/>;
     });
   }
 }
