@@ -67,8 +67,16 @@ class MetamaskHandler extends React.Component {
         account = web3.eth.accounts[0];
         this.checkMetaMaskState();
       }
+      this.checkMetaMaskBalance();
     }, 100);
   }
+
+  checkMetaMaskBalance() {
+    setTimeout(() => {
+      this.getMetaMaskData(); 
+    }, 5000);
+    
+  };
 
   // Supplies components with MetaMask address and balance
   getMetaMaskData() {
@@ -78,7 +86,7 @@ class MetamaskHandler extends React.Component {
         this.updateStatus(
           this.state.status, 
           address, 
-          result.toNumber() + 'ETH'
+          web3.fromWei(result, 'ether').toNumber() + 'ETH'
         );
       } else {
         console.log('error');
