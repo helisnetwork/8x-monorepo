@@ -48,35 +48,35 @@ class Dropdown extends React.Component {
       document.removeEventListener('click', this.closeMenu);
     }); 
   }
-
+  // @TODO: Fix triangle visibility on submenu
   render() {
     return (
-      <div className="dropdown-container">
-        <DropdownButton item={this.state.selectedItem} action={this.showMenu} showTriangle={true} />
-        {
-          this.state.showMenu
-            ? (
-              <div
-                className="menu"
-                ref={(element) => {
-                  this.dropdownMenu = element;
-                }}>
-                {this.returnDropdownButtons()}
-              </div>
-            ): null
-        }
-          
+      <div className="dropdown-wrapper">
+        <div className="dropdown-container">
+          <DropdownButton item={this.state.selectedItem} action={this.showMenu} showTriangle={true} />
+          {
+            this.state.showMenu
+              ? (
+                <div
+                  className="menu"
+                  ref={(element) => {
+                    this.dropdownMenu = element;
+                  }}>
+                  {this.returnDropdownButtons()}
+                </div>
+              ): null
+          }
+            
+        </div>
       </div>
     );
   }
 
   returnDropdownButtons(items) { 
-    return this.props.items.map((object, i) => {
-      return (
-        this.state.selectedItem !== object ? 
-          <DropdownButton item={object} key={i} action={this.itemSelected}/> 
-          : null
-      );
+    return this.props.items.filter((object) => {
+      return this.state.selectedItem.name !== object.name;
+    }).map((object, i) => {
+      return <DropdownButton item={object} key={i} action={this.itemSelected}/>;
     });
   }
 }
