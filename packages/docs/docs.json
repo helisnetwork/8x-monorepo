@@ -1,0 +1,3021 @@
+{
+	"id": 0,
+	"name": "8x.js",
+	"kind": 0,
+	"flags": {},
+	"children": [
+		{
+			"id": 1,
+			"name": "\"apis/action-proxy\"",
+			"kind": 1,
+			"kindString": "External module",
+			"flags": {
+				"isExported": true
+			},
+			"originalName": "/Users/kermankohli/8x-protocol/monorepo/packages/8x.js/apis/action-proxy.ts",
+			"children": [
+				{
+					"id": 2,
+					"name": "ActionProxy",
+					"kind": 128,
+					"kindString": "Class",
+					"flags": {
+						"isExported": true
+					},
+					"children": [
+						{
+							"id": 5,
+							"name": "existingAddress",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 6,
+									"name": "existingAddress",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/action-proxy.ts",
+									"line": 7,
+									"character": 30
+								}
+							]
+						},
+						{
+							"id": 3,
+							"name": "newAddress",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 4,
+									"name": "newAddress",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/action-proxy.ts",
+									"line": 3,
+									"character": 25
+								}
+							]
+						},
+						{
+							"id": 7,
+							"name": "returnState",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 8,
+									"name": "returnState",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/action-proxy.ts",
+									"line": 11,
+									"character": 26
+								}
+							]
+						}
+					],
+					"groups": [
+						{
+							"title": "Methods",
+							"kind": 2048,
+							"children": [
+								5,
+								3,
+								7
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "apis/action-proxy.ts",
+							"line": 1,
+							"character": 32
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Classes",
+					"kind": 128,
+					"children": [
+						2
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "apis/action-proxy.ts",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 57,
+			"name": "\"apis/executor\"",
+			"kind": 1,
+			"kindString": "External module",
+			"flags": {
+				"isExported": true
+			},
+			"originalName": "/Users/kermankohli/8x-protocol/monorepo/packages/8x.js/apis/executor.ts",
+			"children": [
+				{
+					"id": 58,
+					"name": "ExecutorAPI",
+					"kind": 128,
+					"kindString": "Class",
+					"flags": {
+						"isExported": true
+					},
+					"comment": {
+						"shortText": "The executor contract is the heart of the 8x protocol. It's\nprimary responsibility is to bring various components together\nand coordinate between them. For more information we recommend\nreading the white paper."
+					},
+					"children": [
+						{
+							"id": 61,
+							"name": "constructor",
+							"kind": 512,
+							"kindString": "Constructor",
+							"flags": {
+								"isExported": true
+							},
+							"signatures": [
+								{
+									"id": 62,
+									"name": "new ExecutorAPI",
+									"kind": 16384,
+									"kindString": "Constructor signature",
+									"flags": {},
+									"parameters": [
+										{
+											"id": 63,
+											"name": "web3",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 64,
+											"name": "addressBook",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "AddressBook",
+												"id": 10
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "ExecutorAPI",
+										"id": 58
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/executor.ts",
+									"line": 13,
+									"character": 34
+								}
+							]
+						},
+						{
+							"id": 60,
+							"name": "addressBook",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"sources": [
+								{
+									"fileName": "apis/executor.ts",
+									"line": 13,
+									"character": 20
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "AddressBook",
+								"id": 10
+							}
+						},
+						{
+							"id": 59,
+							"name": "web3",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"sources": [
+								{
+									"fileName": "apis/executor.ts",
+									"line": 12,
+									"character": 13
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 65,
+							"name": "activateSubscription",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 66,
+									"name": "activateSubscription",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"comment": {
+										"shortText": "Activate Subscription",
+										"text": "In order to make the first payment, activate subscription needs to\nbe called to start the subscription. This change is then reflected\nin the volume subscription contract where the start date is updated.\n\nThe creation of a subscription in volume subscription and activation\ncan be decoupled to create a trial functionality.\n",
+										"returns": "Return the the result of the operation.\n",
+										"tags": [
+											{
+												"tag": "example",
+												"text": "\n```typescript\nconst eightEx = require('eightEx');\nlet response = await eightEx.activateSubscription(\n  '0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4'\n  '0x0213e3852b8afeb08929a0f448f2f693b0fc3ebe'\n)\n```\n"
+											},
+											{
+												"tag": "response",
+												"text": "\n```\ntrue\nis\nlit\n```\n"
+											}
+										]
+									},
+									"parameters": [
+										{
+											"id": 67,
+											"name": "subscriptionContract",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The subscription contract you'd like to\ninterface with."
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.Address"
+											}
+										},
+										{
+											"id": 68,
+											"name": "subscriptionIdentifier",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The identifier of the subscription you'd\nlike to activate/make the first payment for.\n"
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "boolean"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/executor.ts",
+									"line": 53,
+									"character": 35
+								}
+							]
+						},
+						{
+							"id": 81,
+							"name": "cancelSubscription",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 82,
+									"name": "cancelSubscription",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"comment": {
+										"shortText": "Cancel Subscription",
+										"text": "If a user doesn't have enough funds, the subscription was cancelled by\nthe user/business, allowance was revoked etc. The service node has a\nfail safe way to cancel the subscription and get back their stake of\ntokens.\n\nThey also get a gas refund by deleting the payment registry object.\n",
+										"returns": "The result of the operation.\n"
+									},
+									"parameters": [
+										{
+											"id": 83,
+											"name": "subscriptionContract",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The subscription contract you'd like to\ninterface with."
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.Address"
+											}
+										},
+										{
+											"id": 84,
+											"name": "subscriptionIdentifier",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The identifier of the subscription you'd\nlike to activate/make the first payment for.\n"
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "boolean"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/executor.ts",
+									"line": 162,
+									"character": 33
+								}
+							]
+						},
+						{
+							"id": 77,
+							"name": "catchLateSubscription",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 78,
+									"name": "catchLateSubscription",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"comment": {
+										"shortText": "Catch Late Subscription",
+										"text": "If a service node doesn't process a subscription for a valid reason (\nuser doesn't have enough funds, allowance revoked, subscription\ncancelled) then another user can catch their late processing, steal\ntheir tokens and now take on the responsibility of processing the\nsubscription. It is for this reason that service nodes must carefully\nset how quickly they'd like to process subscriptions.\n",
+										"returns": "The result of the operation.\n"
+									},
+									"parameters": [
+										{
+											"id": 79,
+											"name": "subscriptionContract",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The subscription contract you'd like to\ninterface with."
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.Address"
+											}
+										},
+										{
+											"id": 80,
+											"name": "subscriptionIdentifier",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The identifier of the subscription you'd\nlike to activate/make the first payment for.\n"
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "boolean"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/executor.ts",
+									"line": 135,
+									"character": 36
+								}
+							]
+						},
+						{
+							"id": 85,
+							"name": "determineStake",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 86,
+									"name": "determineStake",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"comment": {
+										"shortText": "Determine Stake",
+										"text": "To know how many tokens are need to process a subscription, this\nfunction can be called. It relies on a few variables such as the\ngini coefficient, time elapsed since the subscription was processed\nand the total number of unstaked tokens in the system.\n",
+										"returns": "How many tokens are required.\n"
+									},
+									"parameters": [
+										{
+											"id": 87,
+											"name": "tokenAddress",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "Address of the token which is being processed."
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.Address"
+											}
+										},
+										{
+											"id": 88,
+											"name": "startDate",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The due date of the subscription."
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.UInt"
+											}
+										},
+										{
+											"id": 89,
+											"name": "interval",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The interval of the subscription.\n"
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.UInt"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "reference",
+												"name": "Types.UInt"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/executor.ts",
+									"line": 186,
+									"character": 29
+								}
+							]
+						},
+						{
+							"id": 69,
+							"name": "processSubscription",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 70,
+									"name": "processSubscription",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"comment": {
+										"shortText": "Process Subscription",
+										"text": "When a subscription is due a service node can go ahead and call this\nfunction.\n\nIf it's an unclaimed subscription, they'll need enough tokens. Otherwise\nit will ensure that the original claimer only has the right to call\nthis function.\n",
+										"returns": "Return the result of the operation.\n"
+									},
+									"parameters": [
+										{
+											"id": 71,
+											"name": "subscriptionContract",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The subscription contract you'd like to\ninterface with."
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.Address"
+											}
+										},
+										{
+											"id": 72,
+											"name": "subscriptionIdentifier",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The identifier of the subscription you'd\nlike to activate/make the first payment for.\n"
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "boolean"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/executor.ts",
+									"line": 80,
+									"character": 34
+								}
+							]
+						},
+						{
+							"id": 73,
+							"name": "releaseSubscription",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 74,
+									"name": "releaseSubscription",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"comment": {
+										"shortText": "Release Subscription",
+										"text": "In the case a service node would like to stop processing a subscription\nthey can release the subscription provided they are within a certain\ntime period.\n\nThe time period is set through the maximum interval divisor in the executor\ncontract. If the subscription has an interval of 30 and the divisor is set\nat 6 then you have 5 days to release a subscription once it's been processed.\n",
+										"returns": "The result of the operation.\n"
+									},
+									"parameters": [
+										{
+											"id": 75,
+											"name": "subscriptionContract",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The subscription contract you'd like to\ninterface with."
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.Address"
+											}
+										},
+										{
+											"id": 76,
+											"name": "subscriptionIdentifier",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"comment": {
+												"text": "The identifier of the subscription you'd\nlike to activate/make the first payment for.\n"
+											},
+											"type": {
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "boolean"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/executor.ts",
+									"line": 108,
+									"character": 34
+								}
+							]
+						}
+					],
+					"groups": [
+						{
+							"title": "Constructors",
+							"kind": 512,
+							"children": [
+								61
+							]
+						},
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								60,
+								59
+							]
+						},
+						{
+							"title": "Methods",
+							"kind": 2048,
+							"children": [
+								65,
+								81,
+								77,
+								85,
+								69,
+								73
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "apis/executor.ts",
+							"line": 10,
+							"character": 32
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Classes",
+					"kind": 128,
+					"children": [
+						58
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "apis/executor.ts",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 90,
+			"name": "\"apis/kyber-network-interface\"",
+			"kind": 1,
+			"kindString": "External module",
+			"flags": {
+				"isExported": true
+			},
+			"originalName": "/Users/kermankohli/8x-protocol/monorepo/packages/8x.js/apis/kyber-network-interface.ts",
+			"children": [
+				{
+					"id": 91,
+					"name": "KyberNetworkInterface",
+					"kind": 128,
+					"kindString": "Class",
+					"flags": {
+						"isExported": true
+					},
+					"children": [
+						{
+							"id": 92,
+							"name": "getExpectedRate",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 93,
+									"name": "getExpectedRate",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/kyber-network-interface.ts",
+									"line": 3,
+									"character": 30
+								}
+							]
+						}
+					],
+					"groups": [
+						{
+							"title": "Methods",
+							"kind": 2048,
+							"children": [
+								92
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "apis/kyber-network-interface.ts",
+							"line": 1,
+							"character": 42
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Classes",
+					"kind": 128,
+					"children": [
+						91
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "apis/kyber-network-interface.ts",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 94,
+			"name": "\"apis/stake-contract\"",
+			"kind": 1,
+			"kindString": "External module",
+			"flags": {
+				"isExported": true
+			},
+			"originalName": "/Users/kermankohli/8x-protocol/monorepo/packages/8x.js/apis/stake-contract.ts",
+			"children": [
+				{
+					"id": 95,
+					"name": "StakeContract",
+					"kind": 128,
+					"kindString": "Class",
+					"flags": {
+						"isExported": true
+					},
+					"children": [
+						{
+							"id": 98,
+							"name": "getAvailableStake",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 99,
+									"name": "getAvailableStake",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/stake-contract.ts",
+									"line": 7,
+									"character": 32
+								}
+							]
+						},
+						{
+							"id": 104,
+							"name": "getAvailableTokenStake",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 105,
+									"name": "getAvailableTokenStake",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/stake-contract.ts",
+									"line": 19,
+									"character": 37
+								}
+							]
+						},
+						{
+							"id": 100,
+							"name": "getLockedStake",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 101,
+									"name": "getLockedStake",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/stake-contract.ts",
+									"line": 11,
+									"character": 29
+								}
+							]
+						},
+						{
+							"id": 106,
+							"name": "getLockedTokenStake",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 107,
+									"name": "getLockedTokenStake",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/stake-contract.ts",
+									"line": 23,
+									"character": 34
+								}
+							]
+						},
+						{
+							"id": 108,
+							"name": "getTokenStakeDetails",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 109,
+									"name": "getTokenStakeDetails",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/stake-contract.ts",
+									"line": 27,
+									"character": 35
+								}
+							]
+						},
+						{
+							"id": 96,
+							"name": "getTotalStake",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 97,
+									"name": "getTotalStake",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/stake-contract.ts",
+									"line": 3,
+									"character": 28
+								}
+							]
+						},
+						{
+							"id": 102,
+							"name": "getTotalTokenStake",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 103,
+									"name": "getTotalTokenStake",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/stake-contract.ts",
+									"line": 15,
+									"character": 33
+								}
+							]
+						},
+						{
+							"id": 110,
+							"name": "topUpStake",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 111,
+									"name": "topUpStake",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/stake-contract.ts",
+									"line": 31,
+									"character": 25
+								}
+							]
+						},
+						{
+							"id": 112,
+							"name": "withdrawStake",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 113,
+									"name": "withdrawStake",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/stake-contract.ts",
+									"line": 35,
+									"character": 28
+								}
+							]
+						}
+					],
+					"groups": [
+						{
+							"title": "Methods",
+							"kind": 2048,
+							"children": [
+								98,
+								104,
+								100,
+								106,
+								108,
+								96,
+								102,
+								110,
+								112
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "apis/stake-contract.ts",
+							"line": 1,
+							"character": 34
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Classes",
+					"kind": 128,
+					"children": [
+						95
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "apis/stake-contract.ts",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 114,
+			"name": "\"apis/volume-subscription\"",
+			"kind": 1,
+			"kindString": "External module",
+			"flags": {
+				"isExported": true
+			},
+			"originalName": "/Users/kermankohli/8x-protocol/monorepo/packages/8x.js/apis/volume-subscription.ts",
+			"children": [
+				{
+					"id": 115,
+					"name": "VolumeSubscription",
+					"kind": 128,
+					"kindString": "Class",
+					"flags": {
+						"isExported": true
+					},
+					"children": [
+						{
+							"id": 145,
+							"name": "cancelSubscription",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 146,
+									"name": "cancelSubscription",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"parameters": [
+										{
+											"id": 147,
+											"name": "subscription",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "void"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/volume-subscription.ts",
+									"line": 66,
+									"character": 33
+								}
+							]
+						},
+						{
+							"id": 116,
+							"name": "createPlan",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 117,
+									"name": "createPlan",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"parameters": [
+										{
+											"id": 118,
+											"name": "owner",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.Address"
+											}
+										},
+										{
+											"id": 119,
+											"name": "tokenAddress",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.Address"
+											}
+										},
+										{
+											"id": 120,
+											"name": "identifier",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										},
+										{
+											"id": 121,
+											"name": "interval",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.UInt"
+											}
+										},
+										{
+											"id": 122,
+											"name": "amount",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.UInt"
+											}
+										},
+										{
+											"id": 123,
+											"name": "fee",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.UInt"
+											}
+										},
+										{
+											"id": 124,
+											"name": "data",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/volume-subscription.ts",
+									"line": 5,
+									"character": 25
+								}
+							]
+						},
+						{
+							"id": 137,
+							"name": "createSubscription",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 138,
+									"name": "createSubscription",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"parameters": [
+										{
+											"id": 139,
+											"name": "planHash",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										},
+										{
+											"id": 140,
+											"name": "data",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/volume-subscription.ts",
+									"line": 47,
+									"character": 33
+								}
+							]
+						},
+						{
+							"id": 129,
+							"name": "setPlanData",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 130,
+									"name": "setPlanData",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"parameters": [
+										{
+											"id": 131,
+											"name": "plan",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										},
+										{
+											"id": 132,
+											"name": "data",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/volume-subscription.ts",
+									"line": 29,
+									"character": 26
+								}
+							]
+						},
+						{
+							"id": 141,
+							"name": "setSubscriptionData",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 142,
+									"name": "setSubscriptionData",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"parameters": [
+										{
+											"id": 143,
+											"name": "subscription",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										},
+										{
+											"id": 144,
+											"name": "data",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/volume-subscription.ts",
+									"line": 57,
+									"character": 34
+								}
+							]
+						},
+						{
+							"id": 133,
+							"name": "terminatePlan",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 134,
+									"name": "terminatePlan",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"parameters": [
+										{
+											"id": 135,
+											"name": "plan",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										},
+										{
+											"id": 136,
+											"name": "terminationDate",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.UInt"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/volume-subscription.ts",
+									"line": 38,
+									"character": 28
+								}
+							]
+						},
+						{
+							"id": 125,
+							"name": "updatePlanOwner",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true,
+								"isPublic": true
+							},
+							"signatures": [
+								{
+									"id": 126,
+									"name": "updatePlanOwner",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"parameters": [
+										{
+											"id": 127,
+											"name": "plan",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.Bytes32"
+											}
+										},
+										{
+											"id": 128,
+											"name": "owner",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"name": "Types.Address"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"name": "Promise",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										]
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "apis/volume-subscription.ts",
+									"line": 20,
+									"character": 30
+								}
+							]
+						}
+					],
+					"groups": [
+						{
+							"title": "Methods",
+							"kind": 2048,
+							"children": [
+								145,
+								116,
+								137,
+								129,
+								141,
+								133,
+								125
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "apis/volume-subscription.ts",
+							"line": 3,
+							"character": 39
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Classes",
+					"kind": 128,
+					"children": [
+						115
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "apis/volume-subscription.ts",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 9,
+			"name": "\"types/address_book\"",
+			"kind": 1,
+			"kindString": "External module",
+			"flags": {
+				"isExported": true
+			},
+			"originalName": "/Users/kermankohli/8x-protocol/monorepo/packages/8x.js/types/address_book.ts",
+			"children": [
+				{
+					"id": 10,
+					"name": "AddressBook",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {
+						"isExported": true
+					},
+					"children": [
+						{
+							"id": 11,
+							"name": "actionProxyAddress",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/address_book.ts",
+									"line": 2,
+									"character": 20
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						},
+						{
+							"id": 12,
+							"name": "approvedRegistryAddress",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/address_book.ts",
+									"line": 3,
+									"character": 25
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						},
+						{
+							"id": 13,
+							"name": "executorAddress",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/address_book.ts",
+									"line": 4,
+									"character": 17
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						},
+						{
+							"id": 14,
+							"name": "paymentRegistryAddress",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/address_book.ts",
+									"line": 5,
+									"character": 24
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						},
+						{
+							"id": 15,
+							"name": "requirementsAddress",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/address_book.ts",
+									"line": 6,
+									"character": 21
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						},
+						{
+							"id": 16,
+							"name": "stakeContractAddress",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/address_book.ts",
+									"line": 7,
+									"character": 22
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						},
+						{
+							"id": 17,
+							"name": "volumeSubscriptionAddress",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/address_book.ts",
+									"line": 8,
+									"character": 27
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								11,
+								12,
+								13,
+								14,
+								15,
+								16,
+								17
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/address_book.ts",
+							"line": 1,
+							"character": 28
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Interfaces",
+					"kind": 256,
+					"children": [
+						10
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/address_book.ts",
+					"line": 1,
+					"character": 0
+				}
+			]
+		},
+		{
+			"id": 18,
+			"name": "\"types/common\"",
+			"kind": 1,
+			"kindString": "External module",
+			"flags": {
+				"isExported": true
+			},
+			"originalName": "/Users/kermankohli/8x-protocol/monorepo/packages/8x.js/types/common.ts",
+			"children": [
+				{
+					"id": 40,
+					"name": "SolidityType",
+					"kind": 4,
+					"kindString": "Enumeration",
+					"flags": {
+						"isExported": true
+					},
+					"children": [
+						{
+							"id": 41,
+							"name": "address",
+							"kind": 16,
+							"kindString": "Enumeration member",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 52,
+									"character": 11
+								}
+							],
+							"defaultValue": "\"address\""
+						},
+						{
+							"id": 46,
+							"name": "boolean",
+							"kind": 16,
+							"kindString": "Enumeration member",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 57,
+									"character": 11
+								}
+							],
+							"defaultValue": "\"bool\""
+						},
+						{
+							"id": 45,
+							"name": "bytes32",
+							"kind": 16,
+							"kindString": "Enumeration member",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 56,
+									"character": 11
+								}
+							],
+							"defaultValue": "\"bytes32\""
+						},
+						{
+							"id": 47,
+							"name": "string",
+							"kind": 16,
+							"kindString": "Enumeration member",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 58,
+									"character": 10
+								}
+							],
+							"defaultValue": "\"string\""
+						},
+						{
+							"id": 44,
+							"name": "uint",
+							"kind": 16,
+							"kindString": "Enumeration member",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 55,
+									"character": 8
+								}
+							],
+							"defaultValue": "\"uint\""
+						},
+						{
+							"id": 42,
+							"name": "uint256",
+							"kind": 16,
+							"kindString": "Enumeration member",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 53,
+									"character": 11
+								}
+							],
+							"defaultValue": "\"uint256\""
+						},
+						{
+							"id": 43,
+							"name": "uint8",
+							"kind": 16,
+							"kindString": "Enumeration member",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 54,
+									"character": 9
+								}
+							],
+							"defaultValue": "\"uint8\""
+						}
+					],
+					"groups": [
+						{
+							"title": "Enumeration members",
+							"kind": 16,
+							"children": [
+								41,
+								46,
+								45,
+								47,
+								44,
+								42,
+								43
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/common.ts",
+							"line": 51,
+							"character": 24
+						}
+					]
+				},
+				{
+					"id": 30,
+					"name": "DecodedLog",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {
+						"isExported": true
+					},
+					"typeParameter": [
+						{
+							"id": 31,
+							"name": "Args",
+							"kind": 131072,
+							"kindString": "Type parameter",
+							"flags": {}
+						}
+					],
+					"children": [
+						{
+							"id": 33,
+							"name": "address",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 17,
+									"character": 11
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "Address",
+								"id": 54
+							}
+						},
+						{
+							"id": 34,
+							"name": "events",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 18,
+									"character": 10
+								}
+							],
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "intrinsic",
+									"name": "any"
+								}
+							}
+						},
+						{
+							"id": 32,
+							"name": "name",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 16,
+									"character": 8
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								33,
+								34,
+								32
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/common.ts",
+							"line": 15,
+							"character": 27
+						}
+					]
+				},
+				{
+					"id": 37,
+					"name": "Log",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {
+						"isExported": true
+					},
+					"children": [
+						{
+							"id": 39,
+							"name": "args",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 44,
+									"character": 8
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "object"
+							}
+						},
+						{
+							"id": 38,
+							"name": "event",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 43,
+									"character": 9
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								39,
+								38
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/common.ts",
+							"line": 42,
+							"character": 20
+						}
+					]
+				},
+				{
+					"id": 35,
+					"name": "MultiSigSubmissionEventArgs",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {
+						"isExported": true
+					},
+					"children": [
+						{
+							"id": 36,
+							"name": "transactionId",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 22,
+									"character": 17
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "BigNumber"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								36
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/common.ts",
+							"line": 21,
+							"character": 44
+						}
+					]
+				},
+				{
+					"id": 19,
+					"name": "TxData",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {
+						"isExported": true
+					},
+					"children": [
+						{
+							"id": 20,
+							"name": "from",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 5,
+									"character": 8
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						},
+						{
+							"id": 21,
+							"name": "gas",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 6,
+									"character": 7
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "number"
+									}
+								]
+							}
+						},
+						{
+							"id": 22,
+							"name": "gasPrice",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 7,
+									"character": 12
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "BigNumber"
+							}
+						},
+						{
+							"id": 23,
+							"name": "nonce",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 8,
+									"character": 9
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "number"
+									}
+								]
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								20,
+								21,
+								22,
+								23
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/common.ts",
+							"line": 4,
+							"character": 23
+						}
+					],
+					"extendedBy": [
+						{
+							"type": "reference",
+							"name": "TxDataPayable",
+							"id": 24
+						}
+					]
+				},
+				{
+					"id": 24,
+					"name": "TxDataPayable",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {
+						"isExported": true
+					},
+					"children": [
+						{
+							"id": 26,
+							"name": "from",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 5,
+									"character": 8
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "TxData.from",
+								"id": 20
+							}
+						},
+						{
+							"id": 27,
+							"name": "gas",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 6,
+									"character": 7
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "number"
+									}
+								]
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "TxData.gas",
+								"id": 21
+							}
+						},
+						{
+							"id": 28,
+							"name": "gasPrice",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 7,
+									"character": 12
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "BigNumber"
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "TxData.gasPrice",
+								"id": 22
+							}
+						},
+						{
+							"id": 29,
+							"name": "nonce",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 8,
+									"character": 9
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "number"
+									}
+								]
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"name": "TxData.nonce",
+								"id": 23
+							}
+						},
+						{
+							"id": 25,
+							"name": "value",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true,
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 12,
+									"character": 9
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "BigNumber"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								26,
+								27,
+								28,
+								29,
+								25
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/common.ts",
+							"line": 11,
+							"character": 30
+						}
+					],
+					"extendedTypes": [
+						{
+							"type": "reference",
+							"name": "TxData",
+							"id": 19
+						}
+					]
+				},
+				{
+					"id": 54,
+					"name": "Address",
+					"kind": 4194304,
+					"kindString": "Type alias",
+					"flags": {
+						"isExported": true
+					},
+					"sources": [
+						{
+							"fileName": "types/common.ts",
+							"line": 47,
+							"character": 19
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 56,
+					"name": "Bytes32",
+					"kind": 4194304,
+					"kindString": "Type alias",
+					"flags": {
+						"isExported": true
+					},
+					"sources": [
+						{
+							"fileName": "types/common.ts",
+							"line": 49,
+							"character": 19
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 55,
+					"name": "UInt",
+					"kind": 4194304,
+					"kindString": "Type alias",
+					"flags": {
+						"isExported": true
+					},
+					"sources": [
+						{
+							"fileName": "types/common.ts",
+							"line": 48,
+							"character": 16
+						}
+					],
+					"type": {
+						"type": "union",
+						"types": [
+							{
+								"type": "intrinsic",
+								"name": "number"
+							},
+							{
+								"type": "reference",
+								"name": "BigNumber"
+							}
+						]
+					}
+				},
+				{
+					"id": 48,
+					"name": "classUtils",
+					"kind": 2097152,
+					"kindString": "Object literal",
+					"flags": {
+						"isExported": true,
+						"isConst": true
+					},
+					"children": [
+						{
+							"id": 49,
+							"name": "bindAll",
+							"kind": 64,
+							"kindString": "Function",
+							"flags": {
+								"isExported": true
+							},
+							"signatures": [
+								{
+									"id": 50,
+									"name": "bindAll",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"parameters": [
+										{
+											"id": 51,
+											"name": "self",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 52,
+											"name": "exclude",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "array",
+												"elementType": {
+													"type": "intrinsic",
+													"name": "string"
+												}
+											},
+											"defaultValue": " [\"contructor\"]"
+										},
+										{
+											"id": 53,
+											"name": "thisArg",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isOptional": true
+											},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "void"
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "types/common.ts",
+									"line": 27,
+									"character": 11
+								}
+							]
+						}
+					],
+					"groups": [
+						{
+							"title": "Functions",
+							"kind": 64,
+							"children": [
+								49
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/common.ts",
+							"line": 25,
+							"character": 23
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "object"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Enumerations",
+					"kind": 4,
+					"children": [
+						40
+					]
+				},
+				{
+					"title": "Interfaces",
+					"kind": 256,
+					"children": [
+						30,
+						37,
+						35,
+						19,
+						24
+					]
+				},
+				{
+					"title": "Type aliases",
+					"kind": 4194304,
+					"children": [
+						54,
+						56,
+						55
+					]
+				},
+				{
+					"title": "Object literals",
+					"kind": 2097152,
+					"children": [
+						48
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/common.ts",
+					"line": 1,
+					"character": 0
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "External modules",
+			"kind": 1,
+			"children": [
+				1,
+				57,
+				90,
+				94,
+				114,
+				9,
+				18
+			]
+		}
+	]
+}
