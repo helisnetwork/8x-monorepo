@@ -11,10 +11,11 @@
     "declarationDir": "dist/types",
     "outDir": "dist",
     "typeRoots": [
-      "types"
+      "./types"
     ]
   },
   "include": [
-    "src"
+    "./apis",
+    "./types"
   ]
 }
