@@ -10,6 +10,7 @@ import spinner from '../assets/images/spinner.png';
 import ethLogo from '../assets/images/eth.png';
 import dropDown from '../assets/images/dropdown.png';
 import downloadMetaMask from '../assets/images/download-metamask.png';
+import daiLogo from '../assets/images/dai.png';
 
 export default {
   metamaskLogo,
@@ -22,6 +23,7 @@ export default {
   spinner,
   ethLogo,
   dropDown,
-  downloadMetaMask
+  downloadMetaMask,
+  daiLogo
 
 };

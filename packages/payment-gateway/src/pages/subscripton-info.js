@@ -138,13 +138,13 @@ class SubscriptionInfo extends React.Component {
     return [
       {
         image: Images.ethLogo,
-        name: 'Ethereum',
-        ticker: 'ETH'
+        name: 'Dai',
+        ticker: 'DAI'
       },
       {
         image: Images.ethLogo,
-        name: 'DAI',
-        ticker: 'DAI'
+        name: 'Ethereum',
+        ticker: 'ETH'
       }
     ];
   }
