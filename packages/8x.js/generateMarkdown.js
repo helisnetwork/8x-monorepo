@@ -1,5 +1,5 @@
 var fs = require('fs');
-var json = JSON.parse(fs.readFileSync('./docs.json', 'utf8'));
+var json = JSON.parse(fs.readFileSync('../docs/docs.json', 'utf8'));
 var dedent = require('dedent-js');
 
 let classes = json.children.filter((object) => {
