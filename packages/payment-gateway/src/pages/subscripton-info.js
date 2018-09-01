@@ -77,9 +77,19 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className="item-address">
               <p className="text-address">{this.props.useraddress}</p>
-              <CopyToClipboard text={this.props.useraddress} onCopy={() => this.setState({copied: true})}>
+              <CopyToClipboard 
+                text={this.props.useraddress} 
+                onCopy={() => {
+                  this.resetCopyState();
+                  this.setState({copied: true});
+                }}
+              >
                 <div className="text-button">
-                  <p className="text-copy">Copy</p>
+                  {
+                    this.state.copied
+                      ? <p className="text-copy">Copied</p>
+                      :<p className="text-copy">Copy</p> 
+                  }
                 </div>
               </CopyToClipboard>
             </div>
@@ -114,6 +124,15 @@ class SubscriptionInfo extends React.Component {
       <div></div>
     );
   }
+
+  resetCopyState() {
+    setTimeout(() => {
+      this.setState({
+        copied: false
+      });
+    }, 2000);
+    
+  };
 
   dropdownItems() {
     return [

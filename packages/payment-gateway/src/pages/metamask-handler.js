@@ -7,7 +7,7 @@ class MetamaskHandler extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
-      status: 'not installed',
+      status: 'loading',
       address: '',
       balance: ''
     };
@@ -35,7 +35,6 @@ class MetamaskHandler extends React.Component {
       return;
     }
 
-    this.updateStatus('installed');
     console.log('Metamask is installed');
 
     this.checkMetaMaskState();
