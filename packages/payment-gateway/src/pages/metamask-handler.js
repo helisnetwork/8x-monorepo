@@ -10,7 +10,8 @@ class MetamaskHandler extends React.Component {
       status: 'loading',
       address: '',
       balance: '',
-      kyberConversion: ''
+      kyberConversion: '',
+      timePeriod: ''
     };
 
     // @TODO: Fix changing state before component render (warning on console)
