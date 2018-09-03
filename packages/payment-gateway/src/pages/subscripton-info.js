@@ -122,7 +122,9 @@ class SubscriptionInfo extends React.Component {
   // @TODO: Add a page for loading trezor and ledger screens
   renderLoading() {
     return (
-      <div></div>
+      <div>
+        <p>Loading...</p>
+      </div>
     );
   }
 
@@ -166,7 +168,6 @@ class SubscriptionInfo extends React.Component {
       }
     ];
   }
-
 };
 
 export default SubscriptionInfo;
