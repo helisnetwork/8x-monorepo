@@ -92,6 +92,11 @@
 
 		}
 
+		.item:hover {
+			transform: scale(1.03);
+			transition: scale 6s; 
+		}
+
 		.metamask {
 			background-image: linear-gradient(to bottom right,#FF9C3F, #F6D365);
 		}
