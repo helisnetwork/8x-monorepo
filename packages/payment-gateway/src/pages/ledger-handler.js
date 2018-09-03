@@ -5,30 +5,39 @@ import createLedgerSubprovider from '@ledgerhq/web3-subprovider';
 import ProviderEngine from 'web3-provider-engine';
 import FetchSubprovider from 'web3-provider-engine/subproviders/fetch';
 import { LedgerEthereum, BrowserLedgerConnectionFactory, Network } from 'ethereumjs-ledger';
+import SubscriptionInfo from './subscripton-info';
+
+// configuration can be overrided by env variables
+const rpcUrl = process.env.REACT_APP_NETWORK_URL || 'https://mainnet.infura.io/v3/cee44072c2294964a4f357e95dcf71c1';
+const networkId = parseInt(process.env.REACT_APP_NETWORK_ID || '1337', 10);
 
 class LedgerHandler extends React.Component{
+
   constructor(props){
     super(props);
+    
+    this.state = {
+      status: 'locked'
+
+    };
+
+    this.getWeb3();
+    this.initializeLedger();
   }
 
-  initialiseLedger() {
-    if(typeof window.web3 !== 'undefinied') {
-      console.log('web3 is already initialised');
 
-    } else {
-      this.onConnectLedgerRequest();
-      // Create web3 with ledger device
-      this.getWeb3();
-      
-    }
-  }
+  initializeLedger () {
+    const web3 = this.getWeb3();
+    const accounts = new Promise((resolve, reject) => {
+      web3.eth.getAccounts((error, accounts) => {
+        if (error) reject(error);
+        else resolve(accounts);
+      });
+    });
+  };
 
-  onConnectLedgerRequest () { 
-    promptUserToConnectLedger(); 
-    console.log('Please connect');
-  }
-
-  getWeb3 () {
+  // create a web3 with the ledger device
+  getWeb3() {
     const engine = new ProviderEngine();
     const getTransport = () => TransportU2F.create();
     const ledger = createLedgerSubprovider(getTransport, {
@@ -40,6 +49,14 @@ class LedgerHandler extends React.Component{
     engine.start();
     return new Web3(engine);
   };
+
+  
+  render () {
+    return (
+      <SubscriptionInfo status={this.state.status}/>
+    );
+  }
+      
 
 };
 

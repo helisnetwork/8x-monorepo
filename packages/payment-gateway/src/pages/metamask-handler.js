@@ -71,6 +71,7 @@ class MetamaskHandler extends React.Component {
     }, 100);
   }
 
+  // Checks MetaMask balance every 5 seconds while waiting for user deposit
   checkMetaMaskBalance() {
     setTimeout(() => {
       this.getMetaMaskData(); 

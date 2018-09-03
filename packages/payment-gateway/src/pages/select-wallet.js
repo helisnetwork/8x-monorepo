@@ -27,7 +27,7 @@ class SelectWallet extends React.Component {
                 </div>
               </div>
             </Link>
-            <Link to='ledger-handler'>
+            <Link to='/ledger-handler'>
               <div className="item ledger">
                 <div className="logo">
                   <img src={Images.ledgerLogo}/>
