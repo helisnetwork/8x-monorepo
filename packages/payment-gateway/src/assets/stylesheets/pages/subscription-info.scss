@@ -11,6 +11,10 @@
         flex-direction: column;
         margin-top: 1em;
 
+        @include mobile {
+            padding-top: 0.5em;
+        }
+
         .main-item {
             display: flex;
             background-color: white;
@@ -18,6 +22,11 @@
             box-shadow: 2px 0 20px #EFEFEF;
             padding: 2em 1em 1em 1em;
             margin-bottom: 1.5em;
+
+            @include mobile {
+                flex-direction: column;
+                padding: 1em 0.5em 0em 0.5em;
+            }
 
             .logo {
               margin-right: 7em;
@@ -55,7 +64,7 @@
                 display: flex;
                 flex-direction: column;
                 margin-right: 1em;
-                width: 60%;
+                width: 50%;
 
                 @include mobile {
                     width: 100%;
@@ -66,14 +75,14 @@
                     color: #958DB7;
                     font-size: 0.85em;
                     font-weight: 400;
-                    margin-bottom: 1em;
+                    margin-bottom: 0.5em;
                 }
             }
 
             .time {
                 display: flex;
                 flex-direction: column;
-                width: 40%;
+                width: 50%;
 
                 @include mobile {
                     width: 100%;
@@ -83,19 +92,19 @@
                     color: #958DB7;
                     font-size: 0.85em;
                     font-weight: 400;
-                    margin-bottom: 1em;
+                    margin-bottom: 0.5em;
                 }
             }
 
             .box {
               background-color: white;
-              border-radius: 0.50em;
+              border-radius: 0.85em;
             }
         }
 
         .action {
             text-align: center;
-            margin: 1em 0em 1em 0em;
+            margin: 1.5em 0em 2em 0em;
             color: #958DB7;
 
             h2 {
@@ -122,13 +131,17 @@
                 color: #958DB7;
                 padding: 0.5em 1em 0.5em 1em;
                 font-weight: 300;
-                overflow: overlay;
+
+                @include mobile {
+                    overflow: hidden; 
+                    text-overflow: ellipsis;
+                }
 
             }
 
             .text-copy {
                 color: white;
-                background-color: black;
+                background-color: #181039;
                 border-radius: 0.5em;
                 padding: 0.5em 1em;
             }
@@ -151,9 +164,9 @@
         .transaction {
             display: flex;
             justify-content: center;
-            background-color: black;
+            background-color: #181039;
             margin: 0 2em;
-            border-radius: 0.5em;
+            border-radius: 0.85em;
             padding: 0.5em;
 
             p {

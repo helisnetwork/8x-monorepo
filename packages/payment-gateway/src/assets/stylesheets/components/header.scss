@@ -1,3 +1,9 @@
+@mixin mobile {
+	@media (max-device-width: 450px) {
+	  @content;
+	}
+  }
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -34,5 +40,6 @@
         border-radius: 0.75em;
         padding: 0.65em 1em;
         font-weight: 200;
+
     }
 }
