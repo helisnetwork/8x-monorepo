@@ -19,6 +19,7 @@ class App extends React.Component {
         <MemoryRouter>
           <Switch>
             <Route exact path="/" component={SelectWallet}/>
+            {/*<Route path="/ledger-handler" component={LedgerHandler}/>*/}
             <Route path="/metamask-handler" component={MetamaskHandler}/>
             <Route path="/trezor-handler" component={TrezorHandler}/>
           </Switch>
