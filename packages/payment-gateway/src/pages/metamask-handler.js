@@ -9,7 +9,8 @@ class MetamaskHandler extends React.Component {
     this.state = {
       status: 'loading',
       address: '',
-      balance: ''
+      balance: '',
+      kyberConversion: ''
     };
 
     // @TODO: Fix changing state before component render (warning on console)
@@ -39,6 +40,7 @@ class MetamaskHandler extends React.Component {
 
     this.checkMetaMaskState();
     this.watchMetaMaskState();
+    this.getKyberInformation(); 
 
   }
 
@@ -74,7 +76,8 @@ class MetamaskHandler extends React.Component {
   // Checks MetaMask balance every 5 seconds while waiting for user deposit
   checkMetaMaskBalance() {
     setTimeout(() => {
-      this.getMetaMaskData(); 
+      this.getMetaMaskData();
+      this.getKyberInformation(); 
     }, 5000);
     
   };
@@ -95,6 +98,20 @@ class MetamaskHandler extends React.Component {
     });
   }
 
+  // Uses Kyber API to get conversion rates
+  getKyberInformation() {
+    fetch('https://tracker.kyber.network/api/tokens/pairs')
+      .then(results => {
+        return results.json();
+      }).then(data => {
+        console.log(data.ETH_DAI.currentPrice);
+        var currencyConversion = data.ETH_DAI.currentPrice;
+        this.setState({
+          kyberConversion: currencyConversion
+        });
+      });
+  };
+
   // Renders subscription payment page ref @TODO
   render() {
     return ( 
@@ -102,6 +119,7 @@ class MetamaskHandler extends React.Component {
         status={this.state.status} 
         useraddress={this.state.address} 
         balance={this.state.balance}
+        kyberConversion={this.state.kyberConversion}
       />
     );
   }

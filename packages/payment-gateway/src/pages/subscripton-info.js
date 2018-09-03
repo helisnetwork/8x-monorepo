@@ -1,7 +1,7 @@
 /* Import statements */
 import React from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-
+import fetch from 'node-fetch';
 import { default as Images } from '../middleware/images';
 import Dropdown from '../components/dropdown.js';
 import Header from '../components/header.js';
@@ -17,6 +17,7 @@ class SubscriptionInfo extends React.Component {
     this.state = {
       value: '',
       copied: false,
+      currency: ''
     };
 
   }
@@ -72,7 +73,7 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className="action">
               <p className="text">To start your subscription, please send</p>
-              <h2>0.014 ETH </h2>
+              <h2>{this.props.kyberConversion}</h2>
               <p className="text">to your personal wallet</p>
             </div>
             <div className="item-address">
@@ -165,6 +166,7 @@ class SubscriptionInfo extends React.Component {
       }
     ];
   }
+
 };
 
 export default SubscriptionInfo;
