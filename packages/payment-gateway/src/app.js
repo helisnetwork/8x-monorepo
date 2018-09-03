@@ -10,23 +10,22 @@ import {
   Route,
   Switch,
 } from 'react-router-dom';
+import { 
+  TransitionGroup,
+  CSSTransition 
+} from 'react-transition-group';
+import Container from './components/container';
 
 /* App component */
 class App extends React.Component {
   render() {
     return (
-      <div>
-        <MemoryRouter>
-          <Switch>
-            <Route exact path="/" component={SelectWallet}/>
-            {/*<Route path="/ledger-handler" component={LedgerHandler}/>*/}
-            <Route path="/metamask-handler" component={MetamaskHandler}/>
-            <Route path="/trezor-handler" component={TrezorHandler}/>
-          </Switch>
-        </MemoryRouter>
-      </div>
+      <MemoryRouter>
+        <Container/>
+      </MemoryRouter>
     );
   }
 };
 
 export default App;
+
