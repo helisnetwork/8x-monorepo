@@ -1,18 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
+
+import SelectWallet from '../pages/select-wallet';
+import MetamaskHandler from '../pages/metamask-handler';
+import TrezorHandler from '../pages/trezor-handler';
+
 import {
   MemoryRouter,
   Route,
   Switch,
   withRouter
 } from 'react-router-dom';
+
 import { 
   TransitionGroup,
   CSSTransition 
 } from 'react-transition-group';
-import SelectWallet from '../pages/select-wallet';
-import MetamaskHandler from '../pages/metamask-handler';
-import TrezorHandler from '../pages/trezor-handler';
 
 function Container({ location }) {
   return (
@@ -26,7 +29,10 @@ function Container({ location }) {
           <section className="route-section">
             <Switch location = { location }>
               <Route exact path="/" component={SelectWallet}/>
-              {/*<Route path="/ledger-handler" component={LedgerHandler}/>*/}
+              {/*
+                @TODO: Fix this
+                <Route path="/ledger-handler" component={LedgerHandler}/>
+              */}
               <Route path="/metamask-handler" component={MetamaskHandler}/>
               <Route path="/trezor-handler" component={TrezorHandler}/>
             </Switch>
