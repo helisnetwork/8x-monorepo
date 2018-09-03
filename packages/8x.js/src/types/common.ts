@@ -45,7 +45,7 @@ export interface Log {
 }
 
 export type Address = string;
-export type UInt = number | BigNumber;
+export type UInt = BigNumber | number;
 export type Bytes32 = string;
 
 export enum SolidityType {

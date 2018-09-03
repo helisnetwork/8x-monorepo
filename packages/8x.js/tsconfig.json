@@ -9,7 +9,7 @@
     "sourceMap": true,
     "declaration": true,
     "declarationDir": "dist/types",
-    "outDir": "dist",
+    "outDir": "./dist",
     "typeRoots": [
       "./types"
     ]
