@@ -42,9 +42,24 @@ contract VolumeSubscription is Collectable {
     mapping (bytes32 => Plan) public plans;
     mapping (bytes32 => Subscription) public subscriptions;
 
-    event CreatedPlan(bytes32 indexed identifier, address indexed owner);
-    event UpdatedPlan(bytes32 indexed identifier, address indexed owner);
-    event TerminatedPlan(bytes32 indexed identifier, address indexed owner, uint terminationDate);
+    event CreatedPlan(
+        bytes32 indexed planIdentifier,
+        string indexed businessIdentifier,
+        address indexed owner
+    );
+
+    event UpdatedPlan(
+        bytes32 indexed planIdentifier,
+        string indexed businessIdentifier,
+        address indexed owner
+    );
+
+    event TerminatedPlan(
+        bytes32 indexed planIdentifier,
+        string indexed businessIdentifier,
+        address indexed owner,
+        uint terminationDate
+    );
 
     event CreatedSubscription(
         bytes32 indexed subscriptionIdentifier,
@@ -82,7 +97,7 @@ contract VolumeSubscription is Collectable {
 
     modifier shouldEmitPlanChanges(bytes32 _plan) {
         _;
-        emit UpdatedPlan(_plan, plans[_plan].owner);
+        emit UpdatedPlan(_plan, plans[_plan].identifier, plans[_plan].owner);
     }
 
     modifier isOwnerOfSubscription(bytes32 _subscription) {
@@ -114,7 +129,7 @@ contract VolumeSubscription is Collectable {
 
         plans[_plan].terminationDate = _terminationDate;
 
-        emit TerminatedPlan(_plan, plans[_plan].owner, _terminationDate);
+        emit TerminatedPlan(_plan, plans[_plan].identifier, plans[_plan].owner, _terminationDate);
     }
 
     /**
@@ -270,7 +285,7 @@ contract VolumeSubscription is Collectable {
 
         plans[planHash] = newPlan;
 
-        emit CreatedPlan(planHash, _owner);
+        emit CreatedPlan(planHash, _identifier, _owner);
 
         return planHash;
     }
