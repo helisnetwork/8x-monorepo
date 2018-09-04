@@ -2,9 +2,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import {default as Images} from '../middleware/images';
-
-
 class Header extends React.Component {
   render() {
     return (

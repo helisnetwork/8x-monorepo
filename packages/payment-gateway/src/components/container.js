@@ -6,7 +6,6 @@ import MetamaskHandler from '../pages/metamask-handler';
 import TrezorHandler from '../pages/trezor-handler';
 
 import {
-  MemoryRouter,
   Route,
   Switch,
   withRouter

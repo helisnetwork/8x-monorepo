@@ -1,6 +1,7 @@
 @mixin mobile {
 	@media (max-device-width: 450px) {
-	  @content;
+      @content;
+
 	}
   }
 
@@ -13,6 +14,7 @@
 
         @include mobile {
             padding-top: 0.5em;
+
         }
 
         .main-item {
@@ -26,6 +28,7 @@
             @include mobile {
                 flex-direction: column;
                 padding: 1em 0.5em 0em 0.5em;
+
             }
 
             .logo {
@@ -39,6 +42,7 @@
                   img {
                       @include mobile {
                         width: 2em; 
+
                       }
                   }
               }
@@ -46,6 +50,7 @@
 
             span {
                 color: #958DB7;
+
             }
         }
 
@@ -58,6 +63,7 @@
             @include mobile {
                 flex-direction: column;
                 width: 100%;
+
             }
 
             .currency {
@@ -69,6 +75,7 @@
                 @include mobile {
                     width: 100%;
                     padding-bottom: 1em;
+
                 }
 
                 .text {
@@ -76,6 +83,7 @@
                     font-size: 0.85em;
                     font-weight: 400;
                     margin-bottom: 0.5em;
+
                 }
             }
 
@@ -86,6 +94,7 @@
 
                 @include mobile {
                     width: 100%;
+
                 }
 
                 .text {
@@ -93,12 +102,14 @@
                     font-size: 0.85em;
                     font-weight: 400;
                     margin-bottom: 0.5em;
+
                 }
             }
 
             .box {
               background-color: white;
               border-radius: 0.85em;
+
             }
         }
 
@@ -111,11 +122,13 @@
                 color: black;
                 font-size: 1.50em;
                 font-weight: 400;
-                padding: 0.50em 0em; 
+                padding: 0.50em 0em;
+
             }
 
             .text {
                 margin: 0em;
+
             }
         }
 
@@ -135,6 +148,7 @@
                 @include mobile {
                     overflow: hidden; 
                     text-overflow: ellipsis;
+
                 }
 
             }
@@ -144,6 +158,7 @@
                 background-color: #181039;
                 border-radius: 0.5em;
                 padding: 0.5em 1em;
+
             }
         }
 
@@ -157,8 +172,8 @@
 
             .currency {
                 color: black;
-            }
 
+            }
         }
 
         .transaction {
@@ -172,6 +187,7 @@
             p {
                 color: white;
                 font-weight: 700;
+                
             }
         }
     }

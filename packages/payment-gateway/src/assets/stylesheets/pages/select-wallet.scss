@@ -1,120 +1,130 @@
 @mixin mobile {
-	@media (max-device-width: 450px) {
-	  @content;
-	}
-  }
+    @media (max-device-width: 450px) {
+      @content;
+    }
+}
 
 .main-card {
-	max-width: 35em;
-	margin: auto;
+    max-width: 35em;
+    margin: auto;
 
-	a {
-		text-decoration: inherit;
-		color: inherit;
-		cursor: pointer;
-	}
+    a {
+        text-decoration: inherit;
+        color: inherit;
+        cursor: pointer;
 
-	.card-header {
-		text-align: center;
-		padding-top: 1em;
+    }
 
-		p {
-			color: #958DB7;
-			font-weight: 200; 
-			font-size: 0.85em;
-		}
+    .card-header {
+        text-align: center;
+        padding-top: 1em;
 
-		h1 {
-			font-size: 1.25em; 
-			font-weight: 600;
-		}
-	}
+        p {
+            color: #958DB7;
+            font-weight: 200; 
+            font-size: 0.85em;
 
-	.options-container {
-		margin: 1.5em 0;
-		
-		.item {
-			display: flex; 
-			justify-content: flex-start;
-			background-color: red;
-			padding: 2em 2em;
-			margin-bottom: 1.5em;
-			border-radius: 0.85em;
-			box-shadow: 2px 0 20px #EFEFEF;
-			color: white;
-			font-weight: 200;
-			min-height: 33%;
+        }
 
-			@include mobile {
-				padding: 1em 1em 0.5em 1em;
-			}
-			
+        h1 {
+            font-size: 1.25em; 
+            font-weight: 600;
 
-			.logo {
-				display: flex;
-				align-items: center;
-				margin-right: 3.5em;
+        }
+    }
 
-				@include mobile {
-					margin: 1em;
-				}
+    .options-container {
+        margin: 1.5em 0;
+        
+        .item {
+            display: flex; 
+            justify-content: flex-start;
+            background-color: red;
+            padding: 2em 2em;
+            margin-bottom: 1.5em;
+            border-radius: 0.85em;
+            box-shadow: 2px 0 20px #EFEFEF;
+            color: white;
+            font-weight: 200;
+            min-height: 33%;
 
-				img {
-					@include mobile {
-						padding-bottom: 0.75em;
-						width: 3em;
-					}
-				}
+            @include mobile {
+                padding: 1em 1em 0.5em 1em;
 
-			}
+            }
+            
 
-			.text {
-				
-				h2 {
-					font-size: 1em; 
-					font-weight: 600;
+            .logo {
+                display: flex;
+                align-items: center;
+                margin-right: 3.5em;
 
-					@include mobile {
-						font-size: 0.85em;
-						margin-top: 0.75em;
-					}
-				}
+                @include mobile {
+                    margin: 1em;
 
-				p {
-					font-size: 1em; 
-					font-weight: 300; 
+                }
 
-					@include mobile {
-						font-size: 0.85em;
-					}
-				}
-			}
+                img {
 
-		}
+                    @include mobile {
+                        padding-bottom: 0.75em;
+                        width: 3em;
 
-		.item:hover {
-			transform: scale(1.03);
-			transition: scale 6s; 
-		}
+                    }
+                }
+            }
 
-		.metamask {
-			background-image: linear-gradient(to bottom right,#FF9C3F, #F6D365);
-		}
+            .text {
+                
+                h2 {
+                    font-size: 1em; 
+                    font-weight: 600;
 
-		.ledger {
-			background-image: linear-gradient(to bottom right,#8894FC, #BC75FF);
-		}
+                    @include mobile {
+                        font-size: 0.85em;
+                        margin-top: 0.75em;
 
-		.trezor {
-			background-image: linear-gradient(to bottom right,#EC8C69, #ED6EA0);
-		}
+                    }
+                }
 
-		.exchange {
-			background-color: #2B2654;
-			display: none;
-		}
-	}
+                p {
+                    font-size: 1em; 
+                    font-weight: 300; 
 
+                    @include mobile {
+                        font-size: 0.85em;
 
+                    }
+                }
+            }
+        }
+
+        .item:hover {
+            transform: scale(1.03);
+            transition: scale 6s; 
+
+        }
+
+        .metamask {
+            background-image: linear-gradient(to bottom right,#FF9C3F, #F6D365);
+
+        }
+
+        .ledger {
+            background-image: linear-gradient(to bottom right,#8894FC, #BC75FF);
+
+        }
+
+        .trezor {
+            background-image: linear-gradient(to bottom right,#EC8C69, #ED6EA0);
+
+        }
+
+        .exchange {
+            background-color: #2B2654;
+            display: none;
+
+        }
+    }
 }
 

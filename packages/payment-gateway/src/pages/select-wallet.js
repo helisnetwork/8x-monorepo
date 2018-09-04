@@ -1,6 +1,5 @@
 /* Import statements */
 import React from 'react';
-import TrezorConnect from 'trezor-connect';
 
 import { Link } from 'react-router-dom'; 
 import {default as Images} from '../middleware/images';
