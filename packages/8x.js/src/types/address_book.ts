@@ -5,5 +5,6 @@ export interface AddressBook {
   paymentRegistryAddress?: string;
   requirementsAddress?: string;
   stakeContractAddress?: string;
+  transferProxyAddress?: string;
   volumeSubscriptionAddress?: string;
 }
