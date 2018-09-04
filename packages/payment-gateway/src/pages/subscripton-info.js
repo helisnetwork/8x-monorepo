@@ -1,7 +1,6 @@
 /* Import statements */
 import React from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import fetch from 'node-fetch';
 import { default as Images } from '../middleware/images';
 import Dropdown from '../components/dropdown.js';
 import Header from '../components/header.js';

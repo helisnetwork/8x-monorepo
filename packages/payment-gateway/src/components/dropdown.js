@@ -1,12 +1,8 @@
 /* Import statements */
 import React from 'react';
-
-import Header from '../components/header.js';
-import {default as Images} from '../middleware/images';
 import DropdownButton from './dropdown-button.js';
 
 /* App component */
-
 class Dropdown extends React.Component {
   constructor(props) {
     super(props);
@@ -48,7 +44,7 @@ class Dropdown extends React.Component {
       document.removeEventListener('click', this.closeMenu);
     }); 
   }
-  // @TODO: Fix triangle visibility on submenu
+  
   render() {
     return (
       <div className="dropdown-wrapper">
@@ -65,8 +61,7 @@ class Dropdown extends React.Component {
                   {this.returnDropdownButtons()}
                 </div>
               ): null
-          }
-            
+          } 
         </div>
       </div>
     );
@@ -79,6 +74,6 @@ class Dropdown extends React.Component {
       return <DropdownButton item={object} key={i} action={this.itemSelected} showTriangle={false}/>;
     });
   }
-}
+};
 
 export default Dropdown;

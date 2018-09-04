@@ -1,8 +1,6 @@
 /* Import statements */
 import React from 'react';
 
-import {default as Images} from '../middleware/images';
-
 class DropdownButton extends React.Component {
   render() {
     return (
