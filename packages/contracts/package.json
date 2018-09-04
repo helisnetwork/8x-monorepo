@@ -11,9 +11,10 @@
     "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "ethereumjs-abi": "^0.6.5",
-    "typechain": "^0.2.7",
     "bignumber.js": "^5.0.0",
+    "ethereumjs-abi": "^0.6.5",
+    "fs-extra": "^7.0.0",
+    "typechain": "^0.2.7",
     "web3": "0.20.x"
   },
   "peerDependencies": {},
