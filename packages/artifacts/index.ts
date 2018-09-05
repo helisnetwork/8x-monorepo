@@ -19,3 +19,9 @@ export { StakeContract } from './ts/StakeContract';
 
 // Subscription contract containing plans and subscriber details.
 export { VolumeSubscription } from './ts/VolumeSubscription';
+
+// Export the Address Book type
+export { AddressBook } from './types/address_book';
+
+// Export the function to retrieve the AddressBook for the network you want
+export { getAddressBook } from './src/index';
