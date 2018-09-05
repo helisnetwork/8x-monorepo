@@ -1,0 +1,27 @@
+{
+  "development": {
+    "addresses": {
+      "Executor": "0xc60cf3cb47f181dee4d2b7da5416e13300e4b2d1",
+      "VolumeSubscription": "0x0af5da9352c56db34b467155bc46533662ce1e36",
+      "ApprovedRegistry": "0x546660f71d46208e90374aa5843359f1e22d856e",
+      "TransferProxy": "0x967fb0457922c30a11b25462d5109e5dd07ce29d",
+      "PaymentRegistry": "0x50adb4ba7704eef939b7b1c8a66d7550370d7e0b",
+      "Requirements": "0xb290eb1ed6d056049c1622bb1c246cdceef93eb5",
+      "EightExToken": "0xd01974746ae646148313445102528f8bf21f5acc",
+      "StakeContract": "0x25ac8c6be7814141ed8ec381209482565c82c696",
+      "KyberNetwork": "0x22b1f2743e3916d8424b6d3fcac40d9500087f06",
+      "ActionProxy": "0xaed689f0e3adb6e8e214dcb6469b335f7dc2b881",
+      "DAI": "0x618a1e7edff4fa1e18e624e7378710565315d171"
+    },
+    "approvedTokens": [
+      "0x618a1e7edff4fa1e18e624e7378710565315d171"
+    ],
+    "approvedContracts": {
+      "VolumeSubscription": {
+        "address": "0x0af5da9352c56db34b467155bc46533662ce1e36"
+      }
+    },
+    "lockUpPercentage": 800,
+    "maximumIntervalDivisor": 7
+  }
+}

@@ -62,9 +62,14 @@ module.exports = function(deployer, network, accounts) {
         );
 
         // Export JSON
+
+        let file = Constants.configPath();
+        fs.ensureFileSync(file)
+
+        const contractsJson = fs.readJsonSync(file, { throws: false }) || {};
+
         let output = {
-            network: network,
-            addresses: {
+            'addresses': {
                 'Executor': executor.address,
                 'VolumeSubscription': volumeSubscription.address,
                 'ApprovedRegistry': approvedRegistry.address,
@@ -77,10 +82,10 @@ module.exports = function(deployer, network, accounts) {
                 'ActionProxy': actionProxy.address,
                 'DAI': daiAddress
             },
-            approvedTokens: [
+            'approvedTokens': [
                 daiAddress
             ],
-            approvedContracts: {
+            'approvedContracts': {
                 'VolumeSubscription': {
                     address: volumeSubscription.address
                 }
@@ -89,7 +94,9 @@ module.exports = function(deployer, network, accounts) {
             maximumIntervalDivisor: Constants.MAXIMUM_INTERVAL_DIVISOR,
         };
 
-        await fs.outputFile(Constants.configPath(network), JSON.stringify(output, null, 2));
+        contractsJson[network] = output;
+
+        await fs.outputFile(file, JSON.stringify(contractsJson, null, 2));
     });
 
 };
