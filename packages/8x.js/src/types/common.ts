@@ -1,4 +1,4 @@
-import { BigNumber } from "bignumber.js";
+import * as BigNumber from "bignumber.js";
 import * as _ from "lodash";
 
 export interface TxData {
@@ -45,7 +45,7 @@ export interface Log {
 }
 
 export type Address = string;
-export type UInt = BigNumber | number;
+export type UInt = number | BigNumber;
 export type Bytes32 = string;
 
 export enum SolidityType {

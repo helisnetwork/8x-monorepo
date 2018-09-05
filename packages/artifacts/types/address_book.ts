@@ -7,4 +7,5 @@ export interface AddressBook {
   stakeContractAddress?: string;
   transferProxyAddress?: string;
   volumeSubscriptionAddress?: string;
+  daiAddress?: string;
 }
