@@ -30,7 +30,7 @@ export default class Plans {
       amount,
       fee,
       data
-    ).send({});
+    ).send({from: owner});
 
     return planHash;
   }
