@@ -3,7 +3,7 @@ import * as chai from 'chai';
 
 import Web3 from 'web3';
 
-import { getAddressBook } from 'artifacts';
+import { getAddressBook } from '@8xprotocol/artifacts';
 import EightEx from '../src';
 
 const expect = chai.expect;
@@ -16,7 +16,7 @@ describe('Plans', () => {
 
   beforeEach(async () => {
 
-    let result = await web3.eth.accounts.create();
+    /*let result = await web3.eth.accounts.create();
     console.log(result);
 
     let identifier = await eightEx.plans.create(
@@ -29,7 +29,7 @@ describe('Plans', () => {
       ""
     );
 
-    console.log(identifier);
+    console.log(identifier);*/
 
   });
 

@@ -1,4 +1,4 @@
-import { AddressBook } from '../types/address_book';
+import { AddressBook } from '@8xprotocol/types'
 
 export default function exportConfigToJSON(config) {
   var addressBook: AddressBook;

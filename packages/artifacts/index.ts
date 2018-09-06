@@ -3,22 +3,22 @@
  ************************************/
 
 // A contract for making it easy to subscribe in a single transaction.
-export { ActionProxy } from './ts/ActionProxy';
+export { ActionProxyContract } from './ts/action_proxy';
 
 // Core contract that contains payment logic.
-export { Executor } from './ts/Executor';
+export { ExecutorContract } from './ts/executor';
 
 // Stores state about each smart contract.
-export { PaymentRegistry } from './ts/PaymentRegistry';
+export { PaymentRegistryContract } from './ts/payment_registry';
 
 // Calculate how many tokens are required based on parameters.
-export { Requirements } from './ts/Requirements';
+export { RequirementsContract } from './ts/requirements';
 
 // Contract to stake 8x tokens for service nodes.
-export { StakeContract } from './ts/StakeContract';
+export { StakeContractContract } from './ts/stake_contract';
 
 // Subscription contract containing plans and subscriber details.
-export { VolumeSubscription } from './ts/VolumeSubscription';
+export { VolumeSubscriptionContract } from './ts/volume_subscription';
 
 // Export the Address Book type
 export { AddressBook } from './types/address_book';

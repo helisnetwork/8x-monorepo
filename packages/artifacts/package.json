@@ -1,9 +1,16 @@
 {
-  "name": "artifacts",
+  "name": "@8xprotocol/artifacts",
   "version": "0.1.0",
   "main": "index.js",
   "dependencies": {
+    "@0xproject/utils": "^1.0.7",
+    "@8xprotocol/base-contract": "0.1.0",
+    "@8xprotocol/types": "0.1.0",
+    "@types/fs-extra": "^5.0.4",
+    "@types/web3": "^1.0.3",
     "bignumber.js": "^5.0.0",
-    "web3": "0.20.x"
+    "ethereum-types": "^1.0.6",
+    "fs-extra": "^7.0.0",
+    "web3": "^1.0.0-beta.36"
   }
 }
