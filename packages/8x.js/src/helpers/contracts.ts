@@ -1,5 +1,12 @@
-import { Executor, VolumeSubscription, ActionProxy, PaymentRegistry } from 'artifacts';
-import { AddressBook } from '../types/address_book';
+import {
+  ExecutorContract,
+  VolumeSubscriptionContract,
+  ActionProxyContract,
+  PaymentRegistryContract
+} from '@8xprotocol/artifacts';
+
+import { AddressBook } from '@8xprotocol/types';
+import Web3 from 'web3';
 
 import {
   EXECUTOR_CACHE_KEY,
@@ -9,67 +16,67 @@ import {
 } from '../utils/constants';
 
 export interface EightExContracts {
-  executorContract: Executor;
-  volumeVolumescription: VolumeSubscription;
-  actionProxy: ActionProxy;
-  paymentRegistry: PaymentRegistry;
+  executorContract: ExecutorContract;
+  volumeVolumescription: VolumeSubscriptionContract;
+  actionProxy: ActionProxyContract;
+  paymentRegistry: PaymentRegistryContract;
 }
 
 export default class Contracts {
 
-  private web3: any;
+  private web3: Web3;
   private addressBook: AddressBook;
 
   private cache: { [contractName: string]: (
-      Executor | VolumeSubscription | ActionProxy | PaymentRegistry
+      ExecutorContract | VolumeSubscriptionContract | ActionProxyContract | PaymentRegistryContract
     )
   };
 
-  constructor(web3: any, addressBook: AddressBook) {
+  constructor(web3: Web3, addressBook: AddressBook) {
     this.web3 = web3;
     this.addressBook = addressBook;
     this.cache = {};
   }
 
-  public async loadExecutor(): Promise<Executor> {
+  public async loadExecutor(): Promise<ExecutorContract> {
     if (this.cache[EXECUTOR_CACHE_KEY]) {
-      return this.cache[EXECUTOR_CACHE_KEY] as Executor;
+      return this.cache[EXECUTOR_CACHE_KEY] as ExecutorContract;
     }
 
-    let executorContract = await Executor.createAndValidate(this.web3, this.addressBook.executorAddress || '');
+    let executorContract = await ExecutorContract.at(this.addressBook.executorAddress, this.web3, {});
     this.cache[EXECUTOR_CACHE_KEY] = executorContract;
 
     return executorContract;
   }
 
-  public async loadPaymentRegistry(): Promise<PaymentRegistry> {
+  public async loadPaymentRegistry(): Promise<PaymentRegistryContract> {
     if (this.cache[PAYMENT_REGISTRY_CACHE_KEY]) {
-      return this.cache[PAYMENT_REGISTRY_CACHE_KEY] as PaymentRegistry;
+      return this.cache[PAYMENT_REGISTRY_CACHE_KEY] as PaymentRegistryContract;
     }
 
-    let paymentRegistry = await PaymentRegistry.createAndValidate(this.web3, this.addressBook.paymentRegistryAddress || '');
+    let paymentRegistry = await PaymentRegistryContract.at(this.addressBook.paymentRegistryAddress, this.web3, {});
     this.cache[PAYMENT_REGISTRY_CACHE_KEY] = paymentRegistry;
 
     return paymentRegistry
   }
 
-  public async loadVolumeSubscription(): Promise<VolumeSubscription> {
+  public async loadVolumeSubscription(): Promise<VolumeSubscriptionContract> {
     if (this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY]) {
-      return this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] as VolumeSubscription;
+      return this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] as VolumeSubscriptionContract;
     }
 
-    let volumeSubscription = await VolumeSubscription.createAndValidate(this.web3, this.addressBook.volumeSubscriptionAddress || '');
+    let volumeSubscription = await VolumeSubscriptionContract.at(this.addressBook.volumeSubscriptionAddress, this.web3, {});
     this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] = volumeSubscription;
 
     return volumeSubscription;
   }
 
-  public async loadActionProxy(): Promise<ActionProxy> {
+  public async loadActionProxy(): Promise<ActionProxyContract> {
     if (this.cache[ACTION_PROXY_CACHE_KEY]) {
-      return this.cache[ACTION_PROXY_CACHE_KEY] as ActionProxy;
+      return this.cache[ACTION_PROXY_CACHE_KEY] as ActionProxyContract;
     }
 
-    let actionProxy = await ActionProxy.createAndValidate(this.web3, this.addressBook.actionProxyAddress || '');
+    let actionProxy = await ActionProxyContract.at(this.addressBook.actionProxyAddress, this.web3, {});
     this.cache[ACTION_PROXY_CACHE_KEY] = actionProxy;
 
     return actionProxy;

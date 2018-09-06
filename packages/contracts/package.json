@@ -1,4 +1,5 @@
 {
+  "name": "@8xprotocol/contracts",
   "version": "0.1.0",
   "devDependencies": {
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
@@ -8,14 +9,15 @@
     "babel-preset-stage-3": "^6.17.0",
     "babel-register": "^6.26.0",
     "npm-run-all": "^4.1.3",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "@0xproject/abi-gen": "^1.0.7"
   },
   "dependencies": {
     "bignumber.js": "^5.0.0",
     "ethereumjs-abi": "^0.6.5",
     "fs-extra": "^7.0.0",
     "typechain": "^0.2.7",
-    "web3": "0.20.x"
+    "web3": "^1.0.0-beta.36"
   },
   "peerDependencies": {},
   "scripts": {
@@ -26,7 +28,7 @@
     "lint-contracts": "solhint contracts/*.sol || true",
     "test": "npm-run-all test-contracts lint-base lint-test lint-contracts",
     "lint": "npm-run-all lint-base lint-test lint-contracts",
-    "generate-ts": "node_modules/.bin/typechain \"../artifacts/json/*.json\" --outDir ../artifacts/ts",
+    "generate-typings": "node_modules/@0xproject/abi-gen/bin/abi-gen.js --abis '../artifacts/json/**/*.json' --out '../artifacts/ts' --template './templates/contract.mustache'  --partials './templates/partials/*.mustache'",
     "build": "npm run clean && truffle compile && node exportArtifacts && npm run generate-ts"
   }
 }

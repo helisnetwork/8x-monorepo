@@ -1,9 +1,11 @@
-import * as Types from '../types/common';
+import * as Types from '@8xprotocol/types';
 import Contracts from '../helpers/contracts';
+
+import Web3 from 'web3';
 
 export default class Subscriptions {
 
-  private web3: any;
+  private web3: Web3;
   private contracts: Contracts;
 
   constructor(web3: any, contracts: Contracts) {

@@ -1,12 +1,14 @@
-import * as Types from '../types/common';
+import * as Types from '@8xprotocol/types'
 import Contracts from '../helpers/contracts';
+
+import Web3 from 'web3';
 
 export default class Plans {
 
-  private web3: any;
+  private web3: Web3;
   private contracts: Contracts;
 
-  constructor(web3: any, contracts: Contracts) {
+  constructor(web3: Web3, contracts: Contracts) {
     this.web3 = web3;
     this.contracts = contracts;
   }
@@ -22,7 +24,7 @@ export default class Plans {
   ): Promise<Types.Bytes32> {
 
     let volumeSubscription = await this.contracts.loadVolumeSubscription();
-    let planHash = await volumeSubscription.createPlanTx(
+    let planHash = await volumeSubscription.createPlan.sendTransactionAsync(
       owner,
       token,
       identifier,
@@ -30,7 +32,7 @@ export default class Plans {
       amount,
       fee,
       data
-    ).send({from: owner});
+    )
 
     return planHash;
   }

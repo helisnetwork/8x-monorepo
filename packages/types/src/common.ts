@@ -12,12 +12,6 @@ export interface TxDataPayable extends TxData {
     value?: BigNumber;
 }
 
-export interface DecodedLog<Args> {
-    name: string;
-    address: Address;
-    events: any[];
-}
-
 export interface MultiSigSubmissionEventArgs {
     transactionId: BigNumber;
 }

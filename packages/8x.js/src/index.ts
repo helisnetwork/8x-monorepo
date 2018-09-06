@@ -1,18 +1,21 @@
-import { AddressBook } from './types/address_book';
+import { AddressBook } from '@8xprotocol/types'
+
 import Contracts from './helpers/contracts';
 import Subscriptions from './apis/subscriptions';
 import Plans from './apis/plans';
 
-export default class EightExJS {
+import Web3 from 'web3';
 
-  private web3: any;
+export default class EightEx {
+
+  private web3: Web3;
   private addressBook: AddressBook;
 
   public contracts: Contracts;
   public subscriptions: Subscriptions;
   public plans: Plans;
 
-  constructor(web3: any, addressBook: AddressBook) {
+  constructor(web3: Web3, addressBook: AddressBook) {
     this.web3 = web3;
     this.addressBook = addressBook;
 

@@ -12,12 +12,8 @@
     "outDir": "./dist",
     "typeRoots": [
       "node_modules/@types",
-       "node_modules/ethereum-types/index.d.ts"
     ],
     "resolveJsonModule": true,
     "esModuleInterop": true,
-  },
-  "include": [
-    "node_modules/ethereum-types/index.d.ts"
-  ]
+  }
 }
