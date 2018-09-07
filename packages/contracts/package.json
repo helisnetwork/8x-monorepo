@@ -28,7 +28,7 @@
     "lint-contracts": "solhint contracts/*.sol || true",
     "test": "npm-run-all test-contracts lint-base lint-test lint-contracts",
     "lint": "npm-run-all lint-base lint-test lint-contracts",
-    "generate-typings": "node_modules/@0xproject/abi-gen/bin/abi-gen.js --abis '../artifacts/json/**/*.json' --out '../artifacts/ts' --template './templates/contract.mustache'  --partials './templates/partials/*.mustache'",
+    "generate-typings": "node_modules/@0xproject/abi-gen/bin/abi-gen.js --abis '../artifacts/json/**/*.json' --out '../artifacts/ts' --template './templates/contract.handlebars'  --partials './templates/partials/*.handlebars' --backend ethers",
     "build": "npm run clean && truffle compile && node exportArtifacts && npm run generate-ts"
   }
 }

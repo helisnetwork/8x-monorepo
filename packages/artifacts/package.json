@@ -3,13 +3,15 @@
   "version": "0.1.0",
   "main": "index.js",
   "dependencies": {
+    "@0xproject/base-contract": "^2.0.2",
     "@0xproject/utils": "^1.0.7",
-    "@8xprotocol/base-contract": "0.1.0",
+    "@0xproject/web3-wrapper": "^2.0.2",
     "@8xprotocol/types": "0.1.0",
     "@types/fs-extra": "^5.0.4",
     "@types/web3": "^1.0.3",
     "bignumber.js": "^5.0.0",
     "ethereum-types": "^1.0.6",
+    "ethers": "^3.0.27",
     "fs-extra": "^7.0.0",
     "web3": "^1.0.0-beta.36"
   }

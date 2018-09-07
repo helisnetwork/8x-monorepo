@@ -4,13 +4,18 @@ import * as chai from 'chai';
 import Web3 from 'web3';
 
 import { getAddressBook } from '@8xprotocol/artifacts';
+import { Web3Wrapper } from '@0xproject/web3-wrapper';
+import { web3Factory } from '@0xproject/dev-utils';
+import { Provider } from 'ethereum-types';
 import EightEx from '../src';
 
 const expect = chai.expect;
 const addressBook = getAddressBook('development');
 
-const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
-const eightEx = new EightEx(web3, addressBook);
+const provider: Provider = web3Factory.getRpcProvider({ shouldUseInProcessGanache: true });
+const web3Wrapper = new Web3Wrapper(provider);
+
+const eightEx = new EightEx(web3Wrapper, addressBook);
 
 describe('Plans', () => {
 
