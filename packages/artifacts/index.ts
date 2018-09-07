@@ -11,31 +11,31 @@ export { ActionProxyJson };
 export { ActionProxyContract } from './ts/action_proxy';
 
 // Core contract that contains payment logic.
-let ExecutorJson = fs.readJsonSync('./json/Executor.json');
+let ExecutorJson = fs.readJsonSync(__dirname + '/json/Executor.json');
 
 export { ExecutorJson };
 export { ExecutorContract } from './ts/executor';
 
 // Stores state about each smart contract.
-let PaymentRegistryJson = fs.readJSONSync('./json/PaymentRegistry.json');
+let PaymentRegistryJson = fs.readJSONSync(__dirname + '/json/PaymentRegistry.json');
 
 export { PaymentRegistryJson };
 export { PaymentRegistryContract } from './ts/payment_registry';
 
 // Calculate how many tokens are required based on parameters.
-let RequirementsJson = fs.readJsonSync('./json/StakeContract.json');
+let RequirementsJson = fs.readJsonSync(__dirname + '/json/StakeContract.json');
 
 export { RequirementsJson };
 export { RequirementsContract } from './ts/requirements';
 
 // Contract to stake 8x tokens for service nodes.
-let StakeContractJson = fs.readJsonSync('./json/StakeContract.json');
+let StakeContractJson = fs.readJsonSync(__dirname + '/json/StakeContract.json');
 
 export { StakeContractJson };
 export { StakeContractContract } from './ts/stake_contract';
 
 // Subscription contract containing plans and subscriber details.
-let VolumeSubscriptionJson = fs.readJsonSync('./json/VolumeSubscription.json');
+let VolumeSubscriptionJson = fs.readJsonSync(__dirname + '/json/VolumeSubscription.json');
 
 export { VolumeSubscriptionJson }
 export { VolumeSubscriptionContract } from './ts/volume_subscription';

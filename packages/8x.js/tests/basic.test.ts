@@ -7,34 +7,42 @@ import { getAddressBook } from '@8xprotocol/artifacts';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import { web3Factory } from '@0xproject/dev-utils';
 import { Provider } from 'ethereum-types';
+
+import {
+  RPCSubprovider,
+  Web3ProviderEngine,
+} from '@0xproject/subproviders';
+
 import EightEx from '../src';
 
 const expect = chai.expect;
 const addressBook = getAddressBook('development');
 
-const provider: Provider = web3Factory.getRpcProvider({ shouldUseInProcessGanache: true });
-const web3Wrapper = new Web3Wrapper(provider);
+const providerEngine = new Web3ProviderEngine();
+providerEngine.addProvider(new RPCSubprovider('http://localhost:8545'));
+providerEngine.start();
 
+const web3Wrapper = new Web3Wrapper(providerEngine);
 const eightEx = new EightEx(web3Wrapper, addressBook);
 
 describe('Plans', () => {
 
   beforeEach(async () => {
 
-    /*let result = await web3.eth.accounts.create();
+    let result = await web3Wrapper.getAvailableAddressesAsync();
     console.log(result);
 
     let identifier = await eightEx.plans.create(
-      result.address,
+      result[0],
       addressBook.daiAddress || '',
       "new.plan",
-      30*(24*60*60),
-      10*10**18,
-      10**17,
+      3,
+      3,
+      2,
       ""
     );
 
-    console.log(identifier);*/
+    console.log(identifier);
 
   });
 

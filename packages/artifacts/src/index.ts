@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 
 export function getAddressBook(network: string): AddressBook {
 
-  let data = fs.readJsonSync('../deployed/config.json');
+  let data = fs.readJsonSync(__dirname + '/../deployed/config.json');
 
   let addresses = (<any>data)[network]["addresses"];
 

@@ -48,7 +48,7 @@ export default class Contracts {
     }
     let a = this.web3.getProvider();
     a
-    let executorContract = new ExecutorContract(ExecutorJson, this.addressBook.executorAddress, this.web3.getProvider());
+    let executorContract = new ExecutorContract(ExecutorJson.abi, this.addressBook.executorAddress || '', this.web3.getProvider());
     this.cache[EXECUTOR_CACHE_KEY] = executorContract;
 
     return executorContract;
@@ -59,7 +59,7 @@ export default class Contracts {
       return this.cache[PAYMENT_REGISTRY_CACHE_KEY] as PaymentRegistryContract;
     }
 
-    let paymentRegistry = new PaymentRegistryContract(PaymentRegistryJson, this.addressBook.paymentRegistryAddress, this.web3.getProvider());
+    let paymentRegistry = new PaymentRegistryContract(PaymentRegistryJson.abi, this.addressBook.paymentRegistryAddress || '', this.web3.getProvider());
     this.cache[PAYMENT_REGISTRY_CACHE_KEY] = paymentRegistry;
 
     return paymentRegistry
@@ -70,7 +70,7 @@ export default class Contracts {
       return this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] as VolumeSubscriptionContract;
     }
 
-    let volumeSubscription = new VolumeSubscriptionContract(VolumeSubscriptionJson, this.addressBook.volumeSubscriptionAddress, this.web3.getProvider());
+    let volumeSubscription = new VolumeSubscriptionContract(VolumeSubscriptionJson.abi, this.addressBook.volumeSubscriptionAddress || '', this.web3.getProvider());
     this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] = volumeSubscription;
 
     return volumeSubscription;
@@ -81,7 +81,7 @@ export default class Contracts {
       return this.cache[ACTION_PROXY_CACHE_KEY] as ActionProxyContract;
     }
 
-    let actionProxy = new ActionProxyContract(ActionProxyJson, this.addressBook.actionProxyAddress, this.web3.getProvider());
+    let actionProxy = new ActionProxyContract(ActionProxyJson.abi, this.addressBook.actionProxyAddress || '', this.web3.getProvider());
     this.cache[ACTION_PROXY_CACHE_KEY] = actionProxy;
 
     return actionProxy;

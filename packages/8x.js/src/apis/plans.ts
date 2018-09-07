@@ -1,4 +1,4 @@
-import * as Types from '@8xprotocol/types'
+import * as Types from '@8xprotocol/types';
 import Contracts from '../helpers/contracts';
 
 export default class Plans {
@@ -20,7 +20,7 @@ export default class Plans {
   ): Promise<Types.Bytes32> {
 
     let volumeSubscription = await this.contracts.loadVolumeSubscription();
-    let planHash = await volumeSubscription.createPlan.sendTransactionAsync(
+    let planHash = await volumeSubscription.createPlan.callAsync(
       owner,
       token,
       identifier,
@@ -28,7 +28,7 @@ export default class Plans {
       amount,
       fee,
       data
-    )
+    );
 
     return planHash;
   }

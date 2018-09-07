@@ -12,13 +12,15 @@
     "outDir": "./dist",
     "typeRoots": [
       "node_modules/@types",
-       "node_modules/ethereum-types/index.d.ts"
+       "node_modules/ethereum-types/index.d.ts",
+       "node_modules/@0xproject/typescript-typings/types"
     ],
     "resolveJsonModule": true,
     "esModuleInterop": true,
   },
   "include": [
     "./node_modules/ethereum-types/index.d.ts",
-    "./node_modules/web3-typescript-typings/index.d.ts"
+    "./node_modules/web3-typescript-typings/index.d.ts",
+    "node_modules/@0xproject/typescript-typings/types"
   ]
 }
