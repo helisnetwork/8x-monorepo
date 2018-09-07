@@ -8,7 +8,7 @@
     "build": "npm run clean && tsc && shx cp ./src/*.json ./dist/src/ && shx cp -r ./src/lib ./dist/src/",
     "lint": "tslint --project tsconfig.json -c tslint.json",
     "generate-docs": "typedoc --json ../docs/docs.json && node generateMarkdown.js",
-    "test": "mocha --reporter spec --compilers ts:ts-node/register 'tests/**/*.test.ts'"
+    "test": "mocha --reporter spec --compilers ts:ts-node/register 'tests/**/*.test.ts' --exit"
   },
   "keywords": [],
   "author": "",
