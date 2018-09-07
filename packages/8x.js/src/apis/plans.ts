@@ -1,15 +1,11 @@
 import * as Types from '@8xprotocol/types'
 import Contracts from '../helpers/contracts';
 
-import Web3 from 'web3';
-
 export default class Plans {
 
-  private web3: Web3;
   private contracts: Contracts;
 
-  constructor(web3: Web3, contracts: Contracts) {
-    this.web3 = web3;
+  constructor(contracts: Contracts) {
     this.contracts = contracts;
   }
 

@@ -1,12 +1,16 @@
 import {
   ExecutorContract,
+  ExecutorJson,
   VolumeSubscriptionContract,
+  VolumeSubscriptionJson,
   ActionProxyContract,
-  PaymentRegistryContract
+  ActionProxyJson,
+  PaymentRegistryContract,
+  PaymentRegistryJson
 } from '@8xprotocol/artifacts';
 
+import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import { AddressBook } from '@8xprotocol/types';
-import Web3 from 'web3';
 
 import {
   EXECUTOR_CACHE_KEY,
@@ -24,7 +28,7 @@ export interface EightExContracts {
 
 export default class Contracts {
 
-  private web3: Web3;
+  private web3: Web3Wrapper;
   private addressBook: AddressBook;
 
   private cache: { [contractName: string]: (
@@ -32,7 +36,7 @@ export default class Contracts {
     )
   };
 
-  constructor(web3: Web3, addressBook: AddressBook) {
+  constructor(web3: Web3Wrapper, addressBook: AddressBook) {
     this.web3 = web3;
     this.addressBook = addressBook;
     this.cache = {};
@@ -42,8 +46,9 @@ export default class Contracts {
     if (this.cache[EXECUTOR_CACHE_KEY]) {
       return this.cache[EXECUTOR_CACHE_KEY] as ExecutorContract;
     }
-
-    let executorContract = await ExecutorContract.at(this.addressBook.executorAddress, this.web3, {});
+    let a = this.web3.getProvider();
+    a
+    let executorContract = new ExecutorContract(ExecutorJson, this.addressBook.executorAddress, this.web3.getProvider());
     this.cache[EXECUTOR_CACHE_KEY] = executorContract;
 
     return executorContract;
@@ -54,7 +59,7 @@ export default class Contracts {
       return this.cache[PAYMENT_REGISTRY_CACHE_KEY] as PaymentRegistryContract;
     }
 
-    let paymentRegistry = await PaymentRegistryContract.at(this.addressBook.paymentRegistryAddress, this.web3, {});
+    let paymentRegistry = new PaymentRegistryContract(PaymentRegistryJson, this.addressBook.paymentRegistryAddress, this.web3.getProvider());
     this.cache[PAYMENT_REGISTRY_CACHE_KEY] = paymentRegistry;
 
     return paymentRegistry
@@ -65,7 +70,7 @@ export default class Contracts {
       return this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] as VolumeSubscriptionContract;
     }
 
-    let volumeSubscription = await VolumeSubscriptionContract.at(this.addressBook.volumeSubscriptionAddress, this.web3, {});
+    let volumeSubscription = new VolumeSubscriptionContract(VolumeSubscriptionJson, this.addressBook.volumeSubscriptionAddress, this.web3.getProvider());
     this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] = volumeSubscription;
 
     return volumeSubscription;
@@ -76,7 +81,7 @@ export default class Contracts {
       return this.cache[ACTION_PROXY_CACHE_KEY] as ActionProxyContract;
     }
 
-    let actionProxy = await ActionProxyContract.at(this.addressBook.actionProxyAddress, this.web3, {});
+    let actionProxy = new ActionProxyContract(ActionProxyJson, this.addressBook.actionProxyAddress, this.web3.getProvider());
     this.cache[ACTION_PROXY_CACHE_KEY] = actionProxy;
 
     return actionProxy;

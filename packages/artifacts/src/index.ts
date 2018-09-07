@@ -1,10 +1,9 @@
 import { AddressBook } from '../types/address_book';
-import * as data from '../deployed/config.json';
-import { VolumeSubscription } from '../ts/VolumeSubscription';
+import fs from 'fs-extra';
 
 export function getAddressBook(network: string): AddressBook {
 
-  let a: string = 'development';
+  let data = fs.readJsonSync('../deployed/config.json');
 
   let addresses = (<any>data)[network]["addresses"];
 
