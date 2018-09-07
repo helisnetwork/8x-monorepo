@@ -25,15 +25,25 @@ providerEngine.start();
 const web3Wrapper = new Web3Wrapper(providerEngine);
 const eightEx = new EightEx(web3Wrapper, addressBook);
 
+let addresses: string[];
+let business: string;
+let consumer: string;
+
 describe('Plans', () => {
 
-  beforeEach(async () => {
+  before(async () => {
 
-    let result = await web3Wrapper.getAvailableAddressesAsync();
-    console.log(result);
+    addresses = await web3Wrapper.getAvailableAddressesAsync();
+    business = addresses[0];
+    consumer = addresses[1];
+    console.log(addresses);
+
+  });
+
+  it('should be able to create a plan', async () => {
 
     let identifier = await eightEx.plans.create(
-      result[0],
+      business,
       addressBook.daiAddress || '',
       "new.plan",
       3,
@@ -42,12 +52,8 @@ describe('Plans', () => {
       ""
     );
 
-    console.log(identifier);
+    expect(identifier).to.not.be.null;
 
-  });
-
-  it('should be able to create a plan', async () => {
-    expect(true).to.be.true;
   });
 
 });
