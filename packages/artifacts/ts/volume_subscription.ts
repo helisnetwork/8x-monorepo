@@ -35,17 +35,20 @@ export enum VolumeSubscriptionEvents {
 }
 
 export interface VolumeSubscriptionCreatedPlanEventArgs extends DecodedLogArgs {
-    identifier: string;
+    planIdentifier: string;
+    businessIdentifier: string;
     owner: string;
 }
 
 export interface VolumeSubscriptionUpdatedPlanEventArgs extends DecodedLogArgs {
-    identifier: string;
+    planIdentifier: string;
+    businessIdentifier: string;
     owner: string;
 }
 
 export interface VolumeSubscriptionTerminatedPlanEventArgs extends DecodedLogArgs {
-    identifier: string;
+    planIdentifier: string;
+    businessIdentifier: string;
     owner: string;
     terminationDate: BigNumber;
 }
