@@ -13,13 +13,13 @@ contract VolumeSubscription is Collectable {
         address owner;
         address tokenAddress;
 
-        string identifier;
+        bytes32 identifier;
 
         uint interval;
         uint amount;
         uint fee;
 
-        string data;
+        bytes32 data;
         uint terminationDate;
 
     }
@@ -34,7 +34,7 @@ contract VolumeSubscription is Collectable {
         uint startDate;
         uint terminationDate;
 
-        string data;
+        bytes32 data;
     }
 
     ApprovedRegistryInterface public approvedRegistry;
@@ -44,19 +44,19 @@ contract VolumeSubscription is Collectable {
 
     event CreatedPlan(
         bytes32 indexed planIdentifier,
-        string indexed businessIdentifier,
+        bytes32 indexed businessIdentifier,
         address indexed owner
     );
 
     event UpdatedPlan(
         bytes32 indexed planIdentifier,
-        string indexed businessIdentifier,
+        bytes32 indexed businessIdentifier,
         address indexed owner
     );
 
     event TerminatedPlan(
         bytes32 indexed planIdentifier,
-        string indexed businessIdentifier,
+        bytes32 indexed businessIdentifier,
         address indexed owner,
         uint terminationDate
     );
@@ -232,30 +232,33 @@ contract VolumeSubscription is Collectable {
 
     /** @dev This is the function for creating a new plan.
       * @param _owner the address which owns this contract and to which a payment will be made.
+      * @param _tokenAddress the currency they'd like to receive in.
       * @param _identifier a way to uniquely identify a product for each vendor.
       * @param _interval after how many days should a customer be charged.
-      * @param _amount how much should the consumer be charged (in cents).
+      * @param _amount how much should the consumer be charged (in wei).
+      * @param _fee the fee for processing the subscription (in wei).
       * @param _data any extra data they'd like to store.
     */
     function createPlan(
         address _owner, // Required
         address _tokenAddress, // Required
-        string _identifier, // Required
+        bytes32 _identifier, // Required
         uint _interval, // Required
         uint _amount, // Required
         uint _fee, // Required
-        string _data)
+        bytes32 _data
+    )
         public
         returns (bytes32 newPlanHash)
     {
 
         require(_owner != 0x0);
         require(_tokenAddress != 0x0);
-        require(bytes(_identifier).length > 0);
+        require(_identifier.length > 0);
         require(_interval > 0);
         require(_amount > 0);
+        require(_amount > _fee);
         require(_fee > 0);
-        require(_fee < _amount);
         require(approvedRegistry.isTokenAuthorised(_tokenAddress));
 
         bytes32 planHash = keccak256(
@@ -296,7 +299,7 @@ contract VolumeSubscription is Collectable {
     */
     function createSubscription(
         bytes32 _planHash,
-        string _data
+        bytes32 _data
     )
         public
         returns (bytes32 newSubscriptionHash)
@@ -347,7 +350,7 @@ contract VolumeSubscription is Collectable {
       * @param _plan is the hash of the user's plan.
       * @param _data the data which they want to update it to.
     */
-    function setPlanData(bytes32 _plan, string _data)
+    function setPlanData(bytes32 _plan, bytes32 _data)
         public
         isOwnerOfPlan(_plan)
         shouldEmitPlanChanges(_plan)
@@ -359,7 +362,7 @@ contract VolumeSubscription is Collectable {
       * @param _subscription is the hash of the user's address + identifier.
       * @param _data the data which they want to update it to.
     */
-    function setSubscriptionData(bytes32 _subscription, string _data)
+    function setSubscriptionData(bytes32 _subscription, bytes32 _data)
         public
         isOwnerOfSubscription(_subscription)
         shouldEmitSubscriptionChanges(_subscription)

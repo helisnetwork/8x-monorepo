@@ -152,7 +152,7 @@ contract('ApprovedRegistry', function(accounts) {
 
         });
 
-        it("should be able to add a duplicate token as an authorised address", async function() {
+        it("should not be able to add a duplicate token as an authorised address", async function() {
 
             await assertRevert(approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, false, {from: contractOwner}));
 
@@ -160,7 +160,7 @@ contract('ApprovedRegistry', function(accounts) {
 
         it("should not be able to remove a token as an unauthorised address", async function() {
 
-            await assertRevert(approvedRegistryContract.removeApprovedToken(transactingCurrencyContract.address, false, {from: unauthorisedAddress}));
+            await assertRevert(approvedRegistryContract.removeApprovedToken(transactingCurrencyContract.address, {from: unauthorisedAddress}));
 
         });
 
@@ -178,6 +178,9 @@ contract('ApprovedRegistry', function(accounts) {
 
             let approvedArray = await approvedRegistryContract.getApprovedTokens();
             assert.equal(approvedArray.length, 0);
+
+            let wrappedEtherAddress = await approvedRegistryContract.wrappedEther.call();
+            assert.equal(wrappedEtherAddress, 0);
 
         });
 
