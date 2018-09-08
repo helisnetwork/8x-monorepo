@@ -1,12 +1,8 @@
 import * as mocha from 'mocha';
 import * as chai from 'chai';
 
-import Web3 from 'web3';
-
 import { getAddressBook } from '@8xprotocol/artifacts';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
-import { web3Factory } from '@0xproject/dev-utils';
-import { Provider } from 'ethereum-types';
 
 import {
   RPCSubprovider,
@@ -44,12 +40,13 @@ describe('Plans', () => {
 
     let identifier = await eightEx.plans.create(
       business,
-      addressBook.daiAddress || '',
-      "new.plan",
-      3,
-      3,
-      2,
-      ""
+      'create.new.plan',
+      30,
+      1000,
+      10,
+      'Netflix',
+      'Premium Plan',
+      null
     );
 
     expect(identifier).to.not.be.null;
