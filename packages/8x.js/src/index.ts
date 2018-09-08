@@ -20,7 +20,7 @@ export default class EightEx {
 
     this.contracts = new Contracts(web3, addressBook);
     this.subscriptions = new Subscriptions(this.contracts);
-    this.plans = new Plans(this.contracts);
+    this.plans = new Plans(this.contracts, addressBook.daiAddress || '');
   }
 
 }
