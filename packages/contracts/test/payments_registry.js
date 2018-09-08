@@ -4,6 +4,7 @@ import keccak from './helpers/keccak.js';
 import { newSubscription } from './helpers/volume_subscription.js';
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
+var MockKyberContract = artifacts.require("./tests/MockKyberNetworkInterface");
 var MockPaymentRegistry= artifacts.require('./tests/MockPaymentRegistry.sol');
 var EightExToken = artifacts.require("./EightExToken.sol");
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
@@ -14,6 +15,7 @@ contract('MockPaymentRegistry', function(accounts) {
     let subscriptionContract;
     let tokenContract;
     let approvedRegistryContract;
+    let kyberNetworkContract;
 
     let now = Date.now();
     let oneMonthLater = parseInt(now/1000) + (30*24*60*60);
@@ -24,7 +26,8 @@ contract('MockPaymentRegistry', function(accounts) {
     before(async function() {
 
         paymentRegistry = await MockPaymentRegistry.new({from: accounts[0]});
-        approvedRegistryContract = await ApprovedRegistry.new({from: accounts[0]});
+        kyberNetworkContract = await MockKyberContract.new({from: accounts[0]});
+        approvedRegistryContract = await ApprovedRegistry.new(kyberNetworkContract.address, {from: accounts[0]});
         subscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: accounts[0]});
         tokenContract = await EightExToken.new({from: accounts[0]});
 
@@ -40,10 +43,10 @@ contract('MockPaymentRegistry', function(accounts) {
 
         it("should not be able to create with invalid details", async function() {
 
-            let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.invalid.details", {from: accounts[0]});
+            let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.invalid");
 
-            await assertRevert(paymentRegistry.createNewPayment("", tokenContract.address, oneMonthLater, 400, 4, {from: accounts[0]}));
-            await assertRevert(paymentRegistry.createNewPayment(subscriptionHash, tokenContract.address, (now/1000) - 100, 400, 4, {from: accounts[0]}));
+            await assertRevert(paymentRegistry.createNewPayment(0, tokenContract.address, oneMonthLater, 400, 4, {from: accounts[0]}));
+            await assertRevert(paymentRegistry.createNewPayment(subscriptionHash, tokenContract.address, parseInt(now/1000) - 100, 400, 4, {from: accounts[0]}));
             await assertRevert(paymentRegistry.createNewPayment(subscriptionHash, tokenContract.address, oneMonthLater, 0, 4, {from: accounts[0]}));
             await assertRevert(paymentRegistry.createNewPayment(subscriptionHash, tokenContract.address, oneMonthLater, 400, 0, {from: accounts[0]}));
 
@@ -138,7 +141,7 @@ contract('MockPaymentRegistry', function(accounts) {
             // Get the payment information to check that it's been set correctly
             let paymentInformation = await paymentRegistry.payments.call(subscriptionHash);
             assert.equal(paymentInformation[1].toNumber(), threeMonthsLater);
-            assert.equal(paymentInformation[4].toNumber(), tenSecondsAfterTwoMonths);
+            assert.equal(paymentInformation[4].toNumber(), twoMonthsLater);
         });
 
     });

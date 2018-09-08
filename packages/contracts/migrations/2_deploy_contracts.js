@@ -7,6 +7,10 @@ const Constants = require("./migration_constants");
 
 module.exports = function(deployer, network, accounts) {
 
+    if (network == 'testing') {
+        return;
+    }
+
     const TransferProxy = artifacts.require("./TransferProxy.sol");
     const ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
     const PaymentRegistry = artifacts.require("./PaymentRegistry.sol");
