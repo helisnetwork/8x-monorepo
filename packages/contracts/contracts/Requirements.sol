@@ -1,6 +1,6 @@
 pragma solidity 0.4.24;
 
-import "./RequirementsInterface.sol";
+import "./interfaces/RequirementsInterface.sol";
 
 /** @title Contract which determines how many tokens are needed for a subscription */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */

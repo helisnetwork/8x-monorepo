@@ -1,6 +1,6 @@
 pragma solidity 0.4.24;
 
-import "../KyberNetworkInterface.sol";
+import "../interfaces/KyberNetworkInterface.sol";
 
 /** @title Mock contract to test Kyber Network proxy interface */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
