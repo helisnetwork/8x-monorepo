@@ -10,7 +10,7 @@ class MetamaskHandler extends React.Component {
       status: 'loading',
       address: '',
       balance: '',
-      kyberConversion: '',
+      kyberConversion: '1',
       timePeriod: ''
     };
 
