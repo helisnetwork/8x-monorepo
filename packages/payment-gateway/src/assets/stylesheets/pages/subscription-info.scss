@@ -5,12 +5,18 @@
 	}
   }
 
+.background {
+    background-color: #49455C;
+}
+
 .small-card {
+    transform: scale(0.9);
     
-    .hero {
+    .subscription-hero {
         display: flex;
         flex-direction: column;
-        margin-top: 1em;
+        padding-top: 1em;
+        padding-bottom: 1em;
 
         @include mobile {
             padding-top: 0.5em;
@@ -40,6 +46,7 @@
                   padding: 0em 1em 0em 0.5em;
 
                   img {
+
                       @include mobile {
                         width: 2em; 
 
