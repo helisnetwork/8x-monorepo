@@ -11,10 +11,6 @@
     width: 100%;
 }
 
-.small-card {
-
-}
-
 .main-card {
     max-width: 35em;
     margin: auto;
@@ -33,14 +29,16 @@
 
         p {
             color: #958DB7;
-            font-weight: 200; 
+            font-weight: 400; 
             font-size: 0.85em;
+            letter-spacing: 0.03em;
 
         }
 
         h1 {
             font-size: 1.25em; 
             font-weight: 600;
+            letter-spacing: 0.03em;
 
         }
     }

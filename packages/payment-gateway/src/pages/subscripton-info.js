@@ -16,7 +16,7 @@ class SubscriptionInfo extends React.Component {
     this.state = {
       value: '',
       copied: false,
-      currency: ''
+      currency: 'DAI'
     };
 
   }
@@ -46,7 +46,7 @@ class SubscriptionInfo extends React.Component {
       <div className="background">
         <div className="small-card">
           <Header title="Subscription Information" previousPage="/"/>
-          <div className="subscription-hero">
+          <div className="hero">
             <div className="main-item">
               <div className="logo">
                 <img src={Images.netflixLogo}/>
@@ -72,7 +72,7 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className="action">
               <p className="text">To start your subscription, please send</p>
-              <h2>{this.props.kyberConversion}</h2>
+              <h2>{this.props.kyberConversion} {this.state.currency}</h2>
               <p className="text">to your personal wallet</p>
             </div>
             <div className="item-address">
@@ -95,7 +95,7 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className="balance">
               <p>Current Balance</p>
-              <p className="currency">{this.props.balance}</p>
+              <p className="currency">{this.props.balance} {this.state.currency}</p>
             </div>
             <div className="transaction">
               <p onClick={this.props.payAction}>Pay</p>

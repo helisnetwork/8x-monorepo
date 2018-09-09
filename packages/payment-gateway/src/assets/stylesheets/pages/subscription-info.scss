@@ -12,7 +12,7 @@
 .small-card {
     transform: scale(0.9);
     
-    .subscription-hero {
+    .hero {
         display: flex;
         flex-direction: column;
         padding-top: 1em;
@@ -28,7 +28,7 @@
             background-color: white;
             border-radius: 0.85em;
             box-shadow: 2px 0 20px #EFEFEF;
-            padding: 2em 1em 1em 1em;
+            padding: 2em 1em 2em 1em;
             margin-bottom: 1.5em;
 
             @include mobile {
