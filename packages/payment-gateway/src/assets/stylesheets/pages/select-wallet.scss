@@ -4,9 +4,22 @@
     }
 }
 
+.background {
+    background-color: #49455C;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+}
+
+.small-card {
+
+}
+
 .main-card {
     max-width: 35em;
     margin: auto;
+    padding-bottom: 1em;
+    padding-top: 1em;
 
     a {
         text-decoration: inherit;
@@ -17,7 +30,6 @@
 
     .card-header {
         text-align: center;
-        padding-top: 1em;
 
         p {
             color: #958DB7;

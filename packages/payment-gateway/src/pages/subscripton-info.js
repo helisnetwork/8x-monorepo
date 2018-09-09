@@ -43,10 +43,10 @@ class SubscriptionInfo extends React.Component {
 
   renderUnlocked() {
     return (
-      <div>
+      <div className="background">
         <div className="small-card">
           <Header title="Subscription Information" previousPage="/"/>
-          <div className="hero">
+          <div className="subscription-hero">
             <div className="main-item">
               <div className="logo">
                 <img src={Images.netflixLogo}/>
@@ -139,7 +139,7 @@ class SubscriptionInfo extends React.Component {
   dropdownItems() {
     return [
       {
-        image: Images.ethLogo,
+        image: Images.daiLogo,
         name: 'Dai',
         ticker: 'DAI'
       },
