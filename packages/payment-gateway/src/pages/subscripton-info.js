@@ -43,7 +43,7 @@ class SubscriptionInfo extends React.Component {
 
   renderUnlocked() {
     return (
-      <div className="background">
+      <div className="background-subs">
         <div className="small-card">
           <Header title="Subscription Information" previousPage="/"/>
           <div className="hero">
