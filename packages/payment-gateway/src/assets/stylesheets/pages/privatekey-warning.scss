@@ -1,11 +1,13 @@
 .small-card {
-    padding-bottom: 3em;
+    // COMPLETED: Removed clashing styling 
+    // padding-bottom: 3em;
 
 
     .hero {
         text-align: center;
-        margin-top: 1.5em;
-        margin-bottom: 0.5em;
+        // @TODO: Fix the naming as it clashes with small-card component
+        //margin-top: 1.5em;
+        //margin-bottom: 0.5em;
         //margin: 2em 4em 0.5em 4em;
         padding: 0em 1.5em;
 
