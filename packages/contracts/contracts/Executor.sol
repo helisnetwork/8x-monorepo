@@ -8,8 +8,9 @@ import "./Collectable.sol";
 import "./TransferProxy.sol";
 import "./StakeContract.sol";
 import "./PaymentRegistry.sol";
-import "./ApprovedRegistryInterface.sol";
-import "./RequirementsInterface.sol";
+
+import "./interfaces/ApprovedRegistryInterface.sol";
+import "./interfaces/RequirementsInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */

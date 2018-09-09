@@ -1,6 +1,6 @@
 pragma solidity 0.4.24;
 
-import "./base/ownership/Ownable.sol";
+import "../base/ownership/Ownable.sol";
 
 /** @title Interface for a contract which determines how many tokens are needed */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */

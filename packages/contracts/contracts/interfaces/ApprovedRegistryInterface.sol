@@ -1,6 +1,6 @@
 pragma solidity 0.4.24;
 
-import "./base/ownership/Ownable.sol";
+import "../base/ownership/Ownable.sol";
 import "./KyberNetworkInterface.sol";
 
 /** @title Approved contract, tokens and gas prices. */

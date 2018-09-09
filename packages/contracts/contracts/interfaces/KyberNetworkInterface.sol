@@ -1,6 +1,6 @@
 pragma solidity 0.4.24;
 
-import "./base/token/ERC20.sol";
+import "../base/token/ERC20.sol";
 
 /** @title Kyber Network interface */
 
