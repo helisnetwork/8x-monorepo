@@ -10,7 +10,7 @@ class MetamaskHandler extends React.Component {
       status: 'loading',
       address: '',
       balance: '',
-      kyberConversion: '1',
+      kyberConversion: '42',
       timePeriod: ''
     };
 
@@ -91,7 +91,7 @@ class MetamaskHandler extends React.Component {
         this.updateStatus(
           this.state.status, 
           address, 
-          web3.fromWei(result, 'ether').toNumber() + 'ETH'
+          web3.fromWei(result, 'ether').toNumber()
         );
       } else {
         console.log('error');
