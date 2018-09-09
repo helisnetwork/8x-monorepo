@@ -29,7 +29,7 @@
             background-color: white;
             border-radius: 0.85em;
             box-shadow: 2px 0 20px #EFEFEF;
-            padding: 2em 1em 2em 1em;
+            padding: 2em 1em 0em 1em;
             margin-bottom: 1.5em;
 
             @include mobile {
@@ -39,8 +39,8 @@
             }
 
             .logo {
-              margin-right: 7em;
-              padding-left: 3em;
+              margin-right: 4em;
+              padding-left: 4em;
 
               @include mobile {
                   margin-right: 0em; 
@@ -56,9 +56,20 @@
               }
             }
 
-            span {
-                color: #958DB7;
+            .text {
+                font-size: 1.25em;
+                font-weight: 500;
 
+                p {
+                    margin-top: 0em;
+                }
+
+                span {
+                    color: #958DB7;
+                    font-weight: 400;
+                    letter-spacing: 0.03em;
+    
+                }
             }
         }
 
@@ -136,6 +147,8 @@
 
             .text {
                 margin: 0em;
+                font-size: 1em;
+                font-weight: 400;
 
             }
         }
