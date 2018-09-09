@@ -360,6 +360,9 @@ contract('Executor', function(accounts) {
             assert.equal(etherPaymentInfo[6], 0);
             assert.equal(etherPaymentInfo[7].toNumber(), firstNodeStake * 0.8);
 
+            let lastPaymentDate = await subscriptionContract.getLastSubscriptionPaymentDate(etherSubscriptionHash);
+            assert.equal(lastPaymentDate.toNumber(), details[1] + subscriptionInterval);
+
             // Release subscription
             await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
         });
@@ -540,6 +543,9 @@ contract('Executor', function(accounts) {
             assert.equal(etherPaymentInfo[5], competingServiceNode);
             assert.equal(etherPaymentInfo[6].toNumber(), 10);
             assert.equal(etherPaymentInfo[7].toNumber(), firstNodeStake * 0.8);
+
+            let lastPaymentDate = await subscriptionContract.getLastSubscriptionPaymentDate(etherSubscriptionHash);
+            assert.equal(lastPaymentDate.toNumber(), globalTime + subscriptionInterval);
 
             await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode});
 
