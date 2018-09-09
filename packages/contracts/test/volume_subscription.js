@@ -340,36 +340,42 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
-        it("should not be able to set the start date as the subscriber", async function() {
+        it("should not be able to set the last payment date as the subscriber", async function() {
 
-            await assertRevert(contract.setStartDate(futureDate, subscriptionHash, {from: subscriber}));
-
-        });
-
-        it("should not be able to set the start date as the business", async function() {
-
-            await assertRevert(contract.setStartDate(futureDate, subscriptionHash, {from: business}));
+            await assertRevert(contract.setLastPaymentDate(futureDate, subscriptionHash, {from: subscriber}));
 
         });
 
-         it("should not be able to set the start date in the past", async function() {
+        it("should not be able to set the last payment date as the business", async function() {
 
-            await assertRevert(contract.setStartDate(now - 1000, subscriptionHash, {from: executorContract}));
+            await assertRevert(contract.setLastPaymentDate(futureDate, subscriptionHash, {from: business}));
 
         });
 
-        it("should be able to set the start date from the executor", async function() {
+         it("should not be able to set the last payment date in the past", async function() {
 
-            await contract.setStartDate(futureDate, subscriptionHash, {from: executorContract});
+            await assertRevert(contract.setLastPaymentDate(now - 1000, subscriptionHash, {from: executorContract}));
+
+        });
+
+        it("should be able to set the last payment date from the executor", async function() {
+
+            await contract.setLastPaymentDate(futureDate, subscriptionHash, {from: executorContract});
 
             let subscription = await contract.subscriptions.call(subscriptionHash)
             assert.equal(subscription[3], futureDate);
 
         });
 
-        it("should not be able to re-set the start date after it's already been set", async function() {
+        it("should be able to update the last payment date to a date in the future", async function() {
 
-            await assertRevert(contract.setStartDate(futureDate + 100, subscriptionHash, {from: executorContract}));
+            await contract.setLastPaymentDate(futureDate + 100, subscriptionHash, {from: executorContract});
+
+        });
+
+        it("should not be able to update the last payment date to a date in the past", async function() {
+
+            await assertRevert(contract.setLastPaymentDate(10, subscriptionHash, {from: executorContract}));
 
         });
 
@@ -458,7 +464,7 @@ contract('VolumeSubscription', function(accounts) {
 
             let subscriptionHash2 = newSubscription2.logs[0].args.subscriptionIdentifier;
 
-            await contract.setStartDate(futureDate, subscriptionHash2, {from: executorContract});
+            await contract.setLastPaymentDate(futureDate, subscriptionHash2, {from: executorContract});
             await contract.cancelSubscription(subscriptionHash2, {from: executorContract});
 
             let subscription = await contract.subscriptions.call(subscriptionHash2);
@@ -480,7 +486,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to cancel from the owner", async function() {
 
-            await contract.setStartDate(futureDate, subscriptionHash, {from: executorContract});
+            await contract.setLastPaymentDate(futureDate, subscriptionHash, {from: executorContract});
             await contract.cancelSubscription(subscriptionHash, {from: subscriber});
 
             let subscription = await contract.subscriptions.call(subscriptionHash);

@@ -31,7 +31,7 @@ contract VolumeSubscription is Collectable {
 
         bytes32 planHash;
 
-        uint startDate;
+        uint lastPaymentDate;
         uint terminationDate;
 
         bytes32 data;
@@ -67,7 +67,7 @@ contract VolumeSubscription is Collectable {
         address indexed owner
     );
 
-    event FirstPaymentToSubscription(
+    event LastSubscriptionPaymentDate(
         bytes32 indexed subscriptionIdentifier,
         bytes32 indexed planIdentifier,
         address indexed owner,
@@ -145,7 +145,7 @@ contract VolumeSubscription is Collectable {
         return (
             plans[subscriptions[_subscription].planHash].terminationDate == 0 &&
             subscriptions[_subscription].terminationDate == 0 &&
-            subscriptions[_subscription].startDate > 0
+            subscriptions[_subscription].lastPaymentDate > 0
         );
     }
 
@@ -193,16 +193,27 @@ contract VolumeSubscription is Collectable {
         return plans[planHash].fee;
     }
 
-    function setStartDate(uint _date, bytes32 _subscription)
+    function getLastSubscriptionPaymentDate(bytes32 _subscription)
+        public
+        view
+        returns (uint date)
+    {
+        return subscriptions[_subscription].lastPaymentDate;
+    }
+
+    function setLastPaymentDate(uint _date, bytes32 _subscription)
         public
         onlyAuthorized
+        returns (bool success)
     {
         require(_date >= currentTimestamp());
-        require(subscriptions[_subscription].startDate == 0);
+        require(subscriptions[_subscription].lastPaymentDate <= _date);
 
-        subscriptions[_subscription].startDate = _date;
+        subscriptions[_subscription].lastPaymentDate = _date;
 
-        emit FirstPaymentToSubscription(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner, _date);
+        emit LastSubscriptionPaymentDate(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner, _date);
+
+        return true;
     }
 
     function cancelSubscription(bytes32 _subscription)
@@ -212,7 +223,7 @@ contract VolumeSubscription is Collectable {
         require((msg.sender == subscriptions[_subscription].owner) || (authorized[msg.sender] == true));
 
         // Ensure that the subscription has started;
-        require(subscriptions[_subscription].startDate > 0);
+        require(subscriptions[_subscription].lastPaymentDate > 0);
 
         // Check that the subscription is still valid.
         require(subscriptions[_subscription].terminationDate == 0);
@@ -320,7 +331,7 @@ contract VolumeSubscription is Collectable {
             owner: msg.sender,
             tokenAddress: planTokenAddress,
             planHash: _planHash,
-            startDate: 0,
+            lastPaymentDate: 0,
             terminationDate: 0,
             data: _data
         });
