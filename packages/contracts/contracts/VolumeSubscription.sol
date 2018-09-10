@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 
 import "./Collectable.sol";
-import "./ApprovedRegistryInterface.sol";
+import "./interfaces/ApprovedRegistryInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -13,13 +13,13 @@ contract VolumeSubscription is Collectable {
         address owner;
         address tokenAddress;
 
-        string identifier;
+        bytes32 identifier;
 
         uint interval;
         uint amount;
         uint fee;
 
-        string data;
+        bytes32 data;
         uint terminationDate;
 
     }
@@ -31,10 +31,10 @@ contract VolumeSubscription is Collectable {
 
         bytes32 planHash;
 
-        uint startDate;
+        uint lastPaymentDate;
         uint terminationDate;
 
-        string data;
+        bytes32 data;
     }
 
     ApprovedRegistryInterface public approvedRegistry;
@@ -42,9 +42,24 @@ contract VolumeSubscription is Collectable {
     mapping (bytes32 => Plan) public plans;
     mapping (bytes32 => Subscription) public subscriptions;
 
-    event CreatedPlan(bytes32 indexed identifier, address indexed owner);
-    event UpdatedPlan(bytes32 indexed identifier, address indexed owner);
-    event TerminatedPlan(bytes32 indexed identifier, address indexed owner, uint terminationDate);
+    event CreatedPlan(
+        bytes32 indexed planIdentifier,
+        bytes32 indexed businessIdentifier,
+        address indexed owner
+    );
+
+    event UpdatedPlan(
+        bytes32 indexed planIdentifier,
+        bytes32 indexed businessIdentifier,
+        address indexed owner
+    );
+
+    event TerminatedPlan(
+        bytes32 indexed planIdentifier,
+        bytes32 indexed businessIdentifier,
+        address indexed owner,
+        uint terminationDate
+    );
 
     event CreatedSubscription(
         bytes32 indexed subscriptionIdentifier,
@@ -52,7 +67,7 @@ contract VolumeSubscription is Collectable {
         address indexed owner
     );
 
-    event FirstPaymentToSubscription(
+    event LastSubscriptionPaymentDate(
         bytes32 indexed subscriptionIdentifier,
         bytes32 indexed planIdentifier,
         address indexed owner,
@@ -82,7 +97,7 @@ contract VolumeSubscription is Collectable {
 
     modifier shouldEmitPlanChanges(bytes32 _plan) {
         _;
-        emit UpdatedPlan(_plan, plans[_plan].owner);
+        emit UpdatedPlan(_plan, plans[_plan].identifier, plans[_plan].owner);
     }
 
     modifier isOwnerOfSubscription(bytes32 _subscription) {
@@ -114,7 +129,7 @@ contract VolumeSubscription is Collectable {
 
         plans[_plan].terminationDate = _terminationDate;
 
-        emit TerminatedPlan(_plan, plans[_plan].owner, _terminationDate);
+        emit TerminatedPlan(_plan, plans[_plan].identifier, plans[_plan].owner, _terminationDate);
     }
 
     /**
@@ -130,7 +145,7 @@ contract VolumeSubscription is Collectable {
         return (
             plans[subscriptions[_subscription].planHash].terminationDate == 0 &&
             subscriptions[_subscription].terminationDate == 0 &&
-            subscriptions[_subscription].startDate > 0
+            subscriptions[_subscription].lastPaymentDate > 0
         );
     }
 
@@ -178,16 +193,27 @@ contract VolumeSubscription is Collectable {
         return plans[planHash].fee;
     }
 
-    function setStartDate(uint _date, bytes32 _subscription)
+    function getLastSubscriptionPaymentDate(bytes32 _subscription)
+        public
+        view
+        returns (uint date)
+    {
+        return subscriptions[_subscription].lastPaymentDate;
+    }
+
+    function setLastPaymentDate(uint _date, bytes32 _subscription)
         public
         onlyAuthorized
+        returns (bool success)
     {
         require(_date >= currentTimestamp());
-        require(subscriptions[_subscription].startDate == 0);
+        require(subscriptions[_subscription].lastPaymentDate <= _date);
 
-        subscriptions[_subscription].startDate = _date;
+        subscriptions[_subscription].lastPaymentDate = _date;
 
-        emit FirstPaymentToSubscription(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner, _date);
+        emit LastSubscriptionPaymentDate(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner, _date);
+
+        return true;
     }
 
     function cancelSubscription(bytes32 _subscription)
@@ -197,7 +223,7 @@ contract VolumeSubscription is Collectable {
         require((msg.sender == subscriptions[_subscription].owner) || (authorized[msg.sender] == true));
 
         // Ensure that the subscription has started;
-        require(subscriptions[_subscription].startDate > 0);
+        require(subscriptions[_subscription].lastPaymentDate > 0);
 
         // Check that the subscription is still valid.
         require(subscriptions[_subscription].terminationDate == 0);
@@ -217,30 +243,33 @@ contract VolumeSubscription is Collectable {
 
     /** @dev This is the function for creating a new plan.
       * @param _owner the address which owns this contract and to which a payment will be made.
+      * @param _tokenAddress the currency they'd like to receive in.
       * @param _identifier a way to uniquely identify a product for each vendor.
       * @param _interval after how many days should a customer be charged.
-      * @param _amount how much should the consumer be charged (in cents).
+      * @param _amount how much should the consumer be charged (in wei).
+      * @param _fee the fee for processing the subscription (in wei).
       * @param _data any extra data they'd like to store.
     */
     function createPlan(
         address _owner, // Required
         address _tokenAddress, // Required
-        string _identifier, // Required
+        bytes32 _identifier, // Required
         uint _interval, // Required
         uint _amount, // Required
         uint _fee, // Required
-        string _data)
+        bytes32 _data
+    )
         public
         returns (bytes32 newPlanHash)
     {
 
         require(_owner != 0x0);
         require(_tokenAddress != 0x0);
-        require(bytes(_identifier).length > 0);
+        require(_identifier.length > 0);
         require(_interval > 0);
         require(_amount > 0);
+        require(_amount > _fee);
         require(_fee > 0);
-        require(_fee < _amount);
         require(approvedRegistry.isTokenAuthorised(_tokenAddress));
 
         bytes32 planHash = keccak256(
@@ -270,7 +299,7 @@ contract VolumeSubscription is Collectable {
 
         plans[planHash] = newPlan;
 
-        emit CreatedPlan(planHash, _owner);
+        emit CreatedPlan(planHash, _identifier, _owner);
 
         return planHash;
     }
@@ -281,7 +310,7 @@ contract VolumeSubscription is Collectable {
     */
     function createSubscription(
         bytes32 _planHash,
-        string _data
+        bytes32 _data
     )
         public
         returns (bytes32 newSubscriptionHash)
@@ -302,7 +331,7 @@ contract VolumeSubscription is Collectable {
             owner: msg.sender,
             tokenAddress: planTokenAddress,
             planHash: _planHash,
-            startDate: 0,
+            lastPaymentDate: 0,
             terminationDate: 0,
             data: _data
         });
@@ -332,7 +361,7 @@ contract VolumeSubscription is Collectable {
       * @param _plan is the hash of the user's plan.
       * @param _data the data which they want to update it to.
     */
-    function setPlanData(bytes32 _plan, string _data)
+    function setPlanData(bytes32 _plan, bytes32 _data)
         public
         isOwnerOfPlan(_plan)
         shouldEmitPlanChanges(_plan)
@@ -344,7 +373,7 @@ contract VolumeSubscription is Collectable {
       * @param _subscription is the hash of the user's address + identifier.
       * @param _data the data which they want to update it to.
     */
-    function setSubscriptionData(bytes32 _subscription, string _data)
+    function setSubscriptionData(bytes32 _subscription, bytes32 _data)
         public
         isOwnerOfSubscription(_subscription)
         shouldEmitSubscriptionChanges(_subscription)

@@ -1,5 +1,5 @@
 {
-  "name": "8x.js",
+  "name": "@8xprotocol/8x.js",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,19 +7,35 @@
     "clean": "rimraf -rf ./dist",
     "build": "npm run clean && tsc && shx cp ./src/*.json ./dist/src/ && shx cp -r ./src/lib ./dist/src/",
     "lint": "tslint --project tsconfig.json -c tslint.json",
-    "generate-docs": "typedoc --json ../docs/docs.json && node generateMarkdown.js"
+    "generate-docs": "typedoc --json ../docs/docs.json && node generateMarkdown.js",
+    "test": "mocha --reporter spec --compilers ts:ts-node/register 'tests/**/*.test.ts' --exit"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.1.2",
+    "json-d-ts": "^1.0.1",
+    "mocha": "^5.2.0",
+    "ts-node": "^7.0.1",
     "typedoc": "^0.12.0",
     "typescript": "^3.0.1"
   },
   "dependencies": {
+    "@0xproject/dev-utils": "^1.0.7",
+    "@0xproject/subproviders": "^2.0.2",
+    "@0xproject/typescript-typings": "^1.0.5",
+    "@0xproject/web3-wrapper": "^2.0.2",
+    "@8xprotocol/artifacts": "0.1.0",
+    "@8xprotocol/types": "0.1.0",
     "@types/bignumber.js": "^5.0.0",
-    "artifacts": "0.1.0",
+    "@types/node": "^10.9.4",
+    "@types/web3": "^1.0.3",
     "dedent-js": "^1.0.1",
-    "s": "^0.1.1"
+    "ethers": "^4.0.0-beta.14",
+    "s": "^0.1.1",
+    "web3": "^1.0.0-beta.36"
   }
 }

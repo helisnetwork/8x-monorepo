@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "target": "es5",
+    "module":"commonjs",
+    "lib": ["es2015", "es2016", "es2017", "dom"],
+    "strict": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationDir": "dist/types",
+    "outDir": "./dist",
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/json-d-ts",
+      "./types",
+      "./types/typings.d.ts",
+      "node_modules/@0xproject/typescript-typings/types"
+    ],
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+  },
+  "include": [
+    "./types",
+    "node_modules/@0xproject/typescript-typings/types"
+  ]
+}

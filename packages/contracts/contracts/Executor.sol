@@ -8,8 +8,9 @@ import "./Collectable.sol";
 import "./TransferProxy.sol";
 import "./StakeContract.sol";
 import "./PaymentRegistry.sol";
-import "./ApprovedRegistryInterface.sol";
-import "./RequirementsInterface.sol";
+
+import "./interfaces/ApprovedRegistryInterface.sol";
+import "./interfaces/RequirementsInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -149,8 +150,8 @@ contract Executor is Ownable {
             fee // Fee
         );
 
-        // Start the subscription
-        subscription.setStartDate(currentTimestamp(), _subscriptionIdentifier);
+        // Update the last payment date
+        subscription.setLastPaymentDate(currentTimestamp(), _subscriptionIdentifier);
 
         // Emit the appropriate event to show subscription has been activated
         emit SubscriptionActivated(
@@ -233,6 +234,8 @@ contract Executor is Ownable {
                 requiredStake
             );
         }
+
+        Collectable(_subscriptionContract).setLastPaymentDate(dueDate + interval, _subscriptionIdentifier);
 
         emit SubscriptionProcessed(
             _subscriptionIdentifier,
@@ -404,6 +407,9 @@ contract Executor is Ownable {
             dueDate,
             lastPaymentDate
         );
+
+        // Update the last payment date
+        Collectable(_subscriptionContract).setLastPaymentDate(dueDate + (dueDate - lastPaymentDate), _subscriptionIdentifier);
 
         // Emit an event to say a late payment was caught and processed
         emit SubscriptionLatePaymentCaught(

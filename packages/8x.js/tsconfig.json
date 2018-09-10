@@ -9,13 +9,18 @@
     "sourceMap": true,
     "declaration": true,
     "declarationDir": "dist/types",
-    "outDir": "dist",
+    "outDir": "./dist",
     "typeRoots": [
-      "./types"
-    ]
+      "node_modules/@types",
+       "node_modules/ethereum-types/index.d.ts",
+       "node_modules/@0xproject/typescript-typings/types"
+    ],
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
   },
   "include": [
-    "./apis",
-    "./types"
+    "./node_modules/ethereum-types/index.d.ts",
+    "./node_modules/web3-typescript-typings/index.d.ts",
+    "node_modules/@0xproject/typescript-typings/types"
   ]
 }

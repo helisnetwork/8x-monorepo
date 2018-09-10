@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 
-import "./ApprovedRegistryInterface.sol";
-import "./KyberNetworkInterface.sol";
+import "./interfaces/ApprovedRegistryInterface.sol";
+import "./interfaces/KyberNetworkInterface.sol";
 import "./base/token/WETH.sol";
 
 /** @title Approved contract, tokens and gas prices. */
