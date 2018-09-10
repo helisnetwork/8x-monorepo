@@ -170,7 +170,7 @@ contract('StakeContract', function(accounts) {
             await stakeContract.transferStake(thirdAccount, mockToken.address, 25, fourthAccount, {from: firstAccount});
 
             let availableAmount = await stakeContract.getAvailableStake(fourthAccount, mockToken.address);
-            assert.equal(availableAmount.toNumber(), 25);
+            assert.equal(availableAmount.toNumber(), 0);
 
             let totalAmount = await stakeContract.getTotalStake(thirdAccount, mockToken.address, {from: thirdAccount});
             assert.equal(totalAmount.toNumber(), 25);
@@ -180,6 +180,10 @@ contract('StakeContract', function(accounts) {
 
             let totalTokenAmount = await stakeContract.getTotalTokenStake(mockToken.address);
             assert.equal(totalTokenAmount.toNumber(), 50);
+
+            // Unstake tokens from the fourth address
+            await stakeContract.unlockTokens(fourthAccount, mockToken.address, 25, {from: firstAccount});
+            await stakeContract.withdrawStake(25, mockToken.address, {from: fourthAccount});
 
             let lockedTokenAmount = await stakeContract.getLockedTokenStake(mockToken.address);
             assert.equal(lockedTokenAmount.toNumber(), 25);
@@ -222,7 +226,7 @@ contract('StakeContract', function(accounts) {
             assert.equal(lockedAmount.toNumber(), 0);
 
             let totalTokenAmount = await stakeContract.getTotalTokenStake(mockToken.address);
-            assert.equal(totalTokenAmount.toNumber(), 50);
+            assert.equal(totalTokenAmount.toNumber(), 25);
 
             let lockedTokenAmount = await stakeContract.getLockedTokenStake(mockToken.address);
             assert.equal(lockedTokenAmount.toNumber(), 0);
@@ -254,7 +258,7 @@ contract('StakeContract', function(accounts) {
             assert.equal(lockedAmount.toNumber(), 0);
 
             let totalTokenAmount = await stakeContract.getTotalTokenStake(mockToken.address);
-            assert.equal(totalTokenAmount.toNumber(), 25);
+            assert.equal(totalTokenAmount.toNumber(), 0);
 
             let lockedTokenAmount = await stakeContract.getLockedTokenStake(mockToken.address);
             assert.equal(lockedTokenAmount.toNumber(), 0);

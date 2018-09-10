@@ -6,7 +6,7 @@ import "../Executor.sol";
 import "../TransferProxy.sol";
 import "../StakeContract.sol";
 import "../PaymentRegistry.sol";
-import "../KyberNetworkInterface.sol";
+import "../interfaces/KyberNetworkInterface.sol";
 import "../base/token/WETH.sol";
 
 /** @title Mock contract in order to test time logic reliably. */

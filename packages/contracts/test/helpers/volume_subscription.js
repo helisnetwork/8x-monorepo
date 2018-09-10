@@ -1,3 +1,5 @@
+import web3 from 'web3';
+
 const newPlan = async function(contract, token, account, identifier, interval, cost, fee) {
 
     let now = parseInt(Date.now()/1000);
@@ -7,15 +9,15 @@ const newPlan = async function(contract, token, account, identifier, interval, c
     let newPlan = await contract.createPlan(
         account,
         token,
-        identifier,
+        web3.utils.fromAscii(identifier),
         interval || 30,
         cost || 30,
         fee || 1,
-        "{}",
+        0,
         {from: account}
     );
 
-    let planHash = newPlan.logs[0].args.identifier;
+    let planHash = newPlan.logs[0].args.planIdentifier;
 
     return planHash;
 };
@@ -24,8 +26,8 @@ const newSubscription = async function(contract, token, account, identifier, bus
 
     let planHash = await newPlan(contract, token, business || account, identifier, interval, cost, fee);
 
-    let newSubscription = await contract.createSubscription(planHash, "{}", {from: account});
-    let subscriptionHash = newSubscription.logs[0].args.identifier;
+    let newSubscription = await contract.createSubscription(planHash, 0, {from: account});
+    let subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
 
     return subscriptionHash;
 };
@@ -34,8 +36,8 @@ const newSubscriptionFull = async function(contract, token, account, identifier,
 
     let planHash = await newPlan(contract, token, business || account, identifier, interval, cost, fee);
 
-    let newSubscription = await contract.createSubscription(planHash,"{}", {from: account});
-    let subscriptionHash = newSubscription.logs[0].args.identifier;
+    let newSubscription = await contract.createSubscription(planHash, 0, {from: account});
+    let subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
 
     return [planHash, subscriptionHash];
 };

@@ -66,16 +66,25 @@ contract Collectable is Authorizable {
         view
         returns (uint fee);
 
+    /** @dev Get the last date a payment was made.
+      * @param _subscription is the identifier of the customer's subscription with its relevant details.
+    */
+    function getLastSubscriptionPaymentDate(bytes32 _subscription)
+        public
+        view
+        returns (uint date);
+
     /**
       * PUBLIC FUNCTIONS
     */
 
-    /** @dev Set the start date for the subscription (first payment made).
-      * @param _date is the starting date or date payment was made.
+    /** @dev Set the last payment date for the subscription.
+      * @param _date is the date to set.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
     */
-    function setStartDate(uint _date, bytes32 _subscription)
-        public;
+    function setLastPaymentDate(uint _date, bytes32 _subscription)
+        public
+        returns (bool success);
 
     /** @dev Cancel the subscription. User or service node iniated.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
