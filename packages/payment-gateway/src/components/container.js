@@ -48,7 +48,7 @@ function Container({ location }) {
 
 const Wrapper = styled.div`
   div.transition-group {
-    position: relative;
+    
   }
   section.route-section {
     position: absolute;
