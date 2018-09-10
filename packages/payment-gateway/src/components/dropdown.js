@@ -16,6 +16,18 @@ class Dropdown extends React.Component {
     this.showMenu = this.showMenu.bind(this);
     this.closeMenu = this.closeMenu.bind(this);
     this.itemSelected = this.itemSelected.bind(this);
+    this.handleSelectedChange = this.handleSelectedChange.bind(this);
+
+    this.initializeDropdown();
+  }
+
+  initializeDropdown() {
+    this.props.onSelectedItem(this.state.selectedItem.name);
+  };
+
+  // Handles change in selected item on dropdown menu and passes data to subscription info
+  handleSelectedChange (selectedItem) {
+    this.props.onSelectedItem(selectedItem.name); 
   }
   
   showMenu(event) {    
@@ -34,6 +46,7 @@ class Dropdown extends React.Component {
         document.removeEventListener('click', this.closeMenu);
       });  
     }
+    
   }
 
   itemSelected(object) {
@@ -42,7 +55,9 @@ class Dropdown extends React.Component {
       showMenu: false 
     }, () => {
       document.removeEventListener('click', this.closeMenu);
-    }); 
+    });
+
+    this.handleSelectedChange(object);   
   }
   
   render() {

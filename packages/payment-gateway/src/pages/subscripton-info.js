@@ -15,10 +15,58 @@ class SubscriptionInfo extends React.Component {
     super(); 
 
     this.state = {
-      value: '',
       copied: false,
-      currency: 'DAI'
+      selectedCurrency: '',
+      selectedPeriod: 3,
+      kyberConversion: '',
+      subscriptionPrice: 14
     };
+
+    this.handleSelectedCurrency = this.handleSelectedCurrency.bind(this);
+    this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
+
+  }
+
+  componentDidMount() {
+    this.handleSelectedCurrency();
+    this.handleSelectedPeriod();
+  }
+
+  // Gets data from selected currency of user
+  handleSelectedCurrency(currency) {
+    this.setState({
+      selectedCurrency: currency
+    });
+  }
+
+  // Gets data from selected time period of user
+  handleSelectedPeriod(period) {
+    this.setState({
+      selectedPeriod: period
+    });
+  }
+
+  // Uses Kyber API to get conversion rates
+  getKyberInformation() {
+    fetch('https://tracker.kyber.network/api/tokens/pairs')
+      .then(results => {
+        return results.json();
+      }).then(data => {
+        console.log(data.ETH_DAI.currentPrice);
+        var currencyConversion = data.ETH_DAI.currentPrice;
+        this.setState({
+          kyberConversion: currencyConversion
+        });
+      });
+  };
+
+  calculateSendAmount () {
+    if (this.state.selectedCurrency === 'Dai') {
+      return this.state.selectedPeriod * this.state.subscriptionPrice;
+    }
+    else if (this.state.selectedCurrency === 'Ethereum') {
+      return this.state.selectedPeriod * this.state.kyberConversion;
+    }
 
   }
 
@@ -54,7 +102,7 @@ class SubscriptionInfo extends React.Component {
               </div>
               <div className="text">
                 <p>Netflix - Premium Account</p>
-                <span>$14USD billed monthly</span>
+                <span>${this.state.subscriptionPrice}USD billed monthly</span>
               </div>
             </div>
             <div className="option">
@@ -62,18 +110,18 @@ class SubscriptionInfo extends React.Component {
                 <div className="text">
                   <p>I want to pay using</p>
                 </div>
-                <Dropdown items={this.dropdownItems()}/>
+                <Dropdown items={this.dropdownItems()} onSelectedItem={this.handleSelectedCurrency}/>
               </div>
               <div className="time">
                 <div className="text">
                   <p>I want to top my account every</p>
                 </div>
-                <Dropdown items={this.timeItems()}/>
+                <Dropdown items={this.timeItems()} onSelectedItem={this.handleSelectedPeriod}/>
               </div>
             </div>
             <div className="action">
               <p className="text">To start your subscription, please send</p>
-              <h2>{this.props.kyberConversion} {this.state.currency}</h2>
+              <h2>{this.calculateSendAmount()} {this.state.selectedCurrency}</h2>
               <p className="text">to your personal wallet</p>
             </div>
             <div className="item-address">
@@ -96,7 +144,7 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className="balance">
               <p>Current Balance</p>
-              <p className="currency">{this.props.balance} {this.state.currency}</p>
+              <p className="currency">{this.props.balance} {this.state.selectedCurrency}</p>
             </div>
             <Link to='/pay'>
               <div className="transaction">
