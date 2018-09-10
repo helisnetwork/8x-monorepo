@@ -7,14 +7,20 @@ import {
   CSSTransition 
 } from 'react-transition-group';
 import Container from './components/container';
+import SimpleModalLauncher from './components/modal-launcher';
 
 /* App component */
 class App extends React.Component {
   render() {
     return (
-      <MemoryRouter>
-        <Container/>
-      </MemoryRouter>
+      <div>
+        <SimpleModalLauncher buttonLabel='click-here'>
+          <MemoryRouter>
+            <Container/>
+          </MemoryRouter>
+        </SimpleModalLauncher>
+      </div>
+      
     );
   }
 };
