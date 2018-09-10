@@ -11,6 +11,8 @@ import ethLogo from '../assets/images/eth.png';
 import dropDown from '../assets/images/dropdown.png';
 import downloadMetaMask from '../assets/images/download-metamask.png';
 import daiLogo from '../assets/images/dai.png';
+import checkTick from '../assets/images/check.png';
+import lockPicture from '../assets/images/locked.png';
 
 export default {
   metamaskLogo,
@@ -24,6 +26,8 @@ export default {
   ethLogo,
   dropDown,
   downloadMetaMask,
-  daiLogo
+  daiLogo,
+  checkTick,
+  lockPicture
 
 };

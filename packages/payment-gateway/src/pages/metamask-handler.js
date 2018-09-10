@@ -119,7 +119,7 @@ class MetamaskHandler extends React.Component {
       <SubscriptionInfo 
         status={this.state.status} 
         useraddress={this.state.address} 
-        balance={this.state.balance}
+        balance={100}//{this.state.balance}
         kyberConversion={this.state.kyberConversion}
       />
     );
