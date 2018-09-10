@@ -6,6 +6,7 @@ import Dropdown from '../components/dropdown.js';
 import Header from '../components/header.js';
 import MetaMaskInstall from '../components/metamask-install.js';
 import MetaMaskLocked from '../components/metamask-locked.js';
+import { Link } from 'react-router-dom';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
@@ -97,9 +98,11 @@ class SubscriptionInfo extends React.Component {
               <p>Current Balance</p>
               <p className="currency">{this.props.balance} {this.state.currency}</p>
             </div>
-            <div className="transaction">
-              <p onClick={this.props.payAction}>Pay</p>
-            </div>
+            <Link to='/pay'>
+              <div className="transaction">
+                <p onClick={this.props.payAction}>Pay</p>
+              </div>
+            </Link>
           </div>
         </div> 
       </div>
