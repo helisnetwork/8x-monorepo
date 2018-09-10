@@ -5,6 +5,7 @@ import SelectWallet from '../pages/select-wallet';
 import MetamaskHandler from '../pages/metamask-handler';
 import TrezorHandler from '../pages/trezor-handler';
 import Confirmation from '../pages/confirmaton';
+import ModalLauncher from '../components/modal-launcher';
 
 import {
   Route,
