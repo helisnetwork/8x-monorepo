@@ -1,0 +1,38 @@
+.hero-confirm {
+
+    margin: 0em 2em; 
+
+    
+    .confirmation-logo {
+        text-align: center;
+
+        img {
+            width: 10em;
+        }
+    }
+
+    .confirmation-text {
+        text-align: center;
+        font-size: 1.25em; 
+        //color: #958DB7;
+        color: black;
+        font-weight: 400;
+        padding-bottom: 1em;
+
+        span {
+            font-weight: 600;
+        }
+    }
+
+    .receipt {
+        text-align: center;
+        font-size: 0.85em;
+        font-weight: 400;
+        padding-bottom: 1em;
+
+        span {
+            font-weight: 600;
+        }
+    }
+
+}

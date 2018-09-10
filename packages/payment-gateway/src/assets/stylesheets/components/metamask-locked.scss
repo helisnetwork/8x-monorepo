@@ -1,10 +1,21 @@
+
 .small-card {
 
-  .locked {
-    text-align: center;
-    font-size: 1em;
-    padding-top: 1em;
-    
-  }
+    .locked-container {
+        text-align: center;
 
+        img {
+            width: 8em;
+            padding-top: 1em;
+        }
+
+        .locked {
+            text-align: center;
+            font-size: 1.25em;
+            padding-top: 1em;
+            font-weight: 400;
+            padding-bottom: 2em;
+            
+        }
+    }
 }

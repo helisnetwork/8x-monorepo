@@ -1,6 +1,8 @@
 /*Import statements*/
 import React from 'react';
 import Header from './header';
+import { default as Images } from '../middleware/images';
+
 
 class MetaMaskLocked extends React.Component {
   constructor() {
@@ -9,10 +11,13 @@ class MetaMaskLocked extends React.Component {
 
   render () {
     return (
-      <div>
+      <div className="background">
         <div className="small-card">
           <Header title="MetaMask Locked" previousPage="/"/>
-          <h2 className="locked">Please unlock metaMask</h2>
+          <div className="locked-container">
+            <img src={Images.lockPicture}/>
+            <h2 className="locked">Please unlock MetaMask</h2>
+          </div>
         </div> 
       </div>
     );
