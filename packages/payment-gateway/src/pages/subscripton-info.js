@@ -17,7 +17,7 @@ class SubscriptionInfo extends React.Component {
     this.state = {
       copied: false,
       selectedCurrency: '',
-      selectedPeriod: 3,
+      selectedPeriod: '',
       kyberConversion: '',
       subscriptionPrice: 14
     };
