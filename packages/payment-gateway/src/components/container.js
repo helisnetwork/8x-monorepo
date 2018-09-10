@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import SelectWallet from '../pages/select-wallet';
 import MetamaskHandler from '../pages/metamask-handler';
 import TrezorHandler from '../pages/trezor-handler';
+import Confirmation from '../pages/confirmaton';
 
 import {
   Route,
@@ -15,6 +16,7 @@ import {
   TransitionGroup,
   CSSTransition 
 } from 'react-transition-group';
+
 
 function Container({ location }) {
   return (
@@ -34,6 +36,7 @@ function Container({ location }) {
               */}
               <Route path="/metamask-handler" component={MetamaskHandler}/>
               <Route path="/trezor-handler" component={TrezorHandler}/>
+              <Route path="/pay" component={Confirmation}/>
             </Switch>
           </section>
         </CSSTransition>
