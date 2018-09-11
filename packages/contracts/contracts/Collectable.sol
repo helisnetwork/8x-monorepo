@@ -92,8 +92,7 @@ contract Collectable is Authorizable {
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
     */
     function setLastPaymentDate(uint _date, bytes32 _subscription)
-        public
-        returns (bool success);
+        public;
 
     /** @dev Cancel the subscription. User or service node iniated.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.

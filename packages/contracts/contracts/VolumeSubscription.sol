@@ -212,7 +212,6 @@ contract VolumeSubscription is Collectable {
     function setLastPaymentDate(uint _date, bytes32 _subscription)
         public
         onlyAuthorized
-        returns (bool success)
     {
         require(_date >= currentTimestamp());
         require(subscriptions[_subscription].lastPaymentDate <= _date);
@@ -220,8 +219,6 @@ contract VolumeSubscription is Collectable {
         subscriptions[_subscription].lastPaymentDate = _date;
 
         emit LastSubscriptionPaymentDate(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner, _date);
-
-        return true;
     }
 
     function cancelSubscription(bytes32 _subscription)
@@ -233,13 +230,19 @@ contract VolumeSubscription is Collectable {
         // Ensure that the subscription has started;
         require(subscriptions[_subscription].lastPaymentDate > 0);
 
-        // Check that the subscription is still valid.
-        require(subscriptions[_subscription].terminationDate == 0);
+        // If it hasn't been terminated, do it. Doesn't throw in case the executor calls it without knowing the status.
+        if (subscriptions[_subscription].terminationDate == 0) {
+            uint cancellationTimestamp = currentTimestamp();
+            subscriptions[_subscription].terminationDate = cancellationTimestamp;
 
-        uint cancellationTimestamp = currentTimestamp();
-        subscriptions[_subscription].terminationDate = cancellationTimestamp;
+            emit TerminatedSubscription(
+                _subscription,
+                subscriptions[_subscription].planHash,
+                subscriptions[_subscription].owner,
+                cancellationTimestamp
+            );
+        }
 
-        emit TerminatedSubscription(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner, cancellationTimestamp);
     }
 
     /**
