@@ -85,7 +85,6 @@ contract Executor is Ownable {
         public
     {
         // @TODO: Figure out how to add tests for this
-
         transferProxy = TransferProxy(_transferProxyAddress);
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
@@ -216,7 +215,7 @@ contract Executor is Ownable {
 
         uint lockUp = requiredStake;
         if (claimant == 0) {
-            lockUp = firstProcess(
+            lockUp = processFirstTime(
                 _subscriptionIdentifier,
                 tokenAddress,
                 dueDate,
@@ -225,7 +224,7 @@ contract Executor is Ownable {
                 requiredStake
             );
         } else if (claimant == msg.sender) {
-            existingProcess(
+            processExisting(
                 _subscriptionIdentifier,
                 tokenAddress,
                 dueDate,
@@ -243,67 +242,6 @@ contract Executor is Ownable {
             dueDate + interval,
             lockUp
         );
-    }
-
-    function firstProcess(
-        bytes32 subscriptionIdentifier,
-        address tokenAddress,
-        uint dueDate,
-        uint staked,
-        uint interval,
-        uint requiredStake
-    )
-        private
-        returns (uint)
-    {
-        // Check if they have enough tokens available
-        uint availableStake = stakeContract.getAvailableStake(msg.sender, tokenAddress);
-        require(availableStake >= requiredStake);
-
-        uint lockUp = (availableStake * lockUpPercentage) / 1000;
-        stakeContract.lockTokens(msg.sender, tokenAddress, lockUp);
-
-        paymentRegistry.claimPayment(
-            subscriptionIdentifier, // Identifier of subscription
-            msg.sender, // The claimant
-            dueDate + interval, // Next payment due date
-            lockUp
-        );
-
-        return lockUp;
-    }
-
-    function existingProcess(
-        bytes32 subscriptionIdentifier,
-        address tokenAddress,
-        uint dueDate,
-        uint staked,
-        uint interval,
-        uint requiredStake
-    )
-        private
-    {
-        uint lockUp = requiredStake;
-
-        if (requiredStake < staked) {
-            uint difference = staked - requiredStake;
-
-            stakeContract.unlockTokens(
-                msg.sender,
-                tokenAddress,
-                difference
-            );
-        } else {
-            lockUp = staked;
-        }
-
-        paymentRegistry.claimPayment(
-            subscriptionIdentifier, // Identifier of subscription
-            msg.sender, // The claimant
-            dueDate + interval, // Next payment due date
-            lockUp
-        );
-
     }
 
     /** @dev Release the payment/responsibility of a service node
@@ -439,9 +377,9 @@ contract Executor is Ownable {
         require(ERC20(_tokenAddress).balanceOf(consumer) >= _amount);
 
         // Call collect payment function as this caller
-        uint gasCost = approvedRegistry.getGasCost(_tokenAddress, _subscriptionContract, 0);
-        attemptPayment(ERC20(_tokenAddress), consumer, business, _amount - _fee - gasCost);
-        attemptPayment(ERC20(_tokenAddress), consumer, msg.sender, _fee + gasCost);
+        uint pricedGas = getPricedGas(_subscriptionContract, _subscriptionIdentifier, _tokenAddress);
+        attemptPayment(ERC20(_tokenAddress), consumer, business, _amount - _fee - pricedGas);
+        attemptPayment(ERC20(_tokenAddress), consumer, msg.sender, _fee + pricedGas);
 
         // Slash the tokens and give them to this caller = $$$
         stakeContract.transferStake(
@@ -518,6 +456,33 @@ contract Executor is Ownable {
 
     }
 
+    function determineStake(
+        address _tokenAddress,
+        uint _startDate,
+        uint _interval
+    )
+        public
+        returns(uint)
+    {
+        (
+            uint total,
+            uint lockedUp,
+            uint gini,
+            uint divideBy
+        ) = stakeContract.getTokenStakeDetails(_tokenAddress);
+
+        uint stake = requirementsContract.getStake(
+            gini,
+            divideBy,
+            _startDate,
+            currentTimestamp(),
+            _startDate + (_interval / maximumIntervalDivisor),
+            total - lockedUp
+        );
+
+        return stake;
+    }
+
     /**
       * INTERNAL FUNCTIONS
     */
@@ -528,7 +493,6 @@ contract Executor is Ownable {
         view
         returns (uint timetstamp)
     {
-        // solhint-disable-next-line
         return block.timestamp;
     }
 
@@ -555,11 +519,12 @@ contract Executor is Ownable {
         bool validSubscription = subscription.isValidSubscription(_subscriptionIdentifier);
 
         if (ERC20(_tokenAddress).balanceOf(consumer) >= _amount && validSubscription == true) {
-            uint gasCost = approvedRegistry.getGasCost(_tokenAddress, _subscriptionContract, 0);
             // Make the payments
             // @TODO: Make tests for gas cost subtraction
-            attemptPayment(ERC20(_tokenAddress), consumer, business, _amount - _fee - gasCost);
-            attemptPayment(ERC20(_tokenAddress), consumer, _serviceNode, _fee + gasCost);
+            uint pricedGas = getPricedGas(_subscriptionContract, _subscriptionIdentifier, _tokenAddress);
+            attemptPayment(ERC20(_tokenAddress), consumer, business, _amount - _fee - pricedGas);
+            attemptPayment(ERC20(_tokenAddress), consumer, _serviceNode, _fee + pricedGas);
+
             return true;
         }
 
@@ -603,32 +568,79 @@ contract Executor is Ownable {
         require((_transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount);
     }
 
-    function determineStake(
-        address _tokenAddress,
-        uint _startDate,
-        uint _interval
+    function processFirstTime(
+        bytes32 subscriptionIdentifier,
+        address tokenAddress,
+        uint dueDate,
+        uint staked,
+        uint interval,
+        uint requiredStake
     )
-        public
-        returns(uint)
+        private
+        returns (uint)
     {
-        (
-            uint total,
-            uint lockedUp,
-            uint gini,
-            uint divideBy
-        ) = stakeContract.getTokenStakeDetails(_tokenAddress);
+        // Check if they have enough tokens available
+        uint availableStake = stakeContract.getAvailableStake(msg.sender, tokenAddress);
+        require(availableStake >= requiredStake);
 
-        // @TODO: Make interval divide by changeable
-        uint stake = requirementsContract.getStake(
-            gini,
-            divideBy,
-            _startDate,
-            currentTimestamp(),
-            _startDate + (_interval / maximumIntervalDivisor),
-            total - lockedUp
+        uint lockUp = (availableStake * lockUpPercentage) / 1000;
+        stakeContract.lockTokens(msg.sender, tokenAddress, lockUp);
+
+        paymentRegistry.claimPayment(
+            subscriptionIdentifier, // Identifier of subscription
+            msg.sender, // The claimant
+            dueDate + interval, // Next payment due date
+            lockUp
         );
 
-        return stake;
+        return lockUp;
+    }
+
+    function processExisting(
+        bytes32 subscriptionIdentifier,
+        address tokenAddress,
+        uint dueDate,
+        uint staked,
+        uint interval,
+        uint requiredStake
+    )
+        private
+    {
+        uint lockUp = requiredStake;
+
+        if (requiredStake < staked) {
+            uint difference = staked - requiredStake;
+
+            stakeContract.unlockTokens(
+                msg.sender,
+                tokenAddress,
+                difference
+            );
+        } else {
+            lockUp = staked;
+        }
+
+        paymentRegistry.claimPayment(
+            subscriptionIdentifier, // Identifier of subscription
+            msg.sender, // The claimant
+            dueDate + interval, // Next payment due date
+            lockUp
+        );
+
+    }
+
+    function getPricedGas(
+        address _contractAddress,
+        bytes32 _subscriptionIdentifier,
+        address _tokenAddress
+    )
+        private
+        returns (uint)
+    {
+        (uint gasCost, uint gasPrice) = Collectable(_contractAddress).getGasCostForExecution(_subscriptionIdentifier, 0);
+        uint rate = approvedRegistry.getRateFor(_tokenAddress);
+        uint standardCost = ((gasCost * gasPrice) / (10**18) / rate);
+        return standardCost;
     }
 
 }

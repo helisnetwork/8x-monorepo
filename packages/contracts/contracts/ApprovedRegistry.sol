@@ -2,6 +2,9 @@ pragma solidity 0.4.24;
 
 import "./interfaces/ApprovedRegistryInterface.sol";
 import "./interfaces/KyberNetworkInterface.sol";
+
+import "./Collectable.sol";
+
 import "./base/token/WETH.sol";
 
 /** @title Approved contract, tokens and gas prices. */
@@ -9,14 +12,9 @@ import "./base/token/WETH.sol";
 
 contract ApprovedRegistry is ApprovedRegistryInterface {
 
-    struct GasCost {
-        uint callValue;
-        uint gasCost;
-        uint gasPrice;
-    }
 
     mapping (address => uint) public approvedTokenMapping; // Exchange rate cache (in case Kyber is down).
-    mapping (address => mapping (uint => GasCost)) public approvedContractMapping;
+    mapping (address => bool) public approvedContractMapping;
 
     KyberNetworkInterface public kyberProxy;
     WETH public wrappedEther;
@@ -30,17 +28,9 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     event TokenAdded(address indexed target);
     event TokenRemoved(address indexed target);
 
-    event ContractGasCostSet(address indexed contractAddress, uint indexed index);
-    event ContractGasCostRemoved(address indexed contractAddress, uint indexed index);
-
     /**
       * MODIFIERS
     */
-
-    modifier isValidSubscriptionContract(address _subscriptionContract) {
-        require(approvedContractMapping[_subscriptionContract][0].callValue > 0);
-        _;
-    }
 
     modifier hasContractBeenApproved(address _contractAddress, bool _expectedResult) {
         require(isContractAuthorised(_contractAddress) == _expectedResult);
@@ -62,31 +52,6 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     constructor(address _kyberAddress) public {
         // @TODO: Figure out how to add tests for this
         kyberProxy = KyberNetworkInterface(_kyberAddress);
-    }
-
-    /** @dev Get the gas costs for executing a transaction in a particular currency.
-      * @param _tokenAddress is the address of the token.
-      * @param _contractAddress is the address of the contract.
-      * @param _index for the calling contract function.
-    */
-    function getGasCost(
-        address _tokenAddress,
-        address _contractAddress,
-        uint _index
-    )
-        public returns (uint)
-    {
-        uint currentRate = getRateFor(_tokenAddress); // in wei
-        uint gasCost = approvedContractMapping[_contractAddress][_index].gasCost;
-        uint standardGasPrice = approvedContractMapping[_contractAddress][_index].gasPrice;
-        uint standardCost = ((gasCost * standardGasPrice) / (10**18) / currentRate);
-
-        // X = gas required * price of ETH/USD
-        // X = (one ether / gas required) * price of USD/ETH
-        // X = (300,000) / ((10**18) / (2*10**15)
-
-        return standardCost;
-
     }
 
     /** @dev Get exchange rate for token.
@@ -120,34 +85,6 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         emit ContractAdded(_contractAddress);
     }
 
-    /** @dev Set an approved contract call cost.
-      * @param _contractAddress is the address of the subscription contract.
-      * @param _index is the reference to the call (cancel, subscribe etc).
-      * @param _callValue is how much the transaction will cost.
-      * @param _gasCost is the amount of gas that will be used.
-      * @param _gasPrice is the gas price that will be reimbursed up to.
-    */
-    function setApprovedContractCallCost(
-        address _contractAddress,
-        uint _index,
-        uint _callValue,
-        uint _gasCost,
-        uint _gasPrice
-    )
-        public
-        onlyOwner
-        hasContractBeenApproved(_contractAddress, true)
-    {
-        approvedContractMapping[_contractAddress][_index] = GasCost({
-            callValue: _callValue,
-            gasCost: _gasCost,
-            gasPrice: _gasPrice
-        });
-
-        emit ContractGasCostSet(_contractAddress, _index);
-
-    }
-
     /** @dev Add an approved token to be used.
       * @param _tokenAddress is the address of the token to be used.
     */
@@ -178,27 +115,12 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
                 approvedContractArray[i] = approvedContractArray[approvedContractArray.length - 1];
                 approvedContractArray.length--;
 
+                delete approvedContractMapping[_contractAddress];
                 emit ContractRemoved(_contractAddress);
 
                 break;
             }
         }
-    }
-
-    /** @dev Remove an approved contract call cost.
-      * @param _contractAddress is the address of the contract.
-      * @param _index is the reference to the call (cancel, subscribe etc).
-    */
-    function removeApprovedContractCallCost(
-        address _contractAddress,
-        uint _index
-    )
-        public
-        onlyOwner
-    {
-        delete approvedContractMapping[_contractAddress][_index];
-
-        emit ContractGasCostRemoved(_contractAddress, _index);
     }
 
     /** @dev Remove an approved token to be used.
@@ -214,7 +136,6 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
                 approvedTokenArray.length--;
 
                 delete approvedTokenMapping[_tokenAddress];
-
                 emit TokenRemoved(_tokenAddress);
 
                 break;

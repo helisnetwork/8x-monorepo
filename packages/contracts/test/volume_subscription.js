@@ -162,7 +162,7 @@ contract('VolumeSubscription', function(accounts) {
             assert.equal(plan[6], 0);
 
             let computedHash = keccak(
-              ["address", "address", "bytes32", "uint", "uint", "uint", "bytes32"],
+              ["address", "address", "bytes32", "uint", "uint", "uint", "string"],
               [business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, ""]
             );
 
@@ -174,7 +174,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
               contract.createPlan(
-                business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, 0, {from: business}
+                business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, "", {from: business}
               )
             );
 
@@ -190,7 +190,7 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, web3.utils.fromAscii("plan.update"), 30, 100, 10, 0, {from: business}
+              business, token.address, web3.utils.fromAscii("plan.update"), 30, 100, 10, "", {from: business}
             );
 
             planHash = newPlan.logs[0].args.planIdentifier;
@@ -310,7 +310,7 @@ contract('VolumeSubscription', function(accounts) {
             await contract.setTime(now);
 
             let newSubscription = await contract.createSubscription(
-              planHash, 0, {from: subscriber}
+              planHash, "", {from: subscriber}
             );
 
             subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
@@ -393,7 +393,7 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, web3.utils.fromAscii("subscription.update"), 30, 100, 10, 0, {from: business}
+              business, token.address, web3.utils.fromAscii("subscription.update"), 30, 100, 10, "", {from: business}
             );
 
             planHash = newPlan.logs[0].args.planIdentifier;
@@ -408,7 +408,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should throw when upadating the data from an unauthorized address", async function() {
 
-            await assertRevert(contract.setSubscriptionData(subscriptionHash, web3.utils.fromAscii("{foo: bar}"), {from: unauthorizedAddress}));
+            await assertRevert(contract.setSubscriptionData(subscriptionHash, "{foo: bar}", {from: unauthorizedAddress}));
 
         });
 
@@ -417,7 +417,7 @@ contract('VolumeSubscription', function(accounts) {
             await contract.setSubscriptionData(subscriptionHash, "{foo: bar}", {from: subscriber});
 
             let subscription = await contract.subscriptions.call(subscriptionHash);
-            assert.equal(web3.utils.toUtf8(subscription[5]), "{foo: bar}");
+            assert.equal(subscription[5], "{foo: bar}");
 
         });
 
@@ -435,7 +435,7 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, web3.utils.fromAscii("subscription.cancel"), 30, 100, 10, 0, {from: business}
+              business, token.address, web3.utils.fromAscii("subscription.cancel"), 30, 100, 10, "", {from: business}
             );
 
             planHash = newPlan.logs[0].args.planIdentifier;
@@ -459,7 +459,7 @@ contract('VolumeSubscription', function(accounts) {
             await contract.setTime(futureDate - 90);
 
             let newSubscription2 = await contract.createSubscription(
-                planHash, 0, {from: subscriber}
+                planHash, "", {from: subscriber}
             );
 
             let subscriptionHash2 = newSubscription2.logs[0].args.subscriptionIdentifier;
