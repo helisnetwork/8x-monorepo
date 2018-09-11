@@ -352,12 +352,6 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
-         it("should not be able to set the last payment date in the past", async function() {
-
-            await assertRevert(contract.setLastPaymentDate(now - 1000, subscriptionHash, {from: executorContract}));
-
-        });
-
         it("should be able to set the last payment date from the executor", async function() {
 
             await contract.setLastPaymentDate(futureDate, subscriptionHash, {from: executorContract});
