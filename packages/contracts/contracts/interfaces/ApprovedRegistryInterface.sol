@@ -8,18 +8,6 @@ import "./KyberNetworkInterface.sol";
 
 contract ApprovedRegistryInterface is Ownable {
 
-    /** @dev Get the gas costs for executing a transaction in a particular currency.
-      * @param _tokenAddress is the address of the token.
-      * @param _contractAddress is the address of the contract.
-      * @param _index for the calling contract function.
-    */
-    function getGasCost(
-        address _tokenAddress,
-        address _contractAddress,
-        uint _index
-    )
-        public returns (uint);
-
     /** @dev Get the current ETH exchange rate.
       * @param _tokenAddress is the address for the token in question.
       * @return the exchange rate.
@@ -47,32 +35,6 @@ contract ApprovedRegistryInterface is Ownable {
     */
     function removeApprovedToken(address _tokenAddress) public;
 
-    /** @dev Set the gas costs for executing different contract calls.
-      * @param _contractAddress is the address of the contract.
-      * @param _index is the index for the type of call (cancel, activate etc).
-      * @param _callValue is the maximum gas allowed.
-      * @param _gasCost is the amount of gas.
-      * @param _gasPrice is the price paid for each gas (gwei).
-    */
-    function setApprovedContractCallCost(
-        address _contractAddress,
-        uint _index,
-        uint _callValue,
-        uint _gasCost,
-        uint _gasPrice
-    )
-        public;
-
-    /** @dev Remove the gas costs added in
-      * @param _contractAddress is the address of the contract.
-      * @param _index is the index for the type of call (cancel, activate etc).
-    */
-    function removeApprovedContractCallCost(
-        address _contractAddress,
-        uint _index
-    )
-        public;
-
     /** @dev Check if the contract is authorised.
       * @param _contractAddress is the address of the contract.
     */
@@ -89,6 +51,4 @@ contract ApprovedRegistryInterface is Ownable {
     event TokenAdded(address indexed target);
     event TokenRemoved(address indexed target);
 
-    event ContractGasCostSet(address indexed contractAddress, uint indexed index);
-    event ContractGasCostRemoved(address indexed contractAddress, uint indexed index);
 }

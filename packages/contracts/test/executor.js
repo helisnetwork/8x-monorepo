@@ -118,7 +118,6 @@ contract('Executor', function(accounts) {
 
         // Make sure the relevant contracts and tokens have been authorised
         await approvedRegistryContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
-        await approvedRegistryContract.setApprovedContractCallCost(subscriptionContract.address, 0, 2**10*15, 10**5, 2*10**9);
 
         modifyTimeContracts = [executorContract, subscriptionContract, paymentRegistryContract];
 

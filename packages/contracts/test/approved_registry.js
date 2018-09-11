@@ -14,10 +14,6 @@ contract('ApprovedRegistry', function(accounts) {
     let approvedRegistryContract;
 
     let contractOwner = accounts[0]; // Admin role
-    let business = accounts[1]; // Plan owner that has a plan that costs $100/month
-    let etherSubscriber = accounts[2]; // User paying $100/month subscription worth of ETH
-    let tokenSubscriber = accounts[3]; // User paying $100/month subscription directly (probably in DAI)
-    let serviceNode = accounts[4]; // Collector party claiming payment
     let unauthorisedAddress = accounts[5]; // Some random address
     let kyberContract;
 
@@ -64,59 +60,6 @@ contract('ApprovedRegistry', function(accounts) {
 
         });
 
-        it("should not be able to set a contract's call costs as an unauthorised address", async function() {
-
-            await assertRevert(approvedRegistryContract.setApprovedContractCallCost(subscriptionContract.address, 0, 40, 20, 1, {from: unauthorisedAddress}));
-
-        });
-
-        it("should not be able to set call costs for a contract which isn't already authorised", async function() {
-
-            await assertRevert(approvedRegistryContract.setApprovedContractCallCost("0xabc", 0, 40, 20, 1, {from: contractOwner}));
-
-        });
-
-        it("should be able to set a contract's call costs as the owner", async function() {
-
-            // Random numbers plugged in here since we're going to be removing these and keeping the state fresh
-            await approvedRegistryContract.setApprovedContractCallCost(subscriptionContract.address, 0, 40, 20, 1, {from: contractOwner});
-            await approvedRegistryContract.setApprovedContractCallCost(subscriptionContract.address, 1, 30, 10, 1, {from: contractOwner});
-
-            let gasCostObject = await approvedRegistryContract.approvedContractMapping.call(subscriptionContract.address, 0);
-            assert.equal(gasCostObject[0], 40);
-            assert.equal(gasCostObject[1], 20);
-            assert.equal(gasCostObject[2], 1);
-
-            let secondGasCostObject = await approvedRegistryContract.approvedContractMapping.call(subscriptionContract.address, 1);
-            assert.equal(secondGasCostObject[0], 30);
-            assert.equal(secondGasCostObject[1], 10);
-            assert.equal(secondGasCostObject[2], 1);
-
-        });
-
-        it("should not be able to remove a contract's call costs as an unauthorised address", async function() {
-
-            await assertRevert(approvedRegistryContract.removeApprovedContractCallCost(subscriptionContract.address, 0, {from: unauthorisedAddress}));
-
-        });
-
-        it("should be able to remove a contract's call costs as an authorised address", async function() {
-
-            // State of approved contracts is reset here, and it's a test!
-            await approvedRegistryContract.removeApprovedContractCallCost(subscriptionContract.address, 0, {from: contractOwner});
-            await approvedRegistryContract.removeApprovedContractCallCost(subscriptionContract.address, 1, {from: contractOwner});
-
-            let gasCostObject = await approvedRegistryContract.approvedContractMapping.call(subscriptionContract.address, 0);
-            assert.equal(gasCostObject[0], 0);
-            assert.equal(gasCostObject[1], 0);
-            assert.equal(gasCostObject[2], 0);
-
-            let gasCostObjectTwo = await approvedRegistryContract.approvedContractMapping.call(subscriptionContract.address, 1);
-            assert.equal(gasCostObjectTwo[0], 0);
-            assert.equal(gasCostObjectTwo[1], 0);
-            assert.equal(gasCostObjectTwo[2], 0);
-        });
-
         it("should not be able to remove a contract as an unauthorised address", async function() {
 
             await assertRevert(approvedRegistryContract.removeApprovedContract(subscriptionContract.address, {from: unauthorisedAddress}));
@@ -129,6 +72,9 @@ contract('ApprovedRegistry', function(accounts) {
 
             let approvedArray = await approvedRegistryContract.getApprovedContracts();
             assert.equal(approvedArray.length, 0);
+
+            let approvedMapping = await approvedRegistryContract.approvedContractMapping.call(subscriptionContract.address);
+            assert.equal(approvedMapping, 0);
 
         });
 

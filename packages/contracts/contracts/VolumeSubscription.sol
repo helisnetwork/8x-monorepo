@@ -19,7 +19,7 @@ contract VolumeSubscription is Collectable {
         uint amount;
         uint fee;
 
-        bytes32 data;
+        string data;
         uint terminationDate;
 
     }
@@ -34,7 +34,7 @@ contract VolumeSubscription is Collectable {
         uint lastPaymentDate;
         uint terminationDate;
 
-        bytes32 data;
+        string data;
     }
 
     ApprovedRegistryInterface public approvedRegistry;
@@ -201,6 +201,14 @@ contract VolumeSubscription is Collectable {
         return subscriptions[_subscription].lastPaymentDate;
     }
 
+    function getGasCostForExecution(bytes32 _subscription, uint _type)
+        public
+        view
+        returns (uint gasCost, uint gasPrice)
+    {
+        return (200000, 2*10**9);
+    }
+
     function setLastPaymentDate(uint _date, bytes32 _subscription)
         public
         onlyAuthorized
@@ -257,7 +265,7 @@ contract VolumeSubscription is Collectable {
         uint _interval, // Required
         uint _amount, // Required
         uint _fee, // Required
-        bytes32 _data
+        string _data
     )
         public
         returns (bytes32 newPlanHash)
@@ -310,7 +318,7 @@ contract VolumeSubscription is Collectable {
     */
     function createSubscription(
         bytes32 _planHash,
-        bytes32 _data
+        string _data
     )
         public
         returns (bytes32 newSubscriptionHash)
@@ -361,7 +369,7 @@ contract VolumeSubscription is Collectable {
       * @param _plan is the hash of the user's plan.
       * @param _data the data which they want to update it to.
     */
-    function setPlanData(bytes32 _plan, bytes32 _data)
+    function setPlanData(bytes32 _plan, string _data)
         public
         isOwnerOfPlan(_plan)
         shouldEmitPlanChanges(_plan)
@@ -373,7 +381,7 @@ contract VolumeSubscription is Collectable {
       * @param _subscription is the hash of the user's address + identifier.
       * @param _data the data which they want to update it to.
     */
-    function setSubscriptionData(bytes32 _subscription, bytes32 _data)
+    function setSubscriptionData(bytes32 _subscription, string _data)
         public
         isOwnerOfSubscription(_subscription)
         shouldEmitSubscriptionChanges(_subscription)
