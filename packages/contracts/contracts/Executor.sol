@@ -205,7 +205,8 @@ contract Executor is Ownable {
         }
 
         uint lockUp;
-        // To whover is reading this, I had to duplicate determineStake twice because of too
+
+        // To whover is reading this, I had to duplicate determineStake() twice because of too
         // many variables in the local stack. Blame the game, not the player.
 
         if (claimant == 0) {
@@ -321,9 +322,6 @@ contract Executor is Ownable {
 
         // Ensure the original claimant can't call this function
         require(msg.sender != claimant);
-
-        // Check that the subscription is valid
-        require(Collectable(_subscriptionContract).isValidSubscription(_subscriptionIdentifier) == true);
 
         // Make the payment
         bool didProcess = attemptProcessingWithCallback(
