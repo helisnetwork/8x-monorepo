@@ -25,9 +25,10 @@ class SimpleModal extends Component {
     };
     if (keys[e.keyCode]) { keys[e.keyCode](); }
   }
+  // Changed !isNil(this.modal) to allow drop down menus to work within modal
   handleOutsideClick(e) {
     const { onCloseRequest } = this.props;
-    if (!isNil(this.modal)) {
+    if (isNil(this.modal)) {
       if (!this.modal.contains(e.target)) {
         onCloseRequest();
         document.removeEventListener('click', this.handleOutsideClick, false);

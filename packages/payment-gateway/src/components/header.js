@@ -10,7 +10,7 @@ class Header extends React.Component {
           Back
         </Link>
         <p className="heading-label">{this.props.title}</p>
-        <p className="close button">Close</p>
+        <p className="close button" onClick={this.props.onCloseRequest}>Close</p>
       </div>
     );
   }
