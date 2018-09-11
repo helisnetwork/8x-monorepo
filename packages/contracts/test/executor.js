@@ -149,13 +149,13 @@ contract('Executor', function(accounts) {
         );
     };
 
-    async function fastForwardSubscription(subscriptionHash, cycles, processLast) {
+    async function fastForwardSubscription(subscriptionHash, cycles, processLast, node) {
         return await newActiveSubscription(
             executorContract,
             subscriptionContract,
             subscriptionHash,
             subscriptionInterval,
-            serviceNode,
+            node || serviceNode,
             cycles,
             modifyTimeContracts,
             processLast
@@ -477,85 +477,91 @@ contract('Executor', function(accounts) {
 
     describe("when catching a late subscription", () => {
 
-        /*it("should not be able to call as the original service node", async function() {
+        before(async function() {
+
+            // Set the time to now
+            await setTimes(modifyTimeContracts, (Date.now()/1000));
+
+        });
+
+        it("should not be able to call as the original service node", async function() {
 
             // Transfer three months' worth of Ether to the subscriber
             await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 3});
 
-            // Create a new subscription and fast forward one month
-            let etherSubscriptionHash = await newEtherSubscription("catch.late.1");
+            // Create a new subscription and fast forward two months
+            let etherSubscriptionHash = await newEtherSubscription("catch.late.original_node");
 
             let details = await fastForwardSubscription(etherSubscriptionHash, 2, false);
-            let globalTime = details[1];
 
             await assertRevert(executorContract.catchLateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode}));
 
             // Withdraw the last months ether to reset state
-            await etherContract.withdraw(subscriptionEthCost, {from: etherSubscriber});
+            await executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+            await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
 
-        });*/
+        });
 
-        /*it("should not be able to call before the execution period", async function() {
+        it ("should not be able to call before the execution period", async function() {
 
             // Transfer three months' worth of Ether to the subscriber
             await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 3});
 
-            // Create a new subscription and fast forward one month
-            let etherSubscriptionHash = await newEtherSubscription("catch.late.2");
-
+            // Create a new subscription and fast forward two months
+            let etherSubscriptionHash = await newEtherSubscription("catch.late.before_execution");
             let details = await fastForwardSubscription(etherSubscriptionHash, 2, false);
-            let globalTime = details[1];
 
-            await setTimes(modifyTimeContracts, globalTime - 5);
+            //await setTimes(modifyTimeContracts, globalTime - 5);
             await assertRevert(executorContract.catchLateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode}));
 
             // Withdraw the last months ether to reset state
-            await etherContract.withdraw(subscriptionEthCost, {from: etherSubscriber});
+            await executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
+            await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
 
-        });*/
+        });
 
-        /*it("should be able to call if the user doesn't have enough funds in their wallet", async function() {
-            console.log(1);
-            // Transfer two months' worth of Ether to the subscriber
-            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 4});
-            console.log(2);
-            // Create a new subscription and fast forward one month
-            let etherSubscriptionHash = await newEtherSubscription("catch.late.3");
-            console.log(3);
+        it("should be able to call if the user doesn't have enough funds in their wallet", async function() {
+
+            // Transfer three months' worth of Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 2});
+
+            // Create a new subscription and fast forward two months
+            let etherSubscriptionHash = await newEtherSubscription("catch.late.not_enough_funds");
             let details = await fastForwardSubscription(etherSubscriptionHash, 2, false);
-            let globalTime = details[1];
-            console.log(4);
-            // Set time past execution date
-            await setTimes(modifyTimeContracts, globalTime + 10);
-            console.log(5);
-            // Should be able to catch out
+
+            // Catch late period is after the boundary, not before hence a second needs to be added to the current time
+            await setTimes(modifyTimeContracts, details[1] + 1);
             await executorContract.catchLateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode});
-            console.log(6);
+
             // Deleted the payment registry
             let etherPaymentInfo = await paymentRegistryContract.payments.call(etherSubscriptionHash);
             assert.equal(etherPaymentInfo[0], 0);
-            console.log(7);
-            // Cancelled subscription
+
+            // Check the subscription was cancelled
             let isValidSubscription = await subscriptionContract.isValidSubscription(etherSubscriptionHash);
             assert.equal(isValidSubscription, false);
-            console.log(8);
+
+            // Give back stake to original service node
+            await stakeContract.withdrawStake(800, etherContract.address, {from: competingServiceNode});
+            await nativeTokenContract.transfer(serviceNode, 800, {from: competingServiceNode});
+            await stakeContract.topUpStake(800, etherContract.address, {from: serviceNode})
 
         });
 
         it("should able to catch late if the user has cancelled the subscription", async function() {
 
             // Transfer three months' worth of Ether to the subscriber
-            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 4});
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 3});
 
             // Create a new subscription and fast forward one month
-            let etherSubscriptionHash = await newEtherSubscription("catch.late.4");
+            let etherSubscriptionHash = await newEtherSubscription("catch.late.cancelled");
 
             let details = await fastForwardSubscription(etherSubscriptionHash, 2, false);
-            let globalTime = details[1];
 
-            await subscriptionContract.cancelSubscription(etherSubscriptionHash);
+            await subscriptionContract.cancelSubscription(etherSubscriptionHash, {from: etherSubscriber});
 
             // Should be able to catch out
+            await setTimes(modifyTimeContracts, details[1] + 1);
             await executorContract.catchLateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode});
 
             // Deleted the payment registry
@@ -565,17 +571,26 @@ contract('Executor', function(accounts) {
             // Withdraw the last months ether to reset state
             await etherContract.withdraw(subscriptionEthCost, {from: etherSubscriber});
 
+            // Give back stake to original service node
+            await stakeContract.withdrawStake(800, etherContract.address, {from: competingServiceNode});
+            await nativeTokenContract.transfer(serviceNode, 800, {from: competingServiceNode});
+            await stakeContract.topUpStake(800, etherContract.address, {from: serviceNode})
+
         });
 
         it("should be able to catch a valid late payment", async function() {
 
-             // Create a new subscription and fast forward one month
-            let etherSubscriptionHash = await newEtherSubscription("catch.late.5");
+            // Transfer three months' worth of Ether to the subscriber
+            await etherContract.deposit({from: etherSubscriber, value: subscriptionEthCost * 3});
+
+            // Create a new subscription and fast forward one month
+            let etherSubscriptionHash = await newEtherSubscription("catch.late.valid");
 
             let details = await fastForwardSubscription(etherSubscriptionHash, 2, false);
             let globalTime = details[1];
 
-            // Catch a late payment
+            // Catch a late payment 10 seconds after it's due
+            await setTimes(modifyTimeContracts, globalTime + 10);
             await executorContract.catchLateSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode});
 
             let etherPaymentInfo = await paymentRegistryContract.payments.call(etherSubscriptionHash);
@@ -589,7 +604,7 @@ contract('Executor', function(accounts) {
             assert.equal(etherPaymentInfo[7].toNumber(), firstNodeStake * 0.8);
 
             let lastPaymentDate = await subscriptionContract.getLastSubscriptionPaymentDate(etherSubscriptionHash);
-            assert.equal(lastPaymentDate.toNumber(), globalTime + subscriptionInterval);
+            assert.equal(lastPaymentDate.toNumber(), globalTime);
 
             await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode});
 
@@ -600,7 +615,7 @@ contract('Executor', function(accounts) {
             await nativeTokenContract.transfer(serviceNode, 800, {from: competingServiceNode});
             await stakeContract.topUpStake(800, etherContract.address, {from: serviceNode});
 
-        });*/
+       });
 
     });
 
