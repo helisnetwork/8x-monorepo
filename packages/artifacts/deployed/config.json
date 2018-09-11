@@ -1,24 +1,24 @@
 {
   "development": {
     "addresses": {
-      "Executor": "0x35c46d4dcf0569734889cc6a59fc58fc07ffa007",
-      "VolumeSubscription": "0x7f9b1d1b3dd42481688c4fda18ec03633efcd1d5",
-      "ApprovedRegistry": "0xc1c20a3f2cebf233a4476d2a482527073dee7f60",
-      "TransferProxy": "0xf7a01e2e71700db559814cf8a67a24441c6361f9",
-      "PaymentRegistry": "0xdab5102f59dbf0c72d997f2f645f0d56ced40f6a",
-      "Requirements": "0xb578adf16cfb2cc936e2bbd1ce62f1185400c9ab",
-      "EightExToken": "0xd5ce30776ec3aeb83293f5f16e6be469d5fddbb8",
-      "StakeContract": "0x88481079617f15fbd582d768d0673c48fc846260",
-      "KyberNetwork": "0xc9d270aec9301a10b8bee90bddde513b4f6e714f",
-      "ActionProxy": "0x7ab1a52da8d95eb80f1a7fd0f6ab0a0d020c9f77",
-      "DAI": "0xf255251ed317b2cc39651aaa684c4ae1f1a7804b"
+      "Executor": "0x1898011682ee78b90ede95350db9ef4ff4d83ae5",
+      "VolumeSubscription": "0xaee6d276d15c793ca0c54039f6b0ea07dfb5301d",
+      "ApprovedRegistry": "0xf0ca2988774ef6279e3b2dd4560ed14cfc5dea97",
+      "TransferProxy": "0xbae9140dbc4671f8ca37ebe7babd74cef6b5fb18",
+      "PaymentRegistry": "0xa713d70078b3d5dbd8b0eb8c57b7ce04b455592e",
+      "Requirements": "0x3744c44253894695b390edd9c5bb336e6ecc0cf1",
+      "EightExToken": "0x3ada660b15a2517768a230294e7d4d9763b7193a",
+      "StakeContract": "0xffd591249ed38b9df201112043f84fe64de9cac9",
+      "KyberNetwork": "0xb207d801746eb825bdc560d9c535518a98b016cb",
+      "ActionProxy": "0x4bc0a219990c9c1e3655633f3c321ad6706bd0e6",
+      "DAI": "0x484c0838f62f5e722ba5f9af9c939e3bb1a7cdb7"
     },
     "approvedTokens": [
-      "0xf255251ed317b2cc39651aaa684c4ae1f1a7804b"
+      "0x484c0838f62f5e722ba5f9af9c939e3bb1a7cdb7"
     ],
     "approvedContracts": {
       "VolumeSubscription": {
-        "address": "0x7f9b1d1b3dd42481688c4fda18ec03633efcd1d5"
+        "address": "0xaee6d276d15c793ca0c54039f6b0ea07dfb5301d"
       }
     },
     "lockUpPercentage": 800,
