@@ -213,7 +213,6 @@ contract VolumeSubscription is Collectable {
         public
         onlyAuthorized
     {
-        //require(_date >= currentTimestamp());
         require(subscriptions[_subscription].lastPaymentDate <= _date);
 
         subscriptions[_subscription].lastPaymentDate = _date;
