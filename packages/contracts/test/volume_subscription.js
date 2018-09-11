@@ -363,13 +363,15 @@ contract('VolumeSubscription', function(accounts) {
             await contract.setLastPaymentDate(futureDate, subscriptionHash, {from: executorContract});
 
             let subscription = await contract.subscriptions.call(subscriptionHash)
-            assert.equal(subscription[3], futureDate);
+            assert.equal(subscription[3].toNumber(), futureDate);
 
         });
 
         it("should be able to update the last payment date to a date in the future", async function() {
 
             await contract.setLastPaymentDate(futureDate + 100, subscriptionHash, {from: executorContract});
+            let subscription = await contract.subscriptions.call(subscriptionHash)
+            assert.equal(subscription[3].toNumber(), futureDate + 100);
 
         });
 
@@ -493,6 +495,16 @@ contract('VolumeSubscription', function(accounts) {
             assert.isAbove(subscription[4].toNumber(), 0);
 
         });
+
+        it("should not be able cancel without throwing", async function() {
+
+            await contract.cancelSubscription(subscriptionHash, {from: subscriber});
+
+            let subscription = await contract.subscriptions.call(subscriptionHash)
+            assert.isAbove(subscription[4].toNumber(), 0);
+
+        });
+
 
     });
 
