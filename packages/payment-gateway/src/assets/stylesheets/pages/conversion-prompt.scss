@@ -1,11 +1,52 @@
-.hero {
+.main-content {
+    align-items: center;
+    text-align: center;
 
     .main-text {
         
         #message {
-            font-size: 1em;
+            font-size: 1.15em;
             font-weight: 600;
+
         }
+
+    }
+
+    .main-graphics {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+    }
+
+    .secondary-text {
+
+        .title {
+            font-size: 1em;
+            font-weight: 600; 
+
+        }
+        
+        .paragraph {
+            color: #958DB7;
+            font-size: 0.85em;
+            font-weight: 400; 
+
+        }
+
+    }
+
+    .button {
+        display: flex;
+        justify-content: center;
+        text-align: center;
+
+        .convert {
+            background-color: #5944EE;
+            border-radius: 0.85em;
+
+        }
+       
 
     }
 }
