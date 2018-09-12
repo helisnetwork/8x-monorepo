@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import SelectWallet from '../pages/select-wallet';
 import MetamaskHandler from '../pages/metamask-handler';
 import ConversionPrompt from '../pages/conversion-prompt';
+import BeginSubscription from '../pages/begin-subscription';
 
 import {
   Route,
@@ -29,9 +30,10 @@ function Container({ location }) {
         >
           <section className="route-section">
             <Switch location = { location }>
-              <Route exact path="/" component={SelectWallet}/>
+              <Route exact path="/" component={BeginSubscription}/>
               <Route path="/metamask-handler" component={MetamaskHandler}/>
               <Route path="/conversion" component={ConversionPrompt}/>
+              <Route path="/begin-subscription" component={BeginSubscription}/>
             </Switch>
           </section>
         </CSSTransition>
