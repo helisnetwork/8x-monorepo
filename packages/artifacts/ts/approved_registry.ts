@@ -14,8 +14,6 @@ export type ApprovedRegistryEventArgs =
     | ApprovedRegistryContractRemovedEventArgs
     | ApprovedRegistryTokenAddedEventArgs
     | ApprovedRegistryTokenRemovedEventArgs
-    | ApprovedRegistryContractGasCostSetEventArgs
-    | ApprovedRegistryContractGasCostRemovedEventArgs
     | ApprovedRegistryOwnershipTransferredEventArgs;
 
 export enum ApprovedRegistryEvents {
@@ -23,8 +21,6 @@ export enum ApprovedRegistryEvents {
     ContractRemoved = 'ContractRemoved',
     TokenAdded = 'TokenAdded',
     TokenRemoved = 'TokenRemoved',
-    ContractGasCostSet = 'ContractGasCostSet',
-    ContractGasCostRemoved = 'ContractGasCostRemoved',
     OwnershipTransferred = 'OwnershipTransferred',
 }
 
@@ -42,16 +38,6 @@ export interface ApprovedRegistryTokenAddedEventArgs extends DecodedLogArgs {
 
 export interface ApprovedRegistryTokenRemovedEventArgs extends DecodedLogArgs {
     target: string;
-}
-
-export interface ApprovedRegistryContractGasCostSetEventArgs extends DecodedLogArgs {
-    contractAddress: string;
-    index: BigNumber;
-}
-
-export interface ApprovedRegistryContractGasCostRemovedEventArgs extends DecodedLogArgs {
-    contractAddress: string;
-    index: BigNumber;
 }
 
 export interface ApprovedRegistryOwnershipTransferredEventArgs extends DecodedLogArgs {
@@ -129,6 +115,41 @@ export class ApprovedRegistryContract extends BaseContract {
             return resultArray[0];
         },
     };
+    public approvedContractMapping = {
+        async callAsync(
+            index_0: string,
+            callData: Partial<CallData> = {},
+            defaultBlock?: BlockParam,
+        ): Promise<boolean
+        > {
+            const self = this as any as ApprovedRegistryContract;
+            const functionSignature = 'approvedContractMapping(address)';
+            const inputAbi = self._lookupAbi(functionSignature).inputs;
+            [index_0
+        ] = BaseContract._formatABIDataItemList(inputAbi, [index_0
+        ], BaseContract._bigNumberToString.bind(self));
+            BaseContract.strictArgumentEncodingCheck(inputAbi, [index_0
+        ]);
+            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.approvedContractMapping(
+                index_0
+            ) as ethers.CallDescription;
+            const encodedData = ethersFunction.data;
+            const callDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+                {
+                    to: self.address,
+                    ...callData,
+                    data: encodedData,
+                },
+                self._web3Wrapper.getContractDefaults(),
+            );
+            const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
+            let resultArray = ethersFunction.parse(rawCallResult);
+            const outputAbi = (_.find(self.abi, {name: 'approvedContractMapping'}) as MethodAbi).outputs;
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
+            return resultArray[0];
+        },
+    };
     public approvedTokenArray = {
         async callAsync(
             index_0: BigNumber,
@@ -162,46 +183,6 @@ export class ApprovedRegistryContract extends BaseContract {
             resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
             resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
             return resultArray[0];
-        },
-    };
-    public approvedContractMapping = {
-        async callAsync(
-            index_0: string,
-            index_1: BigNumber,
-            callData: Partial<CallData> = {},
-            defaultBlock?: BlockParam,
-        ): Promise<[BigNumber, BigNumber, BigNumber]
-        > {
-            const self = this as any as ApprovedRegistryContract;
-            const functionSignature = 'approvedContractMapping(address,uint256)';
-            const inputAbi = self._lookupAbi(functionSignature).inputs;
-            [index_0,
-        index_1
-        ] = BaseContract._formatABIDataItemList(inputAbi, [index_0,
-        index_1
-        ], BaseContract._bigNumberToString.bind(self));
-            BaseContract.strictArgumentEncodingCheck(inputAbi, [index_0,
-        index_1
-        ]);
-            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.approvedContractMapping(
-                index_0,
-                index_1
-            ) as ethers.CallDescription;
-            const encodedData = ethersFunction.data;
-            const callDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
-                {
-                    to: self.address,
-                    ...callData,
-                    data: encodedData,
-                },
-                self._web3Wrapper.getContractDefaults(),
-            );
-            const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
-            let resultArray = ethersFunction.parse(rawCallResult);
-            const outputAbi = (_.find(self.abi, {name: 'approvedContractMapping'}) as MethodAbi).outputs;
-            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
-            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
-            return resultArray;
         },
     };
     public owner = {
@@ -399,144 +380,6 @@ export class ApprovedRegistryContract extends BaseContract {
             return resultArray;
         },
     };
-    public getGasCost = {
-        async sendTransactionAsync(
-            _tokenAddress: string,
-            _contractAddress: string,
-            _index: BigNumber,
-            txData: Partial<TxData> = {},
-        ): Promise<string> {
-            const self = this as any as ApprovedRegistryContract;
-            const inputAbi = self._lookupAbi('getGasCost(address,address,uint256)').inputs;
-            [_tokenAddress,
-    _contractAddress,
-    _index
-    ] = BaseContract._formatABIDataItemList(inputAbi, [_tokenAddress,
-    _contractAddress,
-    _index
-    ], BaseContract._bigNumberToString.bind(self));
-            BaseContract.strictArgumentEncodingCheck(inputAbi, [_tokenAddress,
-    _contractAddress,
-    _index
-    ]);
-            const encodedData = self._lookupEthersInterface('getGasCost(address,address,uint256)').functions.getGasCost(
-                _tokenAddress,
-                _contractAddress,
-                _index
-            ).data;
-            const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
-                {
-                    to: self.address,
-                    ...txData,
-                    data: encodedData,
-                },
-                self._web3Wrapper.getContractDefaults(),
-                self.getGasCost.estimateGasAsync.bind(
-                    self,
-                    _tokenAddress,
-                    _contractAddress,
-                    _index
-                ),
-            );
-            const txHash = await self._web3Wrapper.sendTransactionAsync(txDataWithDefaults);
-            return txHash;
-        },
-        async estimateGasAsync(
-            _tokenAddress: string,
-            _contractAddress: string,
-            _index: BigNumber,
-            txData: Partial<TxData> = {},
-        ): Promise<number> {
-            const self = this as any as ApprovedRegistryContract;
-            const inputAbi = self._lookupAbi('getGasCost(address,address,uint256)').inputs;
-            [_tokenAddress,
-    _contractAddress,
-    _index
-    ] = BaseContract._formatABIDataItemList(inputAbi, [_tokenAddress,
-    _contractAddress,
-    _index
-    ], BaseContract._bigNumberToString);
-            const encodedData = self._lookupEthersInterface('getGasCost(address,address,uint256)').functions.getGasCost(
-                _tokenAddress,
-                _contractAddress,
-                _index
-            ).data;
-            const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
-                {
-                    to: self.address,
-                    ...txData,
-                    data: encodedData,
-                },
-                self._web3Wrapper.getContractDefaults(),
-            );
-            const gas = await self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
-            return gas;
-        },
-        getABIEncodedTransactionData(
-            _tokenAddress: string,
-            _contractAddress: string,
-            _index: BigNumber,
-        ): string {
-            const self = this as any as ApprovedRegistryContract;
-            const inputAbi = self._lookupAbi('getGasCost(address,address,uint256)').inputs;
-            [_tokenAddress,
-    _contractAddress,
-    _index
-    ] = BaseContract._formatABIDataItemList(inputAbi, [_tokenAddress,
-    _contractAddress,
-    _index
-    ], BaseContract._bigNumberToString);
-            const abiEncodedTransactionData = self._lookupEthersInterface('getGasCost(address,address,uint256)').functions.getGasCost(
-                _tokenAddress,
-                _contractAddress,
-                _index
-            ).data;
-            return abiEncodedTransactionData;
-        },
-        async callAsync(
-            _tokenAddress: string,
-            _contractAddress: string,
-            _index: BigNumber,
-            callData: Partial<CallData> = {},
-            defaultBlock?: BlockParam,
-        ): Promise<BigNumber
-        > {
-            const self = this as any as ApprovedRegistryContract;
-            const functionSignature = 'getGasCost(address,address,uint256)';
-            const inputAbi = self._lookupAbi(functionSignature).inputs;
-            [_tokenAddress,
-        _contractAddress,
-        _index
-        ] = BaseContract._formatABIDataItemList(inputAbi, [_tokenAddress,
-        _contractAddress,
-        _index
-        ], BaseContract._bigNumberToString.bind(self));
-            BaseContract.strictArgumentEncodingCheck(inputAbi, [_tokenAddress,
-        _contractAddress,
-        _index
-        ]);
-            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.getGasCost(
-                _tokenAddress,
-                _contractAddress,
-                _index
-            ) as ethers.CallDescription;
-            const encodedData = ethersFunction.data;
-            const callDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
-                {
-                    to: self.address,
-                    ...callData,
-                    data: encodedData,
-                },
-                self._web3Wrapper.getContractDefaults(),
-            );
-            const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
-            let resultArray = ethersFunction.parse(rawCallResult);
-            const outputAbi = (_.find(self.abi, {name: 'getGasCost'}) as MethodAbi).outputs;
-            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
-            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
-            return resultArray[0];
-        },
-    };
     public getRateFor = {
         async sendTransactionAsync(
             _tokenAddress: string,
@@ -732,182 +575,6 @@ export class ApprovedRegistryContract extends BaseContract {
             const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
             let resultArray = ethersFunction.parse(rawCallResult);
             const outputAbi = (_.find(self.abi, {name: 'addApprovedContract'}) as MethodAbi).outputs;
-            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
-            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
-            return resultArray;
-        },
-    };
-    public setApprovedContractCallCost = {
-        async sendTransactionAsync(
-            _contractAddress: string,
-            _index: BigNumber,
-            _callValue: BigNumber,
-            _gasCost: BigNumber,
-            _gasPrice: BigNumber,
-            txData: Partial<TxData> = {},
-        ): Promise<string> {
-            const self = this as any as ApprovedRegistryContract;
-            const inputAbi = self._lookupAbi('setApprovedContractCallCost(address,uint256,uint256,uint256,uint256)').inputs;
-            [_contractAddress,
-    _index,
-    _callValue,
-    _gasCost,
-    _gasPrice
-    ] = BaseContract._formatABIDataItemList(inputAbi, [_contractAddress,
-    _index,
-    _callValue,
-    _gasCost,
-    _gasPrice
-    ], BaseContract._bigNumberToString.bind(self));
-            BaseContract.strictArgumentEncodingCheck(inputAbi, [_contractAddress,
-    _index,
-    _callValue,
-    _gasCost,
-    _gasPrice
-    ]);
-            const encodedData = self._lookupEthersInterface('setApprovedContractCallCost(address,uint256,uint256,uint256,uint256)').functions.setApprovedContractCallCost(
-                _contractAddress,
-                _index,
-                _callValue,
-                _gasCost,
-                _gasPrice
-            ).data;
-            const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
-                {
-                    to: self.address,
-                    ...txData,
-                    data: encodedData,
-                },
-                self._web3Wrapper.getContractDefaults(),
-                self.setApprovedContractCallCost.estimateGasAsync.bind(
-                    self,
-                    _contractAddress,
-                    _index,
-                    _callValue,
-                    _gasCost,
-                    _gasPrice
-                ),
-            );
-            const txHash = await self._web3Wrapper.sendTransactionAsync(txDataWithDefaults);
-            return txHash;
-        },
-        async estimateGasAsync(
-            _contractAddress: string,
-            _index: BigNumber,
-            _callValue: BigNumber,
-            _gasCost: BigNumber,
-            _gasPrice: BigNumber,
-            txData: Partial<TxData> = {},
-        ): Promise<number> {
-            const self = this as any as ApprovedRegistryContract;
-            const inputAbi = self._lookupAbi('setApprovedContractCallCost(address,uint256,uint256,uint256,uint256)').inputs;
-            [_contractAddress,
-    _index,
-    _callValue,
-    _gasCost,
-    _gasPrice
-    ] = BaseContract._formatABIDataItemList(inputAbi, [_contractAddress,
-    _index,
-    _callValue,
-    _gasCost,
-    _gasPrice
-    ], BaseContract._bigNumberToString);
-            const encodedData = self._lookupEthersInterface('setApprovedContractCallCost(address,uint256,uint256,uint256,uint256)').functions.setApprovedContractCallCost(
-                _contractAddress,
-                _index,
-                _callValue,
-                _gasCost,
-                _gasPrice
-            ).data;
-            const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
-                {
-                    to: self.address,
-                    ...txData,
-                    data: encodedData,
-                },
-                self._web3Wrapper.getContractDefaults(),
-            );
-            const gas = await self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
-            return gas;
-        },
-        getABIEncodedTransactionData(
-            _contractAddress: string,
-            _index: BigNumber,
-            _callValue: BigNumber,
-            _gasCost: BigNumber,
-            _gasPrice: BigNumber,
-        ): string {
-            const self = this as any as ApprovedRegistryContract;
-            const inputAbi = self._lookupAbi('setApprovedContractCallCost(address,uint256,uint256,uint256,uint256)').inputs;
-            [_contractAddress,
-    _index,
-    _callValue,
-    _gasCost,
-    _gasPrice
-    ] = BaseContract._formatABIDataItemList(inputAbi, [_contractAddress,
-    _index,
-    _callValue,
-    _gasCost,
-    _gasPrice
-    ], BaseContract._bigNumberToString);
-            const abiEncodedTransactionData = self._lookupEthersInterface('setApprovedContractCallCost(address,uint256,uint256,uint256,uint256)').functions.setApprovedContractCallCost(
-                _contractAddress,
-                _index,
-                _callValue,
-                _gasCost,
-                _gasPrice
-            ).data;
-            return abiEncodedTransactionData;
-        },
-        async callAsync(
-            _contractAddress: string,
-            _index: BigNumber,
-            _callValue: BigNumber,
-            _gasCost: BigNumber,
-            _gasPrice: BigNumber,
-            callData: Partial<CallData> = {},
-            defaultBlock?: BlockParam,
-        ): Promise<void
-        > {
-            const self = this as any as ApprovedRegistryContract;
-            const functionSignature = 'setApprovedContractCallCost(address,uint256,uint256,uint256,uint256)';
-            const inputAbi = self._lookupAbi(functionSignature).inputs;
-            [_contractAddress,
-        _index,
-        _callValue,
-        _gasCost,
-        _gasPrice
-        ] = BaseContract._formatABIDataItemList(inputAbi, [_contractAddress,
-        _index,
-        _callValue,
-        _gasCost,
-        _gasPrice
-        ], BaseContract._bigNumberToString.bind(self));
-            BaseContract.strictArgumentEncodingCheck(inputAbi, [_contractAddress,
-        _index,
-        _callValue,
-        _gasCost,
-        _gasPrice
-        ]);
-            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.setApprovedContractCallCost(
-                _contractAddress,
-                _index,
-                _callValue,
-                _gasCost,
-                _gasPrice
-            ) as ethers.CallDescription;
-            const encodedData = ethersFunction.data;
-            const callDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
-                {
-                    to: self.address,
-                    ...callData,
-                    data: encodedData,
-                },
-                self._web3Wrapper.getContractDefaults(),
-            );
-            const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
-            let resultArray = ethersFunction.parse(rawCallResult);
-            const outputAbi = (_.find(self.abi, {name: 'setApprovedContractCallCost'}) as MethodAbi).outputs;
             resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
             resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
             return resultArray;
@@ -1127,125 +794,6 @@ export class ApprovedRegistryContract extends BaseContract {
             const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
             let resultArray = ethersFunction.parse(rawCallResult);
             const outputAbi = (_.find(self.abi, {name: 'removeApprovedContract'}) as MethodAbi).outputs;
-            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
-            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
-            return resultArray;
-        },
-    };
-    public removeApprovedContractCallCost = {
-        async sendTransactionAsync(
-            _contractAddress: string,
-            _index: BigNumber,
-            txData: Partial<TxData> = {},
-        ): Promise<string> {
-            const self = this as any as ApprovedRegistryContract;
-            const inputAbi = self._lookupAbi('removeApprovedContractCallCost(address,uint256)').inputs;
-            [_contractAddress,
-    _index
-    ] = BaseContract._formatABIDataItemList(inputAbi, [_contractAddress,
-    _index
-    ], BaseContract._bigNumberToString.bind(self));
-            BaseContract.strictArgumentEncodingCheck(inputAbi, [_contractAddress,
-    _index
-    ]);
-            const encodedData = self._lookupEthersInterface('removeApprovedContractCallCost(address,uint256)').functions.removeApprovedContractCallCost(
-                _contractAddress,
-                _index
-            ).data;
-            const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
-                {
-                    to: self.address,
-                    ...txData,
-                    data: encodedData,
-                },
-                self._web3Wrapper.getContractDefaults(),
-                self.removeApprovedContractCallCost.estimateGasAsync.bind(
-                    self,
-                    _contractAddress,
-                    _index
-                ),
-            );
-            const txHash = await self._web3Wrapper.sendTransactionAsync(txDataWithDefaults);
-            return txHash;
-        },
-        async estimateGasAsync(
-            _contractAddress: string,
-            _index: BigNumber,
-            txData: Partial<TxData> = {},
-        ): Promise<number> {
-            const self = this as any as ApprovedRegistryContract;
-            const inputAbi = self._lookupAbi('removeApprovedContractCallCost(address,uint256)').inputs;
-            [_contractAddress,
-    _index
-    ] = BaseContract._formatABIDataItemList(inputAbi, [_contractAddress,
-    _index
-    ], BaseContract._bigNumberToString);
-            const encodedData = self._lookupEthersInterface('removeApprovedContractCallCost(address,uint256)').functions.removeApprovedContractCallCost(
-                _contractAddress,
-                _index
-            ).data;
-            const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
-                {
-                    to: self.address,
-                    ...txData,
-                    data: encodedData,
-                },
-                self._web3Wrapper.getContractDefaults(),
-            );
-            const gas = await self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
-            return gas;
-        },
-        getABIEncodedTransactionData(
-            _contractAddress: string,
-            _index: BigNumber,
-        ): string {
-            const self = this as any as ApprovedRegistryContract;
-            const inputAbi = self._lookupAbi('removeApprovedContractCallCost(address,uint256)').inputs;
-            [_contractAddress,
-    _index
-    ] = BaseContract._formatABIDataItemList(inputAbi, [_contractAddress,
-    _index
-    ], BaseContract._bigNumberToString);
-            const abiEncodedTransactionData = self._lookupEthersInterface('removeApprovedContractCallCost(address,uint256)').functions.removeApprovedContractCallCost(
-                _contractAddress,
-                _index
-            ).data;
-            return abiEncodedTransactionData;
-        },
-        async callAsync(
-            _contractAddress: string,
-            _index: BigNumber,
-            callData: Partial<CallData> = {},
-            defaultBlock?: BlockParam,
-        ): Promise<void
-        > {
-            const self = this as any as ApprovedRegistryContract;
-            const functionSignature = 'removeApprovedContractCallCost(address,uint256)';
-            const inputAbi = self._lookupAbi(functionSignature).inputs;
-            [_contractAddress,
-        _index
-        ] = BaseContract._formatABIDataItemList(inputAbi, [_contractAddress,
-        _index
-        ], BaseContract._bigNumberToString.bind(self));
-            BaseContract.strictArgumentEncodingCheck(inputAbi, [_contractAddress,
-        _index
-        ]);
-            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.removeApprovedContractCallCost(
-                _contractAddress,
-                _index
-            ) as ethers.CallDescription;
-            const encodedData = ethersFunction.data;
-            const callDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
-                {
-                    to: self.address,
-                    ...callData,
-                    data: encodedData,
-                },
-                self._web3Wrapper.getContractDefaults(),
-            );
-            const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
-            let resultArray = ethersFunction.parse(rawCallResult);
-            const outputAbi = (_.find(self.abi, {name: 'removeApprovedContractCallCost'}) as MethodAbi).outputs;
             resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
             resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
             return resultArray;

@@ -14,7 +14,7 @@ export type VolumeSubscriptionEventArgs =
     | VolumeSubscriptionUpdatedPlanEventArgs
     | VolumeSubscriptionTerminatedPlanEventArgs
     | VolumeSubscriptionCreatedSubscriptionEventArgs
-    | VolumeSubscriptionFirstPaymentToSubscriptionEventArgs
+    | VolumeSubscriptionLastSubscriptionPaymentDateEventArgs
     | VolumeSubscriptionUpdatedSubscriptionEventArgs
     | VolumeSubscriptionTerminatedSubscriptionEventArgs
     | VolumeSubscriptionLogAuthorizedAddressAddedEventArgs
@@ -26,7 +26,7 @@ export enum VolumeSubscriptionEvents {
     UpdatedPlan = 'UpdatedPlan',
     TerminatedPlan = 'TerminatedPlan',
     CreatedSubscription = 'CreatedSubscription',
-    FirstPaymentToSubscription = 'FirstPaymentToSubscription',
+    LastSubscriptionPaymentDate = 'LastSubscriptionPaymentDate',
     UpdatedSubscription = 'UpdatedSubscription',
     TerminatedSubscription = 'TerminatedSubscription',
     LogAuthorizedAddressAdded = 'LogAuthorizedAddressAdded',
@@ -59,7 +59,7 @@ export interface VolumeSubscriptionCreatedSubscriptionEventArgs extends DecodedL
     owner: string;
 }
 
-export interface VolumeSubscriptionFirstPaymentToSubscriptionEventArgs extends DecodedLogArgs {
+export interface VolumeSubscriptionLastSubscriptionPaymentDateEventArgs extends DecodedLogArgs {
     subscriptionIdentifier: string;
     planIdentifier: string;
     owner: string;
@@ -99,6 +99,36 @@ export interface VolumeSubscriptionOwnershipTransferredEventArgs extends Decoded
 // tslint:disable:no-parameter-reassignment
 // tslint:disable-next-line:class-name
 export class VolumeSubscriptionContract extends BaseContract {
+    public gasCost = {
+        async callAsync(
+            callData: Partial<CallData> = {},
+            defaultBlock?: BlockParam,
+        ): Promise<BigNumber
+        > {
+            const self = this as any as VolumeSubscriptionContract;
+            const functionSignature = 'gasCost()';
+            const inputAbi = self._lookupAbi(functionSignature).inputs;
+            [] = BaseContract._formatABIDataItemList(inputAbi, [], BaseContract._bigNumberToString.bind(self));
+            BaseContract.strictArgumentEncodingCheck(inputAbi, []);
+            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.gasCost(
+            ) as ethers.CallDescription;
+            const encodedData = ethersFunction.data;
+            const callDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+                {
+                    to: self.address,
+                    ...callData,
+                    data: encodedData,
+                },
+                self._web3Wrapper.getContractDefaults(),
+            );
+            const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
+            let resultArray = ethersFunction.parse(rawCallResult);
+            const outputAbi = (_.find(self.abi, {name: 'gasCost'}) as MethodAbi).outputs;
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
+            return resultArray[0];
+        },
+    };
     public addAuthorizedAddress = {
         async sendTransactionAsync(
             _target: string,
@@ -629,6 +659,36 @@ export class VolumeSubscriptionContract extends BaseContract {
             return resultArray;
         },
     };
+    public gasPrice = {
+        async callAsync(
+            callData: Partial<CallData> = {},
+            defaultBlock?: BlockParam,
+        ): Promise<BigNumber
+        > {
+            const self = this as any as VolumeSubscriptionContract;
+            const functionSignature = 'gasPrice()';
+            const inputAbi = self._lookupAbi(functionSignature).inputs;
+            [] = BaseContract._formatABIDataItemList(inputAbi, [], BaseContract._bigNumberToString.bind(self));
+            BaseContract.strictArgumentEncodingCheck(inputAbi, []);
+            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.gasPrice(
+            ) as ethers.CallDescription;
+            const encodedData = ethersFunction.data;
+            const callDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+                {
+                    to: self.address,
+                    ...callData,
+                    data: encodedData,
+                },
+                self._web3Wrapper.getContractDefaults(),
+            );
+            const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
+            let resultArray = ethersFunction.parse(rawCallResult);
+            const outputAbi = (_.find(self.abi, {name: 'gasPrice'}) as MethodAbi).outputs;
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
+            return resultArray[0];
+        },
+    };
     public terminatePlan = {
         async sendTransactionAsync(
             _plan: string,
@@ -958,14 +1018,89 @@ export class VolumeSubscriptionContract extends BaseContract {
             return resultArray[0];
         },
     };
-    public setStartDate = {
+    public getLastSubscriptionPaymentDate = {
+        async callAsync(
+            _subscription: string,
+            callData: Partial<CallData> = {},
+            defaultBlock?: BlockParam,
+        ): Promise<BigNumber
+        > {
+            const self = this as any as VolumeSubscriptionContract;
+            const functionSignature = 'getLastSubscriptionPaymentDate(bytes32)';
+            const inputAbi = self._lookupAbi(functionSignature).inputs;
+            [_subscription
+        ] = BaseContract._formatABIDataItemList(inputAbi, [_subscription
+        ], BaseContract._bigNumberToString.bind(self));
+            BaseContract.strictArgumentEncodingCheck(inputAbi, [_subscription
+        ]);
+            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.getLastSubscriptionPaymentDate(
+                _subscription
+            ) as ethers.CallDescription;
+            const encodedData = ethersFunction.data;
+            const callDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+                {
+                    to: self.address,
+                    ...callData,
+                    data: encodedData,
+                },
+                self._web3Wrapper.getContractDefaults(),
+            );
+            const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
+            let resultArray = ethersFunction.parse(rawCallResult);
+            const outputAbi = (_.find(self.abi, {name: 'getLastSubscriptionPaymentDate'}) as MethodAbi).outputs;
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
+            return resultArray[0];
+        },
+    };
+    public getGasForExecution = {
+        async callAsync(
+            _subscription: string,
+            _type: BigNumber,
+            callData: Partial<CallData> = {},
+            defaultBlock?: BlockParam,
+        ): Promise<[BigNumber, BigNumber]
+        > {
+            const self = this as any as VolumeSubscriptionContract;
+            const functionSignature = 'getGasForExecution(bytes32,uint256)';
+            const inputAbi = self._lookupAbi(functionSignature).inputs;
+            [_subscription,
+        _type
+        ] = BaseContract._formatABIDataItemList(inputAbi, [_subscription,
+        _type
+        ], BaseContract._bigNumberToString.bind(self));
+            BaseContract.strictArgumentEncodingCheck(inputAbi, [_subscription,
+        _type
+        ]);
+            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.getGasForExecution(
+                _subscription,
+                _type
+            ) as ethers.CallDescription;
+            const encodedData = ethersFunction.data;
+            const callDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+                {
+                    to: self.address,
+                    ...callData,
+                    data: encodedData,
+                },
+                self._web3Wrapper.getContractDefaults(),
+            );
+            const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
+            let resultArray = ethersFunction.parse(rawCallResult);
+            const outputAbi = (_.find(self.abi, {name: 'getGasForExecution'}) as MethodAbi).outputs;
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
+            return resultArray;
+        },
+    };
+    public setLastPaymentDate = {
         async sendTransactionAsync(
             _date: BigNumber,
             _subscription: string,
             txData: Partial<TxData> = {},
         ): Promise<string> {
             const self = this as any as VolumeSubscriptionContract;
-            const inputAbi = self._lookupAbi('setStartDate(uint256,bytes32)').inputs;
+            const inputAbi = self._lookupAbi('setLastPaymentDate(uint256,bytes32)').inputs;
             [_date,
     _subscription
     ] = BaseContract._formatABIDataItemList(inputAbi, [_date,
@@ -974,7 +1109,7 @@ export class VolumeSubscriptionContract extends BaseContract {
             BaseContract.strictArgumentEncodingCheck(inputAbi, [_date,
     _subscription
     ]);
-            const encodedData = self._lookupEthersInterface('setStartDate(uint256,bytes32)').functions.setStartDate(
+            const encodedData = self._lookupEthersInterface('setLastPaymentDate(uint256,bytes32)').functions.setLastPaymentDate(
                 _date,
                 _subscription
             ).data;
@@ -985,7 +1120,7 @@ export class VolumeSubscriptionContract extends BaseContract {
                     data: encodedData,
                 },
                 self._web3Wrapper.getContractDefaults(),
-                self.setStartDate.estimateGasAsync.bind(
+                self.setLastPaymentDate.estimateGasAsync.bind(
                     self,
                     _date,
                     _subscription
@@ -1000,13 +1135,13 @@ export class VolumeSubscriptionContract extends BaseContract {
             txData: Partial<TxData> = {},
         ): Promise<number> {
             const self = this as any as VolumeSubscriptionContract;
-            const inputAbi = self._lookupAbi('setStartDate(uint256,bytes32)').inputs;
+            const inputAbi = self._lookupAbi('setLastPaymentDate(uint256,bytes32)').inputs;
             [_date,
     _subscription
     ] = BaseContract._formatABIDataItemList(inputAbi, [_date,
     _subscription
     ], BaseContract._bigNumberToString);
-            const encodedData = self._lookupEthersInterface('setStartDate(uint256,bytes32)').functions.setStartDate(
+            const encodedData = self._lookupEthersInterface('setLastPaymentDate(uint256,bytes32)').functions.setLastPaymentDate(
                 _date,
                 _subscription
             ).data;
@@ -1026,13 +1161,13 @@ export class VolumeSubscriptionContract extends BaseContract {
             _subscription: string,
         ): string {
             const self = this as any as VolumeSubscriptionContract;
-            const inputAbi = self._lookupAbi('setStartDate(uint256,bytes32)').inputs;
+            const inputAbi = self._lookupAbi('setLastPaymentDate(uint256,bytes32)').inputs;
             [_date,
     _subscription
     ] = BaseContract._formatABIDataItemList(inputAbi, [_date,
     _subscription
     ], BaseContract._bigNumberToString);
-            const abiEncodedTransactionData = self._lookupEthersInterface('setStartDate(uint256,bytes32)').functions.setStartDate(
+            const abiEncodedTransactionData = self._lookupEthersInterface('setLastPaymentDate(uint256,bytes32)').functions.setLastPaymentDate(
                 _date,
                 _subscription
             ).data;
@@ -1046,7 +1181,7 @@ export class VolumeSubscriptionContract extends BaseContract {
         ): Promise<void
         > {
             const self = this as any as VolumeSubscriptionContract;
-            const functionSignature = 'setStartDate(uint256,bytes32)';
+            const functionSignature = 'setLastPaymentDate(uint256,bytes32)';
             const inputAbi = self._lookupAbi(functionSignature).inputs;
             [_date,
         _subscription
@@ -1056,7 +1191,7 @@ export class VolumeSubscriptionContract extends BaseContract {
             BaseContract.strictArgumentEncodingCheck(inputAbi, [_date,
         _subscription
         ]);
-            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.setStartDate(
+            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.setLastPaymentDate(
                 _date,
                 _subscription
             ) as ethers.CallDescription;
@@ -1071,7 +1206,7 @@ export class VolumeSubscriptionContract extends BaseContract {
             );
             const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
             let resultArray = ethersFunction.parse(rawCallResult);
-            const outputAbi = (_.find(self.abi, {name: 'setStartDate'}) as MethodAbi).outputs;
+            const outputAbi = (_.find(self.abi, {name: 'setLastPaymentDate'}) as MethodAbi).outputs;
             resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
             resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
             return resultArray;
@@ -1177,6 +1312,206 @@ export class VolumeSubscriptionContract extends BaseContract {
             return resultArray;
         },
     };
+    public setGasPrice = {
+        async sendTransactionAsync(
+            _gasPrice: BigNumber,
+            txData: Partial<TxData> = {},
+        ): Promise<string> {
+            const self = this as any as VolumeSubscriptionContract;
+            const inputAbi = self._lookupAbi('setGasPrice(uint256)').inputs;
+            [_gasPrice
+    ] = BaseContract._formatABIDataItemList(inputAbi, [_gasPrice
+    ], BaseContract._bigNumberToString.bind(self));
+            BaseContract.strictArgumentEncodingCheck(inputAbi, [_gasPrice
+    ]);
+            const encodedData = self._lookupEthersInterface('setGasPrice(uint256)').functions.setGasPrice(
+                _gasPrice
+            ).data;
+            const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+                {
+                    to: self.address,
+                    ...txData,
+                    data: encodedData,
+                },
+                self._web3Wrapper.getContractDefaults(),
+                self.setGasPrice.estimateGasAsync.bind(
+                    self,
+                    _gasPrice
+                ),
+            );
+            const txHash = await self._web3Wrapper.sendTransactionAsync(txDataWithDefaults);
+            return txHash;
+        },
+        async estimateGasAsync(
+            _gasPrice: BigNumber,
+            txData: Partial<TxData> = {},
+        ): Promise<number> {
+            const self = this as any as VolumeSubscriptionContract;
+            const inputAbi = self._lookupAbi('setGasPrice(uint256)').inputs;
+            [_gasPrice
+    ] = BaseContract._formatABIDataItemList(inputAbi, [_gasPrice
+    ], BaseContract._bigNumberToString);
+            const encodedData = self._lookupEthersInterface('setGasPrice(uint256)').functions.setGasPrice(
+                _gasPrice
+            ).data;
+            const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+                {
+                    to: self.address,
+                    ...txData,
+                    data: encodedData,
+                },
+                self._web3Wrapper.getContractDefaults(),
+            );
+            const gas = await self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
+            return gas;
+        },
+        getABIEncodedTransactionData(
+            _gasPrice: BigNumber,
+        ): string {
+            const self = this as any as VolumeSubscriptionContract;
+            const inputAbi = self._lookupAbi('setGasPrice(uint256)').inputs;
+            [_gasPrice
+    ] = BaseContract._formatABIDataItemList(inputAbi, [_gasPrice
+    ], BaseContract._bigNumberToString);
+            const abiEncodedTransactionData = self._lookupEthersInterface('setGasPrice(uint256)').functions.setGasPrice(
+                _gasPrice
+            ).data;
+            return abiEncodedTransactionData;
+        },
+        async callAsync(
+            _gasPrice: BigNumber,
+            callData: Partial<CallData> = {},
+            defaultBlock?: BlockParam,
+        ): Promise<void
+        > {
+            const self = this as any as VolumeSubscriptionContract;
+            const functionSignature = 'setGasPrice(uint256)';
+            const inputAbi = self._lookupAbi(functionSignature).inputs;
+            [_gasPrice
+        ] = BaseContract._formatABIDataItemList(inputAbi, [_gasPrice
+        ], BaseContract._bigNumberToString.bind(self));
+            BaseContract.strictArgumentEncodingCheck(inputAbi, [_gasPrice
+        ]);
+            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.setGasPrice(
+                _gasPrice
+            ) as ethers.CallDescription;
+            const encodedData = ethersFunction.data;
+            const callDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+                {
+                    to: self.address,
+                    ...callData,
+                    data: encodedData,
+                },
+                self._web3Wrapper.getContractDefaults(),
+            );
+            const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
+            let resultArray = ethersFunction.parse(rawCallResult);
+            const outputAbi = (_.find(self.abi, {name: 'setGasPrice'}) as MethodAbi).outputs;
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
+            return resultArray;
+        },
+    };
+    public setGasCost = {
+        async sendTransactionAsync(
+            _gasCost: BigNumber,
+            txData: Partial<TxData> = {},
+        ): Promise<string> {
+            const self = this as any as VolumeSubscriptionContract;
+            const inputAbi = self._lookupAbi('setGasCost(uint256)').inputs;
+            [_gasCost
+    ] = BaseContract._formatABIDataItemList(inputAbi, [_gasCost
+    ], BaseContract._bigNumberToString.bind(self));
+            BaseContract.strictArgumentEncodingCheck(inputAbi, [_gasCost
+    ]);
+            const encodedData = self._lookupEthersInterface('setGasCost(uint256)').functions.setGasCost(
+                _gasCost
+            ).data;
+            const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+                {
+                    to: self.address,
+                    ...txData,
+                    data: encodedData,
+                },
+                self._web3Wrapper.getContractDefaults(),
+                self.setGasCost.estimateGasAsync.bind(
+                    self,
+                    _gasCost
+                ),
+            );
+            const txHash = await self._web3Wrapper.sendTransactionAsync(txDataWithDefaults);
+            return txHash;
+        },
+        async estimateGasAsync(
+            _gasCost: BigNumber,
+            txData: Partial<TxData> = {},
+        ): Promise<number> {
+            const self = this as any as VolumeSubscriptionContract;
+            const inputAbi = self._lookupAbi('setGasCost(uint256)').inputs;
+            [_gasCost
+    ] = BaseContract._formatABIDataItemList(inputAbi, [_gasCost
+    ], BaseContract._bigNumberToString);
+            const encodedData = self._lookupEthersInterface('setGasCost(uint256)').functions.setGasCost(
+                _gasCost
+            ).data;
+            const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+                {
+                    to: self.address,
+                    ...txData,
+                    data: encodedData,
+                },
+                self._web3Wrapper.getContractDefaults(),
+            );
+            const gas = await self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
+            return gas;
+        },
+        getABIEncodedTransactionData(
+            _gasCost: BigNumber,
+        ): string {
+            const self = this as any as VolumeSubscriptionContract;
+            const inputAbi = self._lookupAbi('setGasCost(uint256)').inputs;
+            [_gasCost
+    ] = BaseContract._formatABIDataItemList(inputAbi, [_gasCost
+    ], BaseContract._bigNumberToString);
+            const abiEncodedTransactionData = self._lookupEthersInterface('setGasCost(uint256)').functions.setGasCost(
+                _gasCost
+            ).data;
+            return abiEncodedTransactionData;
+        },
+        async callAsync(
+            _gasCost: BigNumber,
+            callData: Partial<CallData> = {},
+            defaultBlock?: BlockParam,
+        ): Promise<void
+        > {
+            const self = this as any as VolumeSubscriptionContract;
+            const functionSignature = 'setGasCost(uint256)';
+            const inputAbi = self._lookupAbi(functionSignature).inputs;
+            [_gasCost
+        ] = BaseContract._formatABIDataItemList(inputAbi, [_gasCost
+        ], BaseContract._bigNumberToString.bind(self));
+            BaseContract.strictArgumentEncodingCheck(inputAbi, [_gasCost
+        ]);
+            const ethersFunction = self._lookupEthersInterface(functionSignature).functions.setGasCost(
+                _gasCost
+            ) as ethers.CallDescription;
+            const encodedData = ethersFunction.data;
+            const callDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+                {
+                    to: self.address,
+                    ...callData,
+                    data: encodedData,
+                },
+                self._web3Wrapper.getContractDefaults(),
+            );
+            const rawCallResult = await self._web3Wrapper.callAsync(callDataWithDefaults, defaultBlock);
+            let resultArray = ethersFunction.parse(rawCallResult);
+            const outputAbi = (_.find(self.abi, {name: 'setGasCost'}) as MethodAbi).outputs;
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._lowercaseAddress.bind(this));
+            resultArray = BaseContract._formatABIDataItemList(outputAbi, resultArray, BaseContract._bnToBigNumber.bind(this));
+            return resultArray;
+        },
+    };
     public createPlan = {
         async sendTransactionAsync(
             _owner: string,
@@ -1189,7 +1524,7 @@ export class VolumeSubscriptionContract extends BaseContract {
             txData: Partial<TxData> = {},
         ): Promise<string> {
             const self = this as any as VolumeSubscriptionContract;
-            const inputAbi = self._lookupAbi('createPlan(address,address,string,uint256,uint256,uint256,string)').inputs;
+            const inputAbi = self._lookupAbi('createPlan(address,address,bytes32,uint256,uint256,uint256,string)').inputs;
             [_owner,
     _tokenAddress,
     _identifier,
@@ -1213,7 +1548,7 @@ export class VolumeSubscriptionContract extends BaseContract {
     _fee,
     _data
     ]);
-            const encodedData = self._lookupEthersInterface('createPlan(address,address,string,uint256,uint256,uint256,string)').functions.createPlan(
+            const encodedData = self._lookupEthersInterface('createPlan(address,address,bytes32,uint256,uint256,uint256,string)').functions.createPlan(
                 _owner,
                 _tokenAddress,
                 _identifier,
@@ -1254,7 +1589,7 @@ export class VolumeSubscriptionContract extends BaseContract {
             txData: Partial<TxData> = {},
         ): Promise<number> {
             const self = this as any as VolumeSubscriptionContract;
-            const inputAbi = self._lookupAbi('createPlan(address,address,string,uint256,uint256,uint256,string)').inputs;
+            const inputAbi = self._lookupAbi('createPlan(address,address,bytes32,uint256,uint256,uint256,string)').inputs;
             [_owner,
     _tokenAddress,
     _identifier,
@@ -1270,7 +1605,7 @@ export class VolumeSubscriptionContract extends BaseContract {
     _fee,
     _data
     ], BaseContract._bigNumberToString);
-            const encodedData = self._lookupEthersInterface('createPlan(address,address,string,uint256,uint256,uint256,string)').functions.createPlan(
+            const encodedData = self._lookupEthersInterface('createPlan(address,address,bytes32,uint256,uint256,uint256,string)').functions.createPlan(
                 _owner,
                 _tokenAddress,
                 _identifier,
@@ -1300,7 +1635,7 @@ export class VolumeSubscriptionContract extends BaseContract {
             _data: string,
         ): string {
             const self = this as any as VolumeSubscriptionContract;
-            const inputAbi = self._lookupAbi('createPlan(address,address,string,uint256,uint256,uint256,string)').inputs;
+            const inputAbi = self._lookupAbi('createPlan(address,address,bytes32,uint256,uint256,uint256,string)').inputs;
             [_owner,
     _tokenAddress,
     _identifier,
@@ -1316,7 +1651,7 @@ export class VolumeSubscriptionContract extends BaseContract {
     _fee,
     _data
     ], BaseContract._bigNumberToString);
-            const abiEncodedTransactionData = self._lookupEthersInterface('createPlan(address,address,string,uint256,uint256,uint256,string)').functions.createPlan(
+            const abiEncodedTransactionData = self._lookupEthersInterface('createPlan(address,address,bytes32,uint256,uint256,uint256,string)').functions.createPlan(
                 _owner,
                 _tokenAddress,
                 _identifier,
@@ -1340,7 +1675,7 @@ export class VolumeSubscriptionContract extends BaseContract {
         ): Promise<string
         > {
             const self = this as any as VolumeSubscriptionContract;
-            const functionSignature = 'createPlan(address,address,string,uint256,uint256,uint256,string)';
+            const functionSignature = 'createPlan(address,address,bytes32,uint256,uint256,uint256,string)';
             const inputAbi = self._lookupAbi(functionSignature).inputs;
             [_owner,
         _tokenAddress,
