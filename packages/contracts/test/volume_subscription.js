@@ -55,6 +55,34 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
+        it('should not be able to update the gas price as an unauthorised address', async function() {
+
+            await assertRevert(contract.setGasPrice(5, {from: unauthorizedAddress}));
+
+        });
+
+        it('should be able to update the gas price as an authorised address', async function() {
+
+            await contract.setGasPrice(1*10**9, {from: contractOwner});
+            let details = await contract.getGasForExecution.call('', 0);
+            assert.equal(details[1], 1*10**9);
+
+        });
+
+        it('should not be able to update the gas cost as an unauthorised address', async function() {
+
+            await assertRevert(contract.setGasCost(5, {from: unauthorizedAddress}));
+
+        });
+
+        it('should be able to update the gas price as an authorised address', async function() {
+
+            await contract.setGasCost(100000, {from: contractOwner});
+            let details = await contract.getGasForExecution.call('', 0);
+            assert.equal(details[0], 100000);
+
+        });
+
     });
 
     describe("when creating a new plan", () => {
