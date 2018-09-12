@@ -53,19 +53,22 @@ class SubscriptionInfo extends React.Component {
         return results.json();
       }).then(data => {
         console.log(data.ETH_DAI.currentPrice);
-        var currencyConversion = data.ETH_DAI.currentPrice;
+        // Added a factor of 1% to account for slippage
+        var currencyConversion = data.ETH_DAI.currentPrice * 1.01;
+        let roundedNumber = currencyConversion.toFixed(4);
         this.setState({
-          kyberConversion: currencyConversion
+          kyberConversion: roundedNumber
         });
       });
   };
 
   calculateSendAmount () {
+    this.getKyberInformation();
     if (this.state.selectedCurrency === 'Dai') {
       return this.state.selectedPeriod * this.state.subscriptionPrice;
     }
     else if (this.state.selectedCurrency === 'Ethereum') {
-      return this.state.selectedPeriod * this.state.kyberConversion;
+      return this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionPrice;
     }
 
   }
