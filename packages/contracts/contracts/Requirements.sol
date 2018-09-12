@@ -19,13 +19,7 @@ contract Requirements is RequirementsInterface {
         view
         returns (uint)
     {
-        /*uint startingPoint = _totalUnlocked / _divideBy;
-        uint units = (_maximumClaimDate - _startDate) / (_claimDate - _startDate);
-        uint xValue = (_claimDate - _startDate) / units;
-        uint exponent = 1 / (xValue * startingPoint);
-
-        return startingPoint * ((_gini/1000) ** exponent);*/
-        return _totalUnlocked/_divideBy;
+        return 1;
     }
 
 }
