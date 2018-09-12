@@ -12,7 +12,7 @@ class BeginSubscription extends React.Component {
     return (
       <div className="small-card">
         <Header title="Begin Subscription" previousPage='/conversion'/>
-        <div className="hero">
+        <div className="content">
           <div className="header-text">
             <h2 className="header-bold">Your conversion is now complete</h2>
             <p className="header-small">You are ready to begin your subscription</p>
