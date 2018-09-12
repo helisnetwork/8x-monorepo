@@ -146,9 +146,9 @@ class SubscriptionInfo extends React.Component {
               <p>Current Balance</p>
               <p className="currency">{this.props.balance} {this.state.selectedCurrency}</p>
             </div>
-            <Link to='/pay'>
+            <Link to='/conversion'>
               <div className="transaction">
-                <p onClick={this.props.payAction}>Pay</p>
+                <p onClick={this.props.payAction}>Continue</p>
               </div>
             </Link>
           </div>
