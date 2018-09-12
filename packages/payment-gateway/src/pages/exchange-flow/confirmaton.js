@@ -1,7 +1,7 @@
 import React from 'react'; 
-import Header from '../components/header';
+import Header from '../../components/header';
 
-import { default as Images } from '../middleware/images';
+import { default as Images } from '../../middleware/images';
 
 export default class Confirmation extends React.Component {
   

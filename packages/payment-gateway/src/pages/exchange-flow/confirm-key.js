@@ -1,8 +1,7 @@
 /* Import statements */
 import React from 'react';
 
-import Header from '../components/header.js';
-import {default as Images} from '../middleware/images';
+import Header from '../../components/header.js';
 
 /* App component */
 class ConfirmKey extends React.Component {
