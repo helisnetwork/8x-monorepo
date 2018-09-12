@@ -33,6 +33,10 @@
         font-size: 1.25em;
         text-align: center;
 
+        @include mobile {
+            font-size: 1em;
+        }
+
     }
 
     .button {
