@@ -3,9 +3,7 @@ import styled from 'styled-components';
 
 import SelectWallet from '../pages/select-wallet';
 import MetamaskHandler from '../pages/metamask-handler';
-import TrezorHandler from '../pages/trezor-handler';
-import Confirmation from '../pages/exchange-flow/confirmaton';
-import ModalLauncher from '../components/modal-launcher';
+import ConversionPrompt from '../pages/conversion-prompt';
 
 import {
   Route,
@@ -17,6 +15,7 @@ import {
   TransitionGroup,
   CSSTransition 
 } from 'react-transition-group';
+
 
 
 function Container({ location }) {
@@ -31,13 +30,8 @@ function Container({ location }) {
           <section className="route-section">
             <Switch location = { location }>
               <Route exact path="/" component={SelectWallet}/>
-              {/*
-                @TODO: Fix this
-                <Route path="/ledger-handler" component={LedgerHandler}/>
-              */}
               <Route path="/metamask-handler" component={MetamaskHandler}/>
-              <Route path="/trezor-handler" component={TrezorHandler}/>
-              <Route path="/pay" component={Confirmation}/>
+              <Route path="/conversion" component={ConversionPrompt}/>
             </Switch>
           </section>
         </CSSTransition>
