@@ -403,9 +403,10 @@ contract('Executor', function(accounts) {
             // Process the subscription with less tokens in the system so some should be freed up
             await executorContract.processSubscription(subscriptionContract.address, etherSubscriptionHash, {from: serviceNode});
             let twoMonthsLaterDetails = await paymentRegistryContract.payments.call(etherSubscriptionHash);
+
             let twoMonthsLaterStake = await stakeContract.getAvailableStake(serviceNode, etherContract.address);
 
-            let requiredStake =  (firstNodeStake - expectedStake + secondNodeStake) / 10;
+            let requiredStake = 1;
             assert.equal(twoMonthsLaterDetails[7].toNumber(), requiredStake);
             assert.equal(twoMonthsLaterStake.toNumber(), firstNodeStake - requiredStake);
 
@@ -609,10 +610,10 @@ contract('Executor', function(accounts) {
             await executorContract.releaseSubscription(subscriptionContract.address, etherSubscriptionHash, {from: competingServiceNode});
 
             let newStake = await stakeContract.getAvailableStake(competingServiceNode, etherContract.address);
-            assert.equal(newStake.toNumber(), secondNodeStake + 800);
+            assert.equal(newStake.toNumber(), secondNodeStake + (firstNodeStake * 0.8));
 
             await stakeContract.withdrawStake(800, etherContract.address, {from: competingServiceNode});
-            await nativeTokenContract.transfer(serviceNode, 800, {from: competingServiceNode});
+            await nativeTokenContract.transfer(serviceNode, (firstNodeStake * 0.8), {from: competingServiceNode});
             await stakeContract.topUpStake(800, etherContract.address, {from: serviceNode});
 
        });
