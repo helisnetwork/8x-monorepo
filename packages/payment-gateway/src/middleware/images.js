@@ -13,6 +13,8 @@ import downloadMetaMask from '../assets/images/download-metamask.png';
 import daiLogo from '../assets/images/dai.png';
 import checkTick from '../assets/images/check.png';
 import lockPicture from '../assets/images/locked.png';
+import daiConfirm from '../assets/images/dai-confirm.png';
+import arrow from '../assets/images/arrow.png';
 
 export default {
   metamaskLogo,
@@ -28,6 +30,9 @@ export default {
   downloadMetaMask,
   daiLogo,
   checkTick,
-  lockPicture
+  lockPicture,
+  daiConfirm,
+  arrow
+
 
 };
