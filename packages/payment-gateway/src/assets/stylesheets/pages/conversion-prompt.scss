@@ -1,12 +1,30 @@
+@mixin mobile {
+	@media (max-device-width: 450px) {
+      @content;
+
+	}
+  }
+
 .main-content {
     align-items: center;
     text-align: center;
+    margin: 0em 6em;
+
+    @include mobile {
+        margin: 0em 2em;
+    }
 
     .main-text {
+        padding: 1em 0em;
         
         #message {
-            font-size: 1.15em;
+            font-size: 1.25em;
             font-weight: 600;
+            line-height: 1.40em;
+
+            @include mobile {
+                font-size: 1.15em;
+            }
 
         }
 
@@ -16,14 +34,43 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 1em 0em;
 
+        img {
+
+            @include mobile {
+                width: 3em;
+
+            }
+            
+        }
+
+        h2 {
+            font-size: 1.25em;
+            font-weight: 600;
+            font-family: "SFMono-Regular", monospace;
+        }
+
+        p {
+            color: #958DB7;
+            font-weight: 300;
+        }
+
+        .arrow {
+            padding: 0em 1em;
+        }
+
+        .logo {
+            padding-bottom: 0.5em;
+        }
     }
 
     .secondary-text {
 
         .title {
             font-size: 1em;
-            font-weight: 600; 
+            font-weight: 600;
+            padding-bottom: 0.5em; 
 
         }
         
@@ -31,22 +78,33 @@
             color: #958DB7;
             font-size: 0.85em;
             font-weight: 400; 
+            padding-bottom: 2em;
+            line-height: 1.60em;
 
         }
 
     }
+}
 
-    .button {
-        display: flex;
-        justify-content: center;
-        text-align: center;
+.button {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding-bottom: 2em;
 
-        .convert {
-            background-color: #5944EE;
-            border-radius: 0.85em;
+    .convert {
+        background-color: #5944EE;
+        border-radius: 0.85em;
+        color: white;
+        font-size: 1em;
+        font-weight: 500;
+        padding: 0.75em 6em;
 
+        @include mobile {
+            padding: 0.75em 4em;
         }
-       
 
     }
+   
+
 }

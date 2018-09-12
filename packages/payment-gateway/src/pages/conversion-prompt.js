@@ -19,7 +19,7 @@ class ConversionPrompt extends React.Component {
           <div className="main-graphics">
             <div className="ethereum">
               <img className="logo" src={Images.ethLogo}/>
-              <p>0.014</p>
+              <h2>0.014</h2>
               <p>ETH</p>
             </div>
             <div className="arrow">
@@ -27,7 +27,7 @@ class ConversionPrompt extends React.Component {
             </div>
             <div className="dai">
               <img className="logo" src={Images.daiLogo}/>
-              <p>84.00</p>
+              <h2>84.00</h2>
               <p>DAI</p>
             </div>
           </div>
