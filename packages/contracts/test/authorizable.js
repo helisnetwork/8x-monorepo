@@ -57,7 +57,7 @@ contract('Authorizable', function(accounts) {
     describe("when getting authorized addresses", () => {
 
         it("should be able to return all the authorized addresses", async function() {
-            // @TODO: Change this to 1 once you add the deploy script
+
             let initialCount = await authorizableContract.getAuthorizedAddresses();
             assert.equal(initialCount.length, 0);
 
