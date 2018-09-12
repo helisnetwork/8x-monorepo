@@ -7,7 +7,9 @@ const Constants = require("./migration_constants");
 
 module.exports = function(deployer, network, accounts) {
 
-    if (network == 'testing') {
+    console.log(network);
+
+    if (network == 'development') {
         return;
     }
 
