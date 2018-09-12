@@ -5,11 +5,6 @@
 	}
   }
 
-/*.background-subs {
-    background-color: #49455C;
-    position: relative;
-}*/
-
 .small-card {
     transform: scale(0.9);
     
@@ -176,7 +171,7 @@
 
             .text-copy {
                 color: white;
-                background-color: #181039;
+                background-color: #5944EE;
                 border-radius: 0.5em;
                 padding: 0.5em 1em;
 
@@ -200,7 +195,8 @@
         .transaction {
             display: flex;
             justify-content: center;
-            background-color: #181039;
+            //background-color: #181039;
+            background-color: #5944EE;
             margin: 0 2em;
             border-radius: 0.85em;
             padding: 0.5em;
