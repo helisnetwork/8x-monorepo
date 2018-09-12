@@ -1,13 +1,10 @@
 .small-card {
-    // COMPLETED: Removed clashing styling 
-    // padding-bottom: 3em;
+    // COMPLETED: Removed clashing styling
+    // Padding-bottom: 3em;
 
 
     .hero {
         text-align: center;
-        // @TODO: Fix the naming as it clashes with small-card component
-        //margin-top: 1.5em;
-        //margin-bottom: 0.5em;
         //margin: 2em 4em 0.5em 4em;
         padding: 0em 1.5em;
 
@@ -29,10 +26,10 @@
             letter-spacing: 0.04em;
         }
 
-        h2 {
+        .message {
             font-size: 0.75em;
-            font-weight: 600;
-            color: #E8183B;
+            font-weight: 400;
+            color: #4D25F9;
         }
     }
 
@@ -47,7 +44,7 @@
             border-radius: 0.75em;
             box-shadow: 2px 0 16px #EFEFEF;
             background-color: #5944EE;
-            padding: 1em 4em;
+            padding: 1em 6em;
         }
     }
 }
