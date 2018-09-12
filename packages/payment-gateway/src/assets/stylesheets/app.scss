@@ -7,16 +7,17 @@
 @import './components/header';
 @import './components/metamask-install';
 @import './components/metamask-locked';
-@import './components/small-card';
 @import './components/modal-launcher';
 @import './components/simple-modal';
+@import './components/small-card';
 
 // PAGES
-@import './pages/address';
-@import './pages/confirm-key';
-@import './pages/personal-wallet-explain';
-@import './pages/privatekey-warning';
-@import './pages/privatekey';
+@import './pages/exchange-flow/address';
+@import './pages/exchange-flow/confirm-key';
+@import './pages/exchange-flow/personal-wallet-explain';
+@import './pages/exchange-flow/privatekey-warning';
+@import './pages/exchange-flow/privatekey';
 @import './pages/select-wallet';
 @import './pages/subscription-info';
-@import './pages/confirmation';
+@import './pages/exchange-flow/confirmation';
+@import './pages/conversion-prompt';
