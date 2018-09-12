@@ -14,8 +14,10 @@
   },
   "dependencies": {
     "bignumber.js": "^5.0.0",
+    "dotenv": "^6.0.0",
     "ethereumjs-abi": "^0.6.5",
     "fs-extra": "^7.0.0",
+    "truffle-hdwallet-provider": "0.0.6",
     "typechain": "^0.2.7",
     "web3": "^1.0.0-beta.36"
   },
@@ -29,6 +31,8 @@
     "test": "npm-run-all test-contracts lint-base lint-test lint-contracts",
     "lint": "npm-run-all lint-base lint-test lint-contracts",
     "generate-typings": "node_modules/@0xproject/abi-gen/bin/abi-gen.js --abis '../artifacts/json/**/*.json' --out '../artifacts/ts' --template './templates/contract.handlebars'  --partials './templates/partials/*.handlebars' --backend ethers",
-    "build": "npm run clean && truffle compile && truffle migrate --reset && node exportArtifacts && npm run generate-typings"
+    "build-development": "npm run clean && truffle migrate --network development && node exportArtifacts && npm run generate-typings",
+    "build-kovan": "npm run clean && truffle migrate --network kovan && node exportArtifacts && npm run generate-typings",
+    "build-main": "npm run clean && truffle migrate --network main && node exportArtifacts && npm run generate-typings"
   }
 }
