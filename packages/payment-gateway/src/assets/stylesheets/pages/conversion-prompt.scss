@@ -3,12 +3,13 @@
       @content;
 
 	}
-  }
+}
 
 .main-content {
     align-items: center;
     text-align: center;
     margin: 0em 6em;
+    padding: 0.5em;
 
     @include mobile {
         margin: 0em 2em;
@@ -78,7 +79,7 @@
             color: #958DB7;
             font-size: 0.85em;
             font-weight: 400; 
-            padding-bottom: 2em;
+            padding-bottom: 1em;
             line-height: 1.60em;
 
         }
@@ -98,7 +99,7 @@
         color: white;
         font-size: 1em;
         font-weight: 500;
-        padding: 0.75em 6em;
+        padding: 1em 6em;
 
         @include mobile {
             padding: 0.75em 4em;

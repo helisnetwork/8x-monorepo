@@ -30,7 +30,7 @@ function Container({ location }) {
         >
           <section className="route-section">
             <Switch location = { location }>
-              <Route exact path="/" component={BeginSubscription}/>
+              <Route exact path="/" component={SelectWallet}/>
               <Route path="/metamask-handler" component={MetamaskHandler}/>
               <Route path="/conversion" component={ConversionPrompt}/>
               <Route path="/begin-subscription" component={BeginSubscription}/>

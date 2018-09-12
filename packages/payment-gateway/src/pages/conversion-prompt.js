@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '../components/header';
 import { default as Images } from '../middleware/images';
+import { Link } from 'react-router-dom'; 
 
 class ConversionPrompt extends React.Component {
 
@@ -36,9 +37,11 @@ class ConversionPrompt extends React.Component {
             <p className="paragraph">DAI is a stablecoin that is pegged to the US Dollar, this means it’s value will always stay around $1.00ea. By converting your ETH to DAI, you will avoid the price fluctuations and will have enough funds to cover your subscription for 6 months.</p>
           </div>
         </div>
-        <div className="button">
-          <p className="convert">Convert to DAI</p>
-        </div>
+        <Link to='/begin-subscription'>
+          <div className="button">
+            <p className="convert">Convert to DAI</p>
+          </div>
+        </Link>
       </div>
     );
   }
