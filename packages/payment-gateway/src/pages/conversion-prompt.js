@@ -23,7 +23,7 @@ class ConversionPrompt extends React.Component {
               <p>ETH</p>
             </div>
             <div className="arrow">
-              <img className="logo" src={Images.arrow}/>
+              <img className="arrow" src={Images.arrow}/>
             </div>
             <div className="dai">
               <img className="logo" src={Images.daiLogo}/>
