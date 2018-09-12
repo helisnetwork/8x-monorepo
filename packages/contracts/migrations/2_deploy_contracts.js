@@ -18,7 +18,6 @@ module.exports = function(deployer, network, accounts) {
     const Requirements = artifacts.require("./Requirements.sol");
     const VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
     const Executor = artifacts.require("./Executor.sol");
-    const ActionProxy = artifacts.require("./ActionProxy.sol");
     const EightExToken = artifacts.require("./EightExToken.sol");
 
     const MockToken = artifacts.require("./test/MockToken.sol");
@@ -33,7 +32,6 @@ module.exports = function(deployer, network, accounts) {
         let transferProxy = await deployer.deploy(TransferProxy);
         let paymentRegistry = await deployer.deploy(PaymentRegistry);
         let requirementsContract = await deployer.deploy(Requirements);
-        let actionProxy = await deployer.deploy(ActionProxy);
 
         let eightExToken = await deployer.deploy(EightExToken);
         let stakeContract = await deployer.deploy(StakeContract, eightExToken.address);
@@ -83,7 +81,6 @@ module.exports = function(deployer, network, accounts) {
                 'EightExToken': eightExToken.address,
                 'StakeContract': stakeContract.address,
                 'KyberNetwork': kyberNetworkAddress,
-                'ActionProxy': actionProxy.address,
                 'DAI': daiAddress
             },
             'approvedTokens': [

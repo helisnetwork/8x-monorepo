@@ -4,12 +4,6 @@
 
 import fs from 'fs-extra';
 
-// A contract for making it easy to subscribe in a single transaction.
-let ActionProxyJson = fs.readJsonSync(__dirname + '/json/ActionProxy.json');
-
-export { ActionProxyJson };
-export { ActionProxyContract } from './ts/action_proxy';
-
 // Core contract that contains payment logic.
 let ExecutorJson = fs.readJsonSync(__dirname + '/json/Executor.json');
 

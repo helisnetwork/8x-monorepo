@@ -3,7 +3,6 @@ const artifacts = [
 	'Executor',
 	'VolumeSubscription',
 	'ApprovedRegistry',
-	'ActionProxy',
 	'Requirements',
 	'PaymentRegistry',
 	'StakeContract',

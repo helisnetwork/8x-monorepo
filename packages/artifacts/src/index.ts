@@ -15,7 +15,6 @@ export function getAddressBook(network: string): AddressBook {
     paymentRegistryAddress: addresses.PaymentRegistry,
     requirementsAddress: addresses.Requirements,
     stakeContractAddress: addresses.StakeContract,
-    actionProxyAddress: addresses.ActionProxy,
     daiAddress: addresses.DAI
   }
 
