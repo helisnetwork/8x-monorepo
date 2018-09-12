@@ -27,29 +27,29 @@ class SelectWallet extends React.Component {
                   </div>
                 </div>
               </Link>
-              <Link to='/ledger-handler'>
-                <div className="item ledger">
-                  <div className="logo">
-                    <img src={Images.ledgerLogo}/>
-                  </div>
-                  <div className="text">
-                    <h2>Ledger</h2>
-                    <p>You store your cryptocurrency on a Ledger Hardware Wallet.</p>
-                  </div>
+              {/*<Link to='/ledger-handler'>*/}
+              <div className="item ledger">
+                <div className="logo">
+                  <img src={Images.ledgerLogo}/>
                 </div>
-              </Link>
-              <Link to='/trezor-handler'>
-                <div className="item trezor">
-                  <div className="logo">
-                    <img src={Images.trezorLogo}/>
-                  </div>
-                  <div className="text">
-                    <h2>Trezor</h2>
-                    <p>You store your cryptocurrency on a Trezor Hardware Wallet.</p>
-                  </div>
+                <div className="text">
+                  <h2>Ledger</h2>
+                  <p>Coming soon...</p>
                 </div>
-              </Link>
-              <a className="item exchange">
+              </div>
+              {/*</Link>*/}
+              {/*<Link to='/trezor-handler'>*/}
+              <div className="item trezor">
+                <div className="logo">
+                  <img src={Images.trezorLogo}/>
+                </div>
+                <div className="text">
+                  <h2>Trezor</h2>
+                  <p>Coming soon...</p>
+                </div>
+              </div>
+              {/*</Link>*/}
+              {/*<a className="item exchange">
                 <div className="logo">
                   <img src={Images.trezorLogo}/>
                 </div>
@@ -57,7 +57,7 @@ class SelectWallet extends React.Component {
                   <h2>Exchange</h2>
                   <p>You store your cryptocurrency on an exchange, such as Binance or Coinbase.</p>
                 </div>
-              </a>
+                </a>*/}
             </div>
           </div>
         </div>
