@@ -1,16 +1,28 @@
 import React, { Component } from 'react';
 import SimpleModal from './simple-modal';
 
+import bus from '../bus';
+
 class SimpleModalLauncher extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
       showModal: false,
     };
+
+    this.listenToggleModal();
   }
-  handleToggleModal() {
-    this.setState({ showModal: !this.state.showModal });
+
+  listenToggleModal() {
+    console.log('called');
+    bus.on('modal:show',(status) => {
+      this.setState({
+        showModal: status
+      });
+    });
   }
+
   render() {
     const { buttonLabel, children } = this.props;
     const { showModal } = this.state;
@@ -19,12 +31,15 @@ class SimpleModalLauncher extends Component {
         <button
           type="button"
           className='modal-button'
-          onClick={() => this.handleToggleModal()}
+          onClick={() => {
+            console.log('clicked');
+            bus.trigger('modal:show', true);
+          }}
         >
           {buttonLabel}
         </button>
         {showModal &&
-          <SimpleModal onCloseRequest={() => this.handleToggleModal()}>
+          <SimpleModal>
             {children}
           </SimpleModal>}
       </div>
