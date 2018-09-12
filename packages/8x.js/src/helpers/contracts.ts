@@ -3,8 +3,6 @@ import {
   ExecutorJson,
   VolumeSubscriptionContract,
   VolumeSubscriptionJson,
-  ActionProxyContract,
-  ActionProxyJson,
   PaymentRegistryContract,
   PaymentRegistryJson
 } from '@8xprotocol/artifacts';
@@ -16,13 +14,11 @@ import {
   EXECUTOR_CACHE_KEY,
   PAYMENT_REGISTRY_CACHE_KEY,
   VOLUME_SUBSCRIPTION_CACHE_KEY,
-  ACTION_PROXY_CACHE_KEY
 } from '../utils/constants';
 
 export interface EightExContracts {
   executorContract: ExecutorContract;
   volumeVolumescription: VolumeSubscriptionContract;
-  actionProxy: ActionProxyContract;
   paymentRegistry: PaymentRegistryContract;
 }
 
@@ -32,7 +28,7 @@ export default class Contracts {
   private addressBook: AddressBook;
 
   private cache: { [contractName: string]: (
-      ExecutorContract | VolumeSubscriptionContract | ActionProxyContract | PaymentRegistryContract
+      ExecutorContract | VolumeSubscriptionContract | PaymentRegistryContract
     )
   };
 
@@ -74,17 +70,6 @@ export default class Contracts {
     this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] = volumeSubscription;
 
     return volumeSubscription;
-  }
-
-  public async loadActionProxy(): Promise<ActionProxyContract> {
-    if (this.cache[ACTION_PROXY_CACHE_KEY]) {
-      return this.cache[ACTION_PROXY_CACHE_KEY] as ActionProxyContract;
-    }
-
-    let actionProxy = new ActionProxyContract(ActionProxyJson.abi, this.addressBook.actionProxyAddress || '', this.web3.getProvider());
-    this.cache[ACTION_PROXY_CACHE_KEY] = actionProxy;
-
-    return actionProxy;
   }
 
 }
