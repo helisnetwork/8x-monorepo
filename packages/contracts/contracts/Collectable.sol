@@ -78,7 +78,7 @@ contract Collectable is Authorizable {
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
       * @param _type in the case that the gas for another operation is wanted.
     */
-    function getGasCostForExecution(bytes32 _subscription, uint _type)
+    function getGasForExecution(bytes32 _subscription, uint _type)
         public
         view
         returns (uint gasCost, uint gasPrice);

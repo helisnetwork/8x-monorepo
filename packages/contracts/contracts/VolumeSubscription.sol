@@ -42,6 +42,9 @@ contract VolumeSubscription is Collectable {
     mapping (bytes32 => Plan) public plans;
     mapping (bytes32 => Subscription) public subscriptions;
 
+    uint public gasPrice = 2*10**9;
+    uint public gasCost = 200000;
+
     event CreatedPlan(
         bytes32 indexed planIdentifier,
         bytes32 indexed businessIdentifier,
@@ -201,12 +204,12 @@ contract VolumeSubscription is Collectable {
         return subscriptions[_subscription].lastPaymentDate;
     }
 
-    function getGasCostForExecution(bytes32 _subscription, uint _type)
+    function getGasForExecution(bytes32 _subscription, uint _type)
         public
         view
-        returns (uint gasCost, uint gasPrice)
+        returns (uint returnedGasCost, uint returnedGasPrice)
     {
-        return (200000, 2*10**9);
+        return (gasCost, gasPrice);
     }
 
     function setLastPaymentDate(uint _date, bytes32 _subscription)
@@ -249,6 +252,20 @@ contract VolumeSubscription is Collectable {
     */
     constructor(address _approvedRegistryAddress) public {
         approvedRegistry = ApprovedRegistryInterface(_approvedRegistryAddress);
+    }
+
+    /** @dev Update the gas price for processing a subscription.
+      * @param _gasPrice price to set.
+    */
+    function setGasPrice(uint _gasPrice) public onlyOwner {
+        gasPrice = _gasPrice;
+    }
+
+    /** @dev Update the gas cost for processing a subscription.
+      * @param _gasCost cost to set.
+    */
+    function setGasCost(uint _gasCost) public onlyOwner {
+        gasCost = _gasCost;
     }
 
     /** @dev This is the function for creating a new plan.

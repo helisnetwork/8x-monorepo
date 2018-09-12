@@ -583,7 +583,7 @@ contract Executor is Ownable {
         private
         returns (uint)
     {
-        (uint gasCost, uint gasPrice) = Collectable(_contractAddress).getGasCostForExecution(_subscriptionIdentifier, 0);
+        (uint gasCost, uint gasPrice) = Collectable(_contractAddress).getGasForExecution(_subscriptionIdentifier, 0);
         uint rate = approvedRegistry.getRateFor(_tokenAddress);
         uint standardCost = ((gasCost * gasPrice) / (10**18) / rate);
         return standardCost;
