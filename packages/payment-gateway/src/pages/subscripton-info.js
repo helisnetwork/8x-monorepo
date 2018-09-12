@@ -52,10 +52,11 @@ class SubscriptionInfo extends React.Component {
       .then(results => {
         return results.json();
       }).then(data => {
-        console.log(data.ETH_DAI.currentPrice);
+        
         // Added a factor of 1% to account for slippage
         var currencyConversion = data.ETH_DAI.currentPrice * 1.01;
         let roundedNumber = currencyConversion.toFixed(4);
+
         this.setState({
           kyberConversion: roundedNumber
         });
@@ -72,6 +73,51 @@ class SubscriptionInfo extends React.Component {
     }
 
   }
+
+  checkDaiSelected () {
+    return this.state.selectedCurrency === 'Dai' ? true : false;
+  }
+
+  dropdownItems() {
+    return [
+      {
+        image: Images.daiLogo,
+        name: 'Dai',
+        ticker: 'DAI'
+      },
+      {
+        image: Images.ethLogo,
+        name: 'Ethereum',
+        ticker: 'ETH'
+      }
+    ];
+  }
+
+  timeItems(){
+    return [
+      {
+        name: '3',
+        ticker: 'months'
+      },
+      {
+        name: '6',
+        ticker: 'months'
+      },
+      {
+        name:'9',
+        ticker: 'months'
+      }
+    ];
+  }
+
+  resetCopyState() {
+    setTimeout(() => {
+      this.setState({
+        copied: false
+      });
+    }, 2000);
+    
+  };
 
   // Conditions on which page to render depending on status provided by handlers
   render() {
@@ -128,7 +174,7 @@ class SubscriptionInfo extends React.Component {
               <p className="text">to your personal wallet</p>
             </div>
             <div className="item-address">
-              <p className="text-address">{this.props.useraddress}</p>
+              <p className="text-address">{this.props.userAddress}</p>
               <CopyToClipboard 
                 text={this.props.useraddress} 
                 onCopy={() => {
@@ -147,13 +193,22 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className="balance">
               <p>Current Balance</p>
-              <p className="currency">{this.props.balance} {this.state.selectedCurrency}</p>
+              <p className="currency">{this.checkDaiSelected() ? this.props.daiBalance : this.props.ethBalance} {this.state.selectedCurrency}</p>
             </div>
-            <Link to='/conversion'>
-              <div className="transaction">
-                <p onClick={this.props.payAction}>Continue</p>
-              </div>
-            </Link>
+            {
+              this.checkDaiSelected() 
+                ? 
+                <div className="transaction">
+                  <p onClick={this.props.payAction}>Begin Subscription</p>
+                </div>
+                : 
+                <Link to='/conversion'>
+                  <div className="transaction">
+                    <p onClick={this.props.payAction}>Continue</p>
+                  </div>
+                </Link>
+                
+            }
           </div>
         </div> 
       </div>
@@ -179,47 +234,6 @@ class SubscriptionInfo extends React.Component {
         <p>Loading...</p>
       </div>
     );
-  }
-
-  resetCopyState() {
-    setTimeout(() => {
-      this.setState({
-        copied: false
-      });
-    }, 2000);
-    
-  };
-
-  dropdownItems() {
-    return [
-      {
-        image: Images.daiLogo,
-        name: 'Dai',
-        ticker: 'DAI'
-      },
-      {
-        image: Images.ethLogo,
-        name: 'Ethereum',
-        ticker: 'ETH'
-      }
-    ];
-  }
-
-  timeItems(){
-    return [
-      {
-        name: '3',
-        ticker: 'months'
-      },
-      {
-        name: '6',
-        ticker: 'months'
-      },
-      {
-        name:'9',
-        ticker: 'months'
-      }
-    ];
   }
 };
 
