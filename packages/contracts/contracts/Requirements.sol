@@ -9,6 +9,7 @@ contract Requirements is RequirementsInterface {
 
     function getStake(
         uint _gini,
+        uint _dependentConstant,
         uint _divideBy,
         uint _startDate,
         uint _claimDate,
@@ -19,13 +20,40 @@ contract Requirements is RequirementsInterface {
         view
         returns (uint)
     {
-        /*uint startingPoint = _totalUnlocked / _divideBy;
-        uint units = (_maximumClaimDate - _startDate) / (_claimDate - _startDate);
-        uint xValue = (_claimDate - _startDate) / units;
-        uint exponent = 1 / (xValue * startingPoint);
 
-        return startingPoint * ((_gini/1000) ** exponent);*/
-        return _totalUnlocked/_divideBy;
+        require(_gini > 0);
+        require(_dependentConstant > 0);
+        require(_divideBy > 0);
+        require(_startDate > 0);
+        require(_totalUnlocked > 0);
+
+        require(_claimDate >= _startDate);
+        require(_maximumClaimDate >= _claimDate);
+
+        if (_startDate == _claimDate) {
+            return _totalUnlocked / _divideBy;
+        }
+
+        // ((n*g^((n/x)-(n^2-x^2)/(n*x)))*(1000^((n^2-x^2)/(n*x))))/1000^(n/x)
+
+        uint n = _totalUnlocked / _divideBy;
+        uint x = (((_maximumClaimDate - _claimDate) * n * _dependentConstant * 4)) / (3 * 1000 * (_maximumClaimDate - _startDate));
+
+        if (n <= x) {
+
+            // Standard formula
+
+            uint b = ((1000 ** 2) - (_gini ** 2)) / (1000 * _gini);
+
+            return n * (((1000 / _gini) - b) ** ( x / n));
+        }
+
+        // Derived formula
+
+        uint z = n / x;
+        uint v = ((n ** 2) - (x ** 2)) / ( x * n);
+
+        return ((n * (_gini ** (z - v))) * (1000 ** v)) / (1000 ** z);
     }
 
 }

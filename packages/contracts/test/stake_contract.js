@@ -60,7 +60,7 @@ contract('StakeContract', function(accounts) {
 
     it("should not be able to set the gini coefficient as someone other than the owner", async function() {
 
-        await assertRevert(stakeContract.setGiniCoefficient(mockToken.address, 0.4, {from: accounts[1]}));
+        await assertRevert(stakeContract.setGiniCoefficient(mockToken.address, 0.4, 5, {from: accounts[1]}));
 
     });
 
@@ -73,7 +73,7 @@ contract('StakeContract', function(accounts) {
     it("should be able to set the gini coefficient as the ownner", async function() {
 
         gini = 500;
-        await stakeContract.setGiniCoefficient(mockToken.address, gini, {from: accounts[0]});
+        await stakeContract.setGiniCoefficient(mockToken.address, gini, 5, {from: accounts[0]});
 
     });
 

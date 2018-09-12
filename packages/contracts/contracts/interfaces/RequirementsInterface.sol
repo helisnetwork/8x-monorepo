@@ -9,6 +9,7 @@ contract RequirementsInterface is Ownable {
 
     /** @dev Get the amount of tokens required for a subscription.
       * @param _gini coefficient for the amount of inequality in the system.
+      * @param _dependentConstant varies with the gini coefficient and needs to be calculated.
       * @param _divideBy the starting point for the stake.
       * @param _startDate is the date when the subscription was due.
       * @param _claimDate is the date when the person will claim.
@@ -18,6 +19,7 @@ contract RequirementsInterface is Ownable {
     */
     function getStake(
         uint _gini,
+        uint _dependentConstant,
         uint _divideBy,
         uint _startDate,
         uint _claimDate,

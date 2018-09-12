@@ -369,19 +369,19 @@ contract Executor is Ownable {
             uint total,
             uint lockedUp,
             uint gini,
-            uint divideBy
+            uint magicConstant,
+            uint divideBy,
         ) = stakeContract.getTokenStakeDetails(_tokenAddress);
 
-        uint stake = requirementsContract.getStake(
+        return requirementsContract.getStake(
             gini,
+            magicConstant,
             divideBy,
             _startDate,
             currentTimestamp(),
             _startDate + (_interval / maximumIntervalDivisor),
             total - lockedUp
         );
-
-        return stake;
     }
 
     /**

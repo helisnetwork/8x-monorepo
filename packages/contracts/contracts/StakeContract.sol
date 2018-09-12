@@ -21,6 +21,7 @@ contract StakeContract is Authorizable {
         uint total;
         uint gini;
         uint divideBy;
+        uint magicConstant;
     }
 
     mapping (address => mapping (address => Stake)) public userStakes;
@@ -49,8 +50,9 @@ contract StakeContract is Authorizable {
       * @param _tokenAddress token for which to set the gini coefficient for.
       * @param _gini actual constant.
     */
-    function setGiniCoefficient(address _tokenAddress, uint _gini) public onlyOwner {
+    function setGiniCoefficient(address _tokenAddress, uint _gini, uint dependentConstant) public onlyOwner {
         tokenStakes[_tokenAddress].gini = _gini;
+        tokenStakes[_tokenAddress].magicConstant = dependentConstant;
 
         emit GiniCoefficientUpdated(_tokenAddress, _gini);
     }
@@ -228,6 +230,7 @@ contract StakeContract is Authorizable {
             uint total,
             uint lockedUp,
             uint gini,
+            uint magicConstant,
             uint divideBy
         )
     {
@@ -237,6 +240,7 @@ contract StakeContract is Authorizable {
             tokenStake.total,
             tokenStake.lockedUp,
             tokenStake.gini,
+            tokenStake.magicConstant,
             tokenStake.divideBy
         );
     }
