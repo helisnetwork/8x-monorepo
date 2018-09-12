@@ -1,6 +1,7 @@
 /* Import statements */
 import React from 'react';
 import { Link } from 'react-router-dom';
+import bus from '../bus';
 
 class Header extends React.Component {
   render() {
@@ -10,7 +11,7 @@ class Header extends React.Component {
           Back
         </Link>
         <p className="heading-label">{this.props.title}</p>
-        <p className="close button" onClick={this.props.onCloseRequest}>Close</p>
+        <a className="close button" onClick={() => bus.trigger('modal:show', false)}>Close</a>
       </div>
     );
   }
