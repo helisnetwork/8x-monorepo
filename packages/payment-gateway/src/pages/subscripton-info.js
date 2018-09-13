@@ -55,7 +55,7 @@ class SubscriptionInfo extends React.Component {
         
         // Added a factor of 1% to account for slippage
         var currencyConversion = data.ETH_DAI.currentPrice * 1.01;
-        let roundedNumber = currencyConversion.toFixed(4);
+        let roundedNumber = currencyConversion.toFixed(5);
 
         this.setState({
           kyberConversion: roundedNumber
@@ -207,7 +207,6 @@ class SubscriptionInfo extends React.Component {
                     <p onClick={this.props.payAction}>Continue</p>
                   </div>
                 </Link>
-                
             }
           </div>
         </div> 
