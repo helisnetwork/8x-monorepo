@@ -6,6 +6,7 @@ import MetamaskHandler from '../pages/metamask-handler';
 import ConversionPrompt from '../pages/conversion-prompt';
 import BeginSubscription from '../pages/begin-subscription';
 import MetaMaskInstall from '../components/metamask-install';
+import MetaMaskLocked from '../components/metamask-locked';
 
 import {
   Route,
@@ -31,7 +32,7 @@ function Container({ location }) {
         >
           <section className="route-section">
             <Switch location = { location }>
-              <Route exact path="/" component={MetaMaskInstall}/>
+              <Route exact path="/" component={MetaMaskLocked}/>
               <Route path="/metamask-handler" component={MetamaskHandler}/>
               <Route path="/conversion" component={ConversionPrompt}/>
               <Route path="/begin-subscription" component={BeginSubscription}/>
