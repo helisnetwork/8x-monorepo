@@ -3,15 +3,22 @@
 
     .locked-container {
         text-align: center;
+        margin: 0em 4em;
 
-        img {
-            width: 8em;
-            padding-top: 1em;
+        .locked-title {
+            font-size: 1.25em; 
+            font-weight: 600;
+            padding: 1em 0em;
         }
 
-        .locked {
+        img {
+            width: 4em;
+        }
+
+        .locked-text {
             text-align: center;
-            font-size: 1.25em;
+            font-size: 1em;
+            color: #958DB7;
             padding-top: 1em;
             font-weight: 400;
             padding-bottom: 2em;
