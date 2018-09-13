@@ -1,21 +1,57 @@
+@mixin mobile {
+	@media (max-device-width: 450px) {
+      @content;
+
+	}
+}
+
 .small-card {
 
     .prompt {
+        text-align: center;
+
+        margin: 0em 5em;
         display: flex;
         align-items: center;
         flex-direction: column;
 
+        @include mobile {
+            margin: 0em;
+        }
+
         .install {
             text-align: center;
-            font-size: 1em; 
+            font-size: 1.25em; 
+            font-weight: 600;
             padding-top: 1em;
             padding-bottom: 1em;
         }
 
-        .metamask-download {
-            justify-content: center;
-            width: 18em;
-              
+       
+
+            img {
+                width: 3em;
+            }
+        
+
+        .text {
+            font-size: 1em; 
+            font-weight: 400;
+            color: #958DB7;
+            padding: 1em 0em;
+        }
+        
+        .button {
+            padding: 1em 0em;
+
+            .metamask-download {
+                color: white;
+                justify-content: center;
+                background-color: #5944EE;
+                margin: 0 2em;
+                border-radius: 0.85em;
+                padding: 0.85em 4em;
+            }
         }
     }
 }
