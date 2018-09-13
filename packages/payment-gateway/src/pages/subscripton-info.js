@@ -55,7 +55,8 @@ class SubscriptionInfo extends React.Component {
         
         // Added a factor of 1% to account for slippage
         var currencyConversion = data.ETH_DAI.currentPrice * 1.01;
-        let roundedNumber = currencyConversion.toFixed(5);
+        let roundedNumber = currencyConversion.toFixed(6);
+        
 
         this.setState({
           kyberConversion: roundedNumber
@@ -69,7 +70,7 @@ class SubscriptionInfo extends React.Component {
       return this.state.selectedPeriod * this.state.subscriptionPrice;
     }
     else if (this.state.selectedCurrency === 'Ethereum') {
-      return this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionPrice;
+      return (this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionPrice).toFixed(4);
     }
 
   }
