@@ -66,7 +66,7 @@ export default class Contracts {
       return this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] as VolumeSubscriptionContract;
     }
 
-    let volumeSubscription = new VolumeSubscriptionContract(VolumeSubscriptionJson.abi, this.addressBook.volumeSubscriptionAddress || '', this.web3.getProvider());
+    let volumeSubscription = new VolumeSubscriptionContract(VolumeSubscriptionJson.abi, this.addressBook.volumeSubscriptionAddress || '', this.web3.getProvider(), this.web3.getContractDefaults());
     this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] = volumeSubscription;
 
     return volumeSubscription;

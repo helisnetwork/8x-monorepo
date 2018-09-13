@@ -1,6 +1,8 @@
 import * as Types from '@8xprotocol/types';
 import Contracts from '../helpers/contracts';
 
+import web3 from 'web3';
+
 export default class Plans {
 
   private contracts: Contracts;
@@ -35,7 +37,8 @@ export default class Plans {
     fee: Types.UInt,
     name: string | null,
     description: string | null,
-    metaData: JSON | null
+    metaData: JSON | null,
+    txData: Types.TxData
   ): Promise<Types.Bytes32> {
 
     let volumeSubscription = await this.contracts.loadVolumeSubscription();
@@ -48,15 +51,21 @@ export default class Plans {
     }
 
     let submitString = (Object.keys(submitData).length > 0) ? JSON.stringify(submitData) : '';
+    let identifierBytes = web3.utils.padRight(web3.utils.fromAscii(identifier), 64, '0');
 
-    let planHash = await volumeSubscription.createPlan.callAsync(
+    let planHash = await volumeSubscription.createPlan.sendTransactionAsync(
       owner,
       this.daiAddress,
-      identifier,
+      identifierBytes,
       interval,
       amount,
       fee,
-      submitString
+      submitString,
+      {
+        from: txData.from,
+        gas: 300000,
+        gasPrice: txData.gasPrice,
+      }
     );
 
     return planHash;
