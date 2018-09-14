@@ -1,7 +1,6 @@
 import { AddressBook } from '@8xprotocol/types'
-import { Web3Wrapper } from '@0xproject/web3-wrapper';
 
-import Contracts from './helpers/contracts';
+import Contracts from './services/contracts';
 import Subscriptions from './apis/subscriptions';
 import Plans from './apis/plans';
 

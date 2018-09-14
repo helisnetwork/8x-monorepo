@@ -14,9 +14,6 @@
     "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "@8xprotocol/artifacts": "^0.1.0",
-    "@8xprotocol/base_contract": "^0.1.0",
-    "@8xprotocol/types": "0.1.0",
     "bignumber.js": "^4.1.0",
     "dotenv": "^6.0.0",
     "ethereumjs-abi": "^0.6.5",

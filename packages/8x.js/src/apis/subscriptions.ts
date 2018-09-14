@@ -1,5 +1,5 @@
 import * as Types from '@8xprotocol/types';
-import Contracts from '../helpers/contracts';
+import Contracts from '../services/contracts';
 
 export default class Subscriptions {
 
