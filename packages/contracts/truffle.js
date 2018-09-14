@@ -4,7 +4,7 @@ require('dotenv').config();
 
 module.exports = {
     networks: {
-        development: {
+        develop: {
             host: "localhost",
             port: 8545,
             network_id: "*", // Match any network id

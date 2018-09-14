@@ -1,10 +1,10 @@
 import {
   ExecutorContract,
-  ExecutorJson,
+  ExecutorAbi,
   VolumeSubscriptionContract,
-  VolumeSubscriptionJson,
+  VolumeSubscriptionAbi,
   PaymentRegistryContract,
-  PaymentRegistryJson
+  PaymentRegistryAbi
 } from '@8xprotocol/artifacts';
 
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
@@ -42,9 +42,8 @@ export default class Contracts {
     if (this.cache[EXECUTOR_CACHE_KEY]) {
       return this.cache[EXECUTOR_CACHE_KEY] as ExecutorContract;
     }
-    let a = this.web3.getProvider();
-    a
-    let executorContract = new ExecutorContract(ExecutorJson.abi, this.addressBook.executorAddress || '', this.web3.getProvider());
+
+    let executorContract = new ExecutorContract(ExecutorAbi, this.addressBook.executorAddress || '', this.web3.getProvider());
     this.cache[EXECUTOR_CACHE_KEY] = executorContract;
 
     return executorContract;
