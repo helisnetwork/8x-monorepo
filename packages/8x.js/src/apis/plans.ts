@@ -49,7 +49,7 @@ export default class Plans {
 
     let submitString = (Object.keys(submitData).length > 0) ? JSON.stringify(submitData) : '';
 
-    let planHash = await volumeSubscription.createPlan.callAsync(
+    let planHash = await volumeSubscription.createPlan.sendTransactionAsync(
       owner,
       this.daiAddress,
       identifier,
