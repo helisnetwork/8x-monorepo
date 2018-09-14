@@ -1,5 +1,14 @@
+# Built node modules
 node_modules/
 
+# Build folder from contracts
 build/
 
+# Transpiled Javascript from Typescript
 dist/
+
+# VSCode file
+.vscode
+
+# Lerna debug logs
+lerna-debug.log
