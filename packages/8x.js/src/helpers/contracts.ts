@@ -4,11 +4,14 @@ import {
   VolumeSubscriptionContract,
   VolumeSubscriptionAbi,
   PaymentRegistryContract,
-  PaymentRegistryAbi
+  PaymentRegistryAbi,
+  ConfigAddresses,
+  TokenAddresses
 } from '@8xprotocol/artifacts';
 
-import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import { AddressBook } from '@8xprotocol/types';
+
+import * as Web3 from 'web3';
 
 import {
   EXECUTOR_CACHE_KEY,
@@ -24,7 +27,7 @@ export interface EightExContracts {
 
 export default class Contracts {
 
-  private web3: Web3Wrapper;
+  private web3: Web3;
   private addressBook: AddressBook;
 
   private cache: { [contractName: string]: (
@@ -32,7 +35,7 @@ export default class Contracts {
     )
   };
 
-  constructor(web3: Web3Wrapper, addressBook: AddressBook) {
+  constructor(web3: Web3, addressBook: AddressBook) {
     this.web3 = web3;
     this.addressBook = addressBook;
     this.cache = {};
@@ -43,7 +46,7 @@ export default class Contracts {
       return this.cache[EXECUTOR_CACHE_KEY] as ExecutorContract;
     }
 
-    let executorContract = new ExecutorContract(ExecutorAbi, this.addressBook.executorAddress || '', this.web3.getProvider());
+    let executorContract = await ExecutorContract.at(this.addressBook.executorAddress || '', this.web3, {});
     this.cache[EXECUTOR_CACHE_KEY] = executorContract;
 
     return executorContract;
@@ -54,7 +57,7 @@ export default class Contracts {
       return this.cache[PAYMENT_REGISTRY_CACHE_KEY] as PaymentRegistryContract;
     }
 
-    let paymentRegistry = new PaymentRegistryContract(PaymentRegistryJson.abi, this.addressBook.paymentRegistryAddress || '', this.web3.getProvider());
+    let paymentRegistry = await PaymentRegistryContract.at(this.addressBook.paymentRegistryAddress || '', this.web3, {});
     this.cache[PAYMENT_REGISTRY_CACHE_KEY] = paymentRegistry;
 
     return paymentRegistry
@@ -65,7 +68,7 @@ export default class Contracts {
       return this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] as VolumeSubscriptionContract;
     }
 
-    let volumeSubscription = new VolumeSubscriptionContract(VolumeSubscriptionJson.abi, this.addressBook.volumeSubscriptionAddress || '', this.web3.getProvider());
+    let volumeSubscription = await VolumeSubscriptionContract.at(this.addressBook.volumeSubscriptionAddress || '', this.web3, {});
     this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] = volumeSubscription;
 
     return volumeSubscription;

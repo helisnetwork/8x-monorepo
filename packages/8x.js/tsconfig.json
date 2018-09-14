@@ -11,15 +11,15 @@
     "target": "es5",
     "types": [],
     "typeRoots": [
-      "node_modules/@0xproject/types",
       "node_modules/@0xproject/typescript-typings/types",
-      "node_modules/@types"
+      "node_modules/*"
     ],
     "paths": {
       "*": [
         "node_modules/@0xproject/types/*",
         "node_modules/@0xproject/typescript-typings/types/*",
-        "node_modules/*"
+        "node_modules/*",
+        "node_modules/@8xprotocol/artifacts/typings/src"
       ]
     },
     "declaration": true,

@@ -19,7 +19,7 @@ export interface Log {
     args: object;
 }
 export declare type Address = string;
-export declare type UInt = number | BigNumber;
+export declare type UInt = BigNumber;
 export declare type Bytes32 = string;
 export declare enum SolidityType {
     address = "address",

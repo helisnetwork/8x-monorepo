@@ -1,0 +1,21 @@
+export const tokens = 
+{
+  "DAI": {
+    "name": "Dai Stablecoin",
+    "decimals": 18,
+    "addresses": {
+      "main": "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359",
+      "kovan": "0xc4375b7de8af5a38a93548eb8453a498222c4ff2"
+    }
+  },
+  "WETH": {
+    "name": "Wrapped Ether",
+    "decimals": 18,
+    "addresses": {
+      "main": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "kovan": "0xd0a1e359811322d97991e03f863a0c30c2cf029c",
+      "ropsten": "0xc778417e063141139fce010982780140aa0cd5ab",
+      "rinkeby": "0xc778417e063141139fce010982780140aa0cd5ab"
+    }
+  }
+}

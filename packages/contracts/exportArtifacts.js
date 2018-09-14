@@ -34,7 +34,7 @@ assert(contractHaveBeenCompiled, `No json compiled file found in ${BUILD_DIR}. D
 // Takes the export of `truffle compile` and add and remove some information
 // Manually executed
 artifacts.forEach(function(name) {
-	const artifact = require(BUILD_DIR+name+'.json');
+	const artifact = require(BUILD_DIR + name + '.json');
 
 	let artifactExported = {
 		contractName: artifact.contractName,
@@ -53,5 +53,24 @@ artifacts.forEach(function(name) {
 
 	const typeScriptPath = TS_DIR + name + '.ts';
 	fs.writeFileSync(typeScriptPath, typescriptAbi);
+
+});
+
+const ADDRESSES_DIR = '../artifacts/src/addresses/';
+
+const addressFiles = [
+	'config',
+	'dependencies',
+	'tokens'
+];
+
+addressFiles.forEach(function(name) {
+
+	const jsonFile = fs.readJSONSync(ADDRESSES_DIR + name + '.json');
+	const typeScriptPath = ADDRESSES_DIR + name + '.ts';
+
+	let typescriptAddresses = "export const " + name + " = \n" + JSON.stringify(jsonFile, null, 2);
+
+	fs.writeFileSync(typeScriptPath, typescriptAddresses);
 
 });

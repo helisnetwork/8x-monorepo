@@ -1,56 +1,45 @@
-import * as mocha from 'mocha';
-import * as chai from 'chai';
+// import * as mocha from 'mocha';
+// import * as chai from 'chai';
 
-import { getAddressBook } from '@8xprotocol/artifacts';
-import { Web3Wrapper } from '@0xproject/web3-wrapper';
+// import { getAddressBook } from '@8xprotocol/artifacts';
 
-import {
-  RPCSubprovider,
-  Web3ProviderEngine,
-} from '@0xproject/subproviders';
+// import EightEx from '../src';
 
-import EightEx from '../src';
+// const expect = chai.expect;
+// const addressBook = getAddressBook('development');
 
-const expect = chai.expect;
-const addressBook = getAddressBook('development');
+// const eightEx = new EightEx(web3Wrapper, addressBook);
 
-const providerEngine = new Web3ProviderEngine();
-providerEngine.addProvider(new RPCSubprovider('http://localhost:8545'));
-providerEngine.start();
+// let addresses: string[];
+// let business: string;
+// let consumer: string;
 
-const web3Wrapper = new Web3Wrapper(providerEngine);
-const eightEx = new EightEx(web3Wrapper, addressBook);
+// describe('Plans', () => {
 
-let addresses: string[];
-let business: string;
-let consumer: string;
+//   before(async () => {
 
-describe('Plans', () => {
+//     addresses = await web3Wrapper.getAvailableAddressesAsync();
+//     business = addresses[0];
+//     consumer = addresses[1];
+//     console.log(addresses);
 
-  before(async () => {
+//   });
 
-    addresses = await web3Wrapper.getAvailableAddressesAsync();
-    business = addresses[0];
-    consumer = addresses[1];
-    console.log(addresses);
+//   it('should be able to create a plan', async () => {
 
-  });
+//     let identifier = await eightEx.plans.create(
+//       business,
+//       'create.new.plan',
+//       30,
+//       1000,
+//       10,
+//       'Netflix',
+//       'Premium Plan',
+//       null
+//     );
 
-  it('should be able to create a plan', async () => {
+//     expect(identifier).to.not.be.null;
 
-    let identifier = await eightEx.plans.create(
-      business,
-      'create.new.plan',
-      30,
-      1000,
-      10,
-      'Netflix',
-      'Premium Plan',
-      null
-    );
+//   });
 
-    expect(identifier).to.not.be.null;
-
-  });
-
-});
+// });

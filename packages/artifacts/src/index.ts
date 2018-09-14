@@ -23,20 +23,22 @@ import { ExecutorContract } from './wrappers/executor';
 import { PaymentRegistryContract } from './wrappers/payment_registry';
 import { RequirementsContract } from './wrappers/requirements';
 import { StakeContractContract } from './wrappers/stake_contract';
+import { VolumeSubscriptionContract } from './wrappers/volume_subscription';
 
 export {
   ApprovedRegistryContract,
   ExecutorContract,
   PaymentRegistryContract,
   RequirementsContract,
-  StakeContractContract as StakeContract
+  StakeContractContract as StakeContract,
+  VolumeSubscriptionContract
 }
 
 // Export all the addresses
 
-import config from './addresses/config.json';
-import dependencies from './addresses/dependencies.json';
-import tokens from './addresses/tokens.json';
+import { config } from './addresses/config';
+import { dependencies } from './addresses/dependencies';
+import { tokens } from './addresses/tokens';
 
 export {
   config as ConfigAddresses,
