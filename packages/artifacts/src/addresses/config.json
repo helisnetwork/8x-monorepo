@@ -1,0 +1,26 @@
+{
+  "develop": {
+    "addresses": {
+      "Executor": "0x218a0da152ad557f727de42e1fd4de6ce4560d85",
+      "VolumeSubscription": "0x26c30dd516003ebe93418945a7a96ad00db5fc42",
+      "ApprovedRegistry": "0x24b29e88c1536cdadb8a74ba061aab5884f3f58c",
+      "TransferProxy": "0xb23d6e07b58b6b9c52f4ebdf69a2784ab152a495",
+      "PaymentRegistry": "0x93167f6482061bb35dde9aeb920119d531eb3bd1",
+      "Requirements": "0x1a7f3d3edad41b96b954d085b980c6377f992867",
+      "EightExToken": "0xe6f09ddc037627d709b78cbf2aba069d0cf75f0e",
+      "StakeContract": "0x9151781c2ee212de92693e2a713eec22666b78ea",
+      "KyberNetwork": "0x104a4ab2e011c213d759793de6bd054024128122",
+      "DAI": "0x4ba9000fb4370d76db233490be050006d63187bc"
+    },
+    "approvedTokens": [
+      "0x4ba9000fb4370d76db233490be050006d63187bc"
+    ],
+    "approvedContracts": {
+      "VolumeSubscription": {
+        "address": "0x26c30dd516003ebe93418945a7a96ad00db5fc42"
+      }
+    },
+    "lockUpPercentage": 800,
+    "maximumIntervalDivisor": 7
+  }
+}

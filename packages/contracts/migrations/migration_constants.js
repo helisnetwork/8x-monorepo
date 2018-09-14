@@ -2,7 +2,7 @@ const LOCK_UP_PERCENTAGE = 800;
 const MAXIMUM_INTERVAL_DIVISOR = 7;
 
 function configPath() {
-  return `${process.cwd()}/../artifacts/deployed/config.json`;
+  return `${process.cwd()}/../artifacts/src/addresses/config.json`;
 }
 
 module.exports = {

@@ -1,0 +1,10 @@
+0 silly argv { _: [ 'add' ],
+0 silly argv   globs: [],
+0 silly argv   lernaVersion: '3.2.1',
+0 silly argv   '$0': '/usr/local/bin/lerna',
+0 silly argv   pkg: '@8xprotocol/base-contract' }
+1 notice cli v3.2.1
+2 verbose rootPath /Users/kermankohli/8x-protocol/monorepo
+3 error Error: 404 Not Found - GET https://registry.npmjs.org/@8xprotocol%2fbase-contract - Not found
+3 error     at res.buffer.catch.then.body (/Users/kermankohli/8x-protocol/monorepo/node_modules/npm-registry-fetch/check-response.js:104:15)
+3 error     at <anonymous>
