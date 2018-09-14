@@ -16,3 +16,4 @@ import { config } from './addresses/config';
 import { dependencies } from './addresses/dependencies';
 import { tokens } from './addresses/tokens';
 export { config as ConfigAddresses, dependencies as DependencyAddresses, tokens as TokenAddresses };
+export { Web3Utils } from './utils/Web3Utils';

@@ -21,6 +21,15 @@ export class Web3Utils {
     return Web3BetaUtils.soliditySha3(...payload);
   }
 
+  public static fromAscii(ascii: string): string {
+    return Web3BetaUtils.asciiToHex(ascii);
+  }
+
+  public static bytes32Ascii(ascii: string, chars: number, sign: string): string {
+    let hexString = this.fromAscii(ascii);
+    return Web3BetaUtils.rightPad(ascii, chars, sign);
+  }
+
   public async getNetworkIdAsync(): Promise<number> {
     return promisify(this.web3.version.getNetwork)();
   }

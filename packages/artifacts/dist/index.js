@@ -33,4 +33,7 @@ var dependencies_1 = require("./addresses/dependencies");
 exports.DependencyAddresses = dependencies_1.dependencies;
 var tokens_1 = require("./addresses/tokens");
 exports.TokenAddresses = tokens_1.tokens;
+// Export Utils
+var Web3Utils_1 = require("./utils/Web3Utils");
+exports.Web3Utils = Web3Utils_1.Web3Utils;
 //# sourceMappingURL=index.js.map

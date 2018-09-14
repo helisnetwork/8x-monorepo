@@ -45,3 +45,7 @@ export {
   dependencies as DependencyAddresses,
   tokens as TokenAddresses
 }
+
+// Export Utils
+
+export { Web3Utils } from './utils/Web3Utils';

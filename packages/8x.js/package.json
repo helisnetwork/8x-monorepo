@@ -2,40 +2,65 @@
   "name": "@8xprotocol/8x.js",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
     "clean": "rimraf -rf ./dist",
-    "build": "npm run clean && tsc && shx cp ./src/*.json ./dist/src/ && shx cp -r ./src/lib ./dist/src/",
+    "build": "npm run clean && tsc",
     "lint": "tslint --project tsconfig.json -c tslint.json",
     "generate-docs": "typedoc --json ../docs/docs.json && node generateMarkdown.js",
-    "test": "mocha --reporter spec --compilers ts:ts-node/register 'tests/**/*.test.ts' --exit"
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch --runInBand"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/chai": "^4.1.4",
-    "@types/mocha": "^5.2.5",
+    "@types/jest": "^22.2.3",
     "chai": "^4.1.2",
-    "json-d-ts": "^1.0.1",
-    "mocha": "^5.2.0",
-    "ts-node": "^7.0.1",
+    "jest": "^22.4.4",
+    "ts-jest": "^22.4.6",
     "typedoc": "^0.12.0",
-    "typescript": "^3.0.1"
+    "typescript": "^2.6.2"
   },
   "dependencies": {
-    "@0xproject/dev-utils": "^1.0.7",
-    "@0xproject/subproviders": "^2.0.2",
-    "@0xproject/typescript-typings": "^1.0.5",
-    "@0xproject/web3-wrapper": "^2.0.2",
+    "@0xproject/types": "^1.0.1-rc.4",
+    "@0xproject/typescript-typings": "^1.0.4",
+    "@0xproject/utils": "^1.0.8",
     "@8xprotocol/artifacts": "^0.1.0",
-    "@8xprotocol/types": "^0.1.0",
-    "@types/bignumber.js": "^5.0.0",
-    "@types/node": "^10.9.4",
-    "@types/web3": "^1.0.3",
-    "dedent-js": "^1.0.1",
-    "ethers": "^4.0.0-beta.14",
-    "s": "^0.1.1",
-    "web3": "^1.0.0-beta.36"
+    "@8xprotocol/types": "0.1.0",
+    "@types/chai": "^4.1.4",
+    "@types/fs-extra": "^5.0.4",
+    "@types/lodash": "^4.14.116",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^8.5.1",
+    "bignumber.js": "^4.1.0",
+    "fs-extra": "^7.0.0",
+    "lodash": "^4.17.11",
+    "rimraf": "^2.6.2",
+    "tiny-promisify": "^1.0.0",
+    "truffle-contract": "^3.0.1",
+    "truffle-hdwallet-provider": "0.0.6",
+    "ts-node": "^7.0.1",
+    "typescript": "^2.6.2",
+    "web3": "0.20.0",
+    "web3-utils": "^1.0.0-beta.36"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testPathIgnorePatterns": [
+      "/dist/"
+    ],
+    "testURL": "http://localhost/",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

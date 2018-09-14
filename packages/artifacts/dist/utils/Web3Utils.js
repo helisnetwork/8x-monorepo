@@ -52,6 +52,13 @@ var Web3Utils = /** @class */ (function () {
         }
         return Web3BetaUtils.soliditySha3.apply(Web3BetaUtils, payload);
     };
+    Web3Utils.fromAscii = function (ascii) {
+        return Web3BetaUtils.asciiToHex(ascii);
+    };
+    Web3Utils.bytes32Ascii = function (ascii, chars, sign) {
+        var hexString = this.fromAscii(ascii);
+        return Web3BetaUtils.rightPad(ascii, chars, sign);
+    };
     Web3Utils.prototype.getNetworkIdAsync = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {

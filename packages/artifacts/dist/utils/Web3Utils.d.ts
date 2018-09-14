@@ -4,6 +4,8 @@ export declare class Web3Utils {
     private web3;
     constructor(web3: Web3);
     static soliditySHA3(...payload: any[]): string;
+    static fromAscii(ascii: string): string;
+    static bytes32Ascii(ascii: string, chars: number, sign: string): string;
     getNetworkIdAsync(): Promise<number>;
     getAvailableAddressesAsync(): Promise<string[]>;
     doesContractExistAtAddressAsync(address: string): Promise<boolean>;

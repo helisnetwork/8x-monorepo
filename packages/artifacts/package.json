@@ -3,15 +3,13 @@
   "version": "0.1.0",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
     "clean": "rimraf rm -rf lib",
-    "generate": "npm run clean && npm run build"
+    "build": "npm run clean && tsc"
   },
   "dependencies": {
     "@0xproject/types": "^1.0.1-rc.4",
     "@0xproject/typescript-typings": "^1.0.4",
     "@0xproject/utils": "^1.0.8",
-    "@0xproject/web3-wrapper": "^1.1.2",
     "@8xprotocol/base_contract": "0.1.0",
     "@8xprotocol/types": "0.1.0",
     "@types/fs-extra": "^5.0.4",

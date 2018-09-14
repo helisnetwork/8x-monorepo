@@ -1,5 +1,8 @@
 import * as Types from '@8xprotocol/types';
-import Contracts from '../helpers/contracts';
+import Contracts from '../services/contracts';
+import BigNumber from 'bignumber.js';
+
+import { Web3Utils } from '@8xprotocol/artifacts';
 
 export default class Plans {
 
@@ -26,16 +29,17 @@ export default class Plans {
    * @param name          Your organisation/name (eg 'Netflix', 'SaaS dApp'). Shown to user.
    * @param description   Description for your plan (eg 'Premium Plan'). Shown to user.
    * @param metaData      Any extra data you'd like to store on-chain (JSON format)
-   */
+  */
   public async create(
     owner: Types.Address,
     identifier: string,
-    interval: Types.UInt,
-    amount: Types.UInt,
-    fee: Types.UInt,
+    interval: number,
+    amount: number,
+    fee: number,
     name: string | null,
     description: string | null,
-    metaData: JSON | null
+    metaData: JSON | null,
+    txData: Types.TxData
   ): Promise<Types.Bytes32> {
 
     let volumeSubscription = await this.contracts.loadVolumeSubscription();
@@ -52,11 +56,12 @@ export default class Plans {
     let planHash = await volumeSubscription.createPlan.sendTransactionAsync(
       owner,
       this.daiAddress,
-      identifier,
-      interval,
-      amount,
-      fee,
-      submitString
+      Web3Utils.bytes32Ascii(identifier, 64, '0'),
+      new BigNumber(interval).mul(60*24*24),
+      new BigNumber(amount).mul(10**16),
+      new BigNumber(fee).mul(10**16),
+      submitString,
+      txData
     );
 
     return planHash;
