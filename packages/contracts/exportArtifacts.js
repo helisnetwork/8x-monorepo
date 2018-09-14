@@ -17,10 +17,10 @@ var rimraf = require('rimraf');
 const BUILD_DIR = './build/contracts/';
 
 // Output of this script
-const EXPORT_DIR = '../artifacts/src/abi/';
+const EXPORT_DIR = '../artifacts/build/abi/';
 
-const JSON_DIR = '../artifacts/src/abi/json/';
-const TS_DIR = '../artifacts/src/abi/ts/';
+const JSON_DIR = '../artifacts/build/abi/json/';
+const TS_DIR = '../artifacts/build/abi/ts/';
 
 fs.emptyDirSync(EXPORT_DIR);
 
@@ -56,7 +56,10 @@ artifacts.forEach(function(name) {
 
 });
 
-const ADDRESSES_DIR = '../artifacts/src/addresses/';
+const ADDRESSES_ORIGINAL_DIR = '../artifacts/src/addresses/';
+const ADDRESSES_BUILD_DIR = '../artifacts/build/addresses/';
+
+fs.ensureDirSync(ADDRESSES_BUILD_DIR);
 
 const addressFiles = [
 	'config',
@@ -66,11 +69,10 @@ const addressFiles = [
 
 addressFiles.forEach(function(name) {
 
-	const jsonFile = fs.readJSONSync(ADDRESSES_DIR + name + '.json');
-	const typeScriptPath = ADDRESSES_DIR + name + '.ts';
+	const jsonFile = fs.readJSONSync(ADDRESSES_ORIGINAL_DIR + name + '.json');
 
+	const savePath = ADDRESSES_BUILD_DIR + name + '.ts';
 	let typescriptAddresses = "export const " + name + " = \n" + JSON.stringify(jsonFile, null, 2);
-
-	fs.writeFileSync(typeScriptPath, typescriptAddresses);
+	fs.writeFileSync(savePath, typescriptAddresses);
 
 });
