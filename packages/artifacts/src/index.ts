@@ -1,11 +1,11 @@
 // Export TypeScript ABIs
 
-import { ApprovedRegistry } from './abi/ts/ApprovedRegistry';
-import { Executor } from './abi/ts/Executor';
-import { PaymentRegistry } from './abi/ts/PaymentRegistry';
-import { Requirements } from './abi/ts/Requirements';
-import { StakeContract } from './abi/ts/StakeContract';
-import { VolumeSubscription } from './abi/ts/VolumeSubscription';
+import { ApprovedRegistry } from '../build/abi/ts/ApprovedRegistry';
+import { Executor } from '../build/abi/ts/Executor';
+import { PaymentRegistry } from '../build/abi/ts/PaymentRegistry';
+import { Requirements } from '../build/abi/ts/Requirements';
+import { StakeContract } from '../build/abi/ts/StakeContract';
+import { VolumeSubscription } from '../build/abi/ts/VolumeSubscription';
 
 export {
   ApprovedRegistry as ApprovedRegistryAbi,
@@ -18,12 +18,12 @@ export {
 
 // Export contract wrappers
 
-import { ApprovedRegistryContract } from './wrappers/approved_registry';
-import { ExecutorContract } from './wrappers/executor';
-import { PaymentRegistryContract } from './wrappers/payment_registry';
-import { RequirementsContract } from './wrappers/requirements';
-import { StakeContractContract } from './wrappers/stake_contract';
-import { VolumeSubscriptionContract } from './wrappers/volume_subscription';
+import { ApprovedRegistryContract } from '../build/wrappers/approved_registry';
+import { ExecutorContract } from '../build/wrappers/executor';
+import { PaymentRegistryContract } from '../build/wrappers/payment_registry';
+import { RequirementsContract } from '../build/wrappers/requirements';
+import { StakeContractContract } from '../build/wrappers/stake_contract';
+import { VolumeSubscriptionContract } from '../build/wrappers/volume_subscription';
 
 export {
   ApprovedRegistryContract,
@@ -36,9 +36,9 @@ export {
 
 // Export all the addresses
 
-import { config } from './addresses/config';
-import { dependencies } from './addresses/dependencies';
-import { tokens } from './addresses/tokens';
+import { config } from '../build/addresses/config';
+import { dependencies } from '../build/addresses/dependencies';
+import { tokens } from '../build/addresses/tokens';
 
 export {
   config as ConfigAddresses,

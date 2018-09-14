@@ -4,11 +4,13 @@ import 'jest';
 
 import * as chai from 'chai';
 import * as Web3 from 'web3';
-import * as contract from 'truffle-contract';
 
 import { BigNumber } from 'bignumber.js';
 import { Web3Utils } from '@8xprotocol/artifacts';
-import { VolumeSubscriptionContract, VolumeSubscriptionAbi } from '@8xprotocol/artifacts';
+
+import {
+  deployVolumeSubscription
+} from './helpers/contractDeployment';
 
 import EightEx from '../src/index';
 
@@ -49,27 +51,8 @@ describe('Plans', () => {
 
     expect(identifier).to.not.be.null;*/
 
-    let defaults = {
-      from: business,
-      gasPrice: new BigNumber(6000000000),
-      gas: new BigNumber(6712390),
-    };
-
-    let vsContract = contract(VolumeSubscriptionAbi);
-    vsContract.setProvider(provider);
-    vsContract.setNetwork(50);
-    vsContract.defaults(defaults);
-
-    const deployedVolumeSubscription = await vsContract.new();
-    console.log(deployedVolumeSubscription.address);
-
-    const contractAt = await VolumeSubscriptionContract.at(
-      deployedVolumeSubscription.address,
-      web3,
-      {},
-    );
-
-    const a = await contractAt.getGasForExecution.callAsync('', new BigNumber(0));
+    const contract = await deployVolumeSubscription(provider);
+    const a = await contract.getGasForExecution.callAsync('', new BigNumber(0));
     console.log(a[0].toNumber(), a[1].toNumber());
 
   });
