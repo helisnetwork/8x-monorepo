@@ -1,28 +1,21 @@
 'use strict';
 
+import 'jest';
+
 import * as chai from 'chai';
 import * as Web3 from 'web3';
-import { BigNumber } from 'bignumber.js';
-
-import { jest } from 'jest';
-import { Web3Utils } from '@8xprotocol/artifacts';
-
-import HDWalletProvider from 'truffle-hdwallet-provider';
-
-//import generateAddressBook from '../src/utils/generateAddressBook';
-
-//ar provider = new HDWalletProvider("evidence drink pipe fiscal position nominee save cram diamond rhythm puzzle thank", "http://localhost:8545");
-const provider = new Web3.providers.HttpProvider('http://localhost:8545');
-const web3 = new Web3(provider);
-
-import EightEx from '../src/index';
-import { VolumeSubscriptionContract, VolumeSubscriptionAbi } from '@8xprotocol/artifacts';
-
-const expect = chai.expect;
-//const addressBook = generateAddressBook('develop');
-
 import * as contract from 'truffle-contract';
 
+import { BigNumber } from 'bignumber.js';
+import { Web3Utils } from '@8xprotocol/artifacts';
+import { VolumeSubscriptionContract, VolumeSubscriptionAbi } from '@8xprotocol/artifacts';
+
+import EightEx from '../src/index';
+
+const expect = chai.expect;
+
+const provider = new Web3.providers.HttpProvider('http://localhost:8545');
+const web3 = new Web3(provider);
 const eightEx = new EightEx(web3, {volumeSubscriptionAddress: '0x26c30dd516003ebe93418945a7a96ad00db5fc42'});
 
 let addresses: string;
