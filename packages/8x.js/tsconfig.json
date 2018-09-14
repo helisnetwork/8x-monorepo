@@ -12,6 +12,7 @@
     "types": [],
     "typeRoots": [
       "node_modules/@0xproject/types",
+      "node_modules/@jest/types",
       "node_modules/@0xproject/typescript-typings/types",
       "node_modules/@types",
     ],
