@@ -33,8 +33,9 @@
     "test": "npm-run-all test-contracts lint-base lint-test lint-contracts",
     "lint": "npm-run-all lint-base lint-test lint-contracts",
     "generate-typings": "node_modules/@0xproject/abi-gen/bin/abi-gen.js --abis '../artifacts/build/abi/json/**/*.json' --out '../artifacts/build/wrappers' --template './types/contract_templates/contract.mustache' --partials './types/contract_templates/partials/*.mustache'",
-    "build-develop": "npm run clean && truffle migrate --reset --network develop && node exportArtifacts && npm run generate-typings",
-    "build-kovan": "npm run clean && truffle migrate --reset --network kovan && node exportArtifacts && npm run generate-typings",
-    "build-main": "npm run clean && truffle migrate --reset --network main && node exportArtifacts && npm run generate-typings"
+    "build": "truffle compile && node exportArtifacts && npm run generate-typings",
+    "deploy:develop": "npm run clean && truffle migrate --reset --network develop && npm run build",
+    "deploy:kovan": "npm run clean && truffle migrate --reset --network kovan && npm run build",
+    "deploy:main": "npm run clean && truffle migrate --reset --network main && && npm run build"
   }
 }
