@@ -7,13 +7,20 @@ import { Requirements } from './build/abi/ts/Requirements';
 import { StakeContract } from './build/abi/ts/StakeContract';
 import { VolumeSubscription } from './build/abi/ts/VolumeSubscription';
 
+import { MockKyberNetworkInterface } from './build/abi/ts/MockKyberNetworkInterface';
+import { MockToken } from './build/abi/ts/MockToken';
+import { MockVolumeSubscription } from './build/abi/ts/MockVolumeSubscription';
+
 export {
   ApprovedRegistry as ApprovedRegistryAbi,
   Executor as ExecutorAbi,
   PaymentRegistry as PaymentRegistryAbi,
   Requirements as RequirementsAbi,
   StakeContract as StakeContractAbi,
-  VolumeSubscription as VolumeSubscriptionAbi
+  VolumeSubscription as VolumeSubscriptionAbi,
+  MockKyberNetworkInterface as MockKyberNetworkInterfaceAbi,
+  MockToken as MockTokenAbi,
+  MockVolumeSubscription as MockVolumeSubscriptionAbi
 };
 
 // Export contract wrappers
@@ -25,13 +32,20 @@ import { RequirementsContract } from './build/wrappers/requirements';
 import { StakeContractContract } from './build/wrappers/stake_contract';
 import { VolumeSubscriptionContract } from './build/wrappers/volume_subscription';
 
+import { MockKyberNetworkInterfaceContract } from './build/wrappers/mock_kyber_network_interface';
+import { MockTokenContract } from './build/wrappers/mock_token';
+import { MockVolumeSubscriptionContract } from './build/wrappers/mock_volume_subscription';
+
 export {
   ApprovedRegistryContract,
   ExecutorContract,
   PaymentRegistryContract,
   RequirementsContract,
   StakeContractContract as StakeContract,
-  VolumeSubscriptionContract
+  VolumeSubscriptionContract,
+  MockKyberNetworkInterfaceContract,
+  MockTokenContract,
+  MockVolumeSubscriptionContract
 }
 
 // Export all the addresses
