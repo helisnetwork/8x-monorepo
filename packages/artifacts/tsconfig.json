@@ -6,8 +6,8 @@
     "noImplicitAny": false,
     "lib": ["dom", "es2015", "es2016", "es2017"],
     "module": "commonjs",
-    "baseUrl": "src/",
-    "rootDir": "src/",
+    "baseUrl": ".",
+    "rootDir": ".",
     "target": "es5",
     "types": [],
     "typeRoots": [
@@ -26,6 +26,7 @@
     "declarationDir": "./dist/"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "build/**/*"
   ]
 }

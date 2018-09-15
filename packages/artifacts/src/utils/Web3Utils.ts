@@ -27,7 +27,7 @@ export class Web3Utils {
 
   public static bytes32Ascii(ascii: string, chars: number, sign: string): string {
     let hexString = this.fromAscii(ascii);
-    return Web3BetaUtils.rightPad(ascii, chars, sign);
+    return Web3BetaUtils.rightPad(hexString, chars, sign);
   }
 
   public async getNetworkIdAsync(): Promise<number> {

@@ -56,7 +56,7 @@ export default class Plans {
     let planHash = await volumeSubscription.createPlan.sendTransactionAsync(
       owner,
       this.daiAddress,
-      Web3Utils.bytes32Ascii(identifier, 64, '0'),
+      Web3Utils.soliditySHA3(identifier),
       new BigNumber(interval).mul(60*24*24),
       new BigNumber(amount).mul(10**16),
       new BigNumber(fee).mul(10**16),

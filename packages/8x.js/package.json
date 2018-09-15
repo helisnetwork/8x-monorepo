@@ -54,6 +54,9 @@
       "/dist/"
     ],
     "testURL": "http://localhost/",
+    "modulePaths": [
+      "node_modules/"
+    ],
     "moduleFileExtensions": [
       "ts",
       "tsx",
