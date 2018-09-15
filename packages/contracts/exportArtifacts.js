@@ -6,6 +6,9 @@ const artifacts = [
 	'Requirements',
 	'PaymentRegistry',
 	'StakeContract',
+	'MockKyberNetworkInterface',
+	'MockToken',
+	'MockVolumeSubscription'
 ];
 
 const PACKAGE = require('./package.json');
