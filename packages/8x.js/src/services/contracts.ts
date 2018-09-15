@@ -17,7 +17,7 @@ import {
   EXECUTOR_CACHE_KEY,
   PAYMENT_REGISTRY_CACHE_KEY,
   VOLUME_SUBSCRIPTION_CACHE_KEY,
-} from '../utils/constants';
+} from '../constants';
 
 export interface EightExContracts {
   executorContract: ExecutorContract;
