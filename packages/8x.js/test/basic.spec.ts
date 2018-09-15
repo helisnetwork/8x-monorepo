@@ -10,7 +10,7 @@ import { Web3Utils, VolumeSubscriptionContract } from '@8xprotocol/artifacts';
 
 import {
   deployVolumeSubscription, deployKyber, deployApprovedRegistry, deployMockToken
-} from './helpers/contractDeployment';
+} from './helpers/contract_deployment';
 
 import EightEx from '../src/index';
 import { TX_DEFAULTS } from '../src/constants';
@@ -67,6 +67,12 @@ describe('Plans', () => {
     );
 
     expect(identifier).to.not.be.null;
+
+  });
+
+  it('should be able to retrieve details about the plan', async () => {
+
+    let plan
 
   });
 
