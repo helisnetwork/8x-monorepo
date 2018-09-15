@@ -4,9 +4,9 @@ import * as _ from "lodash";
 
 export interface TxData {
     from?: string;
-    gas?: number;
+    gas?: BigNumber;
     gasPrice?: BigNumber;
-    nonce?: number;
+    nonce?: BigNumber;
 }
 
 export interface TxDataPayable extends TxData {

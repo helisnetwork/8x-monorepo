@@ -1,23 +1,25 @@
-import { VolumeSubscriptionContract, VolumeSubscriptionAbi } from '@8xprotocol/artifacts';
 
 import * as Web3 from 'web3';
 import * as contract from 'truffle-contract';
 
-import { Provider } from 'ethereum-types';
+import { Provider, TxData } from 'ethereum-types';
 import { BigNumber } from 'bignumber.js';
+import { TX_DEFAULTS } from '../../src/constants'
+import { Address } from '@8xprotocol/types';
+
+import {
+  VolumeSubscriptionContract,
+  VolumeSubscriptionAbi
+} from '@8xprotocol/artifacts';
 
 export const deployVolumeSubscription = async (
-  provider: Provider
+  provider: Provider,
+  owner: Address
 ): Promise<VolumeSubscriptionContract> => {
 
   const web3 = new Web3(provider);
   const accounts = web3.eth.accounts;
-
-  let defaults = {
-    from: accounts[0],
-    gasPrice: new BigNumber(6000000000),
-    gas: new BigNumber(6712390),
-  };
+  const defaults = TX_DEFAULTS(owner);
 
   let volumeSubscriptionContract = contract(VolumeSubscriptionAbi);
   volumeSubscriptionContract.setProvider(provider);
@@ -29,7 +31,7 @@ export const deployVolumeSubscription = async (
   const contractAt = await VolumeSubscriptionContract.at(
     deployedVolumeSubscription.address,
     web3,
-    {},
+    defaults
   );
 
   return contractAt;
