@@ -4,6 +4,7 @@ import 'jest';
 
 import * as chai from 'chai';
 import * as Web3 from 'web3';
+import * as Units from '../src/utils/units';
 
 import { BigNumber } from 'bignumber.js';
 import { Web3Utils, VolumeSubscriptionContract } from '@8xprotocol/artifacts';
@@ -58,9 +59,8 @@ describe('Plans', () => {
       business,
       'create.new.plan',
       30,
-      1000,
-      10,
-      true,
+      Units.dollars(10),
+      Units.cents(10),
       'Netflix',
       'Premium Plan',
       null,
@@ -75,13 +75,13 @@ describe('Plans', () => {
 
   it('should be able to retrieve details about the plan', async () => {
 
-    let plan = await eightEx.plans.get(planHash, true);
+    let plan = await eightEx.plans.get(planHash);
 
     expect(plan.owner).to.equal(business);
     expect(plan.identifier).to.equal('create.new.plan');
     expect(plan.interval).to.equal(30);
-    expect(plan.amount).to.equal(1000);
-    expect(plan.fee).to.equal(10);
+    expect(plan.amount.toNumber()).to.equal(Units.dollars(10).toNumber());
+    expect(plan.fee.toNumber()).to.equal(Units.cents(10).toNumber());
     expect(plan.data).to.equal('{"name":"Netflix","description":"Premium Plan"}');
     expect(plan.name).to.equal('Netflix');
     expect(plan.description).to.equal('Premium Plan');
@@ -92,7 +92,7 @@ describe('Plans', () => {
 
     await eightEx.plans.cancel(planHash, {from: business});
 
-    let plan = await eightEx.plans.get(planHash, true);
+    let plan = await eightEx.plans.get(planHash);
     expect(plan.terminationDate).to.not.be.equal(0);
 
   });
