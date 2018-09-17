@@ -2,6 +2,7 @@ import * as Web3 from 'web3';
 
 import VolumeSubscriptionWrapper from '../wrappers/volume_subscription_wrapper';
 import { TxData, Bytes32, AddressBook, Plan } from '@8xprotocol/types';
+import { BigNumber } from '@8xprotocol/types/node_modules/bignumber.js';
 
 export default class PlanAPI {
 
@@ -28,7 +29,6 @@ export default class PlanAPI {
    * @param interval      Interval, in days, to charge a user
    * @param amount        Amount to charge a user
    * @param fee           Amount to set as the processing fee
-   * @param isFiat        Is the amount specified in fiat (2 decimal places)?
    * @param name          Your organisation/name (eg 'Netflix', 'SaaS dApp'). Shown to user.
    * @param description   Description for your plan (eg 'Premium Plan'). Shown to user.
    * @param metaData      Any extra data you'd like to store on-chain (JSON format).
@@ -38,9 +38,8 @@ export default class PlanAPI {
     owner: string,
     identifier: string,
     interval: number,
-    amount: number,
-    fee: number,
-    isFiat: Boolean,
+    amount: BigNumber,
+    fee: BigNumber,
     name: string,
     description: string,
     metaData: JSON | null,
@@ -54,7 +53,6 @@ export default class PlanAPI {
       interval,
       amount,
       fee,
-      isFiat,
       name,
       description,
       metaData,
@@ -64,11 +62,10 @@ export default class PlanAPI {
   }
 
   public async get(
-    planIdentifier: string,
-    inFiat: Boolean
+    planIdentifier: string
   ): Promise<Plan> {
 
-    return await this.volumeSubscriptionWrapper.getPlan(planIdentifier, inFiat);
+    return await this.volumeSubscriptionWrapper.getPlan(planIdentifier);
 
   }
 

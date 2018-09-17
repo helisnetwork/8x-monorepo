@@ -29,9 +29,8 @@ export default class VolumeSubscriptionWrapper {
     token: Address,
     identifier: string,
     interval: number,
-    amount: number,
-    fee: number,
-    isFiat: Boolean,
+    amount: BigNumber,
+    fee: BigNumber,
     name: string | null,
     description: string | null,
     metaData: JSON | null,
@@ -55,8 +54,8 @@ export default class VolumeSubscriptionWrapper {
       token,
       Web3Utils.asciiToHex(identifier),
       new BigNumber(interval).mul(SECONDS_IN_DAY),
-      isFiat ? new BigNumber(amount).mul(10**16): new BigNumber(amount),
-      isFiat ? new BigNumber(fee).mul(10**16): new BigNumber(fee),
+      amount,
+      fee,
       submitString,
       txSettings
     );
@@ -90,8 +89,7 @@ export default class VolumeSubscriptionWrapper {
   }
 
   public async getPlan(
-    planIdentifier: Bytes32,
-    inFiat: Boolean
+    planIdentifier: Bytes32
   ): Promise<Plan> {
 
     let volumeSubscription = await this.contracts.loadVolumeSubscription();
@@ -113,23 +111,26 @@ export default class VolumeSubscriptionWrapper {
       description = parsedData["description"] || ''
     }
 
-    if (inFiat) {
-      amount = amount.div(10**16);
-      fee = fee.div(10**16);
-    }
-
     return {
       owner,
       tokenAddress,
       identifier,
       interval: interval.toNumber(),
-      amount: amount.toNumber(),
-      fee: fee.toNumber(),
+      amount,
+      fee,
       data,
       terminationDate: terminationDate.toNumber(),
       name,
       description,
     } as Plan;
+
+  }
+
+  public async getPlans(
+    owner: string
+  ): Promise<[Plan]> {
+
+    return
 
   }
 
