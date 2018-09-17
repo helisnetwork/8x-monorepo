@@ -29,8 +29,9 @@ let eightEx: EightEx;
 
 let volumeSubscription: VolumeSubscriptionContract;
 let planHash: string;
+let subscriptionHash: string;
 
-describe('Plans', () => {
+describe('SubscriptionAPI', () => {
 
   beforeAll(async () => {
 
@@ -51,10 +52,6 @@ describe('Plans', () => {
       approvedRegistryAddress: approvedRegistry.address
     });
 
-  });
-
-  test('should be able to create a plan', async () => {
-
     planHash = await eightEx.plans.create(
       business,
       'create.new.plan',
@@ -68,40 +65,9 @@ describe('Plans', () => {
       {from: business},
     );
 
-    console.log(planHash);
-
-    expect(planHash).to.not.be.null;
-
   });
 
-  it('should be able to retrieve details about the plan', async () => {
-
-    let plan = await eightEx.plans.getPlan(planHash);
-
-    expect(plan.owner).to.equal(business);
-    expect(plan.identifier).to.equal('create.new.plan');
-    expect(plan.interval).to.equal(30);
-    expect(plan.amount.toNumber()).to.equal(Units.dollars(10).toNumber());
-    expect(plan.fee.toNumber()).to.equal(Units.cents(10).toNumber());
-    expect(plan.name).to.equal('Netflix');
-    expect(plan.description).to.equal('Premium Plan');
-    expect(plan.imageUrl).to.equal('http://some.cool.image');
-    expect(plan.terminationDate).to.equal(0);
-  });
-
-  it('should be able to cancel the plan', async () => {
-
-    await eightEx.plans.cancel(planHash, {from: business});
-
-    let plan = await eightEx.plans.getPlan(planHash);
-    expect(plan.terminationDate).to.not.be.equal(0);
-
-  });
-
-  it('should be able to get all the business\' plans', async () => {
-
-    let plans = await eightEx.plans.getPlans(business);
-    expect(plans.length).to.equal(1);
+  test('should be able to create a subscription', async () => {
 
   });
 
