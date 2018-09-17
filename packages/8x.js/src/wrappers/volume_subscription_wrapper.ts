@@ -10,7 +10,7 @@ import { generateTxOpts } from '../utils/transaction_utils';
 import { Address, Bytes32, TxData, Plan } from '@8xprotocol/types';
 import { SECONDS_IN_DAY } from '../constants';
 
-import { getFormattedLogsFromTxHash, getFormattedLogsFromReceipt, formatLogEntry } from '../utils/logs';
+import { getFormattedLogsFromTxHash, getFormattedLogsFromReceipt, formatLogEntry, getPastLogs } from '../utils/logs';
 
 export default class VolumeSubscriptionWrapper {
 
@@ -33,6 +33,7 @@ export default class VolumeSubscriptionWrapper {
     fee: BigNumber,
     name: string | null,
     description: string | null,
+    imageUrl: string | null,
     metaData: JSON | null,
     txData?: TxData,
   ): Promise<Bytes32> {
@@ -45,6 +46,7 @@ export default class VolumeSubscriptionWrapper {
     if (name) {
       submitData['name'] = name;
       submitData['description'] = description;
+      submitData['imageUrl'] = imageUrl;
     }
 
     let submitString = (Object.keys(submitData).length > 0) ? JSON.stringify(submitData) : '';
@@ -105,10 +107,12 @@ export default class VolumeSubscriptionWrapper {
 
     let name: string;
     let description: string;
+    let imageUrl: string;
 
     if (parsedData) {
-      name = parsedData["name"] || ''
-      description = parsedData["description"] || ''
+      name = parsedData["name"] || '';
+      description = parsedData["description"] || '';
+      imageUrl = parsedData["imageUrl"] || '';
     }
 
     return {
@@ -122,15 +126,25 @@ export default class VolumeSubscriptionWrapper {
       terminationDate: terminationDate.toNumber(),
       name,
       description,
+      imageUrl
     } as Plan;
 
   }
 
   public async getPlans(
     owner: string
-  ): Promise<[Plan]> {
+  ): Promise<Plan[]> {
 
-    return
+    let volumeSubscription = await this.contracts.loadVolumeSubscription();
+
+    let logs = await getPastLogs(this.web3, volumeSubscription,'CreatedPlan')
+    let ids = logs.map((object) => _.get(object, 'args.planIdentifier'));
+
+    let plans = ids.map(async(id) => {
+      return await this.getPlan(id);
+    });
+
+    return await Promise.all(plans);
 
   }
 

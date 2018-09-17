@@ -63,6 +63,7 @@ describe('Plans', () => {
       Units.cents(10),
       'Netflix',
       'Premium Plan',
+      'http://some.cool.image',
       null,
       {from: business},
     );
@@ -75,16 +76,16 @@ describe('Plans', () => {
 
   it('should be able to retrieve details about the plan', async () => {
 
-    let plan = await eightEx.plans.get(planHash);
+    let plan = await eightEx.plans.getPlan(planHash);
 
     expect(plan.owner).to.equal(business);
     expect(plan.identifier).to.equal('create.new.plan');
     expect(plan.interval).to.equal(30);
     expect(plan.amount.toNumber()).to.equal(Units.dollars(10).toNumber());
     expect(plan.fee.toNumber()).to.equal(Units.cents(10).toNumber());
-    expect(plan.data).to.equal('{"name":"Netflix","description":"Premium Plan"}');
     expect(plan.name).to.equal('Netflix');
     expect(plan.description).to.equal('Premium Plan');
+    expect(plan.imageUrl).to.equal('http://some.cool.image');
     expect(plan.terminationDate).to.equal(0);
   });
 
@@ -92,8 +93,15 @@ describe('Plans', () => {
 
     await eightEx.plans.cancel(planHash, {from: business});
 
-    let plan = await eightEx.plans.get(planHash);
+    let plan = await eightEx.plans.getPlan(planHash);
     expect(plan.terminationDate).to.not.be.equal(0);
+
+  });
+
+  it('should be able to get all the business\' plans', async () => {
+
+    let plans = await eightEx.plans.getPlans(business);
+    expect(plans.length).to.equal(1);
 
   });
 
