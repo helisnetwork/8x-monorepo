@@ -13,6 +13,45 @@ export interface TxDataPayable extends TxData {
     value?: BigNumber;
 }
 
+export interface Log {
+    event: string;
+    address: Address;
+    args: any;
+}
+
+export interface ReceiptLog {
+    name: string;
+    events: Object[];
+    address: string;
+}
+
+export interface LogEntry {
+    logIndex: number | null;
+    transactionIndex: number | null;
+    transactionHash: string;
+    blockHash: string | null;
+    blockNumber: number | null;
+    address: string;
+    data: string;
+    topics: string[];
+}
+
+export declare type TransactionReceiptStatus = null | string | 0 | 1;
+
+export interface TransactionReceipt {
+    blockHash: string;
+    blockNumber: number;
+    transactionHash: string;
+    transactionIndex: number;
+    from: string;
+    to: string;
+    status: TransactionReceiptStatus;
+    cumulativeGasUsed: number;
+    gasUsed: number;
+    contractAddress: string | null;
+    logs: LogEntry[];
+}
+
 export interface MultiSigSubmissionEventArgs {
     transactionId: BigNumber;
 }
@@ -33,11 +72,6 @@ export const classUtils = {
         return self;
     },
 };
-
-export interface Log {
-    event: string;
-    args: object;
-}
 
 export type Address = string;
 export type UInt = BigNumber;
@@ -63,4 +97,17 @@ export interface AddressBook {
     transferProxyAddress?: string;
     volumeSubscriptionAddress?: string;
     daiAddress?: string;
-  }
+}
+
+export interface Plan {
+    owner: Address,
+    tokenAddress: Address,
+    identifier: Bytes32,
+    interval: number,
+    amount: number,
+    fee: number,
+    data: string,
+    name: string | null,
+    description: string | null,
+    terminationDate: number
+}

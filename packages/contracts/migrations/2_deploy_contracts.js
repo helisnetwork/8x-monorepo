@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 
-const Tokens = require("../../artifacts/deployed/tokens");
-const Dependencies = require("../../artifacts/deployed/dependencies");
+const Tokens = require("../../artifacts/src/addresses/tokens");
+const Dependencies = require("../../artifacts/src/addresses/dependencies");
 
 const Constants = require("./migration_constants");
 

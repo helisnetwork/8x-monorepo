@@ -1,8 +1,7 @@
 import * as Web3 from 'web3';
 
 import VolumeSubscriptionWrapper from '../wrappers/volume_subscription_wrapper';
-
-import { TxData, Bytes32, AddressBook } from '@8xprotocol/types';
+import { TxData, Bytes32, AddressBook, Plan } from '@8xprotocol/types';
 
 export default class PlanAPI {
 
@@ -27,11 +26,12 @@ export default class PlanAPI {
    * @param token         Token to receive payments in
    * @param identifier    External identifier to use to retrieve subscribers
    * @param interval      Interval, in days, to charge a user
-   * @param amount        Amount, in cents, to charge a use
-   * @param fee           Amount, in cents, to set as the processing fee
+   * @param amount        Amount to charge a user
+   * @param fee           Amount to set as the processing fee
+   * @param isFiat        Is the amount specified in fiat (2 decimal places)?
    * @param name          Your organisation/name (eg 'Netflix', 'SaaS dApp'). Shown to user.
    * @param description   Description for your plan (eg 'Premium Plan'). Shown to user.
-   * @param metaData      Any extra data you'd like to store on-chain (JSON format)
+   * @param metaData      Any extra data you'd like to store on-chain (JSON format).
   */
 
   public async create(
@@ -40,6 +40,7 @@ export default class PlanAPI {
     interval: number,
     amount: number,
     fee: number,
+    isFiat: Boolean,
     name: string,
     description: string,
     metaData: JSON | null,
@@ -53,11 +54,30 @@ export default class PlanAPI {
       interval,
       amount,
       fee,
+      isFiat,
       name,
       description,
       metaData,
       txData
     );
+
+  }
+
+  public async get(
+    planIdentifier: string,
+    inFiat: Boolean
+  ): Promise<Plan> {
+
+    return await this.volumeSubscriptionWrapper.getPlan(planIdentifier, inFiat);
+
+  }
+
+  public async cancel(
+    planIdentifier: string,
+    txData?: TxData
+  ): Promise<boolean> {
+
+    return await this.volumeSubscriptionWrapper.terminatePlan(planIdentifier, txData);
 
   }
 

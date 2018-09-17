@@ -1,4 +1,4 @@
-import web3 from 'web3';
+const web3 = require('web3');
 
 const newPlan = async function(contract, token, account, identifier, interval, cost, fee) {
 
