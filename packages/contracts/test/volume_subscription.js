@@ -1,6 +1,6 @@
-import assertRevert from './helpers/assert_revert.js';
-import keccak from './helpers/keccak.js';
-import web3 from 'web3';
+const web3 = require('web3');
+const keccak = require('./helpers/keccak');
+const assertRevert = require('./helpers/assert_revert');
 
 var MockVolumeSubscription = artifacts.require("./test/MockVolumeSubscription.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
@@ -171,13 +171,12 @@ contract('VolumeSubscription', function(accounts) {
         it("should be able to create a new plan correctly", async function() {
 
             await approvedRegistryContract.addApprovedToken(token.address, false, {from: contractOwner});
-            console.log(web3.utils.fromAscii('plans.new'));
-            console.log(web3.utils.fromAscii(''));
+
 
             let newPlan = await contract.createPlan(
                 business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, 0, {from: business}
             );
-
+            console.log(JSON.stringify(newPlan.logs));
             let planHash = newPlan.logs[0].args.planIdentifier;
             let plan = await contract.plans.call(planHash);
 

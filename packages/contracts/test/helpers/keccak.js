@@ -1,6 +1,6 @@
-import abi from 'ethereumjs-abi';
+const abi = require('ethereumjs-abi');
 
-export default function(types, values) {
+module.exports = function(types, values) {
     let computedHash = "0x" + abi.soliditySHA3(types, values).toString('hex');
     return computedHash;
 };
