@@ -109,5 +109,6 @@ export interface Plan {
     data: string,
     name: string | null,
     description: string | null,
+    imageUrl: string | null,
     terminationDate: number
 }

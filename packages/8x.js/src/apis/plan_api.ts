@@ -31,6 +31,7 @@ export default class PlanAPI {
    * @param fee           Amount to set as the processing fee
    * @param name          Your organisation/name (eg 'Netflix', 'SaaS dApp'). Shown to user.
    * @param description   Description for your plan (eg 'Premium Plan'). Shown to user.
+   * @param imageUrl      A logo for your busines/plan. Shown to user.
    * @param metaData      Any extra data you'd like to store on-chain (JSON format).
   */
 
@@ -42,6 +43,7 @@ export default class PlanAPI {
     fee: BigNumber,
     name: string,
     description: string,
+    imageUrl: string | null,
     metaData: JSON | null,
     txData?: TxData
   ): Promise<Bytes32> {
@@ -55,17 +57,26 @@ export default class PlanAPI {
       fee,
       name,
       description,
+      imageUrl,
       metaData,
       txData
     );
 
   }
 
-  public async get(
+  public async getPlan(
     planIdentifier: string
   ): Promise<Plan> {
 
     return await this.volumeSubscriptionWrapper.getPlan(planIdentifier);
+
+  }
+
+  public async getPlans(
+    owner: string
+  ): Promise<[Plan]> {
+
+    return await this.volumeSubscriptionWrapper.getPlans(owner);
 
   }
 

@@ -7,12 +7,20 @@ import { TransactionReceipt } from 'ethereum-types';
 import { Web3Utils } from '@8xprotocol/artifacts';
 import { Address, Log } from '@8xprotocol/types';
 import { awaitTx } from './transaction_utils';
+import { BaseContract } from '@8xprotocol/artifacts/node_modules/@8xprotocol/base_contract';
+
+export interface GetEventOptions {
+  fromBlock?: number;
+  toBlock?: number;
+  limit?: number;
+}
 
 export async function getFormattedLogsFromTxHash(web3: Web3, abi: any, txHash: string): Promise<Log[]> {
-  const coreContract = ABIDecoder.addABI(abi);
-  const web3Utils = new Web3Utils(web3);
+  ABIDecoder.addABI(abi);
   const receipt: TransactionReceipt = await awaitTx(web3, txHash);
-  return getFormattedLogsFromReceipt(receipt);
+  const formattedLogs = getFormattedLogsFromReceipt(receipt);
+  ABIDecoder.removeABI(abi);
+  return formattedLogs;
 }
 
 export function getFormattedLogsFromReceipt(receipt: TransactionReceipt): Log[] {
@@ -75,4 +83,42 @@ export function formatLogEntry(logs: ABIDecoder.DecodedLog): Log {
     address,
     args,
   };
+}
+
+export async function getPastLogs(
+  web3: Web3,
+  contractWrapper: BaseContract,
+  eventName: string,
+  options: GetEventOptions = {},
+): Promise<ABIDecoder.DecodedLog[]> {
+  const { fromBlock, limit, toBlock } = options;
+
+  if (limit === 0) {
+      return [];
+  }
+
+  ABIDecoder.addABI(contractWrapper.abi);
+
+  const contract = web3.eth.contract(contractWrapper.abi).at(contractWrapper.address);
+  const eventsWatcher = contract.allEvents({
+      fromBlock: fromBlock || 0,
+      toBlock: toBlock || "latest",
+  });
+
+  let filteredEvents: ABIDecoder.DecodedLog[] = [];
+
+  await new Promise((resolve) => {
+    eventsWatcher.get((error, logs) => {
+      filteredEvents = _.filter(logs, (log) => log.event === eventName)
+      resolve();
+    })
+  });
+
+  ABIDecoder.removeABI(contractWrapper.abi);
+
+  if (limit) {
+      return _.take(filteredEvents, limit);
+  } else {
+      return filteredEvents;
+  }
 }
