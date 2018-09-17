@@ -6,8 +6,9 @@ import { PaymentRegistry } from './build/abi/ts/PaymentRegistry';
 import { Requirements } from './build/abi/ts/Requirements';
 import { StakeContract } from './build/abi/ts/StakeContract';
 import { VolumeSubscription } from './build/abi/ts/VolumeSubscription';
+import { KyberNetworkInterface } from './build/abi/ts/KyberNetworkInterface';
 
-import { MockKyberNetworkInterface } from './build/abi/ts/MockKyberNetworkInterface';
+import { MockKyberNetwork } from './build/abi/ts/MockKyberNetwork';
 import { MockToken } from './build/abi/ts/MockToken';
 import { MockVolumeSubscription } from './build/abi/ts/MockVolumeSubscription';
 
@@ -18,7 +19,8 @@ export {
   Requirements as RequirementsAbi,
   StakeContract as StakeContractAbi,
   VolumeSubscription as VolumeSubscriptionAbi,
-  MockKyberNetworkInterface as MockKyberNetworkInterfaceAbi,
+  KyberNetworkInterface as KyberNetworkInterfaceAbi,
+  MockKyberNetwork as MockKyberNetworkAbi,
   MockToken as MockTokenAbi,
   MockVolumeSubscription as MockVolumeSubscriptionAbi
 };
@@ -31,8 +33,9 @@ import { PaymentRegistryContract } from './build/wrappers/payment_registry';
 import { RequirementsContract } from './build/wrappers/requirements';
 import { StakeContractContract } from './build/wrappers/stake_contract';
 import { VolumeSubscriptionContract } from './build/wrappers/volume_subscription';
+import { KyberNetworkInterfaceContract } from './build/wrappers/kyber_network_interface';
 
-import { MockKyberNetworkInterfaceContract } from './build/wrappers/mock_kyber_network_interface';
+import { MockKyberNetworkContract } from './build/wrappers/mock_kyber_network';
 import { MockTokenContract } from './build/wrappers/mock_token';
 import { MockVolumeSubscriptionContract } from './build/wrappers/mock_volume_subscription';
 
@@ -43,7 +46,8 @@ export {
   RequirementsContract,
   StakeContractContract as StakeContract,
   VolumeSubscriptionContract,
-  MockKyberNetworkInterfaceContract,
+  KyberNetworkInterfaceContract,
+  MockKyberNetworkContract,
   MockTokenContract,
   MockVolumeSubscriptionContract
 }

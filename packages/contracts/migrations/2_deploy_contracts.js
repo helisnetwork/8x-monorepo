@@ -23,7 +23,7 @@ module.exports = function(deployer, network, accounts) {
     const EightExToken = artifacts.require("./EightExToken.sol");
 
     const MockToken = artifacts.require("./test/MockToken.sol");
-    const MockKyberNetworkInterface = artifacts.require("./test/MockKyberNetworkInterface.sol");
+    const MockKyberNetwork = artifacts.require("./test/MockKyberNetwork.sol");
 
     return deployer.then(async () => {
 
@@ -38,7 +38,7 @@ module.exports = function(deployer, network, accounts) {
         let eightExToken = await deployer.deploy(EightExToken);
         let stakeContract = await deployer.deploy(StakeContract, eightExToken.address);
 
-        let kyberNetworkAddress = Dependencies.KyberNetwork[network] || (await deployer.deploy(MockKyberNetworkInterface)).address;
+        let kyberNetworkAddress = Dependencies.KyberNetwork[network] || (await deployer.deploy(MockKyberNetwork)).address;
         let daiAddress = Tokens.DAI.addresses[network] || (await deployer.deploy(MockToken)).address;
 
         // Deploy the Approved Registrt with Kyber Network

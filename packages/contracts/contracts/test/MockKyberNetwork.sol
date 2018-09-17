@@ -5,7 +5,7 @@ import "../interfaces/KyberNetworkInterface.sol";
 /** @title Mock contract to test Kyber Network proxy interface */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract MockKyberNetworkInterface is KyberNetworkInterface {
+contract MockKyberNetwork is KyberNetworkInterface {
 
     /**
       * KYBER NETWORK INTERFACE FUNCTIONS

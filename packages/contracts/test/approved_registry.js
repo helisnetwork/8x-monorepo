@@ -6,7 +6,7 @@ var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.s
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
 var WrappedEther = artifacts.require("./base/token/WETH.sol");
 var MockToken = artifacts.require("./test/MockToken.sol");
-var MockKyber = artifacts.require("./test/MockKyberNetworkInterface.sol");
+var MockKyber = artifacts.require("./test/MockKyberNetwork.sol");
 
 contract('ApprovedRegistry', function(accounts) {
 

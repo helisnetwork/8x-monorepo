@@ -6,7 +6,8 @@ const artifacts = [
 	'Requirements',
 	'PaymentRegistry',
 	'StakeContract',
-	'MockKyberNetworkInterface',
+	'KyberNetworkInterface',
+	'MockKyberNetwork',
 	'MockToken',
 	'MockVolumeSubscription'
 ];

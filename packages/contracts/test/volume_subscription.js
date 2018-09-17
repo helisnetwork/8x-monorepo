@@ -5,7 +5,7 @@ const assertRevert = require('./helpers/assert_revert');
 var MockVolumeSubscription = artifacts.require("./test/MockVolumeSubscription.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
-var MockKyberNetworkInterface = artifacts.require("./test/MockKyberNetworkInterface.sol");
+var MockKyberNetwork = artifacts.require("./test/MockKyberNetwork.sol");
 
 contract('VolumeSubscription', function(accounts) {
 
@@ -22,7 +22,7 @@ contract('VolumeSubscription', function(accounts) {
 
     before(async function() {
 
-        kyberNetwork = await MockKyberNetworkInterface.new({from: contractOwner});
+        kyberNetwork = await MockKyberNetwork.new({from: contractOwner});
         approvedRegistryContract = await ApprovedRegistry.new(kyberNetwork.address, {from: contractOwner});
 
         contract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: accounts[0]});
