@@ -74,7 +74,7 @@ export default class PlanAPI {
 
   public async getPlans(
     owner: string
-  ): Promise<[Plan]> {
+  ): Promise<Plan[]> {
 
     return await this.volumeSubscriptionWrapper.getPlans(owner);
 

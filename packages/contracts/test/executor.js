@@ -8,7 +8,7 @@ import { newPlan, newSubscription, newActiveSubscription, setTimes } from './hel
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
 var MockExecutor = artifacts.require("./test/MockExecutor.sol");
-var KyberContract = artifacts.require("./test/MockKyberNetworkInterface.sol");
+var KyberContract = artifacts.require("./test/MockKyberNetwork.sol");
 var MockToken = artifacts.require("./test/MockToken.sol");
 var MockPaymentRegistryContract = artifacts.require("./test/MockPaymentRegistry.sol");
 

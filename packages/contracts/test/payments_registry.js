@@ -4,7 +4,7 @@ import keccak from './helpers/keccak.js';
 import { newSubscription } from './helpers/volume_subscription.js';
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
-var MockKyberContract = artifacts.require("./tests/MockKyberNetworkInterface");
+var MockKyberContract = artifacts.require("./tests/MockKyberNetwork");
 var MockPaymentRegistry= artifacts.require('./tests/MockPaymentRegistry.sol');
 var EightExToken = artifacts.require("./EightExToken.sol");
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
