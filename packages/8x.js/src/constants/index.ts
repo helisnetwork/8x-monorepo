@@ -14,6 +14,7 @@ export const PAYMENT_REGISTRY_CACHE_KEY = 'PaymentRegistry';
 export const VOLUME_SUBSCRIPTION_CACHE_KEY = 'VolumeSubscription';
 export const STAKE_CONTRACT_CACHE_KEY = 'StakeContract';
 export const REQUIREMENTS_CACHE_KEY = 'Requirements';
+export const KYBER_CACHE_KEY = 'Kyber';
 
 export function TX_DEFAULTS(from: string) {
   return {

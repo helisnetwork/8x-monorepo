@@ -88,15 +88,16 @@ export enum SolidityType {
 }
 
 export interface AddressBook {
-    actionProxyAddress?: string;
-    approvedRegistryAddress?: string;
-    executorAddress?: string;
-    paymentRegistryAddress?: string;
-    requirementsAddress?: string;
-    stakeContractAddress?: string;
-    transferProxyAddress?: string;
-    volumeSubscriptionAddress?: string;
-    daiAddress?: string;
+    actionProxyAddress?: Address;
+    approvedRegistryAddress?: Address;
+    executorAddress?: Address;
+    paymentRegistryAddress?: Address;
+    requirementsAddress?: Address;
+    stakeContractAddress?: Address;
+    transferProxyAddress?: Address;
+    volumeSubscriptionAddress?: Address;
+    daiAddress?: Address;
+    kyberAdress?: Address;
 }
 
 export interface Plan {

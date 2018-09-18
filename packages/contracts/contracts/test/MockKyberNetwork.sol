@@ -64,6 +64,18 @@ contract MockKyberNetwork is KyberNetworkInterface {
         return 0;
     }
 
+    function swapEtherToToken(
+        ERC20 token,
+        uint minConversionRate
+    )
+        public
+        payable
+    {
+
+        token.transfer(msg.sender, minConversionRate * msg.value);
+
+    }
+
     function swapTokenToTokenWithChange (
         ERC20 srcToken,
         uint srcQty,

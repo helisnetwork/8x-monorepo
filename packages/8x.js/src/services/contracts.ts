@@ -17,6 +17,7 @@ import {
   EXECUTOR_CACHE_KEY,
   PAYMENT_REGISTRY_CACHE_KEY,
   VOLUME_SUBSCRIPTION_CACHE_KEY,
+  KYBER_CACHE_KEY
 } from '../constants';
 
 export interface EightExContracts {
