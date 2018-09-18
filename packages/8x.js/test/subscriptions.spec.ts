@@ -71,12 +71,18 @@ describe('SubscriptionAPI', () => {
 
     subscriptionHash = await eightEx.subscriptions.create(
       planHash,
-      '',
+      null,
       {from: consumer}
     );
 
-    console.log(subscriptionHash);
     expect(subscriptionHash).to.not.be.null;
+
+  });
+
+  test('should be able to get details about the subscription', async () => {
+
+    let subscription = await eightEx.subscriptions.get(subscriptionHash);
+    console.log(subscription);
 
   });
 
