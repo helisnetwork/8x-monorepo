@@ -89,11 +89,14 @@ export default class SubscriptionsAPI {
   }
 
   public async cancel(
-    planIdentifier: Bytes32,
+    subscriptionIdentifier: Bytes32,
     txData?: TxData
   ): Promise<TxHash> {
 
-    return Promise.resolve('');
+    return this.volumeSubscriptionWrapper.cancelSubscription(
+      subscriptionIdentifier,
+      txData
+    );
 
   }
 

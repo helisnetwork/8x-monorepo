@@ -82,11 +82,21 @@ describe('SubscriptionAPI', () => {
   test('should be able to get details about the subscription', async () => {
 
     let subscription = await eightEx.subscriptions.get(subscriptionHash);
-    console.log(subscription);
+    expect(subscription.planHash).to.equal(planHash);
+    expect(subscription.terminationDate).to.equal(0);
 
   });
 
   test('should be able to activate a subscription', async () => {
+
+  });
+
+  test('it should be able to cancel a subscription', async () => {
+
+    await eightEx.subscriptions.cancel(subscriptionHash, {from: consumer});
+
+    let subscription = await eightEx.subscriptions.get(subscriptionHash);
+    expect(subscription.terminationDate).to.not.be.equal(0);
 
   });
 
