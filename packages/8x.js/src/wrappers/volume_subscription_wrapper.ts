@@ -1,5 +1,4 @@
 import * as Web3 from 'web3';
-import * as ABIDecoder from 'abi-decoder';
 import * as _ from 'lodash';
 
 import Contracts from '../services/contracts';

@@ -10,12 +10,12 @@ import { Address } from '@8xprotocol/types';
 import {
   ApprovedRegistryAbi,
   ApprovedRegistryContract,
-  MockKyberNetworkInterfaceAbi,
-  MockKyberNetworkInterfaceContract,
   VolumeSubscriptionAbi,
   VolumeSubscriptionContract,
   MockTokenContract,
-  MockTokenAbi
+  MockTokenAbi,
+  MockKyberNetworkAbi,
+  MockKyberNetworkContract
 } from '@8xprotocol/artifacts';
 
 export const deployVolumeSubscription = async (
@@ -48,20 +48,20 @@ export const deployVolumeSubscription = async (
 export const deployKyber = async(
   provider: Provider,
   owner: Address
-): Promise<MockKyberNetworkInterfaceContract> => {
+): Promise<MockKyberNetworkContract> => {
 
   const web3 = new Web3(provider);
   const accounts = web3.eth.accounts;
   const defaults = TX_DEFAULTS(owner);
 
-  let mockKyberContract = contract(MockKyberNetworkInterfaceAbi);
+  let mockKyberContract = contract(MockKyberNetworkAbi);
   mockKyberContract.setProvider(provider);
   mockKyberContract.setNetwork(50);
   mockKyberContract.defaults(defaults);
 
   const deployedKyberContract = await mockKyberContract.new();
 
-  const contractInstance = await MockKyberNetworkInterfaceContract.at(
+  const contractInstance = await MockKyberNetworkContract.at(
     deployedKyberContract.address,
     web3,
     defaults

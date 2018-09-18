@@ -53,6 +53,16 @@ contract KyberNetworkInterface {
       * PUBLIC FUNCTIONS
     */
 
+    /** @dev makes a trade from Ether to token. Sends token to msg sender
+      * @param token Destination token
+      * @param minConversionRate The minimal conversion rate. If actual rate is lower, trade is canceled.
+      * @return amount of actual dest tokens
+    **/
+    function swapEtherToToken(
+        ERC20 token,
+        uint minConversionRate
+    ) public payable;
+
     /**
       * @dev Swap an exact number of tokens
       * @param srcToken a valid token address

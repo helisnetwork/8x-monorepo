@@ -69,6 +69,19 @@ describe('SubscriptionAPI', () => {
 
   test('should be able to create a subscription', async () => {
 
+    subscriptionHash = await eightEx.subscriptions.create(
+      planHash,
+      '',
+      {from: consumer}
+    );
+
+    console.log(subscriptionHash);
+    expect(subscriptionHash).to.not.be.null;
+
+  });
+
+  test('should be able to activate a subscription', async () => {
+
   });
 
 });

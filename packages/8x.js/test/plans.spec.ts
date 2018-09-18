@@ -51,6 +51,9 @@ describe('PlanAPI', () => {
       approvedRegistryAddress: approvedRegistry.address
     });
 
+    console.log(eightEx);
+    console.log(eightEx.plans);
+
   });
 
   it('should be able to create a plan', async () => {
