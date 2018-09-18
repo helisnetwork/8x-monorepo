@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 
 import { Web3Utils, VolumeSubscriptionAbi } from '@8xprotocol/artifacts';
 import { generateTxOpts } from '../utils/transaction_utils';
-import { Address, Bytes32, TxData, Plan } from '@8xprotocol/types';
+import { Address, Bytes32, TxData, TxHash, Plan, Subscription } from '@8xprotocol/types';
 import { SECONDS_IN_DAY } from '../constants';
 
 import { getFormattedLogsFromTxHash, getFormattedLogsFromReceipt, formatLogEntry, getPastLogs } from '../utils/logs';
@@ -74,18 +74,16 @@ export default class VolumeSubscriptionWrapper {
   public async terminatePlan(
     identifier: Bytes32,
     txData?: TxData
-  ): Promise<boolean> {
+  ): Promise<TxHash> {
 
     const txSettings = await generateTxOpts(this.web3, txData);
     const volumeSubscription = await this.contracts.loadVolumeSubscription();
 
-    await volumeSubscription.terminatePlan.sendTransactionAsync(
+    return await volumeSubscription.terminatePlan.sendTransactionAsync(
       identifier,
       new BigNumber(Date.now()).dividedToIntegerBy(1000),
       txSettings
     );
-
-    return Promise.resolve(true);
 
   }
 
@@ -93,7 +91,7 @@ export default class VolumeSubscriptionWrapper {
     planIdentifier: Bytes32
   ): Promise<Plan> {
 
-    let volumeSubscription = await this.contracts.loadVolumeSubscription();
+    const volumeSubscription = await this.contracts.loadVolumeSubscription();
 
     let [
       owner, tokenAddress, identifier, interval, amount, fee, data, terminationDate
@@ -134,7 +132,7 @@ export default class VolumeSubscriptionWrapper {
     owner: string
   ): Promise<Plan[]> {
 
-    let volumeSubscription = await this.contracts.loadVolumeSubscription();
+    const volumeSubscription = await this.contracts.loadVolumeSubscription();
 
     let logs = await getPastLogs(this.web3, volumeSubscription,'CreatedPlan')
     let ids = logs.map((object) => _.get(object, 'args.planIdentifier'));
@@ -155,28 +153,69 @@ export default class VolumeSubscriptionWrapper {
   }
 
   public async getPlanState(
-    contract: Address,
     identifier: Bytes32
   ) {
 
   }
   public async createSubscription(
-    identifier: Bytes32
-  ) {
+    planIdentifier: Bytes32,
+    metaData: JSON | null,
+    txData?: TxData
+  ): Promise<Bytes32> {
+
+    const txSettings = await generateTxOpts(this.web3, txData);
+    const volumeSubscription = await this.contracts.loadVolumeSubscription();
+
+    let txHash = await volumeSubscription.createSubscription.sendTransactionAsync(
+      planIdentifier,
+      metaData ? JSON.stringify(metaData) : '',
+      txSettings
+    );
+
+    let logs = await getFormattedLogsFromTxHash(this.web3, VolumeSubscriptionAbi.abi, txHash);
+
+    // @TODO: Throw error if doesn't exist
+    let subscriptionIdentifier = _.get(logs[0].args, "subscriptionIdentifier") || '';
+
+    return subscriptionIdentifier;
 
   }
 
   public async cancelSubscription(
-    contract: Address,
-    identifier: Bytes32
-  ) {
+    subscriptionIdentifier: Bytes32,
+    txData?: TxData
+  ): Promise<TxHash> {
+
+    const txSettings = await generateTxOpts(this.web3, txData);
+    const volumeSubscription = await this.contracts.loadVolumeSubscription();
+
+    return await volumeSubscription.cancelSubscription.sendTransactionAsync(
+      subscriptionIdentifier,
+      txSettings
+    );
 
   }
 
   public async getSubscription(
-    contract: Address,
-    identifier: Bytes32
+    subscriptionIdentifier: Bytes32
   ) {
+
+    const volumeSubscription = await this.contracts.loadVolumeSubscription();
+
+    let [
+      owner, tokenAddress, planHash, lastPaymentDate, terminationDate, data
+    ] = await volumeSubscription.subscriptions.callAsync(
+      subscriptionIdentifier
+    );
+
+    return {
+      owner,
+      tokenAddress,
+      planHash,
+      lastPaymentDate: lastPaymentDate.toNumber(),
+      terminationDate: terminationDate.toNumber(),
+      data
+    } as Subscription;
 
   }
 
@@ -187,8 +226,7 @@ export default class VolumeSubscriptionWrapper {
   }
 
   public async getSubscriptionState(
-    contract: Address,
-    identifier: Bytes32
+    subscriptionIdentifier: Bytes32
   ) {
 
   }

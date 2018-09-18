@@ -64,7 +64,7 @@ export default class PlanAPI {
 
   }
 
-  public async getPlan(
+  public async get(
     planIdentifier: string
   ): Promise<Plan> {
 
@@ -72,7 +72,7 @@ export default class PlanAPI {
 
   }
 
-  public async getPlans(
+  public async getAllFor(
     owner: string
   ): Promise<Plan[]> {
 
@@ -83,7 +83,7 @@ export default class PlanAPI {
   public async cancel(
     planIdentifier: string,
     txData?: TxData
-  ): Promise<boolean> {
+  ): Promise<string> {
 
     return await this.volumeSubscriptionWrapper.terminatePlan(planIdentifier, txData);
 

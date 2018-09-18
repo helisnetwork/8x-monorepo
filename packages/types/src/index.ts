@@ -76,6 +76,7 @@ export const classUtils = {
 export type Address = string;
 export type UInt = BigNumber;
 export type Bytes32 = string;
+export type TxHash = string;
 
 export enum SolidityType {
     address = "address",
@@ -112,4 +113,13 @@ export interface Plan {
     description: string | null,
     imageUrl: string | null,
     terminationDate: number
+}
+
+export interface Subscription {
+    owner: Address,
+    tokenAddress: Address,
+    planHash: Bytes32,
+    lastPaymentDate: number,
+    terminationDate: number,
+    data: string
 }

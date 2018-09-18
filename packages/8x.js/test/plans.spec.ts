@@ -51,9 +51,6 @@ describe('PlanAPI', () => {
       approvedRegistryAddress: approvedRegistry.address
     });
 
-    console.log(eightEx);
-    console.log(eightEx.plans);
-
   });
 
   it('should be able to create a plan', async () => {
@@ -71,15 +68,13 @@ describe('PlanAPI', () => {
       {from: business},
     );
 
-    console.log(planHash);
-
     expect(planHash).to.not.be.null;
 
   });
 
   it('should be able to retrieve details about the plan', async () => {
 
-    let plan = await eightEx.plans.getPlan(planHash);
+    let plan = await eightEx.plans.get(planHash);
 
     expect(plan.owner).to.equal(business);
     expect(plan.identifier).to.equal('create.new.plan');
@@ -96,14 +91,14 @@ describe('PlanAPI', () => {
 
     await eightEx.plans.cancel(planHash, {from: business});
 
-    let plan = await eightEx.plans.getPlan(planHash);
+    let plan = await eightEx.plans.get(planHash);
     expect(plan.terminationDate).to.not.be.equal(0);
 
   });
 
   it('should be able to get all the business\' plans', async () => {
 
-    let plans = await eightEx.plans.getPlans(business);
+    let plans = await eightEx.plans.getAllFor(business);
     expect(plans.length).to.equal(1);
 
   });

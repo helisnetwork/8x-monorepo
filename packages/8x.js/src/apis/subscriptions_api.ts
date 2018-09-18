@@ -1,7 +1,9 @@
 import * as Web3 from 'web3';
 
 import VolumeSubscriptionWrapper from '../wrappers/volume_subscription_wrapper';
-import { TxData, Bytes32, Address, AddressBook, Plan } from '@8xprotocol/types';
+import ExecutorWrapper from '../wrappers/executor_wrapper';
+
+import { TxData, TxHash, Bytes32, Address, AddressBook, Plan, Subscription } from '@8xprotocol/types';
 import { BigNumber } from '@8xprotocol/types/node_modules/bignumber.js';
 
 export default class SubscriptionsAPI {
@@ -9,11 +11,18 @@ export default class SubscriptionsAPI {
   private web3: Web3;
   private addressBook: AddressBook;
   private volumeSubscriptionWrapper: VolumeSubscriptionWrapper;
+  private executorWrapper: ExecutorWrapper;
 
-  constructor(web3: Web3, addressBook: AddressBook, volumeSubscriptionWrapper: VolumeSubscriptionWrapper) {
+  constructor(
+    web3: Web3,
+    addressBook: AddressBook,
+    volumeSubscriptionWrapper: VolumeSubscriptionWrapper,
+    executorWrapper: ExecutorWrapper
+  ) {
     this.web3 = web3;
     this.addressBook = addressBook;
     this.volumeSubscriptionWrapper = volumeSubscriptionWrapper;
+    this.executorWrapper = executorWrapper;
   }
 
   public async hasGivenAllowance(
@@ -44,37 +53,47 @@ export default class SubscriptionsAPI {
 
   public async create(
     planIdentifier: Bytes32,
-    data: string,
+    metaData: JSON | null,
     txData?: TxData
   ): Promise<Bytes32> {
 
-    return Promise.resolve('');
+    return this.volumeSubscriptionWrapper.createSubscription(
+      planIdentifier,
+      metaData,
+      txData
+    );
 
   }
 
   public async activate(
-    planIdentifier: Bytes32,
+    subscriptionIdentifier: Bytes32,
     txData?: TxData
-  ): Promise<Bytes32> {
+  ): Promise<TxHash> {
 
-    return Promise.resolve('');
+    return this.executorWrapper.activateSubscription(
+      this.addressBook.volumeSubscriptionAddress,
+      subscriptionIdentifier,
+      txData
+    );
 
   }
 
   public async get(
-    planIdentifier: Bytes32
-  ): Promise<Plan> {
+    subscriptionIdentifier: Bytes32
+  ): Promise<Subscription> {
 
-    return Promise.resolve(null)
+    return this.volumeSubscriptionWrapper.getSubscription(
+      subscriptionIdentifier
+    );
 
   }
 
   public async cancel(
     planIdentifier: Bytes32,
     txData?: TxData
-  ): Promise<boolean> {
+  ): Promise<TxHash> {
 
-    return Promise.resolve(false);
+    return Promise.resolve('');
 
   }
 
