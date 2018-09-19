@@ -8,7 +8,8 @@ const artifacts = [
 	'StakeContract',
 	'MockKyberNetwork',
 	'MockToken',
-	'MockVolumeSubscription'
+	'MockVolumeSubscription',
+	'TransferProxy'
 ];
 
 const PACKAGE = require('./package.json');

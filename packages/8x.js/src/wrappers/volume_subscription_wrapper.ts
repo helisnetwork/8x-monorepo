@@ -134,8 +134,9 @@ export default class VolumeSubscriptionWrapper {
 
     const volumeSubscription = await this.contracts.loadVolumeSubscription();
 
-    let logs = await getPastLogs(this.web3, volumeSubscription,'CreatedPlan')
-    let ids = logs.map((object) => _.get(object, 'args.planIdentifier'));
+    let logs = await getPastLogs(this.web3, volumeSubscription,'CreatedPlan');
+    let filteredLogs = logs.filter((object) => _.filter(object, ['args.owner', owner]));
+    let ids = filteredLogs.map((object) => _.get(object, 'args.planIdentifier'));
 
     let plans = ids.map(async(id) => {
       return await this.getPlan(id);
@@ -145,10 +146,42 @@ export default class VolumeSubscriptionWrapper {
 
   }
 
-  public async getSubscribers(
-    businessIdentifier?: Bytes32,
-    planIdentifier?: Bytes32
-  ) {
+  public async getSubscriptionsByUser(
+    user: Address
+  ): Promise<Subscription[]> {
+
+   return await this.getSubscribersBy('args.owner', user);
+
+  }
+
+  public async getSubscriptionsByPlan(
+    planIdentifier: Bytes32
+  ): Promise<Subscription[]> {
+
+    return await this.getSubscribersBy('args.planIdentifier', planIdentifier);
+
+  }
+
+  private async getSubscribersBy(
+    key: string,
+    value: string
+  ): Promise<Subscription[]> {
+
+    const volumeSubscription = await this.contracts.loadVolumeSubscription();
+
+    let logs = await getPastLogs(this.web3, volumeSubscription, 'CreatedSubscription');
+    let ids = logs.map((object) => {
+      let filterKey = _.get(object, key);
+      return filterKey == value ? _.get(object, 'args.subscriptionIdentifier') : null;
+    }).filter((object) => object);
+
+    console.log(ids);
+
+    let subscriptions = ids.map(async(id) => {
+      return await this.getSubscription(id);
+    });
+
+    return await Promise.all(subscriptions);
 
   }
 
@@ -216,12 +249,6 @@ export default class VolumeSubscriptionWrapper {
       terminationDate: terminationDate.toNumber(),
       data
     } as Subscription;
-
-  }
-
-  public async getSubscribed(
-    user: Address
-  ) {
 
   }
 

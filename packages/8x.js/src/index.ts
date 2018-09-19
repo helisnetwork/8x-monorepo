@@ -29,7 +29,7 @@ export default class EightEx {
     this.contracts = new Contracts(web3, addressBook);
 
     this.volumeSubscriptionWrapper = new VolumeSubscriptionWrapper(web3, this.contracts);
-    this
+    this.executorWrapper = new ExecutorWrapper(web3, this.contracts);
 
     this.plans = new PlanAPI(this.contracts, addressBook, this.volumeSubscriptionWrapper);
 

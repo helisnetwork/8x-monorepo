@@ -88,6 +88,14 @@ export default class SubscriptionsAPI {
 
   }
 
+  public async getSubscribed(
+    user: Address
+  ): Promise<Subscription[]> {
+
+    return this.volumeSubscriptionWrapper.getSubscriptionsByUser(user);
+
+  }
+
   public async cancel(
     subscriptionIdentifier: Bytes32,
     txData?: TxData

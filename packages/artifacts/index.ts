@@ -6,6 +6,7 @@ import { PaymentRegistry } from './build/abi/ts/PaymentRegistry';
 import { Requirements } from './build/abi/ts/Requirements';
 import { StakeContract } from './build/abi/ts/StakeContract';
 import { VolumeSubscription } from './build/abi/ts/VolumeSubscription';
+import { TransferProxy } from './build/abi/ts/TransferProxy';
 
 import { MockToken } from './build/abi/ts/MockToken';
 import { MockVolumeSubscription } from './build/abi/ts/MockVolumeSubscription';
@@ -18,6 +19,7 @@ export {
   Requirements as RequirementsAbi,
   StakeContract as StakeContractAbi,
   VolumeSubscription as VolumeSubscriptionAbi,
+  TransferProxy as TransferProxyAbi,
   MockKyberNetwork as MockKyberNetworkAbi,
   MockToken as MockTokenAbi,
   MockVolumeSubscription as MockVolumeSubscriptionAbi
@@ -31,6 +33,7 @@ import { PaymentRegistryContract } from './build/wrappers/payment_registry';
 import { RequirementsContract } from './build/wrappers/requirements';
 import { StakeContractContract } from './build/wrappers/stake_contract';
 import { VolumeSubscriptionContract } from './build/wrappers/volume_subscription';
+import { TransferProxyContract } from './build/wrappers/transfer_proxy';
 
 import { MockKyberNetworkContract } from './build/wrappers/mock_kyber_network';
 import { MockTokenContract } from './build/wrappers/mock_token';
@@ -43,6 +46,7 @@ export {
   RequirementsContract,
   StakeContractContract as StakeContract,
   VolumeSubscriptionContract,
+  TransferProxyContract,
   MockKyberNetworkContract,
   MockTokenContract,
   MockVolumeSubscriptionContract
