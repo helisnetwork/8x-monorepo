@@ -7,7 +7,7 @@
     "clean": "rimraf -rf ./dist",
     "build": "npm run clean && tsc",
     "lint": "tslint --project tsconfig.json -c tslint.json",
-    "generate-docs": "typedoc --json ../docs/docs.json && node generateMarkdown.js",
+    "generate-docs": "typedoc --json ../docs/docs.json ./src/apis/ --exclude ./node_modules && node generateMarkdown.js",
     "test": "jest --runInBand",
     "test:watch": "jest --watch --runInBand"
   },
@@ -35,6 +35,8 @@
     "@types/node": "^8.5.1",
     "abi-decoder": "^1.2.0",
     "bignumber.js": "^4.1.0",
+    "dedent-js": "^1.0.1",
+    "fs": "0.0.1-security",
     "fs-extra": "^7.0.0",
     "lodash": "^4.17.11",
     "lodash.compact": "^3.0.1",

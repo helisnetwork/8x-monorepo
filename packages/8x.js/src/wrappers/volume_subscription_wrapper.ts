@@ -64,9 +64,9 @@ export default class VolumeSubscriptionWrapper {
     let logs = await getFormattedLogsFromTxHash(this.web3, VolumeSubscriptionAbi.abi, txHash);
 
     // @TODO: Throw error if doesn't exist
-    let planIdentifier = _.get(logs[0].args, "planIdentifier") || '';
+    let planHash = _.get(logs[0].args, "planIdentifier") || '';
 
-    return planIdentifier;
+    return planHash;
 
   }
 
@@ -88,14 +88,14 @@ export default class VolumeSubscriptionWrapper {
   }
 
   public async getPlan(
-    planIdentifier: Bytes32
+    planHash: Bytes32
   ): Promise<Plan> {
 
     const volumeSubscription = await this.contracts.loadVolumeSubscription();
 
     let [
       owner, tokenAddress, identifier, interval, amount, fee, data, terminationDate
-    ] = await volumeSubscription.plans.callAsync(planIdentifier);;
+    ] = await volumeSubscription.plans.callAsync(planHash);;
 
     identifier = Web3Utils.hexToUtf8(identifier);
     interval = interval.div(SECONDS_IN_DAY);
@@ -155,10 +155,10 @@ export default class VolumeSubscriptionWrapper {
   }
 
   public async getSubscriptionsByPlan(
-    planIdentifier: Bytes32
+    planHash: Bytes32
   ): Promise<Subscription[]> {
 
-    return await this.getSubscribersBy('args.planIdentifier', planIdentifier);
+    return await this.getSubscribersBy('args.planIdentifier', planHash);
 
   }
 
@@ -191,7 +191,7 @@ export default class VolumeSubscriptionWrapper {
 
   }
   public async createSubscription(
-    planIdentifier: Bytes32,
+    planHash: Bytes32,
     metaData: JSON | null,
     txData?: TxData
   ): Promise<Bytes32> {
@@ -200,7 +200,7 @@ export default class VolumeSubscriptionWrapper {
     const volumeSubscription = await this.contracts.loadVolumeSubscription();
 
     let txHash = await volumeSubscription.createSubscription.sendTransactionAsync(
-      planIdentifier,
+      planHash,
       metaData ? JSON.stringify(metaData) : '',
       txSettings
     );
@@ -208,14 +208,14 @@ export default class VolumeSubscriptionWrapper {
     let logs = await getFormattedLogsFromTxHash(this.web3, VolumeSubscriptionAbi.abi, txHash);
 
     // @TODO: Throw error if doesn't exist
-    let subscriptionIdentifier = _.get(logs[0].args, "subscriptionIdentifier") || '';
+    let subscriptionHash = _.get(logs[0].args, "subscriptionIdentifier") || '';
 
-    return subscriptionIdentifier;
+    return subscriptionHash;
 
   }
 
   public async cancelSubscription(
-    subscriptionIdentifier: Bytes32,
+    subscriptionHash: Bytes32,
     txData?: TxData
   ): Promise<TxHash> {
 
@@ -223,14 +223,14 @@ export default class VolumeSubscriptionWrapper {
     const volumeSubscription = await this.contracts.loadVolumeSubscription();
 
     return await volumeSubscription.cancelSubscription.sendTransactionAsync(
-      subscriptionIdentifier,
+      subscriptionHash,
       txSettings
     );
 
   }
 
   public async getSubscription(
-    subscriptionIdentifier: Bytes32
+    subscriptionHash: Bytes32
   ) {
 
     const volumeSubscription = await this.contracts.loadVolumeSubscription();
@@ -238,7 +238,7 @@ export default class VolumeSubscriptionWrapper {
     let [
       owner, tokenAddress, planHash, lastPaymentDate, terminationDate, data
     ] = await volumeSubscription.subscriptions.callAsync(
-      subscriptionIdentifier
+      subscriptionHash
     );
 
     return {
@@ -253,7 +253,7 @@ export default class VolumeSubscriptionWrapper {
   }
 
   public async getSubscriptionState(
-    subscriptionIdentifier: Bytes32
+    subscriptionHash: Bytes32
   ) {
 
   }
