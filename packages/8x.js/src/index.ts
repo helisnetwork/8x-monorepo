@@ -9,6 +9,7 @@ import SubscriptionsAPI from './apis/subscriptions_api';
 
 import VolumeSubscriptionWrapper from './wrappers/volume_subscription_wrapper';
 import ExecutorWrapper from './wrappers/executor_wrapper';
+import TokenWrapper from './wrappers/token_wrapper';
 
 export default class EightEx {
 
@@ -18,6 +19,7 @@ export default class EightEx {
 
   private volumeSubscriptionWrapper: VolumeSubscriptionWrapper;
   private executorWrapper: ExecutorWrapper;
+  private tokenWrapper: TokenWrapper;
 
   public plans: PlanAPI;
   public subscriptions: SubscriptionsAPI;
@@ -30,6 +32,7 @@ export default class EightEx {
 
     this.volumeSubscriptionWrapper = new VolumeSubscriptionWrapper(web3, this.contracts);
     this.executorWrapper = new ExecutorWrapper(web3, this.contracts);
+    this.tokenWrapper = new TokenWrapper(web3, this.contracts);
 
     this.plans = new PlanAPI(this.contracts, addressBook, this.volumeSubscriptionWrapper);
 
@@ -37,7 +40,8 @@ export default class EightEx {
       this.contracts,
       addressBook,
       this.volumeSubscriptionWrapper,
-      this.executorWrapper
+      this.executorWrapper,
+      this.tokenWrapper
     );
 
   }

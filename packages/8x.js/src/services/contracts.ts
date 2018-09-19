@@ -6,10 +6,11 @@ import {
   PaymentRegistryContract,
   PaymentRegistryAbi,
   ConfigAddresses,
-  TokenAddresses
+  TokenAddresses,
+  MockTokenContract
 } from '@8xprotocol/artifacts';
 
-import { AddressBook } from '@8xprotocol/types';
+import { AddressBook, Address } from '@8xprotocol/types';
 
 import * as Web3 from 'web3';
 
@@ -32,7 +33,7 @@ export default class Contracts {
   private addressBook: AddressBook;
 
   private cache: { [contractName: string]: (
-      ExecutorContract | VolumeSubscriptionContract | PaymentRegistryContract
+      ExecutorContract | VolumeSubscriptionContract | PaymentRegistryContract | MockTokenContract
     )
   };
 
@@ -73,6 +74,23 @@ export default class Contracts {
     this.cache[VOLUME_SUBSCRIPTION_CACHE_KEY] = volumeSubscription;
 
     return volumeSubscription;
+  }
+
+  public async loadERC20Token(address: Address): Promise<MockTokenContract> {
+    let cacheKey = this.getERC20TokenCacheKey(address);
+    if (this.cache[cacheKey]) {
+      return this.cache[cacheKey] as MockTokenContract;
+    }
+
+    let tokenContract = await MockTokenContract.at(address, this.web3, {});
+    this.cache[cacheKey] = tokenContract;
+
+    return tokenContract;
+
+  }
+
+  private getERC20TokenCacheKey(tokenAddress: Address): string {
+    return `ERC20Token_${tokenAddress}`;
   }
 
 }
