@@ -7,14 +7,24 @@ import * as Web3 from 'web3';
 import * as Units from '../src/utils/units';
 
 import { BigNumber } from 'bignumber.js';
-import { Web3Utils, VolumeSubscriptionContract } from '@8xprotocol/artifacts';
+import { Web3Utils, VolumeSubscriptionContract, ApprovedRegistryContract, ExecutorContract } from '@8xprotocol/artifacts';
 
 import {
-  deployVolumeSubscription, deployKyber, deployApprovedRegistry, deployMockToken
+  deployVolumeSubscription,
+  deployKyber,
+  deployApprovedRegistry,
+  deployMockToken,
+  deployExecutor,
+  deployTransferProxy,
+  deployStakeContract,
+  deployPaymentRegistry,
+  deployRequirements
 } from './helpers/contract_deployment';
 
 import EightEx from '../src/index';
 import { TX_DEFAULTS } from '../src/constants';
+
+import { MockTokenContract, TransferProxyContract } from '@8xprotocol/artifacts';
 
 const expect = chai.expect;
 
@@ -28,7 +38,13 @@ let consumer: string;
 let eightEx: EightEx;
 
 let volumeSubscription: VolumeSubscriptionContract;
+let approvedRegistry: ApprovedRegistryContract;
+let mockToken: MockTokenContract;
+let transferProxy: TransferProxyContract;
+let executor: ExecutorContract;
+
 let planHash: string;
+let anotherPlanHash: string;
 let subscriptionHash: string;
 
 describe('SubscriptionAPI', () => {
@@ -40,16 +56,40 @@ describe('SubscriptionAPI', () => {
     business = addresses[1];
     consumer = addresses[2];
 
-    const mockToken = await deployMockToken(provider, contractOwner);
     const kyber = await deployKyber(provider, contractOwner);
-    const approvedRegistry = await deployApprovedRegistry(provider, contractOwner, kyber.address, mockToken.address);
 
+    mockToken = await deployMockToken(provider, contractOwner);
+    approvedRegistry = await deployApprovedRegistry(provider, contractOwner, kyber.address, mockToken.address);
     volumeSubscription = await deployVolumeSubscription(provider, contractOwner, approvedRegistry.address);
+    transferProxy = await deployTransferProxy(provider, contractOwner);
+
+    const stakeContract = await deployStakeContract(provider, contractOwner);
+    const paymentRegistry = await deployPaymentRegistry(provider, contractOwner);
+    const requirements = await deployRequirements(provider, contractOwner);
+
+    executor = await deployExecutor(
+      provider,
+      contractOwner,
+      transferProxy,
+      stakeContract,
+      paymentRegistry,
+      volumeSubscription,
+      approvedRegistry.address,
+      requirements.address,
+      800,
+      7
+    );
+
+    await approvedRegistry.addApprovedContract.sendTransactionAsync(volumeSubscription.address, {from: contractOwner});
+
+    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
+    await mockToken.approve.sendTransactionAsync(transferProxy.address, new BigNumber(2).pow(256).minus(1), {from: consumer});
 
     eightEx = new EightEx(web3, {
       volumeSubscriptionAddress: volumeSubscription.address,
       daiAddress: mockToken.address,
-      approvedRegistryAddress: approvedRegistry.address
+      approvedRegistryAddress: approvedRegistry.address,
+      executorAddress: executor.address
     });
 
     planHash = await eightEx.plans.create(
@@ -60,6 +100,19 @@ describe('SubscriptionAPI', () => {
       Units.cents(10),
       'Netflix',
       'Premium Plan',
+      'http://some.cool.image',
+      null,
+      {from: business},
+    );
+
+    anotherPlanHash = await eightEx.plans.create(
+      business,
+      'create.new.plan.2',
+      30,
+      Units.dollars(10),
+      Units.cents(10),
+      'Netflix',
+      'Gold Plan',
       'http://some.cool.image',
       null,
       {from: business},
@@ -83,11 +136,20 @@ describe('SubscriptionAPI', () => {
 
     let subscription = await eightEx.subscriptions.get(subscriptionHash);
     expect(subscription.planHash).to.equal(planHash);
+    expect(subscription.lastPaymentDate).to.equal(0);
     expect(subscription.terminationDate).to.equal(0);
 
   });
 
   test('should be able to activate a subscription', async () => {
+
+    let txHash = await eightEx.subscriptions.activate(
+      subscriptionHash
+    );
+
+    let subscription = await eightEx.subscriptions.get(subscriptionHash);
+    expect(subscription.planHash).to.equal(planHash);
+    expect(subscription.lastPaymentDate).to.be.greaterThan(0);
 
   });
 
@@ -96,7 +158,27 @@ describe('SubscriptionAPI', () => {
     await eightEx.subscriptions.cancel(subscriptionHash, {from: consumer});
 
     let subscription = await eightEx.subscriptions.get(subscriptionHash);
-    expect(subscription.terminationDate).to.not.be.equal(0);
+    expect(subscription.terminationDate).to.be.greaterThan(0);
+
+  });
+
+  test('it should be able to get all subscriptions by subscriber', async () => {
+
+    let anotherSubscriptionHash = await eightEx.subscriptions.create(anotherPlanHash, null, {from: consumer});
+    await eightEx.subscriptions.activate(anotherSubscriptionHash, {from: consumer});
+
+    let subscriptions = await eightEx.subscriptions.getSubscribed(consumer);
+    expect(subscriptions.length).to.equal(2);
+
+  });
+
+  test('it should be able to get all subscriptions by plan', async ()=> {
+
+    let subscriptionsOne = await eightEx.plans.getSubscribers(planHash);
+    expect(subscriptionsOne.length).to.equal(1);
+
+    let subscriptionsTwo = await eightEx.plans.getSubscribers(anotherPlanHash);
+    expect(subscriptionsTwo.length).to.equal(1);
 
   });
 

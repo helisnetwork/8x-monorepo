@@ -1,7 +1,7 @@
 import * as Web3 from 'web3';
 
 import VolumeSubscriptionWrapper from '../wrappers/volume_subscription_wrapper';
-import { TxData, Bytes32, AddressBook, Plan } from '@8xprotocol/types';
+import { TxData, Bytes32, AddressBook, Plan, Subscription, Address } from '@8xprotocol/types';
 import { BigNumber } from '@8xprotocol/types/node_modules/bignumber.js';
 
 export default class PlanAPI {
@@ -73,10 +73,18 @@ export default class PlanAPI {
   }
 
   public async getAllFor(
-    owner: string
+    owner: Address
   ): Promise<Plan[]> {
 
     return await this.volumeSubscriptionWrapper.getPlans(owner);
+
+  }
+
+  public async getSubscribers(
+    plan: Bytes32
+  ): Promise<Subscription[]> {
+
+    return await this.volumeSubscriptionWrapper.getSubscriptionsByPlan(plan);
 
   }
 

@@ -30,6 +30,7 @@ export default class ExecutorWrapper {
     const txSettings = await generateTxOpts(this.web3, txData);
 
     let executor = await this.contracts.loadExecutor();
+
     return await executor.activateSubscription.sendTransactionAsync(
       subscriptionContract,
       subscriptionIdentifier,
