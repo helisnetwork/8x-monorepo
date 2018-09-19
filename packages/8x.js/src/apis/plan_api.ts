@@ -50,7 +50,7 @@ export default class PlanAPI {
 
     return await this.volumeSubscriptionWrapper.createPlan(
       owner,
-      this.addressBook.daiAddress || '',
+      this.addressBook.transactingTokenAddress || '',
       identifier,
       interval,
       amount,

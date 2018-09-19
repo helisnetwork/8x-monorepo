@@ -81,15 +81,14 @@ describe('SubscriptionAPI', () => {
     );
 
     await approvedRegistry.addApprovedContract.sendTransactionAsync(volumeSubscription.address, {from: contractOwner});
-
     await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
-    await mockToken.approve.sendTransactionAsync(transferProxy.address, new BigNumber(2).pow(256).minus(1), {from: consumer});
 
     eightEx = new EightEx(web3, {
       volumeSubscriptionAddress: volumeSubscription.address,
-      daiAddress: mockToken.address,
+      transactingTokenAddress: mockToken.address,
       approvedRegistryAddress: approvedRegistry.address,
-      executorAddress: executor.address
+      executorAddress: executor.address,
+      transferProxyAddress: transferProxy.address
     });
 
     planHash = await eightEx.plans.create(
@@ -120,9 +119,18 @@ describe('SubscriptionAPI', () => {
 
   });
 
+  test('should be able to give allownace', async () => {
+
+    await eightEx.subscriptions.giveAllowance({from: consumer});
+
+    let allowance = await eightEx.subscriptions.hasGivenAllowance(consumer);
+    expect(allowance).to.be.true;
+
+  })
+
   test('should be able to create a subscription', async () => {
 
-    subscriptionHash = await eightEx.subscriptions.create(
+    subscriptionHash = await eightEx.subscriptions.subscribe(
       planHash,
       null,
       {from: consumer}
@@ -143,7 +151,7 @@ describe('SubscriptionAPI', () => {
 
   test('should be able to activate a subscription', async () => {
 
-    let txHash = await eightEx.subscriptions.activate(
+    await eightEx.subscriptions.activate(
       subscriptionHash
     );
 
@@ -164,7 +172,7 @@ describe('SubscriptionAPI', () => {
 
   test('it should be able to get all subscriptions by subscriber', async () => {
 
-    let anotherSubscriptionHash = await eightEx.subscriptions.create(anotherPlanHash, null, {from: consumer});
+    let anotherSubscriptionHash = await eightEx.subscriptions.subscribe(anotherPlanHash, null, {from: consumer});
     await eightEx.subscriptions.activate(anotherSubscriptionHash, {from: consumer});
 
     let subscriptions = await eightEx.subscriptions.getSubscribed(consumer);

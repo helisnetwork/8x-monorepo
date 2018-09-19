@@ -2,9 +2,11 @@ import * as Web3 from 'web3';
 
 import VolumeSubscriptionWrapper from '../wrappers/volume_subscription_wrapper';
 import ExecutorWrapper from '../wrappers/executor_wrapper';
+import TokenWrapper from '../wrappers/token_wrapper';
 
 import { TxData, TxHash, Bytes32, Address, AddressBook, Plan, Subscription } from '@8xprotocol/types';
 import { BigNumber } from '@8xprotocol/types/node_modules/bignumber.js';
+import { UNLIMITED_ALLOWANCE } from '../constants';
 
 export default class SubscriptionsAPI {
 
@@ -12,46 +14,48 @@ export default class SubscriptionsAPI {
   private addressBook: AddressBook;
   private volumeSubscriptionWrapper: VolumeSubscriptionWrapper;
   private executorWrapper: ExecutorWrapper;
+  private tokenWrapper: TokenWrapper;
 
   constructor(
     web3: Web3,
     addressBook: AddressBook,
     volumeSubscriptionWrapper: VolumeSubscriptionWrapper,
-    executorWrapper: ExecutorWrapper
+    executorWrapper: ExecutorWrapper,
+    tokenWrapper: TokenWrapper
   ) {
     this.web3 = web3;
     this.addressBook = addressBook;
     this.volumeSubscriptionWrapper = volumeSubscriptionWrapper;
     this.executorWrapper = executorWrapper;
+    this.tokenWrapper = tokenWrapper;
   }
 
   public async hasGivenAllowance(
-    token: Address
+    owner: Address
   ): Promise<boolean> {
 
-    return Promise.resolve(false);
+    let allowance = await this.tokenWrapper.allowance(
+      this.addressBook.transactingTokenAddress || '',
+      owner,
+      this.addressBook.transferProxyAddress || ''
+    );
+
+    return allowance.toNumber() == UNLIMITED_ALLOWANCE.toNumber();
 
   }
 
-  public async giveAllowance(
-    token: Address
-  ): Promise<boolean> {
+  public async giveAllowance(txData?: TxData): Promise<TxHash> {
 
-    return Promise.resolve(false);
+    return await this.tokenWrapper.giveApproval(
+      this.addressBook.transactingTokenAddress || '',
+      this.addressBook.transferProxyAddress || '',
+      UNLIMITED_ALLOWANCE,
+      txData
+    );
 
   }
 
   public async subscribe(
-    planIdentifier: Bytes32,
-    data: string,
-    txData?: TxData
-  ): Promise<Bytes32> {
-
-    return Promise.resolve('');
-
-  }
-
-  public async create(
     planIdentifier: Bytes32,
     metaData: JSON | null,
     txData?: TxData

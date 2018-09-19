@@ -47,8 +47,8 @@ describe('PlanAPI', () => {
 
     eightEx = new EightEx(web3, {
       volumeSubscriptionAddress: volumeSubscription.address,
-      daiAddress: mockToken.address,
-      approvedRegistryAddress: approvedRegistry.address
+      transactingTokenAddress: mockToken.address,
+      approvedRegistryAddress: approvedRegistry.address,
     });
 
   });

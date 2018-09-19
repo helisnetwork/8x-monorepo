@@ -97,7 +97,7 @@ export interface AddressBook {
     stakeContractAddress?: Address;
     transferProxyAddress?: Address;
     volumeSubscriptionAddress?: Address;
-    daiAddress?: Address;
+    transactingTokenAddress?: Address;
     kyberAdress?: Address;
 }
 
