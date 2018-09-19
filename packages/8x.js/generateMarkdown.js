@@ -3,6 +3,8 @@ var json = JSON.parse(fs.readFileSync('../docs/docs.json', 'utf8'));
 var dedent = require('dedent-js');
 
 let classes = json.children.filter((object) => {
+  return object.children
+}).filter((object) => {
   return object.children[0].kindString == 'Class';
 }).map((object) => {
   return object.children[0];
@@ -39,6 +41,9 @@ let classes = json.children.filter((object) => {
 
     let tags = comment.tags || [];
     let example = tags.filter((tag) => tag.tag == 'example')[0] || {'text': ''};
+
+    let priority = tags.filter((tag) => tag.tag == 'priority')[0] || {'text': ''};
+
     let response = tags.filter((tag) => tag.tag == 'response')[0] || {'text': ''};
 
     return {
@@ -48,7 +53,8 @@ let classes = json.children.filter((object) => {
       'returns': comment.returns || '',
       'example': example.text || '',
       'response': response.text || '',
-      'parameters': parameters
+      'parameters': parameters,
+      'priority': parseInt(priority.text || '0')
     }
   });
 
@@ -64,7 +70,9 @@ let markdown = classes.map((object) => {
     return null;
   }
 
-  let methods = object.methods.map((method) => {
+  let methods = object.methods.sort((one, two) => {
+    return one.priority > two.priority
+  }).map((method) => {
 
     if (!method.name || !method.description) {
       return null;

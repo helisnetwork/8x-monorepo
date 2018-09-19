@@ -23,7 +23,7 @@ export default class ExecutorWrapper {
 
   public async activateSubscription(
     subscriptionContract: Address,
-    subscriptionIdentifier: Bytes32,
+    subscriptionHash: Bytes32,
     txData?: TxData
   ): Promise<TxHash> {
 
@@ -33,7 +33,7 @@ export default class ExecutorWrapper {
 
     return await executor.activateSubscription.sendTransactionAsync(
       subscriptionContract,
-      subscriptionIdentifier,
+      subscriptionHash,
       txSettings
     );
 

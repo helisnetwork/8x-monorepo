@@ -121,9 +121,9 @@ describe('SubscriptionAPI', () => {
 
   test('should be able to give allownace', async () => {
 
-    await eightEx.subscriptions.giveAllowance({from: consumer});
+    await eightEx.subscriptions.giveAuthorisation({from: consumer});
 
-    let allowance = await eightEx.subscriptions.hasGivenAllowance(consumer);
+    let allowance = await eightEx.subscriptions.hasGivenAuthorisation(consumer);
     expect(allowance).to.be.true;
 
   })

@@ -1,8 +1,14 @@
 import * as Web3 from 'web3';
 
 import VolumeSubscriptionWrapper from '../wrappers/volume_subscription_wrapper';
-import { TxData, Bytes32, AddressBook, Plan, Subscription, Address } from '@8xprotocol/types';
+import { TxData, Bytes32, AddressBook, Plan, Subscription, Address, TxHash } from '@8xprotocol/types';
 import { BigNumber } from '@8xprotocol/types/node_modules/bignumber.js';
+
+/**
+  * The PlansAPI primarily provides functionality for a business to create, get and cancel subscription plans.
+  * A subscription plan is required in order to link a user's commitment with static on-chain data which can't
+  * be manipulated (with the exception of a title and description).
+*/
 
 export default class PlanAPI {
 
@@ -17,11 +23,9 @@ export default class PlanAPI {
   }
 
   /**
-   * Create a subscription plan
+   * Create plan
    *
-   * A subscription plan is created in order to provide an instance for a consumer to
-   * subscribe to. A consumer can create their own plan allowing for custom subscription
-   * payments.
+   * A subscription plan is needed in order to provide an instance for a consumer to subscribe to.
    *
    * @param owner         Owner of the subscription
    * @param token         Token to receive payments in
@@ -31,10 +35,13 @@ export default class PlanAPI {
    * @param fee           Amount to set as the processing fee
    * @param name          Your organisation/name (eg 'Netflix', 'SaaS dApp'). Shown to user.
    * @param description   Description for your plan (eg 'Premium Plan'). Shown to user.
-   * @param imageUrl      A logo for your busines/plan. Shown to user.
+   * @param imageUrl      Logo for your busines/plan. Shown to user.
    * @param metaData      Any extra data you'd like to store on-chain (JSON format).
+   * @param txData        Provide signer, gas and gasPrice information (optional).
+   *
+   * @returns             Unique identifying hash of the plan
+   * @priority            1
   */
-
   public async create(
     owner: string,
     identifier: string,
@@ -64,14 +71,51 @@ export default class PlanAPI {
 
   }
 
+  /**
+   * Get plan
+   *
+   * Retrieve the details of a subscription plan
+   *
+   * @param planHash      Plan hash returned upon creating a plan.
+   *
+   * @response
+   * ```
+   * {
+   *    owner: '0xbn38s...',
+   *    tokenAddress: '0xfns83c...',
+   *    identifier: 'com.your.plan.identifier',
+   *    interval: 30,
+   *    amount: 1000000000000000000, // Most token use 18 decimal places so this is actually 10
+   *    fee: 10000000000000000, // Similarly, this is actuall 1/10 of a token
+   *    data: '',
+   *    name: 'Netflix',
+   *    description: 'Premium plan',
+   *    imageUrl: 'https://netflix.com/logo,
+   *    terminationDate: 155324929, // (epoch - seconds)
+   * }
+   * ```
+   *
+   * @returns             A plan object
+   * @priority            2
+  */
   public async get(
-    planIdentifier: string
+    planHash: string
   ): Promise<Plan> {
 
-    return await this.volumeSubscriptionWrapper.getPlan(planIdentifier);
+    return await this.volumeSubscriptionWrapper.getPlan(planHash);
 
   }
 
+  /**
+   * Get all plans
+   *
+   * Find all the subscription plans you've created.
+   *
+   * @param owner   The user who you'd like to get plans for.
+   *
+   * @returns       An array of Plan objects
+   * @priority      3
+   */
   public async getAllFor(
     owner: Address
   ): Promise<Plan[]> {
@@ -80,20 +124,46 @@ export default class PlanAPI {
 
   }
 
+  /**
+   * Get subscribers
+   *
+   * Get all the subscribers of a subscription plan
+   *
+   * @param planHash    Plan hash returned upon creating a plan
+   *
+   * @returns           An array of Subscription objects
+   * @priority          4
+   */
   public async getSubscribers(
-    plan: Bytes32
+    planHash: Bytes32
   ): Promise<Subscription[]> {
 
-    return await this.volumeSubscriptionWrapper.getSubscriptionsByPlan(plan);
+    return await this.volumeSubscriptionWrapper.getSubscriptionsByPlan(planHash);
 
   }
 
+  /**
+   * Cancel plan
+   *
+   * Cancel a subscription plan that you've offered to your subscribers.
+   *
+   * @param planHash     Plan hash returned upon creating a plan
+   * @param txData       Provide signer, gas and gasPrice information (optional).
+   *
+   * ```response
+   * [ 0x58e5a0fc7fbc849eddc100d44e86276168a8c7baaa5604e44ba6f5eb8ba1b7eb ]
+   * ```
+   *
+   *
+   * @returns            Hash of the transaction upon completion
+   * @priority           5
+   */
   public async cancel(
-    planIdentifier: string,
+    planHash: string,
     txData?: TxData
-  ): Promise<string> {
+  ): Promise<TxHash> {
 
-    return await this.volumeSubscriptionWrapper.terminatePlan(planIdentifier, txData);
+    return await this.volumeSubscriptionWrapper.terminatePlan(planHash, txData);
 
   }
 
