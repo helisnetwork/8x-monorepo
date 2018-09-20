@@ -7,9 +7,9 @@ const Constants = require("./migration_constants");
 
 module.exports = function(deployer, network, accounts) {
 
-    console.log(network);
+    console.log(`Using network: ${network}`);
 
-    if (network == 'development') {
+    if (network == 'develop') {
         return;
     }
 
@@ -73,26 +73,56 @@ module.exports = function(deployer, network, accounts) {
         const contractsJson = fs.readJsonSync(file, { throws: false }) || {};
 
         let output = {
-            'addresses': {
-                'Executor': executor.address,
-                'VolumeSubscription': volumeSubscription.address,
-                'ApprovedRegistry': approvedRegistry.address,
-                'TransferProxy': transferProxy.address,
-                'PaymentRegistry': paymentRegistry.address,
-                'Requirements': requirementsContract.address,
-                'EightExToken': eightExToken.address,
-                'StakeContract': stakeContract.address,
-                'KyberNetwork': kyberNetworkAddress,
-                'DAI': daiAddress
-            },
-            'approvedTokens': [
-                daiAddress
-            ],
-            'approvedContracts': {
-                'VolumeSubscription': {
-                    address: volumeSubscription.address
+            'addresses': [
+                {
+                    'name': 'Executor',
+                    'address': executor.address
+                },
+                {
+                    'name': 'VolumeSubscription',
+                    'address': volumeSubscription.address
+                },
+                {
+                    'name': 'ApprovedRegistry',
+                    'address': approvedRegistry.address
+                },
+                {
+                    'name': 'TransferProxy',
+                    'address': transferProxy.address
+                },
+                {
+                    'name': 'PaymentRegistry',
+                    'address': paymentRegistry.address
+                },
+                {
+                    'name': 'Requirements',
+                    'address': requirementsContract.address
+                },
+                {
+                    'name': 'EightExToken',
+                    'address': eightExToken.address
+                },
+                {
+                    'name': 'StakeContract',
+                    'address': stakeContract.address
+                },
+                {
+                    'name': 'KyberNetwork',
+                    'address': kyberNetworkAddress
                 }
-            },
+            ],
+            'approvedTokens': [
+                {
+                    'ticker': 'DAI',
+                    'address': daiAddress
+                }
+            ],
+            'approvedContracts': [
+                {
+                    'name': 'VolumeSubscription',
+                    'address': volumeSubscription.address
+                }
+            ],
             lockUpPercentage: Constants.LOCK_UP_PERCENTAGE,
             maximumIntervalDivisor: Constants.MAXIMUM_INTERVAL_DIVISOR,
         };
