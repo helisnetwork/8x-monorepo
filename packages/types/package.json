@@ -15,5 +15,8 @@
     "bignumber.js": "^4.1.0",
     "lodash": "^4.17.11",
     "rimraf": "^2.6.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
