@@ -193,13 +193,12 @@
         }
 
         .buttons {
-            display: flex;
-            justify-content: space-between;
 
             .give-auth {
                 background-color: #5944EE;
                 border-radius: 0.85em;
                 padding: 0.5em;
+                margin-bottom: 0.5em;
 
                 p {
                     color: white;
@@ -213,6 +212,7 @@
                 background-color: #5944EE;
                 border-radius: 0.85em;
                 padding: 0.5em;
+                margin-bottom: 0.5em;
 
                 p {
                     color: white;
@@ -225,6 +225,7 @@
                 background-color: #5944EE;
                 border-radius: 0.85em;
                 padding: 0.5em;
+                margin-bottom: 0.5em;
 
                 p {
                     color: white;
