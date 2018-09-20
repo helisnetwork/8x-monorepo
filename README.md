@@ -9,7 +9,11 @@ A complete explanation of the protocol may be found in our [whitepaper](https://
 [![Solidity](https://img.shields.io/badge/SOLIDITY-0.4.24-orange.svg)](https://solidity.readthedocs.io/en/develop/index.html)
 [![Apache 2.0](https://img.shields.io/badge/LICENSE-APACHE2.0-3DA639.svg)](https://opensource.org/licenses/Apache-2.0)
 
-### Published Packages
+---
+
+## Packages
+
+### Published
 
 | Package                                                         | Version                                                                                                                               | Description                                                                                                               |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
@@ -18,7 +22,7 @@ A complete explanation of the protocol may be found in our [whitepaper](https://
 | [`@8xprotocol/base-contract`](/packages/base-contract)           | [![npm](https://img.shields.io/npm/v/@8xprotocol/base_contract.svg)](https://www.npmjs.com/package/@8xprotocol/base_contract)           | BaseContract used by auto-generated `abi-gen` wrapper contracts                                                           |
 | [`@8xprotocol/types`](/packages/types)                           | [![npm](https://img.shields.io/npm/v/@8xprotocol/types.svg)](https://www.npmjs.com/package/@8xprotocol/types)                           | Shared type declarations
 
-### Private Packages
+### Private
 
 | Package                                                         | Description                                                      |
 | --------------------------------------------------------------- | ---------------------------------------------------------------- |
