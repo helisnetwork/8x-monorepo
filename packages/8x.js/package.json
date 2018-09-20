@@ -32,7 +32,6 @@
     "@types/chai": "^4.1.4",
     "@types/fs-extra": "^5.0.4",
     "@types/lodash": "^4.14.116",
-    "@types/mocha": "^5.2.5",
     "@types/node": "^8.5.1",
     "abi-decoder": "^1.2.0",
     "bignumber.js": "^4.1.0",
@@ -74,5 +73,5 @@
       "node"
     ]
   },
-  "gitHead": "9a2564981185922817d1b23041300e9b68404e70"
+  "gitHead": "51672b15ca9a774b239c4fb74cf2ffc8752d6e82"
 }
