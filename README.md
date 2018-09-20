@@ -34,11 +34,11 @@
 | [`@8xprotocol/repeater`](/packages/repeater)       | Node to process subscriptions |
 
 
-## Addresses
+## Addresses :innocent:
 
 We get it, you're just here to find the contract addresses. Luckily for you, they're all listed here.
 
-### Contracts (Kovan) :memo:
+### Contracts (Kovan)
 
 | Contract Name                                                         | Address                                                      |
 | --------------------------------------------------------------- | ---------------------------------------------------------------- |
@@ -52,7 +52,7 @@ We get it, you're just here to find the contract addresses. Luckily for you, the
 | StakeContract | 0x28c11389f5b08ec8f3634dd9b09d673df0653abe |
 | KyberNetwork | 0x7e6b8b9510D71BF8EF0f893902EbB9C865eEF4Df |
 
-### Supported Tokens (Kovan) :moneybag:
+### Supported Tokens (Kovan)
 
 | Token Ticker                                                         | Address                                                      |
 | --------------------------------------------------------------- | ---------------------------------------------------------------- |
