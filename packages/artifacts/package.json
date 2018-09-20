@@ -1,6 +1,6 @@
 {
   "name": "@8xprotocol/artifacts",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "main": "dist/index.js",
   "scripts": {
     "clean": "rimraf rm -rf lib",
@@ -10,8 +10,8 @@
     "@0xproject/types": "^1.0.1-rc.4",
     "@0xproject/typescript-typings": "^1.0.4",
     "@0xproject/utils": "^1.0.8",
-    "@8xprotocol/base_contract": "^0.1.0",
-    "@8xprotocol/types": "^0.1.0",
+    "@8xprotocol/base_contract": "^0.1.3",
+    "@8xprotocol/types": "^0.1.3",
     "@types/fs-extra": "^5.0.4",
     "@types/lodash": "^4.14.116",
     "@types/node": "^8.5.1",
