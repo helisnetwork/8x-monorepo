@@ -5,9 +5,13 @@ import { TxData, Bytes32, AddressBook, Plan, Subscription, Address, TxHash } fro
 import { BigNumber } from '@8xprotocol/types/node_modules/bignumber.js';
 
 /**
-  * The PlansAPI primarily provides functionality for a business to create, get and cancel subscription plans.
+  * Plans
+  *
+  * @comment The plans API primarily provides functionality for a business to create, get and cancel subscription plans.
   * A subscription plan is required in order to link a user's commitment with static on-chain data which can't
   * be manipulated (with the exception of a title and description).
+  *
+  * @path eightEx.plans
 */
 
 export default class PlanAPI {
@@ -165,6 +169,10 @@ export default class PlanAPI {
 
     return await this.volumeSubscriptionWrapper.terminatePlan(planHash, txData);
 
+  }
+
+  public test(): number {
+      return 0;
   }
 
 }
