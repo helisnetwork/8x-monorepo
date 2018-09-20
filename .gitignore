@@ -14,5 +14,5 @@ dist/
 lerna-debug.log
 
 # Docs
-docs.md
-docs.json
+_api.md
+_api.json
