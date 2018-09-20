@@ -1,7 +1,8 @@
 {
   "name": "@8xprotocol/artifacts",
   "version": "0.1.4",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
+  "typings": "dist/types/src/index.d.ts",
   "scripts": {
     "clean": "rimraf rm -rf lib",
     "build": "npm run clean && tsc"
