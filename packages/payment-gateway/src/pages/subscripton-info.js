@@ -7,6 +7,7 @@ import Header from '../components/header.js';
 import MetaMaskInstall from '../components/metamask-install.js';
 import MetaMaskLocked from '../components/metamask-locked.js';
 import { Link } from 'react-router-dom';
+import bus from '../bus';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
@@ -19,18 +20,42 @@ class SubscriptionInfo extends React.Component {
       selectedCurrency: '',
       selectedPeriod: '',
       kyberConversion: '',
-      subscriptionPrice: 14
+      logo: [],
+      subscriptionName: '',
+      subscriptionDetails: '',
+      subscriptionAmount: '',
+      subscriptionPeriod: '',
+
     };
 
     this.handleSelectedCurrency = this.handleSelectedCurrency.bind(this);
     this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
+    this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
 
   }
 
   componentDidMount() {
     this.handleSelectedCurrency();
     this.handleSelectedPeriod();
+
+    bus.on('subscription:plan:sent', this.subscriptionPlanHandler); 
+    bus.trigger('subscription:plan:requested');
   }
+
+  componentWillUnmount() {
+    bus.off('subscription:plan:sent', this.subscriptionPlanHandler); 
+  }
+
+  subscriptionPlanHandler(object) {
+    console.log(object);
+    this.setState({
+      logo: object.logo,
+      subscriptionName: object.subscriptionName,
+      subscriptionDetails: object.subscriptionDetails,
+      subscriptionAmount: object.subscriptionAmount,
+      subscriptionPeriod: object.subscriptionPeriod
+    });
+  };
 
   // Gets data from selected currency of user
   handleSelectedCurrency(currency) {
@@ -65,12 +90,12 @@ class SubscriptionInfo extends React.Component {
   };
 
   calculateSendAmount () {
-    this.getKyberInformation();
+    //this.getKyberInformation();
     if (this.state.selectedCurrency === 'Dai') {
-      return this.state.selectedPeriod * this.state.subscriptionPrice;
+      return this.state.selectedPeriod * this.state.subscriptionAmount;
     }
     else if (this.state.selectedCurrency === 'Ethereum') {
-      return (this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionPrice).toFixed(4);
+      return (this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionAmount).toFixed(4);
     }
 
   }
@@ -148,11 +173,11 @@ class SubscriptionInfo extends React.Component {
           <div className="hero">
             <div className="main-item">
               <div className="logo">
-                <img src={Images.netflixLogo}/>
+                <img src={this.state.logo}/>
               </div>
               <div className="text">
-                <p>Netflix - Premium Account</p>
-                <span>${this.state.subscriptionPrice}USD billed monthly</span>
+                <p>{this.state.subscriptionName} -  {this.state.subscriptionDetails}</p>
+                <span>${this.state.subscriptionAmount}USD billed {this.state.subscriptionPeriod}</span>
               </div>
             </div>
             <div className="option">
