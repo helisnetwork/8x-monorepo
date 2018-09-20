@@ -1,6 +1,6 @@
 {
   "name": "8x-monorepo",
-  "private": true,
+  "private": false,
   "devDependencies": {
     "lerna": "^3.2.1"
   }
