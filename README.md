@@ -59,7 +59,7 @@ We get it, you're just here to find the contract addresses. Luckily for you, the
 | DAI | 0xc4375b7de8af5a38a93548eb8453a498222c4ff2 |
 
 
-## Contributing
+## Contributing :raising_hand_woman:
 We appreciate your desire to contribute to the 8x Protocol. We strive to maintain
 a high standard over code quality and the security of our contracts. Please read over
 this contributor guide before starting.
