@@ -8,9 +8,16 @@ import {
 } from 'react-transition-group';
 import Container from './components/container';
 import SimpleModalLauncher from './components/modal-launcher';
+import UserStore from './store/user';
 
 /* App component */
 class App extends React.Component {
+  constructor() {
+    super();
+
+    let userStore = new UserStore(); 
+  }
+
   render() {
     return (
       <div>
