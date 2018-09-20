@@ -1,5 +1,5 @@
 {
-  "name": "@8xprotocol/8x.js",
+  "name": "8x.js",
   "version": "0.1.13",
   "description": "",
   "main": "dist/index.js",
