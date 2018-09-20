@@ -13,7 +13,7 @@
   "dependencies": {
     "@0xproject/types": "^1.0.1-rc.4",
     "@0xproject/typescript-typings": "^0.3.2",
-    "@8xprotocol/types": "0.1.0",
+    "@8xprotocol/types": "^0.1.0",
     "@types/lodash": "^4.14.116",
     "@types/node": "^8.5.1",
     "bignumber.js": "^4.1.0",
