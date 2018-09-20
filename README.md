@@ -1,15 +1,12 @@
-<p align="center"><img src="https://8xprotocol.com/assets/images/full-logo.png" width="80"/></p>
+<p align="center"><img src="https://8xprotocol.com/assets/images/full-logo.png" width="280"/></p>
 
 ---
 
-8x Protocol enables decentralised recurring payments on the Ethereum blockchain.
-A complete explanation of the protocol may be found in our [whitepaper](https://github.com/8xprotocol/whitepaper).
+<p align="center">8x Protocol enables decentralised recurring payments on the Ethereum blockchain.<br>A complete explanation of the protocol may be found in our [whitepaper](https://github.com/8xprotocol/whitepaper).</p>
 
 [![Telegram Chat](https://img.shields.io/badge/CHAT-TELEGRAM-0088cc.svg)](http://t.me/eightexprotocol_contributors)
 [![Solidity](https://img.shields.io/badge/SOLIDITY-0.4.24-orange.svg)](https://solidity.readthedocs.io/en/develop/index.html)
 [![Apache 2.0](https://img.shields.io/badge/LICENSE-APACHE2.0-3DA639.svg)](https://opensource.org/licenses/Apache-2.0)
-
----
 
 ## Packages
 
