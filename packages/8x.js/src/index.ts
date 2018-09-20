@@ -34,10 +34,10 @@ export default class EightEx {
     this.executorWrapper = new ExecutorWrapper(web3, this.contracts);
     this.tokenWrapper = new TokenWrapper(web3, this.contracts);
 
-    this.plans = new PlanAPI(this.contracts, addressBook, this.volumeSubscriptionWrapper);
+    this.plans = new PlanAPI(web3, addressBook, this.volumeSubscriptionWrapper);
 
     this.subscriptions = new SubscriptionsAPI(
-      this.contracts,
+      web3,
       addressBook,
       this.volumeSubscriptionWrapper,
       this.executorWrapper,
