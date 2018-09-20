@@ -17,8 +17,6 @@
     "ethereumjs-tx": "^1.3.7",
     "web3": "^1.0.0-beta.35"
   },
-  "gitHead": "2d05e2182eb2ff843b7fd67299430907c9733430",
-  "publishConfig": {
-    "access": "public"
-  }
+  "gitHead": "3e65b57c6dae53cbafdb02719c4087bf600a44fa",
+  "private": true
 }

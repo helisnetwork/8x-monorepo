@@ -16,3 +16,6 @@ lerna-debug.log
 # Docs
 _api.md
 _api.json
+
+# Builds
+*.tgz
