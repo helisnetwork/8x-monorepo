@@ -269,7 +269,7 @@ class SubscriptionInfo extends React.Component {
                         this.handleSubscribe();
                       }}>Subscribe</p>
                     </div>
-                    <div className="activate" style={{ background: this.state.subscribe ? '#5944EE' : 'grey'}}> 
+                    <div className="activate" style={{ background: this.state.subscribe && this.state.authorization  ? '#5944EE' : 'grey'}}> 
                       <p onClick={() => {
                         this.handleActivateSubscription();
                       }}>Activate Subscription</p>
