@@ -15,11 +15,9 @@ class MetamaskHandler extends React.Component {
 
   }
 
-
   componentDidMount() {
     this.initialiseMetaMask();
   }
-
   // Function used to update the state of MetaMask Handler.
   updateStatus(status,address,balance) {
     this.setState({
@@ -44,7 +42,6 @@ class MetamaskHandler extends React.Component {
     this.watchMetaMaskState();
 
   }
-
   // Checks if user is logged into MetaMask
   checkMetaMaskState () {
     web3.eth.getAccounts((err, accounts) => {
@@ -118,7 +115,6 @@ class MetamaskHandler extends React.Component {
     });
   }
 
-  // Renders subscription payment page ref @TODO
   render() {
     return ( 
       <SubscriptionInfo 
