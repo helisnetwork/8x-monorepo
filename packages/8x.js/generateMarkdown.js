@@ -64,6 +64,8 @@ let classes = json.children.filter((object) => {
       returnType = `Promise<${typeObject.typeArguments.map((item) => {
         if (item.type == 'array') {
           return `[${item.elementType.name}]`;
+        } else if (item.type == 'tuple') {
+          return `${item.elements.map((element) => element.name).join(', ')}`;
         } else {
           return item.name;
         }
@@ -114,7 +116,7 @@ let markdown = classes.map((object) => {
 
     let exampleText = (
       `\r\`\`\`typescript\r`
-      + `import eightEx from 'eightEx';\r\r`
+      + `import eightEx from '8x.js';\r\r`
       + `const eightEx = new EightEx(web3, addressBook);\r\r`
       + `${object.path}.${method.method}(\r`
       + `${method.parameters.map((parameter) => `   ${parameter.name}: ${parameter.type}`).join(',\r')}`

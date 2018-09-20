@@ -89,7 +89,6 @@ export enum SolidityType {
 }
 
 export interface AddressBook {
-    actionProxyAddress?: Address;
     approvedRegistryAddress?: Address;
     executorAddress?: Address;
     paymentRegistryAddress?: Address;

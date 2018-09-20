@@ -18,6 +18,7 @@ import { UNLIMITED_ALLOWANCE } from '../constants';
  * @path eightEx.subscriptions
  *
 */
+
 export default class SubscriptionsAPI {
 
   private web3: Web3;
@@ -176,6 +177,69 @@ export default class SubscriptionsAPI {
   }
 
   /**
+   * Get status
+   *
+   * Determine the current state of a subscription. It can either be 'active', 'processing' or 'inactive'.
+   *
+   * The processing state is a simply divisor of the interval of your subscription. Suppose the intervaldivisor is set at 7, then a 28 day subscription has a maximum of 4 days (plus a hour) to be processed.
+   *
+   * The extra hour is counted in the case a service node doesn't process a subscription and another node on the network can steal their tokens and process your subscription instead.
+   *
+   * When you call this function, we'll also let you know whether the user has enough tokens to pay for the subscription and if they've revoked authorisation for 8x to take tokens from their wallet.
+   *
+   * You can decide how you'd like to handle unprocessed subscriptions.
+   *
+   * ```response
+   *
+   * // In the following response, we see the status of a user who's subscription is being processed but has a low chance of not fufilling their recurring obligation.
+   * [
+   *    'processsing', // The subscription is being processed
+   *    'true', // The user has enough tokens to pay for the subscription
+   *    'true', // The user has given 8x enough allowance to take tokens from their wallet
+   * ]
+   *
+   * ```
+   *
+   * @param subscriptionHash        Unique subscription hash returned upon subscribing.
+   * @returns                       Current status, does user has enough tokens, has 8x got authorisation
+   * @priority                      6
+   */
+  public async getStatus(
+    subscriptionHash: Bytes32
+  ): Promise<[string, boolean, boolean]> {
+
+    const subscription = await this.get(subscriptionHash);
+    const intervalDivisor = await this.executorWrapper.getIntervalDivisor();
+    const plan = await this.volumeSubscriptionWrapper.getPlan(subscription.planHash);
+    const now = Date.now() / 1000;
+    const dueDate = subscription.lastPaymentDate + plan.interval;
+
+    const userBalance = await this.tokenWrapper.balanceOf(plan.tokenAddress, subscription.owner);
+    const hasEnough = userBalance >= plan.amount;
+
+    let allowanceAmount = await this.tokenWrapper.allowance(
+      plan.tokenAddress,
+      subscription.owner,
+      this.addressBook.transferProxyAddress || ''
+    );
+
+    const permissionGranted = allowanceAmount >= plan.amount;
+
+    // If we're before the payment date, happy days.
+    if (now < dueDate) {
+      return ['active', hasEnough, permissionGranted];
+    }
+
+    // The subscription is being processed, plus give an extra hour for someone to catch out
+    if (now < dueDate + (plan.interval / intervalDivisor.toNumber()) + (60 * 60)) {
+      return ['processing', hasEnough, permissionGranted];
+    }
+
+    return ['inactive', hasEnough, permissionGranted];
+
+  }
+
+  /**
    * All subscriptions
    *
    * Get all the subscriptions a user has subscribed to.
@@ -183,7 +247,7 @@ export default class SubscriptionsAPI {
    * @param user       The user you'd like to get subscriptions for
    *
    * @returns          An array of subscription objects
-   * @priority         6
+   * @priority         7
   */
   public async getSubscribed(
     user: Address
@@ -203,7 +267,7 @@ export default class SubscriptionsAPI {
    * @param txData              Provide signer, gas and gasPrice information (optional).
    *
    * @returns                   Hash of the transaction upon completion
-   * @priority                  7
+   * @priority                  8
    */
   public async cancel(
     subscriptionHash: Bytes32,

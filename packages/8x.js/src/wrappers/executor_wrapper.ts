@@ -39,4 +39,12 @@ export default class ExecutorWrapper {
 
   }
 
+  public async getIntervalDivisor(): Promise<BigNumber> {
+
+    let executor = await this.contracts.loadExecutor();
+
+    return await executor.maximumIntervalDivisor.callAsync();
+
+  }
+
 };
