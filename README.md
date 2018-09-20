@@ -1,15 +1,18 @@
-<p align="center"><img src="https://8xprotocol.com/assets/images/full-logo.png" width="80"/></p>
+<p align="center"><img src="https://8xprotocol.com/assets/images/full-logo.png" width="280"/></p>
 
----
+<p align="center">8x Protocol enables decentralised recurring payments on the Ethereum blockchain.<br>A complete explanation of the protocol may be found in our whitepaper (https://github.com/8xprotocol/whitepaper).</p>
 
-8x Protocol enables decentralised recurring payments on the Ethereum blockchain.
-A complete explanation of the protocol may be found in our [whitepaper](https://github.com/8xprotocol/whitepaper).
-
-[![Telegram Chat](https://img.shields.io/badge/CHAT-TELEGRAM-0088cc.svg)](http://t.me/eightexprotocol_contributors)
-[![Solidity](https://img.shields.io/badge/SOLIDITY-0.4.24-orange.svg)](https://solidity.readthedocs.io/en/develop/index.html)
-[![Apache 2.0](https://img.shields.io/badge/LICENSE-APACHE2.0-3DA639.svg)](https://opensource.org/licenses/Apache-2.0)
-
----
+<p align="center">
+  <a href="http://t.me/eightexprotocol_contributors">
+    <img src="https://img.shields.io/badge/CHAT-TELEGRAM-0088cc.svg" />
+  </a>
+  <a href="https://solidity.readthedocs.io/en/develop/index.html">
+    <img src="https://img.shields.io/badge/SOLIDITY-0.4.24-orange.svg" />
+  </a>
+  <a href="https://opensource.org/licenses/Apache-2.0">
+    <img src="https://img.shields.io/badge/LICENSE-APACHE2.0-3DA639.svg" />
+  </a>
+</p>
 
 ## Packages :package:
 
@@ -35,7 +38,7 @@ A complete explanation of the protocol may be found in our [whitepaper](https://
 
 We get it, you're just here to find the contract addresses. Luckily for you, they're all listed here.
 
-### Contracts (Kovan)
+### Contracts (Kovan) :memo:
 
 | Contract Name                                                         | Address                                                      |
 | --------------------------------------------------------------- | ---------------------------------------------------------------- |
@@ -49,7 +52,7 @@ We get it, you're just here to find the contract addresses. Luckily for you, the
 | StakeContract | 0x28c11389f5b08ec8f3634dd9b09d673df0653abe |
 | KyberNetwork | 0x7e6b8b9510D71BF8EF0f893902EbB9C865eEF4Df |
 
-### Supported Tokens (Kovan)
+### Supported Tokens (Kovan) :moneybag:
 
 | Token Ticker                                                         | Address                                                      |
 | --------------------------------------------------------------- | ---------------------------------------------------------------- |
