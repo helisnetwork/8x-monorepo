@@ -1,6 +1,6 @@
 {
   "name": "@8xprotocol/8x.js",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "",
   "main": "dist/src/index.js",
   "typings": "dist/types/src/index.d.ts",
