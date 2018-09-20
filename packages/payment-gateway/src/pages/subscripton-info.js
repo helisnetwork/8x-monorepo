@@ -25,12 +25,16 @@ class SubscriptionInfo extends React.Component {
       subscriptionDetails: '',
       subscriptionAmount: '',
       subscriptionPeriod: '',
+      authorization: false,
+      subscribe: false,
+      activation: false
 
     };
 
     this.handleSelectedCurrency = this.handleSelectedCurrency.bind(this);
     this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
     this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
+    this.handleAuthorization = this.handleAuthorization.bind(this);
 
   }
 
@@ -47,7 +51,6 @@ class SubscriptionInfo extends React.Component {
   }
 
   subscriptionPlanHandler(object) {
-    console.log(object);
     this.setState({
       logo: object.logo,
       subscriptionName: object.subscriptionName,
@@ -56,6 +59,36 @@ class SubscriptionInfo extends React.Component {
       subscriptionPeriod: object.subscriptionPeriod
     });
   };
+
+  handleAuthorization() {
+    bus.on('user:authorization:received', (status) => {
+      this.setState({
+        authorization: status
+      });
+    }); 
+    bus.trigger('user:authorization:requested'); 
+  }
+
+  handleSubscribe() {
+    bus.on('user:subscribe:completed', (status) => {
+      this.setState({
+        subscribe: status
+      });
+      console.log('subscribed');
+    });
+    bus.trigger('user:subscribe:requested');
+  }
+
+  handleActivateSubscription() {
+    bus.on('user:activate:completed', (status) => {
+      this.setState({
+        activation: status
+      });
+      console.log('activated');
+    });
+    bus.trigger('user:activate:requested');
+
+  }
 
   // Gets data from selected currency of user
   handleSelectedCurrency(currency) {
@@ -224,13 +257,29 @@ class SubscriptionInfo extends React.Component {
             {
               this.checkDaiSelected() 
                 ? 
-                <div className="transaction">
-                  <p onClick={this.props.payAction}>Begin Subscription</p>
-                </div>
+                (
+                  <div className="buttons">
+                    <div className="give-auth">
+                      <p onClick={() => {
+                        this.handleAuthorization();
+                      }}>Give Authorization</p>
+                    </div>
+                    <div className="subscribe" style={{ background: this.state.authorization ? '#5944EE' : 'grey'}}>
+                      <p onClick={() => {
+                        this.handleSubscribe();
+                      }}>Subscribe</p>
+                    </div>
+                    <div className="activate" style={{ background: this.state.subscribe ? '#5944EE' : 'grey'}}> 
+                      <p onClick={() => {
+                        this.handleActivateSubscription();
+                      }}>Activate Subscription</p>
+                    </div>
+                  </div>
+                ) 
                 : 
                 <Link to='/conversion'>
                   <div className="transaction">
-                    <p onClick={this.props.payAction}>Continue</p>
+                    <p>Continue</p>
                   </div>
                 </Link>
             }

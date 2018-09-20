@@ -192,18 +192,46 @@
             }
         }
 
-        .transaction {
+        .buttons {
             display: flex;
-            justify-content: center;
-            background-color: #5944EE;
-            margin: 0 2em;
-            border-radius: 0.85em;
-            padding: 0.5em;
+            justify-content: space-between;
 
-            p {
-                color: white;
-                font-weight: 700;
-                
+            .give-auth {
+                background-color: #5944EE;
+                border-radius: 0.85em;
+                padding: 0.5em;
+
+                p {
+                    color: white;
+                    font-weight: 700;
+                    
+                }
+
+            }
+
+            .subscribe {
+                background-color: #5944EE;
+                border-radius: 0.85em;
+                padding: 0.5em;
+
+                p {
+                    color: white;
+                    font-weight: 700;
+                    
+                }
+            }
+
+            .activate {
+                background-color: #5944EE;
+                border-radius: 0.85em;
+                padding: 0.5em;
+
+                p {
+                    color: white;
+                    font-weight: 700;
+                    
+                }
+
             }
         }
     }
