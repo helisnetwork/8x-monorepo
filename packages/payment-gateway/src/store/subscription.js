@@ -8,10 +8,13 @@ class SubscriptionStore {
   }
 
   startListening() {
-    this.startPlanListening(); 
+    this.retrievePlanListener(); 
+    this.authorizationListener();
+    this.subscribeListener(); 
+    this.activateListener();
   }
 
-  startPlanListening() {
+  retrievePlanListener() {
     bus.on('subscription:plan:requested', () => {
       let subscriptionPlan = 
         {
@@ -23,10 +26,33 @@ class SubscriptionStore {
         }
       ;
 
-      bus.trigger('subscription:plan:sent',subscriptionPlan); 
+      bus.trigger('subscription:plan:sent', subscriptionPlan); 
     });
   };
 
+  authorizationListener() {
+    bus.on('user:authorization:requested', () => {
+      console.log('requested authorization');
+
+      bus.trigger('user:authorization:received', true);
+    });
+  };
+
+  subscribeListener() {
+    bus.on('user:subscribe:requested', () => {
+      console.log('i want to subscribe');
+
+      bus.trigger('user:subscribe:completed', true);
+    });
+  }
+
+  activateListener() {
+    bus.on('user:activate:requested', () => {
+      console.log('i want to activate');
+
+      bus.trigger('user:activate:completed', true);
+    });
+  }
 };
 
 module.exports = SubscriptionStore;
