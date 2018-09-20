@@ -15,7 +15,8 @@ const artifacts = [
 const PACKAGE = require('./package.json');
 const fs = require('fs-extra');
 const assert = require('assert');
-var rimraf = require('rimraf');
+const rimraf = require('rimraf');
+const mustache = require('mustache');
 
 // Output of truffle compile
 const BUILD_DIR = './build/contracts/';
@@ -80,3 +81,9 @@ addressFiles.forEach(function(name) {
 	fs.writeFileSync(savePath, typescriptAddresses);
 
 });
+
+var mainReadme = mustache.render(fs.readFileSync('../../readme.mustache').toString(), fs.readJSONSync(ADDRESSES_ORIGINAL_DIR + 'config' + '.json'));
+fs.writeFileSync('../../README.md', mainReadme);
+
+var artifactsReadme = mustache.render(fs.readFileSync('../artifacts/readme.mustache').toString(), fs.readJSONSync(ADDRESSES_ORIGINAL_DIR + 'config' + '.json'));
+fs.writeFileSync('../artifacts/README.md', artifactsReadme);
