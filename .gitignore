@@ -12,3 +12,7 @@ dist/
 
 # Lerna debug logs
 lerna-debug.log
+
+# Docs
+docs.md
+docs.json
