@@ -1,9 +1,9 @@
 {
   "name": "@8xprotocol/8x.js",
-  "version": "0.1.12",
+  "version": "0.1.11",
   "description": "",
-  "main": "dist/src/index.js",
-  "typings": "dist/types/src/index.d.ts",
+  "main": "dist/index.js",
+  "typings": "dist/types/index.d.ts",
   "scripts": {
     "clean": "rimraf -rf ./dist",
     "build": "npm run clean && tsc",
