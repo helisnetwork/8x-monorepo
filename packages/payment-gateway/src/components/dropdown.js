@@ -59,12 +59,28 @@ class Dropdown extends React.Component {
 
     this.handleSelectedChange(object);   
   }
+
+  returnDropdownButtons(items) { 
+    return this.props.items.filter((object) => {
+      return this.state.selectedItem.name !== object.name;
+    }).map((object, i) => {
+      return <DropdownButton item={object} key={i} action={this.itemSelected} showTriangle={false}/>;
+    });
+  }
+
+  triangleVisibility() {
+    if (this.state.items.length > 1) {
+      return true; 
+    } else {
+      return false; 
+    }
+  };
   
   render() {
     return (
       <div className="dropdown-wrapper">
         <div className="dropdown-container">
-          <DropdownButton item={this.state.selectedItem} action={this.showMenu} showTriangle={true} />
+          <DropdownButton item={this.state.selectedItem} action={this.showMenu} showTriangle={this.triangleVisibility()} />
           {
             this.state.showMenu
               ? (
@@ -80,14 +96,6 @@ class Dropdown extends React.Component {
         </div>
       </div>
     );
-  }
-
-  returnDropdownButtons(items) { 
-    return this.props.items.filter((object) => {
-      return this.state.selectedItem.name !== object.name;
-    }).map((object, i) => {
-      return <DropdownButton item={object} key={i} action={this.itemSelected} showTriangle={false}/>;
-    });
   }
 };
 
