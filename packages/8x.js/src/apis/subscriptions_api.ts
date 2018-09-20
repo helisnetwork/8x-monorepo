@@ -9,10 +9,13 @@ import { BigNumber } from '@8xprotocol/types/node_modules/bignumber.js';
 import { UNLIMITED_ALLOWANCE } from '../constants';
 
 /**
+ * Subscriptions
  *
- * The SubscriptionAPI provides all the functionality for consumers to subscribe to 8x. A user must first subscribe to a subscription,
+ * @comment The subscriptions api provides all the functionality for consumers to subscribe to 8x. A user must first subscribe to a subscription,
  * and then they must activate it. Payment is only taken on activation. First time 8x users are required to give pre-authorisation before
  * they can subscribe however.
+ *
+ * @path eightEx.subscriptions
  *
 */
 export default class SubscriptionsAPI {
