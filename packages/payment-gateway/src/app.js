@@ -9,6 +9,7 @@ import {
 import Container from './components/container';
 import SimpleModalLauncher from './components/modal-launcher';
 import UserStore from './store/user';
+import SubscriptionStore from './store/subscription';
 
 /* App component */
 class App extends React.Component {
@@ -16,6 +17,7 @@ class App extends React.Component {
     super();
 
     let userStore = new UserStore(); 
+    let subscriptionStore = new SubscriptionStore();
   }
 
   render() {
