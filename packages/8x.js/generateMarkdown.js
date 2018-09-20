@@ -1,5 +1,5 @@
 var fs = require('fs');
-var json = JSON.parse(fs.readFileSync('../docs/docs.json', 'utf8'));
+var json = JSON.parse(fs.readFileSync('../docs/source/includes/_api.json', 'utf8'));
 var dedent = require('dedent-js');
 
 let classes = json.children.filter((object) => {
@@ -17,8 +17,8 @@ let classes = json.children.filter((object) => {
   let classDescription = tags.filter((tag) => tag.tag == 'comment')[0] || {'text': ''};
 
   return {
-    'name': comment.shortText,
-    'description': classDescription.text.replace(/\\n/g, ''),
+    'name': comment.shortText.trim(),
+    'description': classDescription.text.replace(/\\n/g, '').trim(),
     'path': path.text.trim() || '',
     'methods': object.children.filter((child) => {
       return (child.kindString == 'Method');
@@ -120,7 +120,7 @@ let markdown = classes.map((object) => {
       + `${method.parameters.map((parameter) => `   ${parameter.name}: ${parameter.type}`).join(',\r')}`
       + `\r`
       + `): ${method.returnType} \r`
-      + `\`\`\``
+      + `\`\`\`\ \r\r`
     );
 
     let responseText = (
@@ -136,28 +136,29 @@ let markdown = classes.map((object) => {
 
     let parametersText = (
       method.parameters.length > 0 ?
-        `### Request Parameters\r`
+        (`\r### Request Parameters\r`
          + `Name | Type | Comment \r`
          + `---- | ---- | ------- \r`
-         + `${parameters}` : ''
+         + `${parameters}`
+        ) : ''
     )
 
-    return dedent(
-      `## ${method.name}
-      ${methodText}
-      ${exampleText}
-      ${responseText}
-      ${method.description}
-      ${parametersText}\r`)
+    return (
+      `## ${method.name}\r`
+      + `${methodText}`
+      + `${exampleText}`
+      + `${responseText}`
+      + `${method.description}`
+      + `${parametersText}\r`
+      )
   }).join("");
 
-  return dedent(
-    `# ${object.name}
-
-    ${object.description}
-
-    ${methods}\r`)
+  return (
+    `# ${object.name} \r\r`
+    +`${object.description} \r\r`
+    +`${methods}\r`
+  );
 
 }).join("");
 
-fs.writeFile('../docs/docs.md', markdown, 'utf-8');
+fs.writeFile('../docs/source/includes/_api.md', markdown, 'utf-8');
