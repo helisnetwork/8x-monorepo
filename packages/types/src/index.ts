@@ -111,7 +111,8 @@ export interface Plan {
     name: string | null,
     description: string | null,
     imageUrl: string | null,
-    terminationDate: number
+    terminationDate: number,
+    planHash: Bytes32,
 }
 
 export interface Subscription {
