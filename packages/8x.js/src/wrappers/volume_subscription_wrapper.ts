@@ -123,7 +123,8 @@ export default class VolumeSubscriptionWrapper {
       terminationDate: terminationDate.toNumber(),
       name,
       description,
-      imageUrl
+      imageUrl,
+      planHash
     } as Plan;
 
   }

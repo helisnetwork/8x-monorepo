@@ -95,7 +95,8 @@ export default class PlanAPI {
    *    name: 'Netflix',
    *    description: 'Premium plan',
    *    imageUrl: 'https://netflix.com/logo,
-   *    terminationDate: 155324929, // (epoch - seconds)
+   *    terminationDate: 155324929, // (epoch - seconds),
+   *    planHash: '0xd834n2k...'
    * }
    * ```
    *
