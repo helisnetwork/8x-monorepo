@@ -192,48 +192,48 @@
             }
         }
 
-        .buttons {
+       
 
-            .give-auth {
-                background-color: #5944EE;
-                border-radius: 0.85em;
-                padding: 0.5em;
-                margin-bottom: 0.5em;
+        .give-auth {
+            background-color: #5944EE;
+            border-radius: 0.85em;
+            padding: 0.5em;
+            margin-bottom: 0.5em;
 
-                p {
-                    color: white;
-                    font-weight: 700;
-                    
-                }
-
+            p {
+                color: white;
+                font-weight: 700;
+                
             }
 
-            .subscribe {
-                background-color: #5944EE;
-                border-radius: 0.85em;
-                padding: 0.5em;
-                margin-bottom: 0.5em;
+        }
 
-                p {
-                    color: white;
-                    font-weight: 700;
-                    
-                }
-            }
+        .subscribe {
+            background-color: #5944EE;
+            border-radius: 0.85em;
+            padding: 0.5em;
+            margin-bottom: 0.5em;
 
-            .activate {
-                background-color: #5944EE;
-                border-radius: 0.85em;
-                padding: 0.5em;
-                margin-bottom: 0.5em;
-
-                p {
-                    color: white;
-                    font-weight: 700;
-                    
-                }
-
+            p {
+                color: white;
+                font-weight: 700;
+                
             }
         }
+
+        .activate {
+            background-color: #5944EE;
+            border-radius: 0.85em;
+            padding: 0.5em;
+            margin-bottom: 0.5em;
+
+            p {
+                color: white;
+                font-weight: 700;
+                
+            }
+
+        }
+        
     }
 }
