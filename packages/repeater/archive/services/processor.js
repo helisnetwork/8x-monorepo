@@ -27,7 +27,7 @@ class Processor {
     var unclaimedArray = eligibleEventsArray.filter((item) => {
       return item.claimant == null;
     }).forEach((item) => {
-      const functionData = parent.contract.methods.collectPayment(item.subscriptionAddress, item.subscriptionIdentifier);
+      const functionData = parent.contract.methods.processSubscription(item.subscriptionAddress, item.subscriptionIdentifier);
       signTransaction(web3, parent.contract, parent.address, parent.privateKey, functionData).then((result) => {
         console.log(result);
       }).catch((error) => {
@@ -46,7 +46,7 @@ class Processor {
     var serviceArray = eligibleEventsArray.filter((item) => {
       return item.claimant == serviceNodeAccount.address;
     }).forEach((item) => {
-      const functionData = parent.contract.methods.collectPayment(item.subscriptionAddress, item.subscriptionIdentifier);
+      const functionData = parent.contract.methods.processSubscription(item.subscriptionAddress, item.subscriptionIdentifier);
       signTransaction(web3, parent.contract, parent.address, parent.privateKey, functionData).then((result) => {
         console.log(result);
       }).catch((error) => {
