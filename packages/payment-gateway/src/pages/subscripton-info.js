@@ -199,6 +199,30 @@ class SubscriptionInfo extends React.Component {
   }
 
   renderUnlocked() {
+
+    const authorization = (
+      <div className="give-auth">
+        <p onClick={() => {
+          this.handleAuthorization();
+        }}>Give Authorization</p>
+      </div>
+    );
+
+    const subscribe = (
+      <div className="subscribe">
+        <p onClick={() => {
+          this.handleSubscribe();
+        }}>Subscribe</p>
+      </div>
+    );
+    const activate = (
+      <div className="activate"> 
+        <p onClick={() => {
+          this.handleActivateSubscription();
+        }}>Activate Subscription</p>
+      </div>
+    );
+
     return (
       <div className="background-subs">
         <div className="small-card">
@@ -257,26 +281,8 @@ class SubscriptionInfo extends React.Component {
             {
               this.checkDaiSelected() 
                 ? 
-                (
-                  <div className="buttons">
-                    <div className="give-auth">
-                      <p onClick={() => {
-                        this.handleAuthorization();
-                      }}>Give Authorization</p>
-                    </div>
-                    <div className="subscribe" style={{ background: this.state.authorization ? '#5944EE' : 'grey'}}>
-                      <p onClick={() => {
-                        this.handleSubscribe();
-                      }}>Subscribe</p>
-                    </div>
-                    <div className="activate" style={{ background: this.state.subscribe && this.state.authorization  ? '#5944EE' : 'grey'}}> 
-                      <p onClick={() => {
-                        this.handleActivateSubscription();
-                      }}>Activate Subscription</p>
-                    </div>
-                  </div>
-                ) 
-                : 
+                this.state.authorization ? this.state.subscribe ? activate : subscribe : authorization
+                :
                 <Link to='/conversion'>
                   <div className="transaction">
                     <p>Continue</p>
