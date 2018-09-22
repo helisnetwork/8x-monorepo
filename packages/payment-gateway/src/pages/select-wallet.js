@@ -3,7 +3,6 @@ import React from 'react';
 
 import { Link } from 'react-router-dom'; 
 import {default as Images} from '../middleware/images';
-import bus from '../bus';
 
 /* App component */
 class SelectWallet extends React.Component {
