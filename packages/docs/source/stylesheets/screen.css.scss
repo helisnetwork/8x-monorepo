@@ -170,6 +170,8 @@ html, body {
   }
 
   .toc-h2 {
+    padding-top: 0.35em;
+    padding-bottom: 0.35em;
     padding-left: $nav-padding + $nav-indent;
     font-size: 12px;
   }
@@ -198,6 +200,8 @@ html, body {
 
 .toc-link, .toc-footer li {
   padding: 0 $nav-padding 0 $nav-padding;
+  padding-top: 0.75em;
+  padding-bottom: 0.75em;
   display: block;
   overflow-x: hidden;
   white-space: nowrap;
@@ -347,12 +351,11 @@ html, body {
   h1 {
     @extend %header-font;
     font-size: 25px;
-    padding-top: 0.5em;
+    padding-top: 2em;
     padding-bottom: 0.5em;
     margin-bottom: $h1-margin-bottom;
     margin-top: 2em;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+    border-top: 1px solid #efefef;
     background-color: #fdfdfd;
   }
 
@@ -366,8 +369,8 @@ html, body {
     font-size: 19px;
     margin-top: 4em;
     margin-bottom: 0;
-    border-top: 1px solid #ccc;
-    padding-top: 1.2em;
+    border-top: 1px solid #efefef;
+    padding-top: 1.75em;
     padding-bottom: 1.2em;
     background-image: linear-gradient(to bottom, rgba(#fff, 0.2), rgba(#fff, 0));
   }
@@ -410,7 +413,7 @@ html, body {
 
     th {
       padding: 5px 10px;
-      border-bottom: 1px solid #ccc;
+      border-bottom: 1px solid #efefef;
       vertical-align: bottom;
     }
 
@@ -419,7 +422,7 @@ html, body {
     }
 
     tr:last-child {
-      border-bottom: 1px solid #ccc;
+      border-bottom: 1px solid #efefef;
     }
 
     tr:nth-child(odd)>td {

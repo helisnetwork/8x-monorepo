@@ -24,20 +24,15 @@ We solve this through a network of layer 2 service nodes that actively watch for
 
 In the case that a service node doesn't excecute a subscription, their tokens are stolen from another node and the subcription is processed. This ensures that subscriptions don't go unprocessed forever.
 
-## How does it all work?
+## What do I need to do charge my users?
 
-There's quite a lot to take in, so here's a simplified lifecycle of a subscription.
+There's a few steps at the moment, however we plan to simplify this in upcoming interations of the protocol.
 
-1. Business/developer creates a plan via API or manage portal. A plan hash is returned.
-2. User gives allowance for 8x to take tokens from their wallet (we don't use an escrow)
-3. The user subscribes to a plan with the plan hash.
-4. A subscription hash is returned.
-5. The user activates a subscription with the subscription hash.
-6. The first payment is made.
-7. When the next payment is due, service nodes are eligible to process the subscription on the user's behalf.
-8. Higher the subscription fee, the quicker service nodes will process subscriptions.
-9. The process is continually processed by the same service node.
-10. Service nodes can choose to opt-out of processing a subscription and another node can process it instead (automaticaly).
+1. Create a subscription plan, plan hash returned on success
+2. Check if user has given allownace (ERC20) to 8x
+3. If not, give approval
+4. User subscribes by using a plan hash, subscription hash returned on success
+5. User activates subscription, first payment is made
 
 ## What do I need to know?
 
@@ -49,7 +44,7 @@ Not much, except for the fact that a subscription can have 3 states:
 
 If a the subscription is being processed, you'll know whether the user has enough funds in their wallet and if 8x has authorisation to take funds from their wallet.
 
-> There is a maximum time period for how long a subscription can be under processing though.
+> There is a maximum time period for how long a subscription can be under processing.
 
 It's up to you how you would like to handle the processing state.
 
