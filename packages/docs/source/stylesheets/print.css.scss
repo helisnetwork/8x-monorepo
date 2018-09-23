@@ -19,8 +19,8 @@ License for the specific language governing permissions and limitations
 under the License.
 */
 
-$print-color: #999;
-$print-color-light: #ccc;
+$print-color: #efefef;
+$print-color-light: #efefef;
 $print-font-size: 12px;
 
 body {
@@ -62,9 +62,9 @@ body {
   }
 
   table {
-    border: 1px solid $print-color;
+    border: 1px solid $print-color-light;
     tr {
-      border-bottom: 1px solid $print-color;
+      border-bottom: 1px solid $print-color-light;
     }
     td,th {
       padding: 0.7em;
@@ -87,8 +87,7 @@ body {
     padding-bottom: 0.5em;
     margin-top: 1em;
     margin-bottom: $h1-margin-bottom;
-    border: 2px solid $print-color-light;
-    border-width: 2px 0;
+    border-top: 1px solid $print-color-light;
     text-align: center;
   }
 
@@ -96,7 +95,7 @@ body {
     @extend %header-font;
     font-size: 1.8em;
     margin-top: 2em;
-    border-top: 2px solid $print-color-light;
+    border-top: 1px solid $print-color-light;
     padding-top: 0.8em;
   }
 
