@@ -34,3 +34,4 @@ Continuing on from the above section, the next time a subscription is processed 
 In the case that a service node doesn't process a subscription the following month, any service node on the network can steal their tokens and process the subscription on their behalf. The amount of time a service node has to process is based on the different between the due date of the first payment and when they claimed it. This effectively means service nodes are setting their own SLAs for businesses. The more attractive a subscription, the lower the expected SLA a business can expect from a service node.
 
 
+## To be continued...
