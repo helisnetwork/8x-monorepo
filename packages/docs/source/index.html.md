@@ -9,6 +9,7 @@ toc_footers:
 
 includes:
   - api
+  - service_nodes
 
 search: true
 ---
