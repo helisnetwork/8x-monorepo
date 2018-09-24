@@ -13,14 +13,31 @@ class SubscriptionStore {
       console.log(web3);
       this.eightEx = new EightEx(web3, {
         volumeSubscriptionAddress: '0xeff7b9ad5594d105a914a6aa8ef270dae343ee63',
-        transactingTokenAddress: '0xc4375b7de8af5a38a93548eb8453a498222c4ff2'
+        transactingTokenAddress: '0xc4375b7de8af5a38a93548eb8453a498222c4ff2',
+        transferProxyAddress: '0x9554eb0ee8ef5641ba976306c829ae0266315e4f',
+        executorAddress: '0xd27e811ceebb6f5dbe85588721f69079ebd35dc9'
       });
-      this.storePlanHash(); 
-      this.retrievePlanListener(); 
+
+      web3.eth.getAccounts((err, accounts) => {
+        
+        if (err != null) {
+          console.log('cannot get address');
+        } else if (accounts.length === 0 ) {
+          console.log('you have not logged in');
+        } else {
+
+          this.address = accounts;
+          this.web3 = web3;
+          this.storePlanHash(); 
+          this.retrievePlanListener(); 
+          this.authorizationListener();
+          this.subscribeListener(); 
+          this.activateListener();
+        }
+      });
     });
-    // this.authorizationListener();
-    // this.subscribeListener(); 
-    // this.activateListener();
+
+    
   }
 
   storePlanHash() {
@@ -49,43 +66,61 @@ class SubscriptionStore {
         }
       });
     });
-
-    // bus.on('subscription:plan:requested', () => {
-    //   let subscriptionPlan = 
-    //     {
-    //       logo: Images.netflixLogo,
-    //       subscriptionName: 'Netflix',
-    //       subscriptionDetails: 'Premium Account',
-    //       subscriptionAmount: 14,
-    //       subscriptionPeriod: 'monthly',
-    //     }
-    //   ;
-
-    //   bus.trigger('subscription:plan:sent', subscriptionPlan); 
-    // });
   };
 
   authorizationListener() {
     bus.on('user:authorization:requested', () => {
-      console.log('requested authorization');
-
-      bus.trigger('user:authorization:received', true);
+      this.eightEx.subscriptions.giveAuthorisation(
+      ).then((obj) => {
+        if (obj !== null) {
+          bus.trigger('user:authorization:received', true);
+          bus.trigger('start:subscribe:process');
+        } else {
+          console.log('User cancelled transaction');
+        }
+      });
     });
   };
 
   subscribeListener() {
-    bus.on('user:subscribe:requested', () => {
-      console.log('i want to subscribe');
+    bus.on('start:subscribe:process', () => {
+      const txData = null;
+      const metaData = null; 
+      this.eightEx.subscriptions.subscribe(
+        this.planHash,
+        metaData,
+        txData
+      ).then((subscriptionHash) => {
+        bus.trigger('user:subscribe:completed', subscriptionHash, true);
+        this.subscriptionHash = subscriptionHash; 
+      });
+    });
 
-      bus.trigger('user:subscribe:completed', true);
+    bus.on('user:subscribe:requested', () => {
+      this.eightEx.subscriptions.hasGivenAuthorisation(
+        this.address
+      ).then((boolean) => {
+        if(boolean === true) {
+          bus.trigger('start:subscribe:process');
+        } else {
+          console.log('Authorization not given');
+        }
+      });
     });
   }
 
   activateListener() {
     bus.on('user:activate:requested', () => {
-      console.log('i want to activate');
-
-      bus.trigger('user:activate:completed', true);
+      const txData = null;
+      if(this.subscriptionHash) {
+        this.eightEx.subscriptions.activate(
+          this.subscriptionHash,
+          txData
+        ).then((receipt) => {
+          bus.trigger('user:activate:completed', true);
+          console.log('Subscription receipt is' + '' + receipt);
+        });
+      };    
     });
   }
 };

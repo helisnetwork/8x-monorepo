@@ -63,6 +63,23 @@ class SubscriptionInfo extends React.Component {
     });
   };
 
+  planPeriodConvertor() {
+    switch(this.state.subscriptionPeriod) {
+    case 7: 
+      return 'weekly';
+      break;
+    case 14:
+      return 'fortnightly';
+      break; 
+    case 30:
+      return 'monthly';
+      break;
+    case 90:
+      return '3 months';
+      break;
+    };
+  }
+
   handleAuthorization() {
     bus.on('user:authorization:received', (status) => {
       this.setState({
@@ -73,12 +90,13 @@ class SubscriptionInfo extends React.Component {
   }
 
   handleSubscribe() {
-    bus.on('user:subscribe:completed', (status) => {
+    bus.on('user:subscribe:completed', (hash, status) => {
       this.setState({
         subscribe: status
       });
-      console.log('subscribed');
+      console.log('Subscription Hash is:' + '' + hash );
     });
+    
     bus.trigger('user:subscribe:requested');
   }
 
@@ -237,7 +255,7 @@ class SubscriptionInfo extends React.Component {
               </div>
               <div className="text">
                 <p>{this.state.subscriptionName} -  {this.state.subscriptionDetails}</p>
-                <span>${this.state.subscriptionAmount}USD billed {this.state.subscriptionPeriod}</span>
+                <span>${this.state.subscriptionAmount}USD billed {this.planPeriodConvertor()}</span>
               </div>
             </div>
             <div className="option">
