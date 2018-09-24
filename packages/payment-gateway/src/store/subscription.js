@@ -1,6 +1,8 @@
 import bus from '../bus';
 import { default as Images } from '../middleware/images';
 import EightEx from '8x.js';
+import { ExecutorAbi } from '@8xprotocol/artifacts';
+
 
 class SubscriptionStore {
   constructor() {
@@ -27,6 +29,7 @@ class SubscriptionStore {
         } else {
 
           this.address = accounts;
+          console.log(this.address);
           this.web3 = web3;
           this.storePlanHash(); 
           this.retrievePlanListener(); 
@@ -74,7 +77,7 @@ class SubscriptionStore {
       ).then((obj) => {
         if (obj !== null) {
           bus.trigger('user:authorization:received', true);
-          bus.trigger('start:subscribe:process');
+          bus.trigger('user:subscribe:requested');
         } else {
           console.log('User cancelled transaction');
         }
@@ -100,6 +103,7 @@ class SubscriptionStore {
       this.eightEx.subscriptions.hasGivenAuthorisation(
         this.address
       ).then((boolean) => {
+        console.log(boolean);
         if(boolean === true) {
           bus.trigger('start:subscribe:process');
         } else {
