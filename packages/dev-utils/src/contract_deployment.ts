@@ -4,7 +4,6 @@ import * as contract from 'truffle-contract';
 
 import { Provider, TxData } from 'ethereum-types';
 import { BigNumber } from 'bignumber.js';
-import { TX_DEFAULTS } from '../../src/constants'
 import { Address } from '@8xprotocol/types';
 
 import {
@@ -27,6 +26,10 @@ import {
   ExecutorContract,
   StakeContractAbi
 } from '@8xprotocol/artifacts';
+
+import {
+  TX_DEFAULTS
+} from './constants';
 
 export const deployVolumeSubscription = async (
   provider: Provider,
@@ -199,7 +202,8 @@ export const deployTransferProxy = async(
 
 export const deployStakeContract = async(
   provider: Provider,
-  owner: Address
+  owner: Address,
+  stakeToken: Address
 ) => {
 
   const web3 = new Web3(provider);
@@ -210,7 +214,7 @@ export const deployStakeContract = async(
   stakeContract.setNetwork(50);
   stakeContract.defaults(defaults);
 
-  const deployedStakeContract = await stakeContract.new();
+  const deployedStakeContract = await stakeContract.new(stakeToken);
 
   const stakeContractInstance = await StakeContract.at(
     deployedStakeContract.address,

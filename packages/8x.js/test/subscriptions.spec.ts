@@ -10,6 +10,7 @@ import { BigNumber } from 'bignumber.js';
 import { Web3Utils, VolumeSubscriptionContract, ApprovedRegistryContract, ExecutorContract } from '@8xprotocol/artifacts';
 
 import {
+  TX_DEFAULTS,
   deployVolumeSubscription,
   deployKyber,
   deployApprovedRegistry,
@@ -19,10 +20,9 @@ import {
   deployStakeContract,
   deployPaymentRegistry,
   deployRequirements
-} from './helpers/contract_deployment';
+} from '@8xprotocol/dev-utils';
 
 import EightEx from '../src/index';
-import { TX_DEFAULTS } from '../src/constants';
 
 import { MockTokenContract, TransferProxyContract } from '@8xprotocol/artifacts';
 

@@ -1,0 +1,27 @@
+{
+  "name": "@8xprotocol/dev-utils",
+  "version": "0.1.15",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "rimraf rm -rf lib",
+    "build": "npm run clean && tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/lodash": "^4.14.116",
+    "bignumber.js": "^4.1.0",
+    "ethereum-types": "^1.0.7",
+    "lodash": "^4.17.11",
+    "rimraf": "^2.6.2",
+    "truffle-contract": "^3.0.6",
+    "@8xprotocol/artifacts": "^0.1.15",
+    "@8xprotocol/types": "^0.1.15"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "3e65b57c6dae53cbafdb02719c4087bf600a44fa"
+}
