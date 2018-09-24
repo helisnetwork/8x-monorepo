@@ -21,37 +21,37 @@ search: true
 8x is a Ethereum based protocol to facilitate the transfer of recurring subscription payments.
 
 The key issue 8x solves is the inability to schedule a transaction on a blockchain every month, automatically.
-We solve this through a network of layer 2 service nodes that actively watch for subscriptions that need to be processed, execute it on behalf of the user, pay the required gas fee and are earn a fee.
+We solve this through a network of layer 2 service nodes that actively watch for subscriptions that need to be processed, execute it on behalf of the user, and earn a fee.
 
-In the case that a service node doesn't excecute a subscription, their tokens are stolen from another node and the subcription is processed. This ensures that subscriptions don't go unprocessed forever.
+In the case that a service node doesn't execute a subscription, another node can steal their tokens and process the subscription. This ensures that subscriptions don't go unprocessed forever.
 
-## What do I need to do charge my users?
+## How do I charge my users?
 
-There's a few steps at the moment, however we plan to simplify this in upcoming interations of the protocol.
+There are a few steps at the moment, however, we plan to simplify this in the upcoming iterations of the protocol.
 
 1. Create a subscription plan, plan hash returned on success
-2. Check if user has given allownace (ERC20) to 8x
+2. Check if the user has given allowance (ERC20) to 8x
 3. If not, give approval
-4. User subscribes by using a plan hash, subscription hash returned on success
-5. User activates subscription, first payment is made
+4. The user subscribes by using a plan hash, subscription hash returned on success
+5. The user activates the subscription, the first payment is made
 
-## What do I need to know?
+## How do I know if a user has paid?
 
-Not much, except for the fact that a subscription can have 3 states:
+A subscription can have 3 states:
 
 - Active
 - Processing
 - Inactive
 
-If a the subscription is being processed, you'll know whether the user has enough funds in their wallet and if 8x has authorisation to take funds from their wallet.
-
-> There is a maximum time period for how long a subscription can be under processing.
+If a subscription is being processed, you'll know whether the user has enough funds in their wallet and if 8x has the authorisation to take funds from their wallet.
 
 It's up to you how you would like to handle the processing state.
 
+> There is a maximum time period for how long a subscription can be under processing.
+
 # Installation
 
-We have language bindings in JavaScript/Typescript. You can view code examples in the dark area to the right.
+Our library is written in Typescript and utilises other 8x Protocol packages.
 
 ### 8x.js
 
@@ -61,15 +61,15 @@ Install the 8x.js SDK by simply running:
 
 ### BigNumber.js
 
-Since Solidity deals with integers up to 2^256, we need to utilise Bignumber.js to represent these large integers in Javascript (maximum 2^53).
-To ensure comaptibility make sure you install version 4.1.0 of Bignumber.js.
+Since Solidity deals with integers up to 2^256, we need to utilise Bignumber.js to represent large integers in Javascript (maximum 2^53).
+To ensure compatibility make sure you install version 4.1.0 of Bignumber.js.
 
 `npm install bignumber.js @ ^4.1.0`
 
 ### Web3
 
-Web3 is a library used to interface with the blockchain. We're currently using version 0.2.0 as 1.0 introduces breaking changes.
-To ensure compatibility please make sure you install/pass a 0.2.0 version of web3 to 8x.js
+Web3 is a library used to interface with the blockchain. We're currently using version 0.2.0 as 1.0.0 introduces breaking changes.
+To ensure compatibility please make sure you instantiate a 0.2.0 version of web3 to 8x.js
 
 `npm install web3 @ ^0.2.0`
 
@@ -83,7 +83,7 @@ After you've done that you'll need to instantiate an instance of `eightEx` by pa
 
 ## Address Book
 
-What's an address book you may be asking? Good question. In order to interact with 8x.js you'll need to pass the relevant contract addresses for the network you'd like to interface with.
+In order to interact with 8x.js, you'll need to pass the relevant contract addresses based on the network you'd like to interface with.
 
 Here's how an `AddressBook` looks like:
 
@@ -101,9 +101,9 @@ Here's how an `AddressBook` looks like:
 }
 ```
 
-As you can see to the right, all the parameters are optional however we recommend you passing in all the addresses to ensure everything works as expected.
+All the parameters are optional, however, we recommend you pass through all the addresses to ensure everything works as expected.
 
-You can get a list of the currently deployed addresses from [HERE](https://github.com/8xprotocol/monorepo/blob/master/packages/artifacts/src/addresses/config.json)
+You can get a list of the currently deployed addresses from [here](https://github.com/8xprotocol/monorepo/blob/master/packages/artifacts/src/addresses/config.json)
 
 ## Web3
 
@@ -141,4 +141,4 @@ const eightEx = new EightEx(web3, addressBook);
 
 To make a long story short, here's how you might instantiate an instance of 8x (shown to the right).
 
-We highly recommend passing in all the addresses, however if you know *for sure* you're not going to be interacting with certain components then feel free to not pass in that contract's address.
+We highly recommend passing in all the addresses, however, if you know *for sure* you're not going to be interacting with certain components then feel free to not pass in that contract's address.

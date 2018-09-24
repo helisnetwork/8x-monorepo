@@ -141,7 +141,7 @@ let markdown = classes.map((object) => {
         (`\r### Request Parameters\r`
          + `Name | Type | Comment \r`
          + `---- | ---- | ------- \r`
-         + `${parameters}`
+         + `${parameters}\r`
         ) : ''
     )
 
