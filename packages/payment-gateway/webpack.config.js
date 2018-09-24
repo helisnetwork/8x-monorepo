@@ -4,6 +4,10 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 module.exports = {
   module: {
     rules: [
+      { 
+        test: /\.tsx?$/, 
+        loader: "ts-loader" 
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -45,6 +49,9 @@ module.exports = {
         loader: 'url-loader?limit=10000&mimetype=video/mp4'
       }
     ]
+  },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js']
   },
   plugins: [
     new CleanWebpackPlugin('dist', {} ),
