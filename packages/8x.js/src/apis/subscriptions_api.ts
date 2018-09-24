@@ -49,7 +49,7 @@ export default class SubscriptionsAPI {
    * functionality you can check whether a user has given approval to the Transfer Proxy (contract
    * that can take tokens from a user directly).
    *
-   * @param owner     The user to check whether allowance has been given or not
+   * @param owner     The user to check whether allowance has been given or not.
    *
    * ```response
    * [ true ]
@@ -97,7 +97,7 @@ export default class SubscriptionsAPI {
    * Subscribe
    *
    * Subscribing links the user to the subscription plan. It does not take payment from the user.
-   * Payment is only taken when the activate subscription function is called. This is useful in scenarios
+   * Payment is only taken when the subscription is activated. This is useful in scenarios
    * where you might want to get a user's commitment and then charge them after a certain duration or amount of usage.
    *
    * @param planHash      Unique identifying hash of the plan.
@@ -124,7 +124,7 @@ export default class SubscriptionsAPI {
   /**
    * Activate
    *
-   * This function can only be called once a user has subscribed as it requires a valid subscription hash.
+   * Makes first payment. This function can only be called once a user has subscribed to a subscription plan.
    * Provided that a user has subscribed and given authorisation to 8x, the activate function can be called
    * by any user. We're still exploring the best way to lock this down while still providing enough flexibility.
    *
@@ -132,7 +132,7 @@ export default class SubscriptionsAPI {
    * @param subscriptionHash    Unique subscription hash returned upon subscribing.
    * @param txData              Provide signer, gas and gasPrice information (optional).
    *
-   * @returns                   Hash of the transaction upon completion
+   * @returns                   Hash of the transaction upon completion.
    * @priority                  4
   */
   public async activate(
@@ -158,12 +158,12 @@ export default class SubscriptionsAPI {
    *    owner: '0xdfLqn83...',
    *    tokenAddress: '0xw9s3mfd...',
    *    planHash: '0xwjw93m3sd...',
-   *    lastPaymentDate: 155321434, // (epoch - seconds)
-   *    terminationDate: 155452222, // (epoch - seconds)
+   *    lastPaymentDate: 155321434, // (epoch in seconds)
+   *    terminationDate: 155452222, // (epoch in seconds)
    * }
    * ```
    *
-   * @returns                 A subscription object
+   * @returns                 A subscription object.
    * @priority                5
   */
   public async get(
@@ -181,7 +181,7 @@ export default class SubscriptionsAPI {
    *
    * Determine the current state of a subscription. It can either be 'active', 'processing' or 'inactive'.
    *
-   * The processing state is a simply divisor of the interval of your subscription. Suppose the intervaldivisor is set at 7, then a 28 day subscription has a maximum of 4 days (plus a hour) to be processed.
+   * The processing state is a simply divisor of the interval of your subscription. Suppose the interval divisor is set at 7, then a 28-day subscription has a maximum of 4 days (plus an hour) to be processed.
    *
    * The extra hour is counted in the case a service node doesn't process a subscription and another node on the network can steal their tokens and process your subscription instead.
    *
@@ -191,9 +191,9 @@ export default class SubscriptionsAPI {
    *
    * ```response
    *
-   * // In the following response, we see the status of a user who's subscription is being processed but has a low chance of not fufilling their recurring obligation.
+   * // In the following response, we see the status of a user who's subscription is being processed but has a low chance of not fulfilling their recurring obligation.
    * [
-   *    'processsing', // The subscription is being processed
+   *    'processing', // The subscription is being processed
    *    'true', // The user has enough tokens to pay for the subscription
    *    'true', // The user has given 8x enough allowance to take tokens from their wallet
    * ]
@@ -201,9 +201,9 @@ export default class SubscriptionsAPI {
    * ```
    *
    * @param subscriptionHash        Unique subscription hash returned upon subscribing.
-   * @param plan                    Pass an existing plan object to prevent refetching
-   * @param subscription            Pass an existing subscription object to prevent refetching
-   * @returns                       Current status, does user has enough tokens, has 8x got authorisation
+   * @param plan                    Pass an existing plan object to prevent refetching.
+   * @param subscription            Pass an existing subscription object to prevent refetching.
+   * @returns                       Current status, does user has enough tokens, does 8x got authorisation.
    * @priority                      6
    */
   public async getStatus(
@@ -247,11 +247,11 @@ export default class SubscriptionsAPI {
   /**
    * All subscriptions
    *
-   * Get all the subscriptions a user has subscribed to.
+   * Get all the subscriptions a user has subscribed to..
    *
-   * @param user       The user you'd like to get subscriptions for
+   * @param user       The user you'd like to get subscriptions for.
    *
-   * @returns          An array of subscription objects
+   * @returns          An array of subscription objects.
    * @priority         7
   */
   public async getSubscribed(
@@ -271,7 +271,7 @@ export default class SubscriptionsAPI {
    * @param subscriptionHash    Unique subscription hash returned upon subscribing.
    * @param txData              Provide signer, gas and gasPrice information (optional).
    *
-   * @returns                   Hash of the transaction upon completion
+   * @returns                   Hash of the transaction upon completion.
    * @priority                  8
    */
   public async cancel(
