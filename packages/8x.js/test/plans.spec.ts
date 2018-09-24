@@ -10,11 +10,14 @@ import { BigNumber } from 'bignumber.js';
 import { Web3Utils, VolumeSubscriptionContract } from '@8xprotocol/artifacts';
 
 import {
-  deployVolumeSubscription, deployKyber, deployApprovedRegistry, deployMockToken
-} from './helpers/contract_deployment';
+  TX_DEFAULTS,
+  deployVolumeSubscription,
+  deployKyber,
+  deployApprovedRegistry,
+  deployMockToken
+} from '@8xprotocol/dev-utils';
 
 import EightEx from '../src/index';
-import { TX_DEFAULTS } from '../src/constants';
 
 const expect = chai.expect;
 

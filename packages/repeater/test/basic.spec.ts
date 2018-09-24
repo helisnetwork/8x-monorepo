@@ -19,7 +19,7 @@ import {
   deployPaymentRegistry,
   deployRequirements,
   TX_DEFAULTS,
-} from './helpers/contract_deployment';
+} from '@8xprotocol/dev-utils';
 
 import EightEx from '8x.js';
 import Repeater from '../src';
@@ -105,7 +105,7 @@ describe('Basic', () => {
     planHash = await eightEx.plans.create(
       business,
       'create.new.plan',
-      30,
+      5,
       new BigNumber(10*10**18),
       new BigNumber(10**16),
       'Netflix',
@@ -135,7 +135,14 @@ describe('Basic', () => {
 
   });
 
+  test('it should wait before processing', async(done) => {
+    let activationDate = (await eightEx.subscriptions.get(subscriptionHash)).lastPaymentDate;
+    setTimeout(done, (Date.now() / 1000) - activationDate);
+    console.log(`Delay is ${(Date.now() / 1000) - activationDate}`);
+  })
+
   test('processing subscription', async() => {
+
 
   });
 
