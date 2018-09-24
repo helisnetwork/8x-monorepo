@@ -155,7 +155,8 @@ export default class PlanAPI {
    * @param planHash     Plan hash returned upon creating a plan.
    * @param txData       Provide signer, gas and gasPrice information (optional).
    *
-   * ```response
+   * @response
+   * ```
    * [ 0x58e5a0fc7fbc849eddc100d44e86276168a8c7baaa5604e44ba6f5eb8ba1b7eb ]
    * ```
    *
