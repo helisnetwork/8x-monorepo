@@ -31,6 +31,8 @@ class SubscriptionInfo extends React.Component {
 
     };
 
+    
+
     this.handleSelectedCurrency = this.handleSelectedCurrency.bind(this);
     this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
     this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
@@ -41,9 +43,9 @@ class SubscriptionInfo extends React.Component {
   componentDidMount() {
     this.handleSelectedCurrency();
     this.handleSelectedPeriod();
+    bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
+    bus.trigger('subscription:plan:requested'); 
 
-    bus.on('subscription:plan:sent', this.subscriptionPlanHandler); 
-    bus.trigger('subscription:plan:requested');
   }
 
   componentWillUnmount() {
@@ -51,6 +53,7 @@ class SubscriptionInfo extends React.Component {
   }
 
   subscriptionPlanHandler(object) {
+    console.log('called');
     this.setState({
       logo: object.logo,
       subscriptionName: object.subscriptionName,

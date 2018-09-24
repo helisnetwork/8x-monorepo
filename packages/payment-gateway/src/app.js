@@ -23,7 +23,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <SimpleModalLauncher buttonLabel='click-here'>
+        <SimpleModalLauncher buttonLabel='Pay with 8x'>
           <MemoryRouter>
             <Container/>
           </MemoryRouter>
