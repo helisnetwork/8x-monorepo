@@ -1,32 +1,140 @@
 import Web3 = require("web3");
+import _ from 'lodash';
+import * as ABIDecoder from 'abi-decoder';
 
-import { Executor } from '../../build/Executor';
-import { ExecutorAbi } from '@8xprotocol/artifacts';
+import {
+  ExecutorAbi,
+  ExecutorContract,
+  VolumeSubscriptionAbi,
+} from '@8xprotocol/artifacts';
+
+import SubscriptionEvent from '../types/';
+
 import { Address } from '@8xprotocol/types';
 
 export default class EventStore {
 
   private web3: Web3;
-  private executorContract: Executor;
+  private executorAddress: Address;
 
-  public eventsUpdated: () => string[];
+  private executorContract: ExecutorContract | null;
 
-  constructor(web3: Web3, executorAddress: Address, callback: () => string[]) {
+  public eventsUpdated: () => (void);
+  public events: { [id: string] : SubscriptionEvent } = {};
+
+  constructor(web3: Web3, executorAddress: Address, callback: () => (void)) {
     this.web3 = web3;
     this.eventsUpdated = callback;
-    this.executorContract = (new web3.eth.Contract(ExecutorAbi.abi, executorAddress)) as Executor;
+    this.executorAddress = executorAddress;
   }
 
   public async startListening() {
-    let subscription = await this.web3.eth.subscribe('logs', {
-      address: this.executorContract.options.address,
-    }, function(error, result){
-      if (error) console.log(error);
-    })
 
-    subscription.on("data", function(trxData){
-      console.log("Event received", trxData);
+    this.executorContract = this.executorContract || await ExecutorContract.at(this.executorAddress, this.web3, {});
+
+    const contract = this.web3.eth.contract(ExecutorAbi.abi).at(this.executorContract.address);
+    const eventsWatcher = contract.allEvents({
+      fromBlock: 0,
+      toBlock: "latest",
     });
+
+    eventsWatcher.watch((error, log) => {
+      if (log.event == 'SubscriptionActivated') {
+        this.handleActivation(log);
+      } else if (log.event == 'SubscriptionProcessed') {
+        this.handleProcessed(log);
+      } else if (log.event == 'SubscriptionReleased') {
+        this.handleReleased(log);
+      } else if (log.event == 'SubscriptionLatePaymentCaught') {
+        this.handlePaymentCaught(log);
+      } else if (log.event == 'SubscriptionCancelled') {
+        this.handleCancelled(log);
+      }
+
+      this.eventsUpdated();
+    });
+  }
+
+  private handleActivation(log) {
+    console.log(`Activated: ${JSON.stringify(log, null, 2)}`);
+
+    let newEvent = {
+      subscriptionAddress: log.args.subscriptionAddress,
+      subscriptionIdentifier: log.args.subscriptionIdentifier,
+      tokenAddress: log.args.tokenAddress,
+      dueDate: log.args.dueDate,
+      amount: log.args.amount.toNumber(),
+      fee: log.args.fee.toNumber(),
+      blockNumber: log.blockNumber,
+      transactionIndex: log.transactionIndex
+    } as SubscriptionEvent
+
+    this.events[newEvent.subscriptionIdentifier] = newEvent;
+  }
+
+  private handleProcessed(log) {
+    console.log(`Processed: ${JSON.stringify(log, null, 2)}`);
+
+    let existingEvent = this.events[log.args.subscriptionIdentifier];
+
+    if (log.blockNumber < existingEvent.blockNumber) {
+      if (log.transactionIndex < existingEvent.transactionIndex) {
+        return;
+      }
+    }
+
+    existingEvent.claimant = log.args.claimant;
+    existingEvent.dueDate = log.args.dueDate;
+    existingEvent.staked = log.args.staked;
+
+  }
+
+  private handleReleased(log) {
+    console.log(`Released: ${JSON.stringify(log, null, 2)}`);
+
+    let existingEvent = this.events[log.args.subscriptionIdentifier];
+
+    if (log.blockNumber < existingEvent.blockNumber) {
+      if (log.transactionIndex < existingEvent.transactionIndex) {
+        return;
+      }
+    }
+
+    existingEvent.claimant = log.args.claimant;
+    existingEvent.dueDate = log.args.dueDate;
+    existingEvent.staked = log.args.staked;
+  }
+
+  private handlePaymentCaught(log) {
+    console.log(`Late: ${JSON.stringify(log, null, 2)}`);
+
+    let existingEvent = this.events[log.args.subscriptionIdentifier];
+
+    if (log.blockNumber < existingEvent.blockNumber) {
+      if (log.transactionIndex < existingEvent.transactionIndex) {
+        return;
+      }
+    }
+
+    existingEvent.claimant = log.args.claimant;
+    existingEvent.dueDate = log.args.dueDate;
+    existingEvent.staked = log.args.staked;
+  }
+
+  private handleCancelled(log) {
+    console.log(`Cancelled: ${JSON.stringify(log, null, 2)}`);
+
+    let existingEvent = this.events[log.args.subscriptionIdentifier];
+
+    if (log.blockNumber < existingEvent.blockNumber) {
+      if (log.transactionIndex < existingEvent.transactionIndex) {
+        return;
+      }
+    }
+
+    existingEvent.claimant = log.args.claimant;
+    existingEvent.dueDate = log.args.dueDate;
+    existingEvent.staked = log.args.staked;
   }
 
 }
