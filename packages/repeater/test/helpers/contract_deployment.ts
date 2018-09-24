@@ -1,5 +1,5 @@
-import Web3 = require("web3");
 
+import * as Web3 from 'web3';
 import * as contract from 'truffle-contract';
 
 import { Provider, TxData } from 'ethereum-types';
@@ -8,31 +8,41 @@ import { Address } from '@8xprotocol/types';
 
 import {
   ApprovedRegistryAbi,
+  ApprovedRegistryContract,
   VolumeSubscriptionAbi,
+  VolumeSubscriptionContract,
+  MockTokenContract,
   MockTokenAbi,
   MockKyberNetworkAbi,
+  MockKyberNetworkContract,
   TransferProxyAbi,
+  TransferProxyContract,
   PaymentRegistryAbi,
+  PaymentRegistryContract,
   RequirementsAbi,
+  RequirementsContract,
+  StakeContract,
   ExecutorAbi,
-  StakeContractAbi,
+  ExecutorContract,
+  StakeContractAbi
 } from '@8xprotocol/artifacts';
 
-import { VolumeSubscription } from '../../build/VolumeSubscription';
-import { Executor } from '../../build/Executor';
-import { MockKyberNetwork } from '../../build/MockKyberNetwork';
-import { ApprovedRegistry } from '../../build/ApprovedRegistry';
-import { TransferProxy } from '../../build/TransferProxy';
-import { Requirements } from '../../build/Requirements';
-import { StakeContract } from '../../build/StakeContract';
-import { PaymentRegistry } from '../../build/PaymentRegistry';
-import { MockToken } from '../../build/MockToken';
+export const DEFAULT_GAS_LIMIT: BigNumber = new BigNumber(6712390); // Default of 6.7 million gas
+export const DEFAULT_GAS_PRICE: BigNumber = new BigNumber(6000000000); // 6 gEei
+
+export function TX_DEFAULTS(from: string) {
+  return {
+    from: from,
+    gasPrice: DEFAULT_GAS_PRICE,
+    gas: DEFAULT_GAS_LIMIT
+  }
+};
 
 export const deployVolumeSubscription = async (
-  provider: any,
+  provider: Provider,
   owner: Address,
   approvedRegistry: Address
-): Promise<VolumeSubscription> => {
+): Promise<VolumeSubscriptionContract> => {
 
   const web3 = new Web3(provider);
   const defaults = TX_DEFAULTS(owner);
@@ -44,9 +54,10 @@ export const deployVolumeSubscription = async (
 
   const deployedVolumeSubscription = await volumeSubscriptionContract.new(approvedRegistry);
 
-  const contractInstance = new VolumeSubscription(
-    VolumeSubscriptionAbi.abi,
-    deployedVolumeSubscription.address
+  const contractInstance = await VolumeSubscriptionContract.at(
+    deployedVolumeSubscription.address,
+    web3,
+    defaults
   );
 
   return contractInstance;
@@ -54,9 +65,9 @@ export const deployVolumeSubscription = async (
 };
 
 export const deployKyber = async(
-  provider: any,
+  provider: Provider,
   owner: Address
-): Promise<MockKyberNetwork> => {
+): Promise<MockKyberNetworkContract> => {
 
   const web3 = new Web3(provider);
   const defaults = TX_DEFAULTS(owner);
@@ -68,9 +79,10 @@ export const deployKyber = async(
 
   const deployedKyberContract = await mockKyberContract.new();
 
-  const contractInstance = new MockKyberNetwork(
-    MockKyberNetworkAbi.abi,
-    deployedKyberContract.address
+  const contractInstance = await MockKyberNetworkContract.at(
+    deployedKyberContract.address,
+    web3,
+    defaults
   );
 
   return contractInstance;
@@ -78,11 +90,11 @@ export const deployKyber = async(
 }
 
 export const deployApprovedRegistry = async(
-  provider: any,
+  provider: Provider,
   owner: Address,
   kyber: Address,
   token: Address
-): Promise<ApprovedRegistry> => {
+): Promise<ApprovedRegistryContract> => {
 
   const web3 = new Web3(provider);
   const defaults = TX_DEFAULTS(owner);
@@ -92,38 +104,36 @@ export const deployApprovedRegistry = async(
   approvedRegistryContract.setNetwork(50);
   approvedRegistryContract.defaults(defaults);
 
-  const deployedApprovedRegistry = await approvedRegistryContract.new(kyber);
+  const deployedVolumeSubscription = await approvedRegistryContract.new(kyber);
 
-  const contractInstance = new ApprovedRegistry(
-    ApprovedRegistryAbi.abi,
-    deployedApprovedRegistry.address
+  const contractInstance = await ApprovedRegistryContract.at(
+    deployedVolumeSubscription.address,
+    web3,
+    defaults
   );
 
-  await contractInstance.methods.addApprovedToken(
+  await contractInstance.addApprovedToken.sendTransactionAsync(
     token,
     false,
-  ).call({
-    from: defaults.from,
-    gas: defaults.gas.toNumber(),
-    gasPrice: defaults.gasPrice.toNumber()
-  })
+    TX_DEFAULTS(owner)
+  );
 
   return contractInstance;
 
 }
 
 export const deployExecutor = async(
-  provider: any,
+  provider: Provider,
   owner: Address,
-  transferProxyInstance: TransferProxy,
+  transferProxyInstance: TransferProxyContract,
   stakeContractInstance: StakeContract,
-  paymentRegistryInstance: PaymentRegistry,
-  volumeSubscriptionInstance: VolumeSubscription,
+  paymentRegistryInstance: PaymentRegistryContract,
+  volumeSubscriptionInstance: VolumeSubscriptionContract,
   approvedRegistry: Address,
   requirements: Address,
   lockUp: number,
   divisor: number
-): Promise<Executor> => {
+) => {
 
   const web3 = new Web3(provider);
   const defaults = TX_DEFAULTS(owner);
@@ -134,59 +144,48 @@ export const deployExecutor = async(
   executorContract.defaults(defaults);
 
   const deployedExecutor = await executorContract.new(
-    transferProxyInstance.options.address,
-    stakeContractInstance.options.address,
-    paymentRegistryInstance.options.address,
+    transferProxyInstance.address,
+    stakeContractInstance.address,
+    paymentRegistryInstance.address,
     approvedRegistry,
     requirements,
     new BigNumber(lockUp),
     new BigNumber(divisor),
   );
 
-  const executorInstance = new Executor(
-    ExecutorAbi.abi,
+  const executorInstance = await ExecutorContract.at(
     deployedExecutor.address,
+    web3,
+    defaults
   );
 
-  await transferProxyInstance.methods.addAuthorizedAddress(
-    executorInstance.options.address,
-  ).send({
-    from: defaults.from,
-    gas: defaults.gas.toNumber(),
-    gasPrice: defaults.gasPrice.toNumber()
-  })
+  await transferProxyInstance.addAuthorizedAddress.sendTransactionAsync(
+    executorInstance.address,
+    defaults
+  );
 
-  await stakeContractInstance.methods.addAuthorizedAddress(
-    executorInstance.options.address,
-  ).send({
-    from: defaults.from,
-    gas: defaults.gas.toNumber(),
-    gasPrice: defaults.gasPrice.toNumber()
-  })
+  await stakeContractInstance.addAuthorizedAddress.sendTransactionAsync(
+    executorInstance.address,
+    defaults
+  );
 
-  await paymentRegistryInstance.methods.addAuthorizedAddress(
-    executorInstance.options.address,
-  ).send({
-    from: defaults.from,
-    gas: defaults.gas.toNumber(),
-    gasPrice: defaults.gasPrice.toNumber()
-  })
+  await paymentRegistryInstance.addAuthorizedAddress.sendTransactionAsync(
+    executorInstance.address,
+    defaults
+  );
 
-  await volumeSubscriptionInstance.methods.addAuthorizedAddress(
-    executorInstance.options.address,
-  ).send({
-    from: defaults.from,
-    gas: defaults.gas.toNumber(),
-    gasPrice: defaults.gasPrice.toNumber()
-  })
+  await volumeSubscriptionInstance.addAuthorizedAddress.sendTransactionAsync(
+    executorInstance.address,
+    defaults
+  );
 
   return executorInstance;
 }
 
 export const deployTransferProxy = async(
-  provider: any,
+  provider: Provider,
   owner: Address
-): Promise<TransferProxy> => {
+) => {
 
   const web3 = new Web3(provider);
   const defaults = TX_DEFAULTS(owner);
@@ -198,9 +197,10 @@ export const deployTransferProxy = async(
 
   const deployedTransferProxy = await transferProxyContract.new();
 
-  const transferProxyInstance = new TransferProxy(
-    TransferProxyAbi.abi,
+  const transferProxyInstance = await TransferProxyContract.at(
     deployedTransferProxy.address,
+    web3,
+    defaults
   );
 
   return transferProxyInstance;
@@ -208,9 +208,10 @@ export const deployTransferProxy = async(
 }
 
 export const deployStakeContract = async(
-  provider: any,
-  owner: Address
-): Promise<StakeContract> => {
+  provider: Provider,
+  owner: Address,
+  stakeToken: Address
+) => {
 
   const web3 = new Web3(provider);
   const defaults = TX_DEFAULTS(owner);
@@ -220,20 +221,21 @@ export const deployStakeContract = async(
   stakeContract.setNetwork(50);
   stakeContract.defaults(defaults);
 
-  const deployedStakeContract = await stakeContract.new();
+  const deployedStakeContract = await stakeContract.new(stakeToken);
 
-  const stakeContractInstance = new StakeContract(
-    StakeContractAbi.abi,
-    deployedStakeContract.address
+  const stakeContractInstance = await StakeContract.at(
+    deployedStakeContract.address,
+    web3,
+    defaults
   );
 
   return stakeContractInstance;
 }
 
 export const deployPaymentRegistry = async(
-  provider: any,
+  provider: Provider,
   owner: Address
-): Promise<PaymentRegistry> => {
+) => {
 
   const web3 = new Web3(provider);
   const defaults = TX_DEFAULTS(owner);
@@ -245,9 +247,10 @@ export const deployPaymentRegistry = async(
 
   const deployedPaymentRegistry = await paymentsRegistyContract.new();
 
-  const paymentRegistryInstance = new PaymentRegistry(
-    PaymentRegistryAbi.abi,
-    deployedPaymentRegistry.address
+  const paymentRegistryInstance = await PaymentRegistryContract.at(
+    deployedPaymentRegistry.address,
+    web3,
+    defaults
   );
 
   return paymentRegistryInstance;
@@ -255,9 +258,9 @@ export const deployPaymentRegistry = async(
 }
 
 export const deployRequirements = async(
-  provider: any,
+  provider: Provider,
   owner: Address
-): Promise<Requirements> => {
+) => {
 
   const web3 = new Web3(provider);
   const defaults = TX_DEFAULTS(owner);
@@ -269,9 +272,10 @@ export const deployRequirements = async(
 
   const deployedRequirementsContract = await requirementsContract.new();
 
-  const requirementsContractInstance = new Requirements(
-    PaymentRegistryAbi.abi,
-    deployedRequirementsContract.address
+  const requirementsContractInstance = await RequirementsContract.at(
+    deployedRequirementsContract.address,
+    web3,
+    defaults
   );
 
   return requirementsContractInstance;
@@ -279,9 +283,9 @@ export const deployRequirements = async(
 }
 
 export const deployMockToken = async(
-  provider: any,
+  provider: Provider,
   owner: Address
-): Promise<MockToken> => {
+): Promise<MockTokenContract> => {
 
   const web3 = new Web3(provider);
   const defaults = TX_DEFAULTS(owner);
@@ -293,22 +297,12 @@ export const deployMockToken = async(
 
   const deployedToken = await mockTokenContract.new();
 
-  const contractInstance = new MockToken(
-    MockTokenAbi.abi,
-    deployedToken.address
+  const contractInstance = await MockTokenContract.at(
+    deployedToken.address,
+    web3,
+    defaults
   );
 
   return contractInstance;
 
 }
-
-export const DEFAULT_GAS_LIMIT: BigNumber = new BigNumber(6712390); // Default of 6.7 million gas
-export const DEFAULT_GAS_PRICE: BigNumber = new BigNumber(6000000000); // 6 gEei
-
-function TX_DEFAULTS(from: string) {
-  return {
-    from: from,
-    gasPrice: DEFAULT_GAS_PRICE,
-    gas: DEFAULT_GAS_LIMIT
-  }
-};

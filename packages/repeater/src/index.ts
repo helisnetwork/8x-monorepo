@@ -5,20 +5,28 @@ import { AddressBook } from '@8xprotocol/types';
 
 import EventStore from './store/events';
 
-class Repeater {
+export default class Repeater {
 
   private web3: Web3;
-
   private addressBook: AddressBook;
-  private eventStore: EventStore
 
-  constructor(addressBook: AddressBook, websocket: string) {
-    this.web3 = new Web3(websocket);
+  public eventStore: EventStore
+  public repeaterUpdated: () => (void);
+
+  constructor(addressBook: AddressBook, provider?: any, privateKey?: string, callback?: () => (void)) {
+    this.web3 = new Web3(provider || privateKey);
     this.addressBook = addressBook;
+    this.repeaterUpdated = callback;
+    this.eventStore = new EventStore(this.web3, addressBook.executorAddress || '', callback || null);
   }
 
   public async start() {
+    await this.eventStore.startListening();
+  }
 
+  public storeUpdated() {
+    console.log('Store updated was called');
+    this.repeaterUpdated();
   }
 
 }
