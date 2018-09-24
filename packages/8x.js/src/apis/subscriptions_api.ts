@@ -201,16 +201,21 @@ export default class SubscriptionsAPI {
    * ```
    *
    * @param subscriptionHash        Unique subscription hash returned upon subscribing.
+   * @param plan                    Pass an existing plan object to prevent refetching
+   * @param subscription            Pass an existing subscription object to prevent refetching
    * @returns                       Current status, does user has enough tokens, has 8x got authorisation
    * @priority                      6
    */
   public async getStatus(
-    subscriptionHash: Bytes32
+    subscriptionHash: Bytes32,
+    plan?: Plan,
+    subscription?: Subscription
   ): Promise<[string, boolean, boolean]> {
 
-    const subscription = await this.get(subscriptionHash);
+    subscription = subscription || await this.get(subscriptionHash);
+    plan = plan || await this.volumeSubscriptionWrapper.getPlan(subscription.planHash);
+
     const intervalDivisor = await this.executorWrapper.getIntervalDivisor();
-    const plan = await this.volumeSubscriptionWrapper.getPlan(subscription.planHash);
     const now = Date.now() / 1000;
     const dueDate = subscription.lastPaymentDate + plan.interval;
 

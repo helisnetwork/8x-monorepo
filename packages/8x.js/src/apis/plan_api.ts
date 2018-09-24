@@ -34,7 +34,7 @@ export default class PlanAPI {
    * @param owner         Owner of the subscription
    * @param token         Token to receive payments in
    * @param identifier    External identifier to use to retrieve subscribers
-   * @param interval      Interval, in days, to charge a user
+   * @param interval      Interval, in seconds, to charge a user
    * @param amount        Amount to charge a user
    * @param fee           Amount to set as the processing fee
    * @param name          Your organisation/name (eg 'Netflix', 'SaaS dApp'). Shown to user.

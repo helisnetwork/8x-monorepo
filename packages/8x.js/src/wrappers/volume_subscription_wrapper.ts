@@ -54,7 +54,7 @@ export default class VolumeSubscriptionWrapper {
       owner,
       token,
       Web3Utils.asciiToHex(identifier),
-      new BigNumber(interval).mul(SECONDS_IN_DAY),
+      new BigNumber(interval),
       amount,
       fee,
       submitString,
@@ -98,7 +98,6 @@ export default class VolumeSubscriptionWrapper {
     ] = await volumeSubscription.plans.callAsync(planHash);;
 
     identifier = Web3Utils.hexToUtf8(identifier);
-    interval = interval.div(SECONDS_IN_DAY);
 
     let parsedData = JSON.parse(data)
 
