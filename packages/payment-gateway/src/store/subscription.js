@@ -1,5 +1,6 @@
 import bus from '../bus';
 import { default as Images } from '../middleware/images';
+import EightEx from '8x.js';
 
 class SubscriptionStore {
   constructor() {
