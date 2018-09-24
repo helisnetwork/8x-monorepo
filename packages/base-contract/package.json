@@ -1,5 +1,5 @@
 {
-  "name": "@8xprotocol/base_contract",
+  "name": "@8xprotocol/base-contract",
   "version": "0.1.15",
   "description": "",
   "main": "dist/index.js",

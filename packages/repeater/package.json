@@ -12,7 +12,7 @@
   "dependencies": {
     "8x.js": "^0.1.15",
     "@8xprotocol/artifacts": "^0.1.15",
-    "@8xprotocol/base_contract": "^0.1.15",
+    "@8xprotocol/base-contract": "^0.1.15",
     "@8xprotocol/dev-utils": "^0.1.15",
     "@8xprotocol/types": "^0.1.15",
     "@types/jest": "^23.3.2",
