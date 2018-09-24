@@ -62,7 +62,7 @@ export default class EventStore {
       subscriptionAddress: log.args.subscriptionAddress,
       subscriptionIdentifier: log.args.subscriptionIdentifier,
       tokenAddress: log.args.tokenAddress,
-      dueDate: log.args.dueDate,
+      dueDate: log.args.dueDate.toNumber(),
       amount: log.args.amount.toNumber(),
       fee: log.args.fee.toNumber(),
       blockNumber: log.blockNumber,
@@ -84,7 +84,7 @@ export default class EventStore {
     }
 
     existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate;
+    existingEvent.dueDate = log.args.dueDate.toNumber();
     existingEvent.staked = log.args.staked;
 
   }
@@ -101,7 +101,7 @@ export default class EventStore {
     }
 
     existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate;
+    existingEvent.dueDate = log.args.dueDate.toNumber();
     existingEvent.staked = log.args.staked;
   }
 
