@@ -15,6 +15,8 @@ import {
   MockTokenAbi,
   MockKyberNetworkAbi,
   MockKyberNetworkContract,
+  MockVolumeSubscriptionContract,
+  MockVolumeSubscriptionAbi,
   TransferProxyAbi,
   TransferProxyContract,
   PaymentRegistryAbi,
@@ -48,6 +50,32 @@ export const deployVolumeSubscription = async (
   const deployedVolumeSubscription = await volumeSubscriptionContract.new(approvedRegistry);
 
   const contractInstance = await VolumeSubscriptionContract.at(
+    deployedVolumeSubscription.address,
+    web3,
+    defaults
+  );
+
+  return contractInstance;
+
+};
+
+export const deployMockVolumeSubscription = async (
+  provider: Provider,
+  owner: Address,
+  approvedRegistry: Address
+): Promise<MockVolumeSubscriptionContract> => {
+
+  const web3 = new Web3(provider);
+  const defaults = TX_DEFAULTS(owner);
+
+  let volumeSubscriptionContract = contract(MockVolumeSubscriptionAbi);
+  volumeSubscriptionContract.setProvider(provider);
+  volumeSubscriptionContract.setNetwork(50);
+  volumeSubscriptionContract.defaults(defaults);
+
+  const deployedVolumeSubscription = await volumeSubscriptionContract.new(approvedRegistry);
+
+  const contractInstance = await MockVolumeSubscriptionContract.at(
     deployedVolumeSubscription.address,
     web3,
     defaults

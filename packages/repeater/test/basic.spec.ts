@@ -6,10 +6,21 @@ import * as chai from 'chai';
 import * as Web3 from 'web3';
 
 import { BigNumber } from 'bignumber.js';
-import { Web3Utils, VolumeSubscriptionContract, ApprovedRegistryContract, ExecutorContract, VolumeSubscriptionAbi, ExecutorAbi } from '@8xprotocol/artifacts';
+import {
+  Web3Utils,
+  VolumeSubscriptionContract,
+  ApprovedRegistryContract,
+  ExecutorContract,
+  VolumeSubscriptionAbi,
+  ExecutorAbi,
+  StakeContract,
+  PaymentRegistryContract,
+  MockVolumeSubscriptionContract
+} from '@8xprotocol/artifacts';
 
 import {
   deployVolumeSubscription,
+  deployMockVolumeSubscription,
   deployKyber,
   deployApprovedRegistry,
   deployMockToken,
@@ -32,10 +43,14 @@ const exepect = chai.expect;
 const provider = new Web3.providers.HttpProvider('http://localhost:8545');
 const web3 = new Web3(provider);
 
+const web3Utils = new Web3Utils(web3);
+
 let contractOwner: string;
 let business: string;
 let consumer: string;
 let serviceNode: string;
+
+let topUpAmount = new BigNumber(100*10**18);
 
 let eightEx: EightEx;
 let addressBook: AddressBook;
@@ -46,14 +61,29 @@ let mockToken: MockTokenContract;
 let stakeToken: MockTokenContract;
 let transferProxy: TransferProxyContract;
 let executor: ExecutorContract;
+let stakeContract: StakeContract;
+let paymentRegistry: PaymentRegistryContract;
 
 let planHash: string;
 let anotherPlanHash: string;
 let subscriptionHash: string;
 
 let mockUpdate: jest.Mock<{}>;
+let currentSnapshotId: number;
 
 describe('Basic', () => {
+
+  beforeEach(async () => {
+
+    //currentSnapshotId = await web3Utils.saveTestSnapshot();
+
+  });
+
+  afterEach(async () => {
+
+    //await web3Utils.revertToSnapshot(currentSnapshotId);
+
+  });
 
   beforeAll(async () => {
 
@@ -70,9 +100,8 @@ describe('Basic', () => {
     approvedRegistry = await deployApprovedRegistry(provider, contractOwner, kyber.address, mockToken.address);
     volumeSubscription = await deployVolumeSubscription(provider, contractOwner, approvedRegistry.address);
     transferProxy = await deployTransferProxy(provider, contractOwner);
-
-    const stakeContract = await deployStakeContract(provider, contractOwner, stakeToken.address);
-    const paymentRegistry = await deployPaymentRegistry(provider, contractOwner);
+    stakeContract = await deployStakeContract(provider, contractOwner, stakeToken.address);
+    paymentRegistry = await deployPaymentRegistry(provider, contractOwner);
     const requirements = await deployRequirements(provider, contractOwner);
 
     executor = await deployExecutor(
@@ -85,12 +114,8 @@ describe('Basic', () => {
       approvedRegistry.address,
       requirements.address,
       800,
-      7
+      2
     );
-
-    await approvedRegistry.addApprovedContract.sendTransactionAsync(volumeSubscription.address, {from: contractOwner});
-    await mockToken.transfer.sendTransactionAsync(consumer, new BigNumber(20*10**18), {from: contractOwner});
-    await stakeToken.transfer.sendTransactionAsync(serviceNode, new BigNumber(100*10**18), {from: contractOwner});
 
     addressBook = {
       volumeSubscriptionAddress: volumeSubscription.address,
@@ -102,10 +127,27 @@ describe('Basic', () => {
 
     eightEx = new EightEx(web3, addressBook);
 
+    await approvedRegistry.addApprovedContract.sendTransactionAsync(volumeSubscription.address, {from: contractOwner});
+
+    await mockToken.transfer.sendTransactionAsync(consumer, new BigNumber(20*10**18), {from: contractOwner});
+    await stakeToken.transfer.sendTransactionAsync(serviceNode, topUpAmount, {from: contractOwner});
+
+    await stakeToken.approve.sendTransactionAsync(
+      stakeContract.address,
+      topUpAmount,
+      {from: serviceNode}
+    );
+
+    await stakeContract.topUpStake.sendTransactionAsync(
+      topUpAmount,
+      mockToken.address,
+      {from: serviceNode}
+    );
+
     planHash = await eightEx.plans.create(
       business,
       'create.new.plan',
-      5,
+      6,
       new BigNumber(10*10**18),
       new BigNumber(10**16),
       'Netflix',
@@ -135,14 +177,30 @@ describe('Basic', () => {
 
   });
 
-  test('it should wait before processing', async(done) => {
-    let activationDate = (await eightEx.subscriptions.get(subscriptionHash)).lastPaymentDate;
-    setTimeout(done, (Date.now() / 1000) - activationDate);
-    console.log(`Delay is ${(Date.now() / 1000) - activationDate}`);
-  })
-
   test('processing subscription', async() => {
 
+    let dueDate = await paymentRegistry.getPaymentInformation.callAsync(subscriptionHash);
+    let now = await web3Utils.getCurrentBlockTime();
+
+    let delay = Math.floor(dueDate["1"].toNumber() - (now) + 1);
+
+    await web3Utils.increaseTime(delay);
+
+    await executor.processSubscription.sendTransactionAsync(
+      volumeSubscription.address,
+      subscriptionHash,
+      {from: serviceNode}
+    );
+
+    await new Promise((resolve, reject) => {
+      let repeater = new Repeater(addressBook, provider, '', () => {
+        console.log(repeater.eventStore.events);
+        expect(repeater.eventStore.events[subscriptionHash].subscriptionIdentifier).toEqual(subscriptionHash);
+        resolve();
+      });
+
+      repeater.start();
+    });
 
   });
 

@@ -63,7 +63,7 @@ describe('SubscriptionAPI', () => {
     volumeSubscription = await deployVolumeSubscription(provider, contractOwner, approvedRegistry.address);
     transferProxy = await deployTransferProxy(provider, contractOwner);
 
-    const stakeContract = await deployStakeContract(provider, contractOwner);
+    const stakeContract = await deployStakeContract(provider, contractOwner, '');
     const paymentRegistry = await deployPaymentRegistry(provider, contractOwner);
     const requirements = await deployRequirements(provider, contractOwner);
 
