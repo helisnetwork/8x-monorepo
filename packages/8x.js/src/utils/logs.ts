@@ -7,7 +7,7 @@ import { TransactionReceipt } from 'ethereum-types';
 import { Web3Utils } from '@8xprotocol/artifacts';
 import { Address, Log } from '@8xprotocol/types';
 import { awaitTx } from './transaction_utils';
-import { BaseContract } from '@8xprotocol/artifacts/node_modules/@8xprotocol/base_contract';
+import { BaseContract } from '@8xprotocol/artifacts/node_modules/@8xprotocol/base-contract';
 
 export interface GetEventOptions {
   fromBlock?: number;
