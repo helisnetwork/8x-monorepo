@@ -1,5 +1,5 @@
 .modal-button {
-    padding: 1em, 2em;
+    padding: 0.5em 4em;
     background-color: black;
     border: 0;
     border-radius: 0.3em;
@@ -11,4 +11,24 @@
     &:hover {
         background-color: #466d87;
     }
-} 
+}
+
+.planhash-input {
+    display: flex;
+    background-color: white;
+    border: none;
+    border-radius: 0.85em;
+    padding: 1em 1em 1em 1em;
+    box-shadow: 9px 10px 20px 0px rgba(239,239,239,0.8);
+
+    #planhash-input {
+        border: none; 
+        font-size: 1em;
+        width:100%;
+    }
+
+    input::-webkit-input-placeholder {
+        line-height: 3;
+        color: lightgray;
+    }
+}
