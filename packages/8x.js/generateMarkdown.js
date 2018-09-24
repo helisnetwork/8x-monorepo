@@ -127,7 +127,7 @@ let markdown = classes.map((object) => {
 
     let responseText = (
       method.response ?
-        `\r> The above command returns JSON structured like this:\r\r
+        `> The above command returns JSON structured like this:\r
         ${method.response}\r` : ''
     );
 
@@ -141,7 +141,7 @@ let markdown = classes.map((object) => {
         (`\r### Request Parameters\r`
          + `Name | Type | Comment \r`
          + `---- | ---- | ------- \r`
-         + `${parameters}\r`
+         + `${parameters}`
         ) : ''
     )
 

@@ -51,7 +51,8 @@ export default class SubscriptionsAPI {
    *
    * @param owner     The user to check whether allowance has been given or not.
    *
-   * ```response
+   * @response
+   * ```
    * [ true ]
    * ```
    *
@@ -153,7 +154,8 @@ export default class SubscriptionsAPI {
    *
    * @param subscriptionHash  Unique subscription hash returned upon subscribing.
    *
-   * ```response
+   * @response
+   * ```
    * {
    *    owner: '0xdfLqn83...',
    *    tokenAddress: '0xw9s3mfd...',
@@ -189,15 +191,14 @@ export default class SubscriptionsAPI {
    *
    * You can decide how you'd like to handle unprocessed subscriptions.
    *
-   * ```response
-   *
+   * @response
+   * ```
    * // In the following response, we see the status of a user who's subscription is being processed but has a low chance of not fulfilling their recurring obligation.
    * [
    *    'processing', // The subscription is being processed
    *    'true', // The user has enough tokens to pay for the subscription
    *    'true', // The user has given 8x enough allowance to take tokens from their wallet
    * ]
-   *
    * ```
    *
    * @param subscriptionHash        Unique subscription hash returned upon subscribing.
