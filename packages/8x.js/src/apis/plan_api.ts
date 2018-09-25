@@ -12,6 +12,7 @@ import { BigNumber } from '@8xprotocol/types/node_modules/bignumber.js';
   * be manipulated (with the exception of a title and description/JSON metadata).
   *
   * @path eightEx.plans
+  *
 */
 
 export default class PlanAPI {
@@ -45,6 +46,7 @@ export default class PlanAPI {
    *
    * @returns             Unique identifying hash of the plan.
    * @priority            1
+   *
   */
   public async create(
     owner: string,
@@ -102,6 +104,7 @@ export default class PlanAPI {
    *
    * @returns             A plan object
    * @priority            2
+   *
   */
   public async get(
     planHash: string
@@ -120,6 +123,7 @@ export default class PlanAPI {
    *
    * @returns       An array of Plan objects.
    * @priority      3
+   *
    */
   public async getAllFor(
     owner: Address
@@ -138,6 +142,7 @@ export default class PlanAPI {
    *
    * @returns           An array of Subscription objects.
    * @priority          4
+   *
    */
   public async getSubscribers(
     planHash: Bytes32
@@ -162,6 +167,7 @@ export default class PlanAPI {
    *
    * @returns            Hash of the transaction upon completion.
    * @priority           5
+   *
    */
   public async cancel(
     planHash: string,

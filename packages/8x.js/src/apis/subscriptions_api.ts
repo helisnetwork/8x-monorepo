@@ -82,6 +82,7 @@ export default class SubscriptionsAPI {
    *
    * @param txData    Provide signer, gas and gasPrice information (optional).
    * @priority        2
+   *
   */
   public async giveAuthorisation(txData?: TxData): Promise<TxHash> {
 
@@ -107,6 +108,7 @@ export default class SubscriptionsAPI {
    *
    * @returns             Unique subscription hash.
    * @priority            3
+   *
   */
   public async subscribe(
     planHash: Bytes32,
@@ -135,6 +137,7 @@ export default class SubscriptionsAPI {
    *
    * @returns                   Hash of the transaction upon completion.
    * @priority                  4
+   *
   */
   public async activate(
     subscriptionHash: Bytes32,
@@ -170,6 +173,7 @@ export default class SubscriptionsAPI {
    *
    * @returns                 A subscription object.
    * @priority                5
+   *
   */
   public async get(
     subscriptionHash: Bytes32
@@ -209,6 +213,7 @@ export default class SubscriptionsAPI {
    * @param subscription            Pass an existing subscription object to prevent refetching.
    * @returns                       Current status, does user has enough tokens, does 8x got authorisation.
    * @priority                      6
+   *
    */
   public async getStatus(
     subscriptionHash: Bytes32,
@@ -257,6 +262,7 @@ export default class SubscriptionsAPI {
    *
    * @returns          An array of subscription objects.
    * @priority         7
+   *
   */
   public async getSubscribed(
     user: Address
@@ -277,6 +283,7 @@ export default class SubscriptionsAPI {
    *
    * @returns                   Hash of the transaction upon completion.
    * @priority                  8
+   *
    */
   public async cancel(
     subscriptionHash: Bytes32,
