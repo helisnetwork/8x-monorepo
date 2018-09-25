@@ -250,7 +250,8 @@ export default class VolumeSubscriptionWrapper {
       planHash,
       lastPaymentDate: lastPaymentDate.toNumber(),
       terminationDate: terminationDate.toNumber(),
-      data
+      data,
+      subscriptionHash
     } as Subscription;
 
   }
