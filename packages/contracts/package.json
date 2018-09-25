@@ -1,6 +1,6 @@
 {
   "name": "@8xprotocol/contracts",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "devDependencies": {
     "@0xproject/abi-gen": "^1.0.7",
     "@8xprotocol/types": "^0.1.15",
