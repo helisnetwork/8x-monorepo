@@ -74,18 +74,6 @@ let currentSnapshotId: number;
 
 describe('Basic', () => {
 
-  beforeEach(async () => {
-
-    //currentSnapshotId = await web3Utils.saveTestSnapshot();
-
-  });
-
-  afterEach(async () => {
-
-    //await web3Utils.revertToSnapshot(currentSnapshotId);
-
-  });
-
   beforeAll(async () => {
 
     let addresses = web3.eth.accounts;
@@ -115,7 +103,7 @@ describe('Basic', () => {
       approvedRegistry.address,
       requirements.address,
       800,
-      2
+      1
     );
 
     addressBook = {
@@ -127,13 +115,13 @@ describe('Basic', () => {
     };
 
     eightEx = new EightEx(web3, addressBook);
-    repeater = new Repeater(addressBook, provider, '');
+    repeater = new Repeater(web3, executor.address, serviceNode);
 
     await repeater.start();
 
     await approvedRegistry.addApprovedContract.sendTransactionAsync(volumeSubscription.address, {from: contractOwner});
 
-    await mockToken.transfer.sendTransactionAsync(consumer, new BigNumber(20*10**18), {from: contractOwner});
+    await mockToken.transfer.sendTransactionAsync(consumer, new BigNumber(50*10**18), {from: contractOwner});
     await stakeToken.transfer.sendTransactionAsync(serviceNode, topUpAmount, {from: contractOwner});
 
     await stakeToken.approve.sendTransactionAsync(
@@ -151,7 +139,7 @@ describe('Basic', () => {
     planHash = await eightEx.plans.create(
       business,
       'create.new.plan',
-      6,
+      2,
       new BigNumber(10*10**18),
       new BigNumber(10**16),
       'Netflix',
@@ -170,7 +158,7 @@ describe('Basic', () => {
     subscriptionHash = await eightEx.subscriptions.subscribe(planHash, null, {from: consumer});
 
     await new Promise((resolve, reject) => {
-      repeater.storeUpdated = () => {
+      repeater.repeaterUpdated = () => {
         expect(repeater.eventStore.events[subscriptionHash].subscriptionIdentifier).toEqual(subscriptionHash);
         resolve();
       };
@@ -182,26 +170,38 @@ describe('Basic', () => {
 
   test('processing subscription', async() => {
 
-    let dueDate = await paymentRegistry.getPaymentInformation.callAsync(subscriptionHash);
+    let paymentInformation = await paymentRegistry.getPaymentInformation.callAsync(subscriptionHash);
     let now = await web3Utils.getCurrentBlockTime();
 
-    let delay = Math.floor(dueDate["1"].toNumber() - (now) + 1);
+    let delay = Math.floor(paymentInformation["1"].toNumber() - (now) + 1);
 
-    await web3Utils.increaseTime(delay);
+    setTimeout(null, delay);
 
     await new Promise((resolve, reject) => {
-      repeater.storeUpdated = () => {
+      repeater.repeaterUpdated = () => {
         expect(repeater.eventStore.events[subscriptionHash].subscriptionIdentifier).toEqual(subscriptionHash);
         expect(repeater.eventStore.events[subscriptionHash].claimant).toEqual(serviceNode);
         resolve();
       };
+    });
 
-      executor.processSubscription.sendTransactionAsync(
-        volumeSubscription.address,
-        subscriptionHash,
-        {from: serviceNode}
-      );
+  });
 
+  test('processing subscription (again)', async() => {
+
+    let paymentInformation = await (paymentRegistry.getPaymentInformation.callAsync(subscriptionHash));
+    let now = await web3Utils.getCurrentBlockTime();
+
+    let delay = Math.floor(paymentInformation["1"].toNumber() - (now) + 1);
+
+    setTimeout(null, delay);
+
+    await new Promise((resolve, reject) => {
+      repeater.repeaterUpdated = () => {
+        expect(repeater.eventStore.events[subscriptionHash].subscriptionIdentifier).toEqual(subscriptionHash);
+        expect(repeater.eventStore.events[subscriptionHash].claimant).toEqual(serviceNode);
+        resolve();
+      };
     });
 
   });

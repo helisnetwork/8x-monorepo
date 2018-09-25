@@ -15,23 +15,18 @@ import { Address } from '@8xprotocol/types';
 export default class EventStore {
 
   private web3: Web3;
-  private executorAddress: Address;
-
-  private executorContract: ExecutorContract | null;
+  private executorContract: ExecutorContract;
 
   public eventsUpdated: () => (void);
   public events: { [id: string] : SubscriptionEvent } = {};
 
-  constructor(web3: Web3, executorAddress: Address, callback: () => (void)) {
+  constructor(web3: Web3, executorContract: ExecutorContract, callback: () => (void)) {
     this.web3 = web3;
     this.eventsUpdated = callback;
-    this.executorAddress = executorAddress;
+    this.executorContract = executorContract;
   }
 
   public async startListening() {
-
-    this.executorContract = this.executorContract || await ExecutorContract.at(this.executorAddress, this.web3, {});
-
     const contract = this.web3.eth.contract(ExecutorAbi.abi).at(this.executorContract.address);
     const eventsWatcher = contract.allEvents({
       fromBlock: 0,
@@ -90,6 +85,7 @@ export default class EventStore {
     existingEvent.transactionIndex = log.blockNumber;
 
     this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+
   }
 
   private handleReleased(log) {
@@ -106,6 +102,8 @@ export default class EventStore {
     existingEvent.claimant = log.args.claimant;
     existingEvent.dueDate = log.args.dueDate.toNumber();
     existingEvent.staked = log.args.staked;
+
+    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
   }
 
   private handlePaymentCaught(log) {
@@ -120,8 +118,10 @@ export default class EventStore {
     }
 
     existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate;
+    existingEvent.dueDate = log.args.dueDate.toNumber();
     existingEvent.staked = log.args.staked;
+
+    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
   }
 
   private handleCancelled(log) {
@@ -136,8 +136,10 @@ export default class EventStore {
     }
 
     existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate;
+    existingEvent.dueDate = log.args.dueDate.toNumber();
     existingEvent.staked = log.args.staked;
+
+    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
   }
 
 }
