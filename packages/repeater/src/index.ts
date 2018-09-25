@@ -16,9 +16,7 @@ export default class Repeater {
   constructor(addressBook: AddressBook, provider?: any, privateKey?: string) {
     this.web3 = new Web3(provider || privateKey);
     this.addressBook = addressBook;
-    this.eventStore = new EventStore(this.web3, addressBook.executorAddress || '', () => {
-      this.storeUpdated();
-    });
+    this.eventStore = new EventStore(this.web3, addressBook.executorAddress || '', () => this.storeUpdated());
   }
 
   public async start() {
