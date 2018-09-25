@@ -77,7 +77,7 @@ export default class EventStore {
 
     let existingEvent = this.events[log.args.subscriptionIdentifier];
 
-    if (log.blockNumber < existingEvent.blockNumber) {
+    if (log.blockNumber <= existingEvent.blockNumber) {
       if (log.transactionIndex < existingEvent.transactionIndex) {
         return;
       }
@@ -86,7 +86,10 @@ export default class EventStore {
     existingEvent.claimant = log.args.claimant;
     existingEvent.dueDate = log.args.dueDate.toNumber();
     existingEvent.staked = log.args.staked;
+    existingEvent.blockNumber = log.blockNumber;
+    existingEvent.transactionIndex = log.blockNumber;
 
+    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
   }
 
   private handleReleased(log) {

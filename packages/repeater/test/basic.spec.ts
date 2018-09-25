@@ -53,6 +53,7 @@ let serviceNode: string;
 let topUpAmount = new BigNumber(100*10**18);
 
 let eightEx: EightEx;
+let repeater: Repeater;
 let addressBook: AddressBook;
 
 let volumeSubscription: VolumeSubscriptionContract;
@@ -126,6 +127,9 @@ describe('Basic', () => {
     };
 
     eightEx = new EightEx(web3, addressBook);
+    repeater = new Repeater(addressBook, provider, '');
+
+    await repeater.start();
 
     await approvedRegistry.addApprovedContract.sendTransactionAsync(volumeSubscription.address, {from: contractOwner});
 
@@ -164,15 +168,14 @@ describe('Basic', () => {
     await eightEx.subscriptions.giveAuthorisation({from: consumer});
 
     subscriptionHash = await eightEx.subscriptions.subscribe(planHash, null, {from: consumer});
-    await eightEx.subscriptions.activate(subscriptionHash, {from: consumer});
 
     await new Promise((resolve, reject) => {
-      let repeater = new Repeater(addressBook, provider, '', () => {
+      repeater.storeUpdated = () => {
         expect(repeater.eventStore.events[subscriptionHash].subscriptionIdentifier).toEqual(subscriptionHash);
         resolve();
-      });
+      };
 
-      repeater.start();
+      eightEx.subscriptions.activate(subscriptionHash, {from: consumer});
     });
 
   });
@@ -186,20 +189,19 @@ describe('Basic', () => {
 
     await web3Utils.increaseTime(delay);
 
-    await executor.processSubscription.sendTransactionAsync(
-      volumeSubscription.address,
-      subscriptionHash,
-      {from: serviceNode}
-    );
-
     await new Promise((resolve, reject) => {
-      let repeater = new Repeater(addressBook, provider, '', () => {
-        console.log(repeater.eventStore.events);
+      repeater.storeUpdated = () => {
         expect(repeater.eventStore.events[subscriptionHash].subscriptionIdentifier).toEqual(subscriptionHash);
+        expect(repeater.eventStore.events[subscriptionHash].claimant).toEqual(serviceNode);
         resolve();
-      });
+      };
 
-      repeater.start();
+      executor.processSubscription.sendTransactionAsync(
+        volumeSubscription.address,
+        subscriptionHash,
+        {from: serviceNode}
+      );
+
     });
 
   });
