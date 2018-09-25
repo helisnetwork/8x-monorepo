@@ -121,5 +121,6 @@ export interface Subscription {
     planHash: Bytes32,
     lastPaymentDate: number,
     terminationDate: number,
-    data: string
+    data: string,
+    subscriptionHash: string
 }
