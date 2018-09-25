@@ -152,6 +152,8 @@ export default class SubscriptionsAPI {
   /**
    * Get subscription
    *
+   * Get a subscription using the subscription hash.
+   *
    * @param subscriptionHash  Unique subscription hash returned upon subscribing.
    *
    * @response
@@ -162,7 +164,7 @@ export default class SubscriptionsAPI {
    *    planHash: '0xwjw93m3sd...',
    *    lastPaymentDate: 155321434, // (epoch in seconds)
    *    terminationDate: 155452222, // (epoch in seconds)
-   *    subscriptionHash: '0xhad93d...'
+   *    subscriptionHash: '0xhad93d...',
    * }
    * ```
    *
