@@ -172,8 +172,4 @@ export default class PlanAPI {
 
   }
 
-  public test(): number {
-      return 0;
-  }
-
 }
