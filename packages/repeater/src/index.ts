@@ -13,11 +13,12 @@ export default class Repeater {
   public eventStore: EventStore
   public repeaterUpdated: () => (void);
 
-  constructor(addressBook: AddressBook, provider?: any, privateKey?: string, callback?: () => (void)) {
+  constructor(addressBook: AddressBook, provider?: any, privateKey?: string) {
     this.web3 = new Web3(provider || privateKey);
     this.addressBook = addressBook;
-    this.repeaterUpdated = callback;
-    this.eventStore = new EventStore(this.web3, addressBook.executorAddress || '', callback || null);
+    this.eventStore = new EventStore(this.web3, addressBook.executorAddress || '', () => {
+      this.storeUpdated();
+    });
   }
 
   public async start() {
