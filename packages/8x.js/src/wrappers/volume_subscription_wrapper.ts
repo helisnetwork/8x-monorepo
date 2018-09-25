@@ -135,7 +135,9 @@ export default class VolumeSubscriptionWrapper {
     const volumeSubscription = await this.contracts.loadVolumeSubscription();
 
     let logs = await getPastLogs(this.web3, volumeSubscription,'CreatedPlan');
-    let filteredLogs = logs.filter((object) => _.filter(object, ['args.owner', owner]));
+    let filteredLogs = logs.filter((object) => {
+      return object['args']['owner'] == owner;
+    });
     let ids = filteredLogs.map((object) => _.get(object, 'args.planIdentifier'));
 
     let plans = ids.map(async(id) => {
@@ -150,7 +152,7 @@ export default class VolumeSubscriptionWrapper {
     user: Address
   ): Promise<Subscription[]> {
 
-   return await this.getSubscribersBy('args.owner', user);
+   return await this.getSubscribersBy('owner', user);
 
   }
 
@@ -158,7 +160,7 @@ export default class VolumeSubscriptionWrapper {
     planHash: Bytes32
   ): Promise<Subscription[]> {
 
-    return await this.getSubscribersBy('args.planIdentifier', planHash);
+    return await this.getSubscribersBy('planIdentifier', planHash);
 
   }
 
@@ -170,12 +172,13 @@ export default class VolumeSubscriptionWrapper {
     const volumeSubscription = await this.contracts.loadVolumeSubscription();
 
     let logs = await getPastLogs(this.web3, volumeSubscription, 'CreatedSubscription');
-    let ids = logs.map((object) => {
-      let filterKey = _.get(object, key);
+
+    let ids = logs.filter((object) => {
+      return object['args'][key] == value;
+    }).map((object) => {
+      let filterKey = _.get(object, `args.${key}`);
       return filterKey == value ? _.get(object, 'args.subscriptionIdentifier') : null;
     }).filter((object) => object);
-
-    console.log(ids);
 
     let subscriptions = ids.map(async(id) => {
       return await this.getSubscription(id);

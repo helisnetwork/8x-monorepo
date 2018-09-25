@@ -101,6 +101,19 @@ describe('PlanAPI', () => {
 
   it('should be able to get all the business\' plans', async () => {
 
+    await eightEx.plans.create(
+      consumer,
+      'dummy',
+      30,
+      Units.dollars(10),
+      Units.cents(10),
+      'Netflix',
+      'Premium Plan',
+      'http://some.cool.image',
+      null,
+      {from: consumer},
+    );
+
     let plans = await eightEx.plans.getAllFor(business);
     expect(plans.length).to.equal(1);
 
