@@ -32,12 +32,14 @@
     "web3-utils": "^1.0.0-beta.36"
   },
   "gitHead": "3e65b57c6dae53cbafdb02719c4087bf600a44fa",
-  "private": true,
   "devDependencies": {
     "@types/chai": "^4.1.4",
     "@types/node": "^8.5.1",
     "chai": "^4.1.2",
     "typechain": "^0.3.5"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "jest": {
     "transform": {

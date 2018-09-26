@@ -77,5 +77,6 @@
     "plugins": [
       "transform-object-rest-spread"
     ]
-  }
+  },
+  "gitHead": "e1c728ff2dbae514c8cefa792ceea0f54f230de9"
 }
