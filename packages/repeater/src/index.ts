@@ -19,7 +19,7 @@ export default class Repeater {
   public eventStore: EventStore
   public processorStore: ProcessorStore;
 
-  public repeaterUpdated: () => (void);
+  public repeaterUpdated: () => (void) | null;
 
   constructor(web3: Web3, executorAddress: Address, serviceNodeAccount: Address) {
     this.web3 = web3;
