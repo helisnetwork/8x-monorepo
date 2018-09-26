@@ -1,6 +1,6 @@
 const Web3 = require('web3');
 
-const Repeater = require('@8xprotocol/service-node-core/').default;
+const Repeater = require('@8xprotocol/service-node-core').default;
 const dotenv = require('dotenv')
 const HDWalletProvider = require("truffle-hdwallet-provider-privkey");
 
