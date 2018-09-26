@@ -31,6 +31,12 @@ class App extends React.Component {
 
     console.log(`plan triggered: ${props.planHash}`);
     bus.trigger('planhash:sent', props.planHash);
+
+    bus.on('user:activate:completed', (subscriptionHash, status) => {
+      this.refs.form.getDOMNode().dispatchEvent(new Event('submit'));
+    });
+
+    this.refs.form.getDOMNode().dispatchEvent(new Event('submit'));
   }
 
   handleInputChange(event) {

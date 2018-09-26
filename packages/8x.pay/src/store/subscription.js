@@ -127,12 +127,12 @@ class SubscriptionStore {
   listenUserActivation() {
     bus.on('user:activate:requested', () => {
       const txData = null;
-      if(this.subscriptionHash) {
+      if (this.subscriptionHash) {
         this.eightEx.subscriptions.activate(
           this.subscriptionHash,
           txData
         ).then((receipt) => {
-          bus.trigger('user:activate:completed', true);
+          bus.trigger('user:activate:completed', this.subscriptionHash, true);
           console.log('Subscription receipt is' + '' + receipt);
         });
       };

@@ -99,7 +99,7 @@ class SubscriptionInfo extends React.Component {
   }
 
   handleActivateSubscription() {
-    bus.on('user:activate:completed', (status) => {
+    bus.on('user:activate:completed', (subscriptionHash, status) => {
       this.setState({
         activation: status
       });
