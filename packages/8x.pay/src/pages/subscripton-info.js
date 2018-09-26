@@ -13,7 +13,7 @@ import bus from '../bus';
 class SubscriptionInfo extends React.Component {
 
   constructor() {
-    super(); 
+    super();
 
     this.state = {
       copied: false,
@@ -31,8 +31,6 @@ class SubscriptionInfo extends React.Component {
 
     };
 
-    
-
     this.handleSelectedCurrency = this.handleSelectedCurrency.bind(this);
     this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
     this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
@@ -44,12 +42,12 @@ class SubscriptionInfo extends React.Component {
     this.handleSelectedCurrency();
     this.handleSelectedPeriod();
     bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
-    bus.trigger('subscription:plan:requested'); 
+    bus.trigger('subscription:plan:requested');
 
   }
 
   componentWillUnmount() {
-    bus.off('subscription:plan:sent', this.subscriptionPlanHandler); 
+    bus.off('subscription:plan:sent', this.subscriptionPlanHandler);
   }
 
   subscriptionPlanHandler(object) {
@@ -65,12 +63,12 @@ class SubscriptionInfo extends React.Component {
 
   planPeriodConvertor() {
     switch(this.state.subscriptionPeriod) {
-    case 7: 
+    case 7:
       return 'weekly';
       break;
     case 14:
       return 'fortnightly';
-      break; 
+      break;
     case 30:
       return 'monthly';
       break;
@@ -85,8 +83,8 @@ class SubscriptionInfo extends React.Component {
       this.setState({
         authorization: status
       });
-    }); 
-    bus.trigger('user:authorization:requested'); 
+    });
+    bus.trigger('user:authorization:requested');
   }
 
   handleSubscribe() {
@@ -96,7 +94,7 @@ class SubscriptionInfo extends React.Component {
       });
       console.log('Subscription Hash is:' + '' + hash );
     });
-    
+
     bus.trigger('user:subscribe:requested');
   }
 
@@ -131,11 +129,11 @@ class SubscriptionInfo extends React.Component {
       .then(results => {
         return results.json();
       }).then(data => {
-        
+
         // Added a factor of 1% to account for slippage
         var currencyConversion = data.ETH_DAI.currentPrice * 1.01;
         let roundedNumber = currencyConversion.toFixed(6);
-        
+
 
         this.setState({
           kyberConversion: roundedNumber
@@ -196,7 +194,7 @@ class SubscriptionInfo extends React.Component {
         copied: false
       });
     }, 2000);
-    
+
   };
 
   // Conditions on which page to render depending on status provided by handlers
@@ -207,14 +205,14 @@ class SubscriptionInfo extends React.Component {
       break;
     case 'locked':
       return this.renderLocked();
-      break; 
+      break;
     case 'not installed':
       return this.renderInstallPrompt();
       break;
     case 'loading':
       return this.renderLoading();
       break;
-    default: 
+    default:
       return this.renderError();
     }
   }
@@ -237,7 +235,7 @@ class SubscriptionInfo extends React.Component {
       </div>
     );
     const activate = (
-      <div className="activate"> 
+      <div className="activate">
         <p onClick={() => {
           this.handleActivateSubscription();
         }}>Activate Subscription</p>
@@ -279,8 +277,8 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className="item-address">
               <p className="text-address">{this.props.userAddress}</p>
-              <CopyToClipboard 
-                text={this.props.useraddress} 
+              <CopyToClipboard
+                text={this.props.useraddress}
                 onCopy={() => {
                   this.resetCopyState();
                   this.setState({copied: true});
@@ -290,7 +288,7 @@ class SubscriptionInfo extends React.Component {
                   {
                     this.state.copied
                       ? <p className="text-copy">Copied</p>
-                      :<p className="text-copy">Copy</p> 
+                      :<p className="text-copy">Copy</p>
                   }
                 </div>
               </CopyToClipboard>
@@ -300,8 +298,8 @@ class SubscriptionInfo extends React.Component {
               <p className="currency">{this.checkDaiSelected() ? this.props.daiBalance : this.props.ethBalance} {this.state.selectedCurrency}</p>
             </div>
             {
-              this.checkDaiSelected() 
-                ? 
+              this.checkDaiSelected()
+                ?
                 this.state.authorization ? this.state.subscribe ? activate : subscribe : authorization
                 :
                 <Link to='/conversion'>
@@ -311,7 +309,7 @@ class SubscriptionInfo extends React.Component {
                 </Link>
             }
           </div>
-        </div> 
+        </div>
       </div>
     );
   }

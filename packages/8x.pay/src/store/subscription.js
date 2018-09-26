@@ -21,7 +21,7 @@ class SubscriptionStore {
       });
 
       web3.eth.getAccounts((err, accounts) => {
-        
+
         if (err != null) {
           console.log('cannot get address');
         } else if (accounts.length === 0 ) {
@@ -31,16 +31,16 @@ class SubscriptionStore {
           this.address = accounts;
           console.log(this.address);
           this.web3 = web3;
-          this.storePlanHash(); 
-          this.retrievePlanListener(); 
+          this.storePlanHash();
+          this.retrievePlanListener();
           this.authorizationListener();
-          this.subscribeListener(); 
+          this.subscribeListener();
           this.activateListener();
         }
       });
     });
 
-    
+
   }
 
   storePlanHash() {
@@ -51,6 +51,19 @@ class SubscriptionStore {
 
   retrievePlanListener() {
     bus.on('subscription:plan:requested', () => {
+
+      // Show dummy data if there's no plan hash
+      if (!this.planHash) {
+        bus.trigger('subscription:plan:sent', {
+          logo: null,
+          subscriptionName: 'Netflix [DEMO]',
+          subscriptionDetails: 'Premium Plan',
+          subscriptionAmount: 14,
+          subscriptionPeriod: 30*24*60*60
+        });
+        return;
+      }
+
       this.eightEx.plans.get(
         this.planHash
       ).then((elem) => {
@@ -64,7 +77,7 @@ class SubscriptionStore {
             subscriptionAmount: amount.c,
             subscriptionPeriod: interval
           }))(elem);
-          console.log(planObj); 
+          console.log(planObj);
           bus.trigger('subscription:plan:sent', planObj);
         }
       });
@@ -88,14 +101,14 @@ class SubscriptionStore {
   subscribeListener() {
     bus.on('start:subscribe:process', () => {
       const txData = null;
-      const metaData = null; 
+      const metaData = null;
       this.eightEx.subscriptions.subscribe(
         this.planHash,
         metaData,
         txData
       ).then((subscriptionHash) => {
         bus.trigger('user:subscribe:completed', subscriptionHash, true);
-        this.subscriptionHash = subscriptionHash; 
+        this.subscriptionHash = subscriptionHash;
       });
     });
 
@@ -124,7 +137,7 @@ class SubscriptionStore {
           bus.trigger('user:activate:completed', true);
           console.log('Subscription receipt is' + '' + receipt);
         });
-      };    
+      };
     });
   }
 };
