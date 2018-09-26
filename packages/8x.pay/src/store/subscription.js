@@ -8,6 +8,7 @@ class SubscriptionStore {
   constructor() {
 
     this.startListening();
+    this.listenPlanHash();
   }
 
   startListening() {
@@ -31,7 +32,6 @@ class SubscriptionStore {
           this.address = accounts;
           console.log(this.address);
           this.web3 = web3;
-          this.storePlanHash();
           this.retrievePlanListener();
           this.authorizationListener();
           this.subscribeListener();
@@ -39,11 +39,9 @@ class SubscriptionStore {
         }
       });
     });
-
-
   }
 
-  storePlanHash() {
+  listenPlanHash() {
     bus.on('planhash:sent', (planHash) => {
       this.planHash = planHash;
     });

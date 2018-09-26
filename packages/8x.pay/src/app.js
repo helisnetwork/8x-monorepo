@@ -6,15 +6,19 @@ import {
   TransitionGroup,
   CSSTransition
 } from 'react-transition-group';
+
 import Container from './components/container';
 import SimpleModalLauncher from './components/modal-launcher';
 import UserStore from './store/user';
 import SubscriptionStore from './store/subscription';
 
+import bus from './bus';
+
 /* App component */
 class App extends React.Component {
-  constructor() {
-    super();
+
+  constructor(props) {
+    super(props);
 
     this.state = {
       planHash: ''
@@ -24,6 +28,9 @@ class App extends React.Component {
     let subscriptionStore = new SubscriptionStore();
 
     this.handleInputChange = this.handleInputChange.bind(this);
+
+    console.log(`plan triggered: ${props.planHash}`);
+    bus.trigger('planhash:sent', props.planHash);
   }
 
   handleInputChange(event) {
