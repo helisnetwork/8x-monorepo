@@ -9,15 +9,10 @@ class SimpleModalLauncher extends Component {
     super(props);
     this.state = {
       showModal: false,
-      planHash: ''
     };
-
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
 
     this.listenToggleModal();
     this.initialiseWeb3();
-
   }
 
   listenToggleModal() {
@@ -48,46 +43,15 @@ class SimpleModalLauncher extends Component {
     });
   }
 
-  handleInputChange(event) {
-    const target = event.target;
-    const value = target.value;
-    const name = target.name;
-
-    this.setState({
-      [name]: value
-    });
-  };
-
-  handleSubmit() {
-
-    const planHash = this.state.planHash;
-    console.log(planHash);
-    bus.trigger('planhash:sent', planHash);
-    
-  };
-
   render() {
     const { buttonLabel, children } = this.props;
     const { showModal } = this.state;
     return (
       <div>
-        <form>
-          <div className="planhash-input">
-            <input
-              id="planhash-input"
-              name="planHash"
-              type="text"
-              value={this.state.planhash}
-              placeholder="Please enter in the plan hash of the subscription you are subscribing to"
-              onChange={this.handleInputChange} 
-            />
-          </div>
-        </form>
         <button
           type="button"
           className='modal-button'
           onClick={() => {
-            this.handleSubmit();
             bus.trigger('modal:show', true);
           }}
         >
