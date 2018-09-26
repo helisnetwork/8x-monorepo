@@ -14,16 +14,14 @@ import {
   withRouter
 } from 'react-router-dom';
 
-import { 
+import {
   TransitionGroup,
-  CSSTransition 
+  CSSTransition
 } from 'react-transition-group';
-
-
 
 function Container({ location }) {
   return (
-    <Wrapper> 
+    <Wrapper>
       <TransitionGroup className="transition-group">
         <CSSTransition
           key={location.key}
@@ -46,7 +44,7 @@ function Container({ location }) {
 
 const Wrapper = styled.div`
   div.transition-group {
-    
+
   }
   section.route-section {
     position: absolute;

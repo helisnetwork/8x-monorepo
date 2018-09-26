@@ -15,7 +15,7 @@ import SubscriptionStore from './store/subscription';
 import bus from './bus';
 
 /* App component */
-class App extends React.Component {
+class EightExPay extends React.Component {
 
   constructor(props) {
     super(props);
@@ -33,10 +33,12 @@ class App extends React.Component {
     bus.trigger('planhash:sent', props.planHash);
 
     bus.on('user:activate:completed', (subscriptionHash, status) => {
-      this.refs.form.getDOMNode().dispatchEvent(new Event('submit'));
+      if (props.activated) {
+        props.activated(subscriptionHash, status);
+        bus.trigger('modal:show', false);
+      }
     });
 
-    this.refs.form.getDOMNode().dispatchEvent(new Event('submit'));
   }
 
   handleInputChange(event) {
@@ -67,5 +69,5 @@ class App extends React.Component {
   }
 };
 
-export default App;
+export default EightExPay;
 

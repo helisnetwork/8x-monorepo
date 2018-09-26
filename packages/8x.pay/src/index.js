@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 // main app
-import App from './app.js';
+import EightExPay from './eight_ex_pay.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   let element = document.getElementById('8x.pay');
@@ -16,10 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   }
-  console.log('Plan hash is ' + planHash);
-  ReactDOM.render(<App planHash={planHash}/>, element);
-});
 
-document.getElementById('8x.form').addEventListener('submit', function(evt){
-  console.log(evt);
+  console.log('Plan hash is ' + planHash);
+  ReactDOM.render(
+    <EightExPay
+      planHash={planHash}
+      activated={(subscriptionHash, status) => {
+        console.log(subscriptionHash + ' ' + status);
+      }}/>
+    , element);
 });

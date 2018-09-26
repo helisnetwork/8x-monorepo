@@ -43,7 +43,6 @@ class SubscriptionInfo extends React.Component {
     this.handleSelectedPeriod();
     bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
     bus.trigger('subscription:plan:requested');
-
   }
 
   componentWillUnmount() {
