@@ -18,21 +18,23 @@
 
 ### Published
 
-| Package                                                         | Version                                                                                                                               | Description                                                                                                               |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| [`8x.js`](/packages/8x.js)                                      | [![npm](https://img.shields.io/npm/v/8x.js.svg)](https://www.npmjs.com/package/8x.js)                                                 | A Javascript library for interacting with the 8x protocol                                                                 |
-| [`@8xprotocol/artifacts`](/packages/artifacts)                  | [![npm](https://img.shields.io/npm/v/@8xprotocol/artifacts.svg)](https://www.npmjs.com/package/@8xprotocol/artifacts)                         | Type and schema assertions used by our packages                                                                   |
-| [`@8xprotocol/base-contract`](/packages/base-contract)          | [![npm](https://img.shields.io/npm/v/@8xprotocol/base-contract.svg)](https://www.npmjs.com/package/@8xprotocol/base-contract)           | BaseContract used by auto-generated `abi-gen` wrapper contracts                                                         |
-| [`@8xprotocol/dev-utils`](/packages/dev-utils)                  | [![npm](https://img.shields.io/npm/v/@8xprotocol/dev-utils.svg)](https://www.npmjs.com/package/@8xprotocol/dev-utils)                           | Developer utilities                                                                                                |
-| [`@8xprotocol/types`](/packages/types)                          | [![npm](https://img.shields.io/npm/v/@8xprotocol/types.svg)](https://www.npmjs.com/package/@8xprotocol/types)                           | Shared type declarations                                                                                                |
+|                            Package                             |                                                                Version                                                                |                           Description                           |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [`8x.js`](/packages/8x.js)                                     | [![npm](https://img.shields.io/npm/v/8x.js.svg)](https://www.npmjs.com/package/8x.js)                                                 | A Javascript library for interacting with the 8x protocol       |
+| [`8x.pay`](/packages/8x.pay)                                   | [![npm](https://img.shields.io/npm/v/8x.pay.svg)](https://www.npmjs.com/package/8x.pay)                                               | Payment gateway for consumers to pay with 8x                    |
+| [`@8xprotocol/artifacts`](/packages/artifacts)                 | [![npm](https://img.shields.io/npm/v/@8xprotocol/artifacts.svg)](https://www.npmjs.com/package/@8xprotocol/artifacts)                 | Type and schema assertions used by our packages                 |
+| [`@8xprotocol/base-contract`](/packages/base-contract)         | [![npm](https://img.shields.io/npm/v/@8xprotocol/base-contract.svg)](https://www.npmjs.com/package/@8xprotocol/base-contract)         | BaseContract used by auto-generated `abi-gen` wrapper contracts |
+| [`@8xprotocol/dev-utils`](/packages/dev-utils)                 | [![npm](https://img.shields.io/npm/v/@8xprotocol/dev-utils.svg)](https://www.npmjs.com/package/@8xprotocol/dev-utils)                 | Developer utilities                                             |
+| [`@8xprotocol/service-node-core`](/packages/service-node-core) | [![npm](https://img.shields.io/npm/v/@8xprotocol/service-node-core.svg)](https://www.npmjs.com/package/@8xprotocol/service-node-core) | Core engine behind service node                                 |
+| [`@8xprotocol/types`](/packages/types)                         | [![npm](https://img.shields.io/npm/v/@8xprotocol/types.svg)](https://www.npmjs.com/package/@8xprotocol/types)                         | Shared type declarations                                        |
 
 ### Private
 
-| Package                                                         | Description                                                      |
-| --------------------------------------------------------------- | ---------------------------------------------------------------- |
-| [`@8xprotocol/contracts`](/packages/contracts)                   | 8x solidity smart contracts & tests                              |
-| [`@8xprotocol/docs`](/packages/docs) | Documentation site created with Slate  |
-| [`@8xprotocol/repeater`](/packages/repeater)       | Node to process subscriptions |
+|                       Package                        |              Description              |
+| ---------------------------------------------------- | ------------------------------------- |
+| [`@8xprotocol/contracts`](/packages/contracts)       | 8x solidity smart contracts & tests   |
+| [`@8xprotocol/docs`](/packages/docs)                 | Documentation site created with Slate |
+| [`@8xprotocol/service-node`](/packages/service-node) | Node to process subscriptions         |
 
 
 ## Addresses :innocent:
@@ -41,16 +43,16 @@ We get it, you're just here to find the contract addresses. Luckily for you, the
 
 ### Contracts (Kovan)
 
-| Contract Name                                                         | Address                                                      |
-| --------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Contract Name | Address |
+| ------------- | ------- |
 {{#kovan.addresses}}
 | {{name}} | {{address}} |
 {{/kovan.addresses}}
 
 ### Supported Tokens (Kovan)
 
-| Token Ticker                                                         | Address                                                      |
-| --------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Token Ticker | Address |
+| ------------ | ------- |
 {{#kovan.approvedTokens}}
 | {{ticker}} | {{ address }} |
 {{/kovan.approvedTokens}}
