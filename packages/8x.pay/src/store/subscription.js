@@ -7,11 +7,11 @@ import { ExecutorAbi } from '@8xprotocol/artifacts';
 class SubscriptionStore {
   constructor() {
 
-    this.startListening();
+    this.startListeners();
     this.listenPlanHash();
   }
 
-  startListening() {
+  startListeners() {
     bus.on('web3:initialised', web3 => {
       console.log(web3);
       this.eightEx = new EightEx(web3, {
@@ -32,10 +32,10 @@ class SubscriptionStore {
           this.address = accounts;
           console.log(this.address);
           this.web3 = web3;
-          this.retrievePlanListener();
-          this.authorizationListener();
-          this.subscribeListener();
-          this.activateListener();
+          this.listenPlanRequested();
+          this.listenAuthorization();
+          this.listenSubscribe();
+          this.listenUserActivation();
         }
       });
     });
@@ -47,7 +47,7 @@ class SubscriptionStore {
     });
   }
 
-  retrievePlanListener() {
+  listenPlanRequested() {
     bus.on('subscription:plan:requested', () => {
 
       // Show dummy data if there's no plan hash
@@ -82,7 +82,7 @@ class SubscriptionStore {
     });
   };
 
-  authorizationListener() {
+  listenAuthorization() {
     bus.on('user:authorization:requested', () => {
       this.eightEx.subscriptions.giveAuthorisation(
       ).then((obj) => {
@@ -96,7 +96,7 @@ class SubscriptionStore {
     });
   };
 
-  subscribeListener() {
+  listenSubscribe() {
     bus.on('start:subscribe:process', () => {
       const txData = null;
       const metaData = null;
@@ -124,7 +124,7 @@ class SubscriptionStore {
     });
   }
 
-  activateListener() {
+  listenUserActivation() {
     bus.on('user:activate:requested', () => {
       const txData = null;
       if(this.subscriptionHash) {
