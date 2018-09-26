@@ -41,31 +41,15 @@ class App extends React.Component {
     this.setState({
       [name]: value
     });
-  };
 
-  handleSubmit() {
-
-    const planHash = this.state.planHash;
-    console.log(planHash);
-    bus.trigger('planhash:sent', planHash);
+    bus.trigger('planhash:sent', value);
 
   };
+
 
   render() {
     return (
       <div>
-        <form>
-          <div className="planhash-input">
-            <input
-              id="planhash-input"
-              name="planHash"
-              type="text"
-              value={this.state.planhash}
-              placeholder="Please enter in the plan hash of the subscription you are subscribing to"
-              onChange={this.handleInputChange}
-            />
-          </div>
-        </form>
         <SimpleModalLauncher buttonLabel='Pay with 8x'>
           <MemoryRouter>
             <Container/>
