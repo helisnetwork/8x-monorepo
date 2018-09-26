@@ -1,0 +1,17 @@
+{
+  "name": "@8xprotocol/service-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@8xprotocol/artifacts": "^0.1.18",
+    "@8xprotocol/service-node-core": "^0.1.18",
+    "dotenv": "^6.0.0",
+    "web3": "^0.2.0"
+  }
+}
