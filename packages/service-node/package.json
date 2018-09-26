@@ -1,6 +1,6 @@
 {
   "name": "@8xprotocol/service-node",
-  "version": "1.0.0",
+  "version": "0.1.19",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@8xprotocol/artifacts": "^0.1.18",
-    "@8xprotocol/service-node-core": "^0.1.18",
+    "@8xprotocol/artifacts": "^0.1.19",
+    "@8xprotocol/service-node-core": "^0.1.19",
     "dotenv": "^6.0.0",
     "web3": "^0.2.0"
   }
