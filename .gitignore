@@ -19,3 +19,6 @@ _api.json
 
 # Builds
 *.tgz
+
+# Environemnt files
+.env
