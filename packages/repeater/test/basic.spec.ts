@@ -15,7 +15,9 @@ import {
   ExecutorAbi,
   StakeContract,
   PaymentRegistryContract,
-  MockVolumeSubscriptionContract
+  MockVolumeSubscriptionContract,
+  MockTokenContract,
+  TransferProxyContract
 } from '@8xprotocol/artifacts';
 
 import {
@@ -33,9 +35,8 @@ import {
 } from '@8xprotocol/dev-utils';
 
 import EightEx from '8x.js';
-import Repeater from '../src';
+import Repeater from '../src/repeater';
 
-import { MockTokenContract, TransferProxyContract } from '@8xprotocol/artifacts';
 import { AddressBook } from '@8xprotocol/types';
 
 const exepect = chai.expect;
