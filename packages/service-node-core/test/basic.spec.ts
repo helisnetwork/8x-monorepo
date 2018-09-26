@@ -35,7 +35,7 @@ import {
 } from '@8xprotocol/dev-utils';
 
 import EightEx from '8x.js';
-import Repeater from '../src/repeater';
+import Repeater from '../src';
 
 import { AddressBook } from '@8xprotocol/types';
 
