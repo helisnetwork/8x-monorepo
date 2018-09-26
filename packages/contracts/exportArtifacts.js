@@ -22,10 +22,10 @@ const mustache = require('mustache');
 const BUILD_DIR = './build/contracts/';
 
 // Output of this script
-const EXPORT_DIR = '../artifacts/build/abi/';
+const EXPORT_DIR = '../artifacts/src/build/abi/';
 
-const JSON_DIR = '../artifacts/build/abi/json/';
-const TS_DIR = '../artifacts/build/abi/ts/';
+const JSON_DIR = '../artifacts/src/build/abi/json/';
+const TS_DIR = '../artifacts/src/build/abi/ts/';
 
 fs.emptyDirSync(EXPORT_DIR);
 
@@ -62,7 +62,7 @@ artifacts.forEach(function(name) {
 });
 
 const ADDRESSES_ORIGINAL_DIR = '../artifacts/src/addresses/';
-const ADDRESSES_BUILD_DIR = '../artifacts/build/addresses/';
+const ADDRESSES_BUILD_DIR = '../artifacts/src/build/addresses/';
 
 fs.ensureDirSync(ADDRESSES_BUILD_DIR);
 

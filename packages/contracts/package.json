@@ -34,9 +34,8 @@
     "lint-contracts": "solhint contracts/*.sol || true",
     "test": "npm-run-all test-contracts lint-base lint-test lint-contracts",
     "lint": "npm-run-all lint-base lint-test lint-contracts",
-    "generate-artifacts-typings": "node_modules/@0xproject/abi-gen/bin/abi-gen.js --abis '../artifacts/build/abi/json/**/*.json' --out '../artifacts/build/wrappers' --template './types/contract_templates/contract.mustache' --partials './types/contract_templates/partials/*.mustache'",
-    "generate-repeater-typings": "node_modules/.bin/typechain --target=web3-1.0.0 --outDir ../repeater/build '../artifacts/build/abi/json/**/*.json'",
-    "build": "truffle compile && node exportArtifacts && npm run generate-artifacts-typings && npm run generate-repeater-typings",
+    "generate-artifacts-typings": "node_modules/@0xproject/abi-gen/bin/abi-gen.js --abis '../artifacts/src/build/abi/json/**/*.json' --out '../artifacts/src/build/wrappers' --template './types/contract_templates/contract.mustache' --partials './types/contract_templates/partials/*.mustache'",
+    "build": "truffle compile && node exportArtifacts && npm run generate-artifacts-typings",
     "deploy:develop": "npm run clean && truffle migrate --reset --network develop && npm run build",
     "deploy:kovan": "npm run clean && truffle migrate --reset --network kovan && npm run build",
     "deploy:main": "npm run clean && truffle migrate --reset --network main && && npm run build"

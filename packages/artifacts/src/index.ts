@@ -66,4 +66,4 @@ export {
 
 // Export Utils
 
-export { Web3Utils } from './src/utils/Web3Utils';
+export { Web3Utils } from './utils/Web3Utils';

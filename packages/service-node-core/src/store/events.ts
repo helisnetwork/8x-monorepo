@@ -34,6 +34,11 @@ export default class EventStore {
     });
 
     eventsWatcher.watch((error, log) => {
+      if (error) {
+        console.log(error);
+        return;
+      }
+
       if (log.event == 'SubscriptionActivated') {
         this.handleActivation(log);
       } else if (log.event == 'SubscriptionProcessed') {

@@ -19,7 +19,7 @@ export default class Repeater {
   public eventStore: EventStore
   public processorStore: ProcessorStore;
 
-  public repeaterUpdated: () => (void) | null;
+  public repeaterUpdated: (() => (void)) | null;
 
   constructor(web3: Web3, executorAddress: Address, serviceNodeAccount: Address) {
     this.web3 = web3;
@@ -38,7 +38,10 @@ export default class Repeater {
 
   public storeUpdated() {
     this.processorStore.setEvents(Object.values(this.eventStore.events));
-    this.repeaterUpdated();
+
+    if (this.repeaterUpdated) {
+      this.repeaterUpdated();
+    }
   }
 
 }

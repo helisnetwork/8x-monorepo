@@ -13,7 +13,7 @@ import { {{contractName}} as ContractArtifacts } from '../abi/ts/{{contractName}
 import { BaseContract, CONTRACT_WRAPPER_ERRORS } from '@8xprotocol/base-contract';
 import { TxData, TxDataPayable, classUtils } from '@8xprotocol/types';
 
-import { Web3Utils } from '../../src/utils/Web3Utils';
+import { Web3Utils } from '../../utils/Web3Utils';
 
 export class {{contractName}}Contract extends BaseContract {
 {{#each methods}}
