@@ -8,7 +8,7 @@ import {
 } from 'react-transition-group';
 
 import Container from './components/container';
-import SimpleModalLauncher from './components/modal-launcher';
+import ModalLauncher from './components/modal-launcher';
 import UserStore from './store/user';
 import SubscriptionStore from './store/subscription';
 
@@ -58,11 +58,11 @@ class EightExPay extends React.Component {
   render() {
     return (
       <div>
-        <SimpleModalLauncher buttonLabel='Pay with 8x'>
+        <ModalLauncher buttonLabel='Pay with 8x'>
           <MemoryRouter>
             <Container/>
           </MemoryRouter>
-        </SimpleModalLauncher>
+        </ModalLauncher>
       </div>
 
     );
