@@ -35,6 +35,7 @@ class SimpleModal extends Component {
 
   // Changed !isNil(this.modal) to allow drop down menus to work within modal
   handleOutsideClick(e) {
+    e.preventDefault();
     if (isNil(this.modal)) {
       if (!this.modal.contains(e.target)) {
         bus.trigger('modal:show', false);
