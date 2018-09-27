@@ -1,5 +1,6 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const combineLoaders = require('webpack-combine-loaders');
 
 module.exports = {
   module: {
@@ -33,12 +34,21 @@ module.exports = {
         ]
       },
       {
-        test: /\.scss/,
-        loaders: ["style-loader", "css-loader", "sass-loader"]
-      },
-      {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
         loader: "file?name=assets/fonts/[name].[ext]"
+      },
+      {
+        test: /\.scss/,
+        loaders: [
+          "style-loader?" + JSON.stringify({
+          }),
+          "css-loader?" + JSON.stringify({
+            localIdentName: '[path][name]__[local]--[hash:base64:5]'
+          }),
+          "sass-loader?" + JSON.stringify({
+            localIdentName: '[path][name]__[local]--[hash:base64:5]'
+          }),
+        ],
       },
       {
         test: /\.(jpe?g|png|gif|svg)$/,
@@ -64,5 +74,5 @@ module.exports = {
   devServer: {
    historyApiFallback: true,
    contentBase: '.',
- },
+ }
 };

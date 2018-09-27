@@ -9,6 +9,7 @@ class SubscriptionStore {
 
     this.startListeners();
     this.listenPlanHash();
+    this.listenPlanRequested();
   }
 
   startListeners() {
@@ -32,7 +33,6 @@ class SubscriptionStore {
           this.address = accounts;
           console.log(this.address);
           this.web3 = web3;
-          this.listenPlanRequested();
           this.listenAuthorization();
           this.listenSubscribe();
           this.listenUserActivation();

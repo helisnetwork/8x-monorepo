@@ -7,11 +7,8 @@ class UserStore {
   }
 
   startListening() {
+
   }
-
-
-
-
 };
 
 module.exports = UserStore;
