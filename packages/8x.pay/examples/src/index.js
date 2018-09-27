@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 // main app
-import EightExPay from '../../src/index.js';
+import EightExPay from '../../src/index';
 
 document.addEventListener('DOMContentLoaded', () => {
   let element = document.getElementById('8x.pay');

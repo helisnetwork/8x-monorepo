@@ -4,9 +4,9 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 module.exports = {
   module: {
     rules: [
-      { 
-        test: /\.tsx?$/, 
-        loader: "ts-loader" 
+      {
+        test: /\.tsx?$/,
+        loader: "ts-loader"
       },
       {
         test: /\.js$/,
@@ -56,12 +56,13 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin('dist', {} ),
     new HtmlWebPackPlugin({
-      template: "./src/index.html",
-      filename: "./index.html"
+      template: './examples/src/index.html',
+      filename: 'index.html'
     })
   ],
+  entry: './examples/src/index.js',
   devServer: {
    historyApiFallback: true,
-   contentBase: './',
+   contentBase: '.',
  },
 };
