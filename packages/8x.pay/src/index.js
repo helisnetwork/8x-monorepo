@@ -14,8 +14,6 @@ import SubscriptionStore from './store/subscription';
 
 import bus from './bus';
 
-import Style from './assets/stylesheets/app.scss';
-
 /* App component */
 class EightExPay extends React.Component {
 
