@@ -40,12 +40,8 @@ module.exports = {
         test: /\.scss/,
         loaders: [
           MiniCssExtractPlugin.loader,
-          "css-loader?" + JSON.stringify({
-            localIdentName: '[path][name]__[local]--[hash:base64:5]'
-          }),
-          "sass-loader?" + JSON.stringify({
-            localIdentName: '[path][name]__[local]--[hash:base64:5]'
-          }),
+          "css-loader",
+          "sass-loader"
         ],
       },
       {
@@ -71,7 +67,9 @@ module.exports = {
   entry: './src/index.js',
   output: {
     filename: "index.js",
-    publicPath: "/dist"
+    publicPath: "/dist",
+    library: '',
+    libraryTarget: 'commonjs'
   },
   devServer: {
    historyApiFallback: true,

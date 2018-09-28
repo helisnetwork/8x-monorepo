@@ -1,6 +1,6 @@
 import bus from '../bus';
 
-class UserStore {
+export default class UserStore {
   constructor(){
 
     this.startListening();
@@ -10,5 +10,3 @@ class UserStore {
 
   }
 };
-
-module.exports = UserStore;

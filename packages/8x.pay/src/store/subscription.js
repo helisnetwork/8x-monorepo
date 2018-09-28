@@ -4,7 +4,7 @@ import EightEx from '8x.js';
 import { ExecutorAbi } from '@8xprotocol/artifacts';
 
 
-class SubscriptionStore {
+export default class SubscriptionStore {
   constructor() {
 
     this.startListeners();
@@ -139,5 +139,3 @@ class SubscriptionStore {
     });
   }
 };
-
-module.exports = SubscriptionStore;
