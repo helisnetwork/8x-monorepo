@@ -8,7 +8,7 @@ import BeginSubscription from '../pages/begin-subscription';
 import MetaMaskInstall from '../components/metamask-install';
 import MetaMaskLocked from '../components/metamask-locked';
 
-import './assets/stylesheets/app.scss';
+import '../assets/stylesheets/app.scss';
 
 import {
   Route,
