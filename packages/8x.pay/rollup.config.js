@@ -4,6 +4,7 @@ import sassRollupPlugin from 'rollup-plugin-sass';
 import images from 'rollup-plugin-image-files';
 import commonjs from 'rollup-plugin-commonjs'
 import json from 'rollup-plugin-json';
+import sass from 'rollup-plugin-sass';
 
 export default {
   input: 'src/index.js',
@@ -18,7 +19,9 @@ export default {
   plugins: [
     resolve(),
     images(),
-    sassRollupPlugin(),
+    sass({
+      output: __dirname + '/dist/bundle.css'
+    }),
     json(),
     babel({
       exclude: 'node_modules/**'

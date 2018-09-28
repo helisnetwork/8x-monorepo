@@ -1,6 +1,6 @@
 /* Import statements */
 import React from 'react';
-import './assets/stylesheets/app.scss';
+
 import { MemoryRouter } from 'react-router-dom';
 import {
   TransitionGroup,
@@ -13,6 +13,8 @@ import UserStore from './store/user';
 import SubscriptionStore from './store/subscription';
 
 import bus from './bus';
+
+import './assets/stylesheets/app.scss';
 
 /* App component */
 class EightExPay extends React.Component {
