@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "clean": "rimraf rm -rf lib",
+    "clean": "rimraf rm -rf dist",
     "build": "npm run clean && tsc"
   },
   "author": "",

@@ -17,8 +17,8 @@ export default {
   ],
   plugins: [
     resolve(),
-    sassRollupPlugin(),
     images(),
+    sassRollupPlugin(),
     json(),
     babel({
       exclude: 'node_modules/**'
@@ -26,7 +26,11 @@ export default {
     commonjs({
       namedExports: {
         'node_modules/react-copy-to-clipboard/lib/index.js': ['CopyToClipboard'],
-        'node_modules/react-is/index.js': ['isValidElementType']
+        'node_modules/react-is/index.js': ['isValidElementType'],
+        'node_modules/xmlhttprequest/lib/XMLHttpRequest.js': ['child_process', 'fs', 'http', 'https', 'url'],
+        'node_modules/abi-decoder/node_modules/bignumber.js/bignumber.js': ['crypto'],
+        'node_modules/styled-components/dist/styled-components.esm.js': ['stream'],
+        'node_modules/xhr2/lib/xhr2.js': ['os']
       }
     })
   ]
