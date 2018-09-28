@@ -20,7 +20,8 @@ export default {
     resolve(),
     images(),
     sass({
-      output: __dirname + '/dist/bundle.css'
+      output: __dirname + '/dist/bundle.css',
+      insert: true
     }),
     json(),
     babel({
