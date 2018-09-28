@@ -1,6 +1,6 @@
 {
   "name": "8x.pay",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -80,6 +80,7 @@
     "rollup-plugin-image-files": "^1.2.0",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-postcss": "^1.6.2",
     "rollup-plugin-sass": "^0.9.2",
     "sass-loader": "^7.0.1",
     "scss-loader": "0.0.1",

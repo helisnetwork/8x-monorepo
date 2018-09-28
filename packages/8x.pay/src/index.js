@@ -14,7 +14,7 @@ import SubscriptionStore from './store/subscription';
 
 import bus from './bus';
 
-import './assets/stylesheets/app.scss';
+import Style from './assets/stylesheets/app.scss';
 
 /* App component */
 class EightExPay extends React.Component {
@@ -59,7 +59,7 @@ class EightExPay extends React.Component {
 
   render() {
     return (
-      <div>
+      <div style={{Style}}>
         <ModalLauncher buttonLabel='Pay with 8x'>
           <MemoryRouter>
             <Container/>
