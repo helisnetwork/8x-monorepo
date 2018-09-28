@@ -1,6 +1,7 @@
 /* Import statements */
 import React from 'react';
 import SubscriptionInfo from './subscripton-info';
+import { MockTokenAbi } from '@8xprotocol/artifacts';
 
 class MetamaskHandler extends React.Component {
 
@@ -26,7 +27,7 @@ class MetamaskHandler extends React.Component {
       ethBalance: balance
     });
   };
-  
+
   // Checks if MetaMask is installed on the browser and calls MetaMask state functions
   initialiseMetaMask() {
 
@@ -59,7 +60,7 @@ class MetamaskHandler extends React.Component {
     });
   }
 
-  // Checks for user account changes (login, logout) on metamask and updates state if valid.  
+  // Checks for user account changes (login, logout) on metamask and updates state if valid.
   watchMetaMaskState() {
     var account = web3.eth.accounts[0];
     var accountInterval = setInterval(() => {
@@ -76,7 +77,7 @@ class MetamaskHandler extends React.Component {
     setTimeout(() => {
       this.getMetaMaskData();
     }, 5000);
-    
+
   };
 
   // Supplies components with MetaMask address and balance
@@ -85,8 +86,8 @@ class MetamaskHandler extends React.Component {
     web3.eth.getBalance(address, (err,result) => {
       if (!err){
         this.updateStatus(
-          this.state.status, 
-          address, 
+          this.state.status,
+          address,
           web3.fromWei(result, 'ether').toNumber()
         );
       } else {
@@ -98,28 +99,27 @@ class MetamaskHandler extends React.Component {
 
   // Gets DAI balance of user address
   getERC20Balance() {
-    var abi = require('../assets/ABI/ERC20.json');
-    var token = web3.eth.contract(abi).at('0xc4375b7de8af5a38a93548eb8453a498222c4ff2');
+    var token = web3.eth.contract(MockTokenAbi).at('0xc4375b7de8af5a38a93548eb8453a498222c4ff2');
 
     token.balanceOf.call(web3.eth.accounts[0],  (err, bal) => {
-      if (err) { 
-        console.error(err); 
+      if (err) {
+        console.error(err);
       }
 
       const divideBalance = bal/Math.pow(10,18);
-      
+
       this.setState({
         daiBalance: divideBalance
       });
-      
+
     });
   }
 
   render() {
-    return ( 
-      <SubscriptionInfo 
-        status={this.state.status} 
-        userAddress={this.state.address} 
+    return (
+      <SubscriptionInfo
+        status={this.state.status}
+        userAddress={this.state.address}
         ethBalance={this.state.ethBalance}
         daiBalance={this.state.daiBalance}
       />
