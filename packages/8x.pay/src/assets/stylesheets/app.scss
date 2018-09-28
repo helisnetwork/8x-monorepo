@@ -1,24 +1,28 @@
-// CONFIG
-@import './config/global';
+.eight-ex-pay {
 
-// COMPONENTS
-@import './components/dropdown-button';
-@import './components/dropdown';
-@import './components/header';
-@import './components/metamask-install';
-@import './components/metamask-locked';
-@import './components/modal-launcher';
-@import './components/simple-modal';
-@import './components/small-card';
+  // CONFIG
+  @import './config/global';
 
-// PAGES
-@import './pages/exchange-flow/address';
-@import './pages/exchange-flow/confirm-key';
-@import './pages/exchange-flow/personal-wallet-explain';
-@import './pages/exchange-flow/privatekey-warning';
-@import './pages/exchange-flow/privatekey';
-@import './pages/select-wallet';
-@import './pages/subscription-info';
-@import './pages/exchange-flow/confirmation';
-@import './pages/conversion-prompt';
-@import './pages/begin-subscription';
+  // COMPONENTS
+  @import './components/dropdown-button';
+  @import './components/dropdown';
+  @import './components/header';
+  @import './components/metamask-install';
+  @import './components/metamask-locked';
+  @import './components/modal-launcher';
+  @import './components/simple-modal';
+  @import './components/small-card';
+
+  // PAGES
+  @import './pages/exchange-flow/address';
+  @import './pages/exchange-flow/confirm-key';
+  @import './pages/exchange-flow/personal-wallet-explain';
+  @import './pages/exchange-flow/privatekey-warning';
+  @import './pages/exchange-flow/privatekey';
+  @import './pages/select-wallet';
+  @import './pages/subscription-info';
+  @import './pages/exchange-flow/confirmation';
+  @import './pages/conversion-prompt';
+  @import './pages/begin-subscription';
+
+}
