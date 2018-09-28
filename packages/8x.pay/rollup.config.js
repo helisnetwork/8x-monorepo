@@ -8,8 +8,8 @@ import json from 'rollup-plugin-json';
 export default {
   input: 'src/index.js',
   output: {
-    file: '/dist/index.js',
-    format: 'cjs'
+    file: __dirname + '/dist/index.js',
+    format: 'cjs',
   },
   external: [
     'react',

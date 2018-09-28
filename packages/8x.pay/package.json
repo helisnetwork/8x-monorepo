@@ -1,11 +1,11 @@
 {
   "name": "8x.pay",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.js --mode development --open",
-    "build": "rollup -c --format umd --name \"myBundle\" --file bundle.js",
+    "build": "rollup -c",
     "prepublishOnly": "npm run build"
   },
   "author": "",
