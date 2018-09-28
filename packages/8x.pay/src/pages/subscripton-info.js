@@ -241,16 +241,24 @@ class SubscriptionInfo extends React.Component {
       </div>
     );
 
+    let shouldFlex = 1;
+    if (this.state.logo) {
+      shouldFlex = 0;
+    }
+
+    console.log(`shoudl flex ${shouldFlex}`);
+
     return (
       <div className="background-subs">
         <div className="small-card">
           <Header title="Subscription Information" previousPage="/"/>
           <div className="hero">
             <div className="main-item">
-              <div className="logo">
+              { this.state.logo ? (<div className="logo">
                 <img src={this.state.logo}/>
               </div>
-              <div className="text">
+              ) : null }
+              <div className="text" style={{ flex: `${shouldFlex}`}}>
                 <p>{this.state.subscriptionName} -  {this.state.subscriptionDetails}</p>
                 <span>${this.state.subscriptionAmount}USD billed {this.planPeriodConvertor()}</span>
               </div>

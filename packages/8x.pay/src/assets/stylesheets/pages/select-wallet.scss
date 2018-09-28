@@ -20,6 +20,10 @@
     .card-header {
         text-align: center;
 
+        @include mobile {
+            text-align: left;
+        }
+
         p {
             color: #958DB7;
             font-weight: 400;
@@ -35,6 +39,7 @@
 
         }
     }
+
 
     .options-container {
         margin: 1.5em 0;
@@ -55,7 +60,6 @@
                 padding: 1em 1em 0.5em 1em;
 
             }
-
 
             .logo {
                 display: flex;
