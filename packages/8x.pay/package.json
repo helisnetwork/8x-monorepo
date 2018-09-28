@@ -1,11 +1,11 @@
 {
   "name": "8x.pay",
-  "version": "0.1.23",
+  "version": "0.1.25",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "start": "webpack-dev-server --mode development --open",
-    "build": "babel src -d dist --copy-files",
+    "start": "webpack-dev-server --config webpack.dev.js --mode development --open",
+    "build": "webpack --config webpack.prod.js --mode production",
     "prepublishOnly": "npm run build"
   },
   "author": "",
@@ -65,6 +65,7 @@
     "file-loader": "^1.1.11",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
+    "mini-css-extract-plugin": "^0.4.3",
     "node-sass": "^4.9.0",
     "raw-loader": "^0.5.1",
     "sass-loader": "^7.0.1",

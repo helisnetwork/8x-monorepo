@@ -1,6 +1,6 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const combineLoaders = require('webpack-combine-loaders');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 
 module.exports = {
   module: {
@@ -40,8 +40,7 @@ module.exports = {
       {
         test: /\.scss/,
         loaders: [
-          "style-loader?" + JSON.stringify({
-          }),
+          MiniCssExtractPlugin.loader,
           "css-loader?" + JSON.stringify({
             localIdentName: '[path][name]__[local]--[hash:base64:5]'
           }),
@@ -66,11 +65,15 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin('dist', {} ),
     new HtmlWebPackPlugin({
-      template: './examples/src/index.html',
+      template: './example/src/index.html',
       filename: 'index.html'
+    }),
+    new MiniCssExtractPlugin({
+      filename: "style.css",
+      chunkFilename: "[name].css"
     })
   ],
-  entry: './examples/src/index.js',
+  entry: './example/src/index.js',
   devServer: {
    historyApiFallback: true,
    contentBase: '.',
