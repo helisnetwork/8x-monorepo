@@ -1,6 +1,6 @@
 {
   "name": "8x.pay",
-  "version": "0.1.29",
+  "version": "0.1.30",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -11,6 +11,10 @@
   },
   "author": "",
   "license": "ISC",
+  "browser": {
+    "fs": false,
+    "child_process": false
+  },
   "peerDependencies": {
     "react": ">=16.0.1",
     "react-dom": ">=16.0.1"
