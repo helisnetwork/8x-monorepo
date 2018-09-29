@@ -59,7 +59,7 @@ class EightExPay extends React.Component {
   render() {
     return (
       <div className='eight-ex-pay'>
-        <ModalLauncher buttonLabel='Pay with 8x'>
+        <ModalLauncher buttonLabel={this.props.label || 'Pay with 8x'}>
           <MemoryRouter>
             <Container/>
           </MemoryRouter>
