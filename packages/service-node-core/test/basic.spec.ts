@@ -35,7 +35,7 @@ import {
 } from '@8xprotocol/dev-utils';
 
 import EightEx from '8x.js';
-import Repeater from '../src/repeater';
+import Repeater from '../src/';
 
 import { AddressBook } from '@8xprotocol/types';
 
@@ -125,17 +125,8 @@ describe('Basic', () => {
     await mockToken.transfer.sendTransactionAsync(consumer, new BigNumber(50*10**18), {from: contractOwner});
     await stakeToken.transfer.sendTransactionAsync(serviceNode, topUpAmount, {from: contractOwner});
 
-    await stakeToken.approve.sendTransactionAsync(
-      stakeContract.address,
-      topUpAmount,
-      {from: serviceNode}
-    );
-
-    await stakeContract.topUpStake.sendTransactionAsync(
-      topUpAmount,
-      mockToken.address,
-      {from: serviceNode}
-    );
+    await repeater.attemptTopUp(topUpAmount, mockToken.address, stakeToken.address, stakeContract.address);
+    await repeater.attemptTopUp(topUpAmount, mockToken.address, stakeToken.address, stakeContract.address);
 
     planHash = await eightEx.plans.create(
       business,

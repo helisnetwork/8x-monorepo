@@ -1,7 +1,8 @@
 import Web3 = require("web3");
 
-import { ExecutorAbi, ExecutorContract } from '@8xprotocol/artifacts'
+import { ExecutorAbi, ExecutorContract, StakeContract, MockTokenContract } from '@8xprotocol/artifacts'
 import { AddressBook, Address } from '@8xprotocol/types';
+import { BigNumber } from 'bignumber.js';
 
 import SubscriptionEvent from "./types";
 
@@ -34,6 +35,31 @@ export default class Repeater {
     this.processorStore = new ProcessorStore(this.web3, this.serviceNodeAccount, this.executorContract);
 
     await this.eventStore.startListening();
+  }
+
+  public async attemptTopUp(amount: BigNumber, tokenAddress: Address, stakeTokenAddress: Address, stakeContractAddress: Address) {
+
+    let stakeContract = await StakeContract.at(stakeContractAddress, this.web3, {});
+    let stakeTokenContract = await MockTokenContract.at(stakeTokenAddress, this.web3, {});
+
+    let existingBalance = await stakeContract.getTotalStake.callAsync(this.serviceNodeAccount, tokenAddress);
+
+    if (existingBalance.toNumber() == amount.toNumber()) {
+      console.log("Skipped top up");
+      return '';
+    }
+
+    await stakeTokenContract.approve.sendTransactionAsync(
+      stakeContract.address,
+      amount,
+      {from: this.serviceNodeAccount}
+    );
+
+    await stakeContract.topUpStake.sendTransactionAsync(
+      amount,
+      tokenAddress,
+      {from: this.serviceNodeAccount}
+    );
   }
 
   public storeUpdated() {
