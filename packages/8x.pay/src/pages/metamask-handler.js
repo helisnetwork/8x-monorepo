@@ -68,6 +68,7 @@ class MetamaskHandler extends React.Component {
         account = web3.eth.accounts[0];
         this.checkMetaMaskState();
       }
+
       this.checkMetaMaskBalance();
     }, 100);
   }
@@ -76,8 +77,7 @@ class MetamaskHandler extends React.Component {
   checkMetaMaskBalance() {
     setTimeout(() => {
       this.getMetaMaskData();
-    }, 5000);
-
+    }, 2000);
   };
 
   // Supplies components with MetaMask address and balance
@@ -99,7 +99,7 @@ class MetamaskHandler extends React.Component {
 
   // Gets DAI balance of user address
   getERC20Balance() {
-    var token = web3.eth.contract(MockTokenAbi).at('0xc4375b7de8af5a38a93548eb8453a498222c4ff2');
+    var token = web3.eth.contract(MockTokenAbi.abi).at('0xc4375b7de8af5a38a93548eb8453a498222c4ff2');
 
     token.balanceOf.call(web3.eth.accounts[0],  (err, bal) => {
       if (err) {

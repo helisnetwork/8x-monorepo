@@ -24,6 +24,7 @@
     "@8xprotocol/artifacts": "^0.1.20",
     "ethereumjs-ledger": "^2.1.5",
     "history": "^4.7.2",
+    "moment": "^2.22.2",
     "prop-types": "^15.6.2",
     "react-copy-to-clipboard": "^5.0.1",
     "react-mailchimp-subscribe": "^2.0.2",

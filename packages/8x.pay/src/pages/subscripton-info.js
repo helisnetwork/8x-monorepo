@@ -60,23 +60,6 @@ class SubscriptionInfo extends React.Component {
     });
   };
 
-  planPeriodConvertor() {
-    switch(this.state.subscriptionPeriod) {
-    case 7:
-      return 'weekly';
-      break;
-    case 14:
-      return 'fortnightly';
-      break;
-    case 30:
-      return 'monthly';
-      break;
-    case 90:
-      return '3 months';
-      break;
-    };
-  }
-
   handleAuthorization() {
     bus.on('user:authorization:received', (status) => {
       this.setState({
@@ -133,7 +116,6 @@ class SubscriptionInfo extends React.Component {
         var currencyConversion = data.ETH_DAI.currentPrice * 1.01;
         let roundedNumber = currencyConversion.toFixed(6);
 
-
         this.setState({
           kyberConversion: roundedNumber
         });
@@ -174,15 +156,15 @@ class SubscriptionInfo extends React.Component {
     return [
       {
         name: '3',
-        ticker: 'months'
+        ticker: this.humanizeDuration(this.state.subscriptionPeriod)
       },
       {
         name: '6',
-        ticker: 'months'
+        ticker: this.humanizeDuration(this.state.subscriptionPeriod)
       },
       {
         name:'9',
-        ticker: 'months'
+        ticker: this.humanizeDuration(this.state.subscriptionPeriod)
       }
     ];
   }
@@ -195,6 +177,31 @@ class SubscriptionInfo extends React.Component {
     }, 2000);
 
   };
+
+  humanizeDuration(timeInSeconds) {
+    var result = '';
+    if (timeInSeconds) {
+      if ((result = Math.round(timeInSeconds / (60 * 60 * 24 * 30 * 12))) > 0) { //years
+        result = result === 1 ? ' year' : result + ' years';
+      } else if ((result = Math.round(timeInSeconds / (60 * 60 * 24 * 30))) > 0) { //months
+        result = result === 1 ? ' month' : result + ' months';
+      } else if ((result = Math.round(timeInSeconds / (60 * 60 * 24 * 7))) > 0) { //months
+        result = result === 1 ? ' week' : result + ' weeks';
+      } else if ((result = Math.round(timeInSeconds / (60 * 60 * 24))) > 0) { //days
+        result = result === 1 ? ' day' : result + ' days';
+      } else if ((result = Math.round(timeInSeconds / (60 * 60))) > 0) { //hours
+        result = result === 1 ? ' hours' : result + ' hours';
+      } else if ((result = Math.round(timeInSeconds / (60))) > 0) { //minutes
+        result = result === 1 ? ' minute' : result + ' minutes';
+      } else if ((result = Math.round(timeInSeconds)) > 0) { //seconds
+        result = result === 1 ? ' second' : result + ' seconds';
+      } else {
+        result = 'unknown';
+      }
+    }
+    return result;
+  }
+
 
   // Conditions on which page to render depending on status provided by handlers
   render() {
@@ -219,7 +226,7 @@ class SubscriptionInfo extends React.Component {
   renderUnlocked() {
 
     const authorization = (
-      <div className="give-auth">
+      <div className='give-auth'>
         <p onClick={() => {
           this.handleAuthorization();
         }}>Give Authorization</p>
@@ -227,14 +234,14 @@ class SubscriptionInfo extends React.Component {
     );
 
     const subscribe = (
-      <div className="subscribe">
+      <div className='subscribe'>
         <p onClick={() => {
           this.handleSubscribe();
         }}>Subscribe</p>
       </div>
     );
     const activate = (
-      <div className="activate">
+      <div className='activate'>
         <p onClick={() => {
           this.handleActivateSubscription();
         }}>Activate Subscription</p>
@@ -249,41 +256,41 @@ class SubscriptionInfo extends React.Component {
     console.log(`shoudl flex ${shouldFlex}`);
 
     return (
-      <div className="background-subs">
-        <div className="small-card">
-          <Header title="Subscription Information" previousPage="/"/>
-          <div className="hero">
-            <div className="main-item">
-              { this.state.logo ? (<div className="logo">
+      <div className='background-subs'>
+        <div className='small-card'>
+          <Header title='Subscription Information' previousPage='/'/>
+          <div className='hero'>
+            <div className='main-item'>
+              { this.state.logo ? (<div className='logo'>
                 <img src={this.state.logo}/>
               </div>
               ) : null }
-              <div className="text" style={{ flex: `${shouldFlex}`}}>
+              <div className='text' style={{ flex: `${shouldFlex}`}}>
                 <p>{this.state.subscriptionName} -  {this.state.subscriptionDetails}</p>
-                <span>${this.state.subscriptionAmount}USD billed {this.planPeriodConvertor()}</span>
+                <span>${this.state.subscriptionAmount}USD billed every {this.humanizeDuration(this.state.subscriptionPeriod)}</span>
               </div>
             </div>
-            <div className="option">
-              <div className="currency">
-                <div className="text">
+            <div className='option'>
+              <div className='currency'>
+                <div className='text'>
                   <p>I want to pay using</p>
                 </div>
                 <Dropdown items={this.dropdownItems()} onSelectedItem={this.handleSelectedCurrency}/>
               </div>
-              <div className="time">
-                <div className="text">
+              <div className='time'>
+                <div className='text'>
                   <p>I want to top my account every</p>
                 </div>
                 <Dropdown items={this.timeItems()} onSelectedItem={this.handleSelectedPeriod}/>
               </div>
             </div>
-            <div className="action">
-              <p className="text">To start your subscription, please send</p>
+            <div className='action'>
+              <p className='text'>To start your subscription, please send</p>
               <h2>{this.calculateSendAmount()} {this.state.selectedCurrency}</h2>
-              <p className="text">to your personal wallet</p>
+              <p className='text'>to your personal wallet</p>
             </div>
-            <div className="item-address">
-              <p className="text-address">{this.props.userAddress}</p>
+            <div className='item-address'>
+              <p className='text-address'>{this.props.userAddress}</p>
               <CopyToClipboard
                 text={this.props.useraddress}
                 onCopy={() => {
@@ -291,18 +298,18 @@ class SubscriptionInfo extends React.Component {
                   this.setState({copied: true});
                 }}
               >
-                <div className="text-button">
+                <div className='text-button'>
                   {
                     this.state.copied
-                      ? <p className="text-copy">Copied</p>
-                      :<p className="text-copy">Copy</p>
+                      ? <p className='text-copy'>Copied</p>
+                      :<p className='text-copy'>Copy</p>
                   }
                 </div>
               </CopyToClipboard>
             </div>
-            <div className="balance">
+            <div className='balance'>
               <p>Current Balance</p>
-              <p className="currency">{this.checkDaiSelected() ? this.props.daiBalance : this.props.ethBalance} {this.state.selectedCurrency}</p>
+              <p className='currency'>{this.checkDaiSelected() ? this.props.daiBalance : this.props.ethBalance} {this.state.selectedCurrency}</p>
             </div>
             {
               this.checkDaiSelected()
@@ -310,7 +317,7 @@ class SubscriptionInfo extends React.Component {
                 this.state.authorization ? this.state.subscribe ? activate : subscribe : authorization
                 :
                 <Link to='/conversion'>
-                  <div className="transaction">
+                  <div className='transaction'>
                     <p>Continue</p>
                   </div>
                 </Link>
