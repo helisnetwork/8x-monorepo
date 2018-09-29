@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "clean": "rimraf rm -rf dist",
-    "start": "webpack-dev-server --config webpack.dev.js --mode development --open",
+    "start": "webpack-dev-server --config webpack.dev.js --mode development --open --port 4100",
     "build": "npm run clean && mkdir dist && rollup -c",
     "prepublishOnly": "npm run build"
   },
