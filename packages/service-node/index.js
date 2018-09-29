@@ -6,22 +6,22 @@ Create a .env file and fill in the following variables below
 
 ------------------------------------------------------------
 
-// Public key of the node executing
+# Public key of the node executing
 NODE_ADDRESS = ""
 
-// Private key of the node executing
+# Private key of the node executing
 PRIVATE_KEY = ""
 
-// Executor contract address
+# Executor contract address
 EXECUTOR = ""
 
-// Transcting token address (that you'd like to stake for)
+# Transcting token address (that you'd like to stake for)
 TRANSACTING_TOKEN = ""
 
-// Token being staked (native 8x token)
+# Token being staked (native 8x token)
 STAKE_TOKEN = ""
 
-// Stake contract address
+# Stake contract address
 STAKE_CONTRACT = ""
 
 */
