@@ -41,7 +41,7 @@ module.exports = function(deployer, network, accounts) {
         let kyberNetworkAddress = Dependencies.KyberNetwork[network] || (await deployer.deploy(MockKyberNetwork)).address;
         let daiAddress = Tokens.DAI.addresses[network] || (await deployer.deploy(MockToken)).address;
 
-        // Deploy the Approved Registrt with Kyber Network
+        // Deploy the Approved Registry with Kyber Network
         approvedRegistry = await deployer.deploy(ApprovedRegistry, kyberNetworkAddress);
 
         // Deploy the Volume Subscription contract with the Approved Registry

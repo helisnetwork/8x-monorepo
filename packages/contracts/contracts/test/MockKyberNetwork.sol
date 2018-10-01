@@ -1,11 +1,19 @@
 pragma solidity 0.4.24;
 
 import "../interfaces/KyberNetworkInterface.sol";
+import "../base/ownership/Ownable.sol";
 
 /** @title Mock contract to test Kyber Network proxy interface */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract MockKyberNetwork is KyberNetworkInterface {
+contract MockKyberNetwork is KyberNetworkInterface, Ownable {
+
+    uint public EXPECTED_RATE = 2*10**15;
+
+    function setExpectedRate(uint _rate) public onlyOwner {
+        EXPECTED_RATE = _rate;
+    }
+
 
     /**
       * KYBER NETWORK INTERFACE FUNCTIONS
@@ -21,7 +29,7 @@ contract MockKyberNetwork is KyberNetworkInterface {
         returns (uint expectedRate, uint slippageRate)
     {
         // 0.002 ETH/USD is the exchange rate we want. Assuming $500 USD/ETH.
-        return (2*10**15, 2*10**15);
+        return (EXPECTED_RATE, EXPECTED_RATE);
     }
 
     function maxGasPrice()
