@@ -6,8 +6,11 @@ Create a .env file and fill in the following variables below
 
 ------------------------------------------------------------
 
-# Public key of the node executing
+# HTTP Address of Ethereum node to connect to
 NODE_ADDRESS = ""
+
+# Public key of the node executing
+PUBLIC_KEY = ""
 
 # Private key of the node executing
 PRIVATE_KEY = ""
@@ -31,7 +34,7 @@ const Web3 = require('web3');
 const Repeater = require('@8xprotocol/service-node-core').default;
 const dotenv = require('dotenv')
 const HDWalletProvider = require("truffle-hdwallet-provider-privkey");
-const BigNumber = requre('bignumber.js');
+const BigNumber = require('bignumber.js');
 
 const environment = dotenv.config().parsed;
 
@@ -43,10 +46,12 @@ if (environment.PRIVATE_KEY) {
 }
 
 const web3 = new Web3(provider);
-const repeater = new Repeater(web3, environment.EXECUTOR, environment.NODE_ADDRESS)
+const repeater = new Repeater(web3, environment.EXECUTOR, environment.PUBLIC_KEY)
+
+const topUpAmount = new BigNumber(100).mul(10**18);
 
 repeater.attemptTopUp(
-  new BigNumber(100*10**18),
+  topUpAmount,
   environment.TRANSACTING_TOKEN,
   environment.STAKE_TOKEN,
   environment.STAKE_CONTRACT)
