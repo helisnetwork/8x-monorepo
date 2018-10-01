@@ -1,3 +1,25 @@
+/*
+
+------------------------------------------------------------
+
+Create a .env file and fill in the following variables below
+
+------------------------------------------------------------
+
+# Executor contract address
+EXECUTOR = ""
+
+# Transcting token address (that you'd like to stake for)
+TRANSACTING_TOKEN = ""
+
+# Volume subscription address
+VOLUME_SUBSCRIPTION = ""
+
+# Transfer proxy address
+TRANSFER_PROXY = ""
+
+*/
+
 /* Import statements */
 import React from 'react';
 

@@ -1,7 +1,9 @@
 /* Import statements */
 import React from 'react';
 import SubscriptionInfo from './subscripton-info';
-import { MockTokenAbi } from '@8xprotocol/artifacts';
+
+import { MockTokenAbi, ConfigAddresses } from '@8xprotocol/artifacts';
+import { getToken } from '../constants';
 
 class MetamaskHandler extends React.Component {
 
@@ -99,7 +101,7 @@ class MetamaskHandler extends React.Component {
 
   // Gets DAI balance of user address
   getERC20Balance() {
-    var token = web3.eth.contract(MockTokenAbi.abi).at('0xc4375b7de8af5a38a93548eb8453a498222c4ff2');
+    var token = web3.eth.contract(MockTokenAbi.abi).at(getToken('DAI'));
 
     token.balanceOf.call(web3.eth.accounts[0],  (err, bal) => {
       if (err) {

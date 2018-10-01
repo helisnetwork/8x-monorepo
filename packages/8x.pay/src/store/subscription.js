@@ -1,8 +1,11 @@
 import bus from '../bus';
-import { default as Images } from '../middleware/images';
 import EightEx from '8x.js';
-import { ExecutorAbi } from '@8xprotocol/artifacts';
 
+import { default as Images } from '../middleware/images';
+import { ExecutorAbi } from '@8xprotocol/artifacts';
+import { BigNumber } from 'bignumber.js';
+
+import { getContract, getToken } from '../constants';
 
 export default class SubscriptionStore {
   constructor() {
@@ -14,12 +17,12 @@ export default class SubscriptionStore {
 
   startListeners() {
     bus.on('web3:initialised', web3 => {
-      console.log(web3);
+
       this.eightEx = new EightEx(web3, {
-        volumeSubscriptionAddress: '0xeff7b9ad5594d105a914a6aa8ef270dae343ee63',
-        transactingTokenAddress: '0xc4375b7de8af5a38a93548eb8453a498222c4ff2',
-        transferProxyAddress: '0x9554eb0ee8ef5641ba976306c829ae0266315e4f',
-        executorAddress: '0xd27e811ceebb6f5dbe85588721f69079ebd35dc9'
+        volumeSubscriptionAddress: getContract('VolumeSubscription'),
+        transactingTokenAddress: getToken('DAI'),
+        transferProxyAddress: getContract('TransferProxy'),
+        executorAddress: getContract('Executor')
       });
 
       web3.eth.getAccounts((err, accounts) => {
@@ -68,17 +71,26 @@ export default class SubscriptionStore {
         this.currentPlan = Array.from(elem);
         console.log(elem);
         if (this.currentPlan) {
+          const currencyBase = new BigNumber(10).pow(18);
           const planObj = (({ image, name, description, amount, interval }) => ({
             logo: image,
             subscriptionName: name,
             subscriptionDetails: description,
-            subscriptionAmount: amount.c,
+            subscriptionAmount: amount.div(currencyBase).toNumber(),
             subscriptionPeriod: interval
           }))(elem);
           console.log(planObj);
           bus.trigger('subscription:plan:sent', planObj);
         }
       });
+
+      this.eightEx.subscriptions.hasGivenAuthorisation(this.address).then((result) => {
+        if (result == true) {
+          console.log('The user has already given authorisation');
+          bus.trigger('user:authorization:received', true);
+        }
+      });
+
     });
   };
 

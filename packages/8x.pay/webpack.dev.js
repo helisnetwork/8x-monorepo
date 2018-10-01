@@ -70,7 +70,10 @@ module.exports = {
   ],
   entry: './example/src/index.js',
   devServer: {
-   historyApiFallback: true,
-   contentBase: '.',
- }
+    historyApiFallback: true,
+    contentBase: '.',
+  },
+  node: {
+    fs: 'empty'
+  }
 };
