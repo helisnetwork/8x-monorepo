@@ -10,6 +10,7 @@ import SubscriptionsAPI from './apis/subscriptions_api';
 import VolumeSubscriptionWrapper from './wrappers/volume_subscription_wrapper';
 import ExecutorWrapper from './wrappers/executor_wrapper';
 import TokenWrapper from './wrappers/token_wrapper';
+import { BlockchainAPI } from './apis/blockchain_api';
 
 export default class EightEx {
 
@@ -23,6 +24,7 @@ export default class EightEx {
 
   public plans: PlanAPI;
   public subscriptions: SubscriptionsAPI;
+  public blockchain: BlockchainAPI;
 
   constructor(web3: Web3, addressBook: AddressBook) {
     this.web3 = web3;
@@ -43,6 +45,8 @@ export default class EightEx {
       this.executorWrapper,
       this.tokenWrapper
     );
+
+    this.blockchain = new BlockchainAPI(web3);
 
   }
 
