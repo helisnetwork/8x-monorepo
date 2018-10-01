@@ -12,5 +12,7 @@ export default interface SubscriptionEvent {
   staked: BigNumber | null,
   executionPeriod: number | null,
   blockNumber: number,
-  transactionIndex: number
+  transactionIndex: number,
+  transactionHash: string,
+  cancelled: boolean,
 }

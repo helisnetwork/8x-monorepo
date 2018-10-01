@@ -51,7 +51,7 @@ export default class EventStore {
   }
 
   private handleActivation(log) {
-    console.log(`Activated: ${JSON.stringify(log, null, 2)}`);
+    console.log(`Received Activated: ${JSON.stringify(log, null, 2)}`);
 
     let newEvent = {
       subscriptionAddress: log.args.subscriptionAddress,
@@ -61,14 +61,16 @@ export default class EventStore {
       amount: log.args.amount.toNumber(),
       fee: log.args.fee.toNumber(),
       blockNumber: log.blockNumber,
-      transactionIndex: log.transactionIndex
+      transactionIndex: log.transactionIndex,
+      transactionHash: log.transactionHash,
+      cancelled: false
     } as SubscriptionEvent
 
     this.events[newEvent.subscriptionIdentifier] = newEvent;
   }
 
   private handleProcessed(log) {
-    console.log(`Processed: ${JSON.stringify(log, null, 2)}`);
+    console.log(`Received Processed: ${JSON.stringify(log, null, 2)}`);
 
     let existingEvent = this.events[log.args.subscriptionIdentifier];
 
@@ -83,13 +85,14 @@ export default class EventStore {
     existingEvent.staked = log.args.staked;
     existingEvent.blockNumber = log.blockNumber;
     existingEvent.transactionIndex = log.blockNumber;
+    existingEvent.transactionHash = log.transactionHash;
 
     this.events[existingEvent.subscriptionIdentifier] = existingEvent;
 
   }
 
   private handleReleased(log) {
-    console.log(`Released: ${JSON.stringify(log, null, 2)}`);
+    console.log(`Received Released: ${JSON.stringify(log, null, 2)}`);
 
     let existingEvent = this.events[log.args.subscriptionIdentifier];
 
@@ -102,12 +105,13 @@ export default class EventStore {
     existingEvent.claimant = log.args.claimant;
     existingEvent.dueDate = log.args.dueDate.toNumber();
     existingEvent.staked = log.args.staked;
+    existingEvent.transactionHash = log.transactionHash;
 
     this.events[existingEvent.subscriptionIdentifier] = existingEvent;
   }
 
   private handlePaymentCaught(log) {
-    console.log(`Late: ${JSON.stringify(log, null, 2)}`);
+    console.log(`Recieved Late: ${JSON.stringify(log, null, 2)}`);
 
     let existingEvent = this.events[log.args.subscriptionIdentifier];
 
@@ -117,15 +121,14 @@ export default class EventStore {
       }
     }
 
-    existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate.toNumber();
-    existingEvent.staked = log.args.staked;
+    existingEvent.claimant = log.args.newClaimant;
+    existingEvent.transactionHash = log.transactionHash;
 
     this.events[existingEvent.subscriptionIdentifier] = existingEvent;
   }
 
   private handleCancelled(log) {
-    console.log(`Cancelled: ${JSON.stringify(log, null, 2)}`);
+    console.log(`Recieved Cancelled: ${JSON.stringify(log, null, 2)}`);
 
     let existingEvent = this.events[log.args.subscriptionIdentifier];
 
@@ -135,9 +138,7 @@ export default class EventStore {
       }
     }
 
-    existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate.toNumber();
-    existingEvent.staked = log.args.staked;
+    existingEvent.cancelled = true;
 
     this.events[existingEvent.subscriptionIdentifier] = existingEvent;
   }

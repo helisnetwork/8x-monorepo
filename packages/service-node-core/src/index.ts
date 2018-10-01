@@ -1,6 +1,7 @@
 import Web3 = require("web3");
 
-import { ExecutorAbi, ExecutorContract, StakeContract, MockTokenContract } from '@8xprotocol/artifacts'
+import { ExecutorAbi, ExecutorContract, StakeContract, MockTokenContract, Web3Utils } from '@8xprotocol/artifacts'
+import EightEx from '8x.js';
 import { AddressBook, Address } from '@8xprotocol/types';
 import { BigNumber } from 'bignumber.js';
 
@@ -12,6 +13,8 @@ import ProcessorStore from "./store/processor";
 export default class Repeater {
 
   private web3: Web3;
+  private eightEx: EightEx;
+  private web3Utils: Web3Utils;
   private executorContract: ExecutorContract;
 
   private executorAddress: Address;
@@ -24,15 +27,17 @@ export default class Repeater {
 
   constructor(web3: Web3, executorAddress: Address, serviceNodeAccount: Address) {
     this.web3 = web3;
+    this.web3Utils = new Web3Utils(web3);
     this.executorAddress = executorAddress;
     this.serviceNodeAccount = serviceNodeAccount;
+    this.eightEx = new EightEx(web3, {});
   }
 
   public async start() {
     this.executorContract = await ExecutorContract.at(this.executorAddress, this.web3, {});
 
     this.eventStore = new EventStore(this.web3, this.executorContract, () => this.storeUpdated());
-    this.processorStore = new ProcessorStore(this.web3, this.serviceNodeAccount, this.executorContract);
+    this.processorStore = new ProcessorStore(this.web3, this.eightEx, this.serviceNodeAccount, this.executorContract);
 
     await this.eventStore.startListening();
   }
@@ -49,17 +54,21 @@ export default class Repeater {
       return '';
     }
 
-    await stakeTokenContract.approve.sendTransactionAsync(
+    let approveTx = await stakeTokenContract.approve.sendTransactionAsync(
       stakeContract.address,
       amount,
       {from: this.serviceNodeAccount}
     );
 
-    await stakeContract.topUpStake.sendTransactionAsync(
+    await this.eightEx.blockchain.awaitTransactionMinedAsync(approveTx);
+
+    let topupTx = await stakeContract.topUpStake.sendTransactionAsync(
       amount,
       tokenAddress,
       {from: this.serviceNodeAccount}
     );
+
+    await this.eightEx.blockchain.awaitTransactionMinedAsync(topupTx);
   }
 
   public storeUpdated() {
