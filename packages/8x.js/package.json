@@ -1,6 +1,6 @@
 {
   "name": "8x.js",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/types/index.d.ts",
