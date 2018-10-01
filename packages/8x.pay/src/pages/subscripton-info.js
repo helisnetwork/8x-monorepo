@@ -170,6 +170,10 @@ class SubscriptionInfo extends React.Component {
   }
 
   resetCopyState() {
+    if (this.copied == false) {
+      return;
+    }
+
     setTimeout(() => {
       this.setState({
         copied: false
@@ -253,8 +257,6 @@ class SubscriptionInfo extends React.Component {
       shouldFlex = 0;
     }
 
-    console.log(`shoudl flex ${shouldFlex}`);
-
     return (
       <div className='background-subs'>
         <div className='small-card'>
@@ -294,8 +296,8 @@ class SubscriptionInfo extends React.Component {
               <CopyToClipboard
                 text={this.props.useraddress}
                 onCopy={() => {
-                  this.resetCopyState();
                   this.setState({copied: true});
+                  this.resetCopyState();
                 }}
               >
                 <div className='text-button'>
