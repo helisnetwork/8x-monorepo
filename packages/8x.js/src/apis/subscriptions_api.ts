@@ -116,12 +116,12 @@ export default class SubscriptionsAPI {
     txData?: TxData
   ): Promise<Bytes32> {
 
-    let hasEnoughAllowance = await this.hasGivenAuthorisation(this.web3.eth.accounts[0]);
+    let hasEnoughAllowance = await this.hasGivenAuthorisation(txData.from || this.web3.eth.accounts[0]);
     if (!hasEnoughAllowance) {
       throw("EighEx does not have sufficient allowance to subscribe to take funds from a user's wallet")
     }
 
-    let balance = await this.tokenWrapper.balanceOf(this.addressBook.transactingTokenAddress || '', this.web3.eth.accounts[0]);
+    let balance = await this.tokenWrapper.balanceOf(this.addressBook.transactingTokenAddress || '', txData.from || this.web3.eth.accounts[0]);
     let plan = await this.volumeSubscriptionWrapper.getPlan(planHash);
     if (balance.toNumber() < plan.amount.toNumber()) {
       throw("The user does not have enough funds in their wallet");
