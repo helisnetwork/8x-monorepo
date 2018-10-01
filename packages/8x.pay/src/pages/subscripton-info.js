@@ -26,8 +26,7 @@ class SubscriptionInfo extends React.Component {
       subscriptionAmount: '',
       subscriptionPeriod: '',
       authorization: false,
-      subscribe: false,
-      activation: false
+      paymentStatus: '',
 
     };
 
@@ -41,6 +40,7 @@ class SubscriptionInfo extends React.Component {
   componentDidMount() {
     this.handleSelectedCurrency();
     this.handleSelectedPeriod();
+
     bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
     bus.trigger('subscription:plan:requested');
   }
@@ -72,7 +72,7 @@ class SubscriptionInfo extends React.Component {
   handleSubscribe() {
     bus.on('user:subscribe:completed', (hash, status) => {
       this.setState({
-        subscribe: status
+        paymentStatus: 'subscribed'
       });
       console.log('Subscription Hash is:' + '' + hash );
     });
@@ -83,7 +83,7 @@ class SubscriptionInfo extends React.Component {
   handleActivateSubscription() {
     bus.on('user:activate:completed', (subscriptionHash, status) => {
       this.setState({
-        activation: status
+        paymentStatus: 'activated'
       });
       console.log('activated');
     });
@@ -93,6 +93,7 @@ class SubscriptionInfo extends React.Component {
 
   // Gets data from selected currency of user
   handleSelectedCurrency(currency) {
+    console.log('curreny selected');
     this.setState({
       selectedCurrency: currency
     });
@@ -100,6 +101,7 @@ class SubscriptionInfo extends React.Component {
 
   // Gets data from selected time period of user
   handleSelectedPeriod(period) {
+    console.log('period selected');
     this.setState({
       selectedPeriod: period
     });
@@ -116,6 +118,7 @@ class SubscriptionInfo extends React.Component {
         var currencyConversion = data.ETH_DAI.currentPrice * 1.01;
         let roundedNumber = currencyConversion.toFixed(6);
 
+        console.log('kyber conversion updated');
         this.setState({
           kyberConversion: roundedNumber
         });
@@ -125,7 +128,7 @@ class SubscriptionInfo extends React.Component {
   calculateSendAmount () {
     //this.getKyberInformation();
     if (this.state.selectedCurrency === 'Dai') {
-      return this.state.selectedPeriod * this.state.subscriptionAmount;
+      return (parseFloat(this.state.selectedPeriod) * parseFloat(this.state.subscriptionAmount)).toFixed(6);
     }
     else if (this.state.selectedCurrency === 'Ethereum') {
       return (this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionAmount).toFixed(4);
@@ -170,14 +173,14 @@ class SubscriptionInfo extends React.Component {
   }
 
   resetCopyState() {
-    if (this.copied == false) {
-      return;
-    }
-
     setTimeout(() => {
-      this.setState({
-        copied: false
-      });
+      if (this.state.copied == true) {
+        console.log('copy set to false');
+        this.setState({
+          copied: false
+        });
+        return;
+      }
     }, 2000);
 
   };
@@ -206,6 +209,50 @@ class SubscriptionInfo extends React.Component {
     return result;
   }
 
+  returnPayButtonState() {
+    const authorization = (
+      <div className='give-auth'>
+        <p onClick={() => {
+          this.handleAuthorization();
+        }}>Give Authorization</p>
+      </div>
+    );
+
+    const subscribe = (
+      <div className='subscribe'>
+        <p onClick={() => {
+          this.handleSubscribe();
+        }}>Subscribe</p>
+      </div>
+    );
+
+    const activate = (
+      <div className='activate'>
+        <p onClick={() => {
+          this.handleActivateSubscription();
+        }}>Activate Subscription</p>
+      </div>
+    );
+
+    if (!this.checkDaiSelected()) {
+      return (
+        <Link to='/conversion'>
+          <div className='transaction'>
+            <p>Continue</p>
+          </div>
+        </Link>
+      );
+    }
+
+    switch (this.state.paymentStatus) {
+      case 'subscribed':
+        return activate;
+      case 'loading':
+        return loading;
+      default:
+        return subscribe;
+    }
+  }
 
   // Conditions on which page to render depending on status provided by handlers
   render() {
@@ -228,29 +275,6 @@ class SubscriptionInfo extends React.Component {
   }
 
   renderUnlocked() {
-
-    const authorization = (
-      <div className='give-auth'>
-        <p onClick={() => {
-          this.handleAuthorization();
-        }}>Give Authorization</p>
-      </div>
-    );
-
-    const subscribe = (
-      <div className='subscribe'>
-        <p onClick={() => {
-          this.handleSubscribe();
-        }}>Subscribe</p>
-      </div>
-    );
-    const activate = (
-      <div className='activate'>
-        <p onClick={() => {
-          this.handleActivateSubscription();
-        }}>Activate Subscription</p>
-      </div>
-    );
 
     let shouldFlex = 1;
     if (this.state.logo) {
@@ -313,17 +337,7 @@ class SubscriptionInfo extends React.Component {
               <p>Current Balance</p>
               <p className='currency'>{this.checkDaiSelected() ? this.props.daiBalance : this.props.ethBalance} {this.state.selectedCurrency}</p>
             </div>
-            {
-              this.checkDaiSelected()
-                ?
-                this.state.authorization ? this.state.subscribe ? activate : subscribe : authorization
-                :
-                <Link to='/conversion'>
-                  <div className='transaction'>
-                    <p>Continue</p>
-                  </div>
-                </Link>
-            }
+            { this.returnPayButtonState() }
           </div>
         </div>
       </div>
