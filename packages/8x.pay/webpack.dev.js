@@ -1,28 +1,22 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const webpack = require('webpack')
 
 module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        loader: "ts-loader"
-      },
-      {
+        enforce: "pre",
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
-          query: {
-            plugins:[ 'transform-object-rest-spread' ]
-          }
         }
       },
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: ['eslint-loader']
+        test: /\.tsx?$/,
+        loader: "ts-loader"
       },
       {
         test: /\.html$/,
@@ -71,7 +65,8 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: "style.css",
       chunkFilename: "[name].css"
-    })
+    }),
+    new webpack.LoaderOptionsPlugin({ options: {} }),
   ],
   entry: './example/src/index.js',
   devServer: {
