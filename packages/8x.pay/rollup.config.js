@@ -6,6 +6,8 @@ import commonjs from 'rollup-plugin-commonjs'
 import json from 'rollup-plugin-json';
 import sass from 'rollup-plugin-sass';
 
+import { plugin as analyze } from 'rollup-plugin-analyzer'
+
 export default {
   input: 'src/index.js',
   output: {
@@ -36,6 +38,7 @@ export default {
         'node_modules/styled-components/dist/styled-components.esm.js': ['stream'],
         'node_modules/xhr2/lib/xhr2.js': ['os']
       }
-    })
+    }),
+    //analyze()
   ]
 }

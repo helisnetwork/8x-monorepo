@@ -3,7 +3,7 @@ import EightEx from '8x.js';
 
 import { default as Images } from '../middleware/images';
 import { ExecutorAbi } from '@8xprotocol/artifacts';
-import { BigNumber } from 'bignumber.js';
+import BigNumber from 'bignumber.js';
 
 import { getContract, getToken } from '../constants';
 
