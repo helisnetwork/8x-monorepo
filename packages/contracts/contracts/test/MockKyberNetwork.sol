@@ -14,7 +14,6 @@ contract MockKyberNetwork is KyberNetworkInterface, Ownable {
         EXPECTED_RATE = _rate;
     }
 
-
     /**
       * KYBER NETWORK INTERFACE FUNCTIONS
     */
