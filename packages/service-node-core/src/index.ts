@@ -1,6 +1,6 @@
 import Web3 = require("web3");
 
-import { ExecutorAbi, ExecutorContract, StakeContract, MockTokenContract, Web3Utils } from '@8xprotocol/artifacts'
+import { ExecutorAbi, ExecutorContract, StakeContract, MockTokenContract, Web3Utils, ApprovedRegistryContract, VolumeSubscriptionContract } from '@8xprotocol/artifacts'
 import EightEx from '8x.js';
 import { AddressBook, Address } from '@8xprotocol/types';
 import { BigNumber } from 'bignumber.js';
@@ -40,6 +40,18 @@ export default class Repeater {
     this.processorStore = new ProcessorStore(this.web3, this.eightEx, this.serviceNodeAccount, this.executorContract);
 
     await this.eventStore.startListening();
+
+    let approvedRegistry = await ApprovedRegistryContract.at('0xf82ba2f9b8d2765170f9902d0f9ae0ef8019d768', this.web3, {});
+    let volumeSub = await VolumeSubscriptionContract.at('0xeff7b9ad5594d105a914a6aa8ef270dae343ee63', this.web3, {});
+
+    let price = await approvedRegistry.getRateFor.callAsync('0xc4375b7de8af5a38a93548eb8453a498222c4ff2', {});
+    let cost = await volumeSub.getGasForExecution.callAsync('', new BigNumber(0), {});
+
+    let kyberProxy = await approvedRegistry.kyberProxy.callAsync();
+
+    console.log(`The price is ${price}`);
+    console.log(`The cost is ${cost}`);
+    console.log(`Kyber proxy address is ${JSON.stringify(kyberProxy)}`);
   }
 
   public async attemptTopUp(amount: BigNumber, tokenAddress: Address, stakeTokenAddress: Address, stakeContractAddress: Address) {

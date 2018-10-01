@@ -1,4 +1,5 @@
 const HDWalletProvider = require("truffle-hdwallet-provider-privkey");
+const NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce-tracker")
 
 require('dotenv').config();
 
@@ -17,7 +18,13 @@ module.exports = {
             gasPrice: 21
         },
         kovan: {
-          provider: () => new HDWalletProvider([process.env.PRIVATE_KEY], "https://kovan.infura.io/v3/" + process.env.INFURA_API_KEY),
+          provider: () => {
+            let wallet = new HDWalletProvider([process.env.PRIVATE_KEY], "https://kovan.infura.io/v3/" + process.env.INFURA_API_KEY);
+            let nonceTracker = new NonceTrackerSubprovider()
+            wallet.engine._providers.unshift(nonceTracker)
+            nonceTracker.setEngine(wallet.engine)
+            return wallet
+          },
           network_id: 42,
           gas: 4700000,
           gasPrice: 21

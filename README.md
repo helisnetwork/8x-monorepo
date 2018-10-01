@@ -45,15 +45,15 @@ We get it, you're just here to find the contract addresses. Luckily for you, the
 
 | Contract Name | Address |
 | ------------- | ------- |
-| Executor | 0xd27e811ceebb6f5dbe85588721f69079ebd35dc9 |
-| VolumeSubscription | 0xeff7b9ad5594d105a914a6aa8ef270dae343ee63 |
-| ApprovedRegistry | 0xf82ba2f9b8d2765170f9902d0f9ae0ef8019d768 |
-| TransferProxy | 0x9554eb0ee8ef5641ba976306c829ae0266315e4f |
-| PaymentRegistry | 0x943e0d737c408ae5fff47d3d89c2d4a89d7fee1f |
-| Requirements | 0xf1efa3f34ceb871c35f1f5a235ae30fb3e5f6710 |
-| EightExToken | 0x8dff892255e306c4d760f21f25c6d336787376cb |
-| StakeContract | 0x28c11389f5b08ec8f3634dd9b09d673df0653abe |
-| KyberNetwork | 0x7e6b8b9510D71BF8EF0f893902EbB9C865eEF4Df |
+| Executor | 0x470194d300f9304c22de2b2379f4d6707929a826 |
+| VolumeSubscription | 0x83e707e542ade68e9e350cbd7e9e973d5ff1e192 |
+| ApprovedRegistry | 0x7499ff1e557ccf2c0984942f19f0414381bd9438 |
+| TransferProxy | 0xa49f09793d618d861351359ab0fbbd4751487e8a |
+| PaymentRegistry | 0xe8cb0fb5820fe6a79533f19b5ec2497d572c1c49 |
+| Requirements | 0x6042c4ceeeba5566c559bbd21b7cd7a27f0522ed |
+| EightExToken | 0x79468d682f46818c39f069556601b1e55cf5f56e |
+| StakeContract | 0x1a85078869da113a0568544cce40ea8b8db2556f |
+| KyberNetwork | 0x67376cb28db40294cba0ec3db6e152d4bd6ab3bc |
 
 ### Supported Tokens (Kovan)
 
