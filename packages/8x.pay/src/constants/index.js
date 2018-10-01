@@ -1,7 +1,6 @@
 import { ConfigAddresses } from "@8xprotocol/artifacts";
 
-const ENVIRONMENT = 'kovan';
-const config = ConfigAddresses[ENVIRONMENT];
+const config = ConfigAddresses.kovan;
 
 function getToken(ticker) {
   let object = config['approvedTokens'].find((item) => item.ticker == ticker) || { address: '' }
