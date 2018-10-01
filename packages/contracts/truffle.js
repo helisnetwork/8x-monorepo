@@ -1,4 +1,4 @@
-const HDWalletProvider = require("truffle-hdwallet-provider");
+const HDWalletProvider = require("truffle-hdwallet-provider-privkey");
 
 require('dotenv').config();
 
@@ -11,25 +11,25 @@ module.exports = {
             gas: 4700000
         },
         ropsten: {
-            provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://ropsten.infura.io/v3/" + process.env.INFURA_API_KEY),
+            provider: () => new HDWalletProvider([process.env.PRIVATE_KEY], "https://ropsten.infura.io/v3/" + process.env.INFURA_API_KEY),
             network_id: 3,
             gas: 4700000,
             gasPrice: 21
         },
         kovan: {
-          provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://kovan.infura.io/v3/" + process.env.INFURA_API_KEY),
+          provider: () => new HDWalletProvider([process.env.PRIVATE_KEY], "https://kovan.infura.io/v3/" + process.env.INFURA_API_KEY),
           network_id: 42,
           gas: 4700000,
           gasPrice: 21
         },
         rinkeby: {
-          provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://rinkeby.infura.io/v3/" + process.env.INFURA_API_KEY),
+          provider: () => new HDWalletProvider([process.env.PRIVATE_KEY], "https://rinkeby.infura.io/v3/" + process.env.INFURA_API_KEY),
           network_id: 4,
           gas: 4700000,
           gasPrice: 21
         },
         main: {
-          provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://mainnet.infura.io/v3/" + process.env.INFURA_API_KEY),
+          provider: () => new HDWalletProvider([process.env.PRIVATE_KEY], "https://mainnet.infura.io/v3/" + process.env.INFURA_API_KEY),
           network_id: 1,
           gas: 4700000,
           gasPrice: 21
