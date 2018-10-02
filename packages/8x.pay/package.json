@@ -1,6 +1,6 @@
 {
   "name": "8x.pay",
-  "version": "0.2.1",
+  "version": "0.2.21",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -17,7 +17,8 @@
   },
   "peerDependencies": {
     "react": ">=16.0.1",
-    "react-dom": ">=16.0.1"
+    "react-dom": ">=16.0.1",
+    "prop-types": ">=15.6.0"
   },
   "dependencies": {
     "8x.js": "^0.2.1",
@@ -26,7 +27,6 @@
     "dotenv": "^6.0.0",
     "ethereumjs-ledger": "^2.1.5",
     "history": "^4.7.2",
-    "prop-types": "^15.6.2",
     "react-copy-to-clipboard": "^5.0.1",
     "react-mailchimp-subscribe": "^2.0.2",
     "react-onclickoutside": "^6.7.1",

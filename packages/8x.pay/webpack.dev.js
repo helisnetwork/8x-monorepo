@@ -2,7 +2,6 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const webpack = require('webpack')
-const Visualizer = require('webpack-visualizer-plugin');
 
 module.exports = {
   module: {

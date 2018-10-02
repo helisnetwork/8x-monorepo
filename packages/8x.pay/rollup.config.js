@@ -37,7 +37,6 @@ export default {
         'node_modules/styled-components/dist/styled-components.esm.js': ['stream'],
         'node_modules/xhr2/lib/xhr2.js': ['os']
       }
-    }),
-    visualizer()
+    })
   ]
 }
