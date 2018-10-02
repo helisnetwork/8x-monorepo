@@ -5,8 +5,7 @@ import images from 'rollup-plugin-image-files';
 import commonjs from 'rollup-plugin-commonjs'
 import json from 'rollup-plugin-json';
 import sass from 'rollup-plugin-sass';
-
-import { plugin as analyze } from 'rollup-plugin-analyzer'
+import visualizer from 'rollup-plugin-visualizer';
 
 export default {
   input: 'src/index.js',
@@ -27,7 +26,7 @@ export default {
     }),
     json(),
     babel({
-      exclude: 'node_modules/**'
+      exclude: 'node_modules/**',
     }),
     commonjs({
       namedExports: {
@@ -39,6 +38,6 @@ export default {
         'node_modules/xhr2/lib/xhr2.js': ['os']
       }
     }),
-    //analyze()
+    visualizer()
   ]
 }
