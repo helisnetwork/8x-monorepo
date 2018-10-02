@@ -1,6 +1,6 @@
 {
   "name": "8x.pay",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -20,7 +20,7 @@
     "react-dom": ">=16.0.1"
   },
   "dependencies": {
-    "8x.js": "^0.2.0",
+    "8x.js": "^0.2.1",
     "@8xprotocol/artifacts": "^0.2.0",
     "bignumber.js": "^4.1.0",
     "dotenv": "^6.0.0",

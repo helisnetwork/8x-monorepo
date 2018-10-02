@@ -1,6 +1,6 @@
 {
   "name": "@8xprotocol/service-node",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@8xprotocol/artifacts": "^0.2.0",
-    "@8xprotocol/service-node-core": "^0.2.0",
+    "@8xprotocol/service-node-core": "^0.2.1",
     "bignumber.js": "^4.1.0",
     "dotenv": "^6.0.0",
     "truffle-hdwallet-provider": "0.0.6",
