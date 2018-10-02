@@ -3,7 +3,9 @@ import SubscriptionEvent from '../types';
 
 import { ExecutorContract } from '@8xprotocol/artifacts';
 import { Address } from '@8xprotocol/types';
+
 import EightEx from '8x.js';
+import BigNumber from 'bignumber.js';
 
 export default class ProcessorStore {
 
@@ -11,6 +13,7 @@ export default class ProcessorStore {
   private executorContract: ExecutorContract;
   private serviceNodeAccount: Address;
   private eightEx: EightEx;
+  private TX_DEFAULTS: any;
 
   public executedTransactionHashes: string[];
   public events: SubscriptionEvent[];
@@ -22,6 +25,15 @@ export default class ProcessorStore {
     this.executedTransactionHashes = [];
     this.executorContract = executorContract;
     this.serviceNodeAccount = serviceNodeAccount;
+
+    const DEFAULT_GAS_LIMIT: BigNumber = new BigNumber(6712390); // Default of 6.7 million gas
+    const DEFAULT_GAS_PRICE: BigNumber = new BigNumber(6000000000); // 6 gEei
+
+    this.TX_DEFAULTS = {
+      from: serviceNodeAccount, // default to first account from provider
+      gas: DEFAULT_GAS_LIMIT,
+      gasPrice: DEFAULT_GAS_PRICE
+    };
 
     this.start();
   }
@@ -48,19 +60,40 @@ export default class ProcessorStore {
       return !this.executedTransactionHashes.includes(item.transactionHash)
     });
 
+    let now = (Date.now() / 1000);
+
     let toProcess = this.events.filter((event) => {
-      return (
-        ((Date.now() / 1000) >= event.dueDate) &&
-        (event.claimant == null || event.claimant == this.serviceNodeAccount)
-      )
+      let result = (
+        (now >= event.dueDate) &&
+        (now <= (event.dueDate + 30)) &&
+        (!event.claimant || event.claimant == this.serviceNodeAccount)
+      );
+
+      if (result) {
+        console.log(`Now: ${now}, Due Date ${event.dueDate}, Claimant: ${event.claimant}, Service Node: ${this.serviceNodeAccount}`);
+      }
+
+      return result;
+
     });
 
     let toCatchLate = this.events.filter((event) => {
-      return (
-        ((Date.now() / 1000) >= event.dueDate + 10) &&
-        (event.claimant == null)
-      )
+      let result = (
+        (now >= (event.dueDate + 30)) &&
+        (now <= (event.dueDate + 60)) &&
+        (event.claimant && event.claimant != this.serviceNodeAccount)
+      );
+
+      if (result) {
+        console.log(`Now: ${now}, Due Date ${event.dueDate}, Claimant: ${event.claimant}, Service Node: ${this.serviceNodeAccount}`);
+      }
+
+      return result;
+
     });
+
+    console.log(`Processing queue ${JSON.stringify(toProcess)}`);
+    console.log(`Catch queue ${JSON.stringify(toCatchLate)}`);
 
     await this.handleProcessing(toProcess);
     await this.handleCatchLate(toCatchLate);
@@ -82,13 +115,11 @@ export default class ProcessorStore {
       this.executedTransactionHashes.push(event.transactionHash);
 
       try {
-        let txHash = await this.executorContract.processSubscription.sendTransactionAsync(
+        await this.executorContract.processSubscription.sendTransactionAsync(
           event.subscriptionAddress,
           event.subscriptionIdentifier,
-          {from: this.serviceNodeAccount}
+          this.TX_DEFAULTS
         );
-
-        await this.eightEx.blockchain.awaitTransactionMinedAsync(txHash);
       } catch (error) {
         console.log(error);
       }
@@ -100,17 +131,15 @@ export default class ProcessorStore {
   public async handleCatchLate(events: SubscriptionEvent[]) {
 
     this.asyncForEach(events, async (event) => {
-      console.log(`Sending catch late tx ${event}`);
+      console.log(`Sending catch late tx ${JSON.stringify(event)}`);
       this.executedTransactionHashes.push(event.transactionHash);
 
       try {
-        let txHash = await this.executorContract.catchLateSubscription.sendTransactionAsync(
+        await this.executorContract.catchLateSubscription.sendTransactionAsync(
           event.subscriptionAddress,
           event.subscriptionIdentifier,
-          {from: this.serviceNodeAccount}
+          this.TX_DEFAULTS
         );
-
-        await this.eightEx.blockchain.awaitTransactionMinedAsync(txHash);
       } catch (error) {
         console.log(error);
       }

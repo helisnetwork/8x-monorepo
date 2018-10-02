@@ -40,18 +40,6 @@ export default class Repeater {
     this.processorStore = new ProcessorStore(this.web3, this.eightEx, this.serviceNodeAccount, this.executorContract);
 
     await this.eventStore.startListening();
-
-    let approvedRegistry = await ApprovedRegistryContract.at('0x7499ff1e557ccf2c0984942f19f0414381bd9438', this.web3, {});
-    let volumeSub = await VolumeSubscriptionContract.at('0xeff7b9ad5594d105a914a6aa8ef270dae343ee63', this.web3, {});
-
-    let price = await approvedRegistry.getRateFor.callAsync('0x83e707e542ade68e9e350cbd7e9e973d5ff1e192', {});
-    let cost = await volumeSub.getGasForExecution.callAsync('', new BigNumber(0), {});
-
-    let kyberProxy = await approvedRegistry.kyberProxy.callAsync();
-
-    console.log(`The price is ${price}`);
-    console.log(`The cost is ${cost}`);
-    console.log(`Kyber proxy address is ${JSON.stringify(kyberProxy)}`);
   }
 
   public async attemptTopUp(amount: BigNumber, tokenAddress: Address, stakeTokenAddress: Address, stakeContractAddress: Address) {

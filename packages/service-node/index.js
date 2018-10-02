@@ -30,6 +30,7 @@ STAKE_CONTRACT = ""
 */
 
 const Web3 = require('web3');
+const NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce-tracker")
 
 const Repeater = require('@8xprotocol/service-node-core').default;
 const dotenv = require('dotenv')
@@ -44,6 +45,10 @@ if (environment.PRIVATE_KEY) {
   provider = new HDWalletProvider([environment.PRIVATE_KEY], environment.NODE_ADDRESS);
   console.log('Private key set sucessfully');
 }
+
+let nonceTracker = new NonceTrackerSubprovider()
+provider.engine._providers.unshift(nonceTracker)
+nonceTracker.setEngine(provider.engine)
 
 const web3 = new Web3(provider);
 const repeater = new Repeater(web3, environment.EXECUTOR, environment.PUBLIC_KEY)
