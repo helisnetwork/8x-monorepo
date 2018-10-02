@@ -43,14 +43,8 @@ class EightExPay extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      planHash: ''
-    };
-
     let userStore = new UserStore();
     let subscriptionStore = new SubscriptionStore();
-
-    this.handleInputChange = this.handleInputChange.bind(this);
 
     console.log(`plan triggered: ${props.planHash}`);
     bus.trigger('planhash:sent', props.planHash);
@@ -64,19 +58,10 @@ class EightExPay extends React.Component {
 
   }
 
-  handleInputChange(event) {
-    const target = event.target;
-    const value = target.value;
-    const name = target.name;
-
-    this.setState({
-      [name]: value
-    });
-
-    bus.trigger('planhash:sent', value);
-
-  };
-
+  componentDidUpdate() {
+    console.log(`plan triggered: ${this.props.planHash}`);
+    bus.trigger('planhash:sent', this.props.planHash);
+  }
 
   render() {
     return (
