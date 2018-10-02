@@ -55,12 +55,6 @@ class EightExPay extends React.Component {
         bus.trigger('modal:show', false);
       }
     });
-
-  }
-
-  componentDidUpdate() {
-    console.log(`plan triggered: ${this.props.planHash}`);
-    bus.trigger('planhash:sent', this.props.planHash);
   }
 
   render() {
