@@ -5,7 +5,8 @@
   "typings": "dist/types/index.d.ts",
   "scripts": {
     "clean": "rimraf rm -rf dist",
-    "build": "npm run clean && tsc"
+    "build": "npm run clean && tsc",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@0xproject/types": "^1.0.1-rc.4",

@@ -10,7 +10,8 @@
     "lint": "tslint --project tsconfig.json -c tslint.json",
     "generate-docs": "typedoc --json ../docs/source/includes/_api.json ./src/apis/ --exclude ./node_modules && node generateMarkdown.js",
     "test": "jest --runInBand",
-    "test:watch": "jest --watch --runInBand"
+    "test:watch": "jest --watch --runInBand",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [],
   "author": "",
@@ -74,5 +75,5 @@
       "node"
     ]
   },
-  "gitHead": "e1c728ff2dbae514c8cefa792ceea0f54f230de9"
+  "gitHead": "020ba4cf5148f4bf965f640759e6d5685ed514c9"
 }
