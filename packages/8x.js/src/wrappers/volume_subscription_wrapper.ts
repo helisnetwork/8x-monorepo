@@ -81,7 +81,7 @@ export default class VolumeSubscriptionWrapper {
 
     return await volumeSubscription.terminatePlan.sendTransactionAsync(
       identifier,
-      new BigNumber(Date.now()).dividedToIntegerBy(1000),
+      new BigNumber(Date.now()).dividedToIntegerBy(1000).add(60*60*24),
       txSettings
     );
 

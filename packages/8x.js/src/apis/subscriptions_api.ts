@@ -127,6 +127,10 @@ export default class SubscriptionsAPI {
       throw("The user does not have enough funds in their wallet");
     }
 
+    if (plan.owner == (txData.from || this.web3.eth.accounts[0])) {
+      throw("You cannot subscribe to your own plan");
+    }
+
     return this.volumeSubscriptionWrapper.createSubscription(
       planHash,
       metaData,
