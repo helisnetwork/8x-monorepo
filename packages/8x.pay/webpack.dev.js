@@ -57,7 +57,6 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js']
   },
   plugins: [
-    new CleanWebpackPlugin('dist', {} ),
     new HtmlWebPackPlugin({
       template: './example/src/index.html',
       filename: 'index.html'

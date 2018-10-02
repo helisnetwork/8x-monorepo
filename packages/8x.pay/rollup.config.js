@@ -4,8 +4,6 @@ import images from 'rollup-plugin-image-files';
 import commonjs from 'rollup-plugin-commonjs'
 import json from 'rollup-plugin-json';
 import sass from 'rollup-plugin-sass';
-import visualizer from 'rollup-plugin-visualizer';
-import builtins from 'rollup-plugin-node-builtins';
 
 export default {
   input: 'src/index.js',
@@ -15,11 +13,19 @@ export default {
   },
   external: [
     'react',
-    'react-proptypes'
+    'react-proptypes',
+    'react-router-dom',
+    'styled-components',
+    '8x.js',
+    '@8xprotocol/artifacts',
+    'bignumber.js',
+    'riot-observable',
+    'lodash',
+    'react-copy-to-clipboard',
+    'react-transition-group',
+    '/fp/isNil',
   ],
   plugins: [
-    builtins(),
-    resolve(),
     images(),
     sass({
       output: __dirname + '/dist/bundle.css',
@@ -33,12 +39,11 @@ export default {
       namedExports: {
         'node_modules/react-copy-to-clipboard/lib/index.js': ['CopyToClipboard'],
         'node_modules/react-is/index.js': ['isValidElementType'],
-        'node_modules/xmlhttprequest/lib/XMLHttpRequest.js': ['child_process', 'fs', 'http', 'https', 'url'],
+        'node_modules/xmlhttprequest/lib/XMLHttpRequest.js': ['child_process', 'fs', 'http', 'https', 'url',],
         'node_modules/abi-decoder/node_modules/bignumber.js/bignumber.js': ['crypto'],
         'node_modules/styled-components/dist/styled-components.esm.js': ['stream'],
         'node_modules/xhr2/lib/xhr2.js': ['os']
       }
-    }),
-    visualizer()
+    })
   ]
 }
