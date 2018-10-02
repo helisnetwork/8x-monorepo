@@ -1,11 +1,11 @@
 import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
-import sassRollupPlugin from 'rollup-plugin-sass';
 import images from 'rollup-plugin-image-files';
 import commonjs from 'rollup-plugin-commonjs'
 import json from 'rollup-plugin-json';
 import sass from 'rollup-plugin-sass';
 import visualizer from 'rollup-plugin-visualizer';
+import builtins from 'rollup-plugin-node-builtins';
 
 export default {
   input: 'src/index.js',
@@ -18,6 +18,7 @@ export default {
     'react-proptypes'
   ],
   plugins: [
+    builtins(),
     resolve(),
     images(),
     sass({
@@ -37,6 +38,7 @@ export default {
         'node_modules/styled-components/dist/styled-components.esm.js': ['stream'],
         'node_modules/xhr2/lib/xhr2.js': ['os']
       }
-    })
+    }),
+    visualizer()
   ]
 }
