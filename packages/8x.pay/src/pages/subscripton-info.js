@@ -40,6 +40,7 @@ class SubscriptionInfo extends React.Component {
   componentDidMount() {
     this.handleSelectedCurrency();
     this.handleSelectedPeriod();
+    this.handleAuthorization();
 
     bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
     bus.trigger('subscription:plan:requested');
@@ -66,7 +67,6 @@ class SubscriptionInfo extends React.Component {
         authorization: status
       });
     });
-    bus.trigger('user:authorization:requested');
   }
 
   handleSubscribe() {
@@ -213,7 +213,7 @@ class SubscriptionInfo extends React.Component {
     const authorization = (
       <div className='give-auth'>
         <p onClick={() => {
-          this.handleAuthorization();
+          bus.trigger('user:authorization:requested');
         }}>Give Authorization</p>
       </div>
     );
@@ -242,6 +242,10 @@ class SubscriptionInfo extends React.Component {
           </div>
         </Link>
       );
+    }
+
+    if (!this.state.authorization) {
+      return authorization;
     }
 
     switch (this.state.paymentStatus) {

@@ -41,10 +41,10 @@ export default class Repeater {
 
     await this.eventStore.startListening();
 
-    let approvedRegistry = await ApprovedRegistryContract.at('0xf82ba2f9b8d2765170f9902d0f9ae0ef8019d768', this.web3, {});
+    let approvedRegistry = await ApprovedRegistryContract.at('0x7499ff1e557ccf2c0984942f19f0414381bd9438', this.web3, {});
     let volumeSub = await VolumeSubscriptionContract.at('0xeff7b9ad5594d105a914a6aa8ef270dae343ee63', this.web3, {});
 
-    let price = await approvedRegistry.getRateFor.callAsync('0xc4375b7de8af5a38a93548eb8453a498222c4ff2', {});
+    let price = await approvedRegistry.getRateFor.callAsync('0x83e707e542ade68e9e350cbd7e9e973d5ff1e192', {});
     let cost = await volumeSub.getGasForExecution.callAsync('', new BigNumber(0), {});
 
     let kyberProxy = await approvedRegistry.kyberProxy.callAsync();

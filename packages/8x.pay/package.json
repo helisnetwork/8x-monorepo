@@ -1,6 +1,6 @@
 {
   "name": "8x.pay",
-  "version": "0.2.36",
+  "version": "0.2.38",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
