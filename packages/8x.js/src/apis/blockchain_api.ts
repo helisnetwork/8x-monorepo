@@ -38,14 +38,14 @@ export class BlockchainAPI {
   /**
     * Wait for transaction
     *
-    * @comment This function will wait until a transaction has been mined on the blockchain. Especially
+    * This function will wait until a transaction has been mined on the blockchain. Especially
     * useuful for providing end users with feedback on the status of their transaction.
     *
     * @param txHash                 Hash of the transaction
     * @param pollingIntervalMs      How often would you like the blockchain to be polled. Default value is set at 1,000ms (1s)
-    * @param timeoutMs              After how long should the operation timeout.  Default value is set at 60,000ms (6s).
+    * @param timeoutMs              After how long should the operation timeout.  Default value is set at 60,000ms (60s).
     *
-    * @path eightEx.plans
+    * @priority            1
     *
   */
   public async awaitTransactionMinedAsync(
