@@ -583,9 +583,10 @@ contract Executor is Ownable {
         private
         returns (uint)
     {
+        // @ TODO: Tests
         (uint gasCost, uint gasPrice) = Collectable(_contractAddress).getGasForExecution(_subscriptionIdentifier, 0);
         uint rate = approvedRegistry.getRateFor(_tokenAddress);
-        uint standardCost = ((gasCost * gasPrice) / (10**18) / rate);
+        uint standardCost = ((gasCost * gasPrice / (10**9)) * ((10**18) / rate));
         return standardCost;
     }
 
