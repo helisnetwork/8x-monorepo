@@ -8,6 +8,7 @@ import MetaMaskInstall from '../components/metamask-install.js';
 import MetaMaskLocked from '../components/metamask-locked.js';
 import { Link } from 'react-router-dom';
 import bus from '../bus';
+import { PulseLoader } from 'react-spinners';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
@@ -93,7 +94,6 @@ class SubscriptionInfo extends React.Component {
 
   // Gets data from selected currency of user
   handleSelectedCurrency(currency) {
-    console.log('curreny selected');
     this.setState({
       selectedCurrency: currency
     });
@@ -101,7 +101,6 @@ class SubscriptionInfo extends React.Component {
 
   // Gets data from selected time period of user
   handleSelectedPeriod(period) {
-    console.log('period selected');
     this.setState({
       selectedPeriod: period
     });
