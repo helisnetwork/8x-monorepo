@@ -234,6 +234,16 @@
             }
 
         }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            background-color: #5944EE;
+            border-radius: 0.85em;
+            padding-bottom: 2em;
+            padding-top: 1em;
+            margin-bottom: 0.5em;
+        }
         
     }
 }

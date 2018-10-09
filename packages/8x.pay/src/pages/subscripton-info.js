@@ -8,7 +8,7 @@ import MetaMaskInstall from '../components/metamask-install.js';
 import MetaMaskLocked from '../components/metamask-locked.js';
 import { Link } from 'react-router-dom';
 import bus from '../bus';
-import { PulseLoader } from 'react-spinners';
+import { PropagateLoader } from 'react-spinners';
 
 /* App component */
 class SubscriptionInfo extends React.Component {
@@ -35,20 +35,24 @@ class SubscriptionInfo extends React.Component {
     this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
     this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
     this.handleAuthorization = this.handleAuthorization.bind(this);
+    this.loadingStateListener = this.loadingStateListener.bind(this);
 
   }
 
   componentDidMount() {
     this.handleSelectedCurrency();
     this.handleSelectedPeriod();
-    this.handleAuthorization();
+    this.loadingStateListener();
 
     bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
     bus.trigger('subscription:plan:requested');
+
+    bus.on('loading:state', this.loadingStateListener());
   }
 
   componentWillUnmount() {
     bus.off('subscription:plan:sent', this.subscriptionPlanHandler);
+    bus.off('loading:state', this.loadingStateListener());
   }
 
   subscriptionPlanHandler(object) {
@@ -63,11 +67,24 @@ class SubscriptionInfo extends React.Component {
   };
 
   handleAuthorization() {
-    bus.on('user:authorization:received', (status) => {
+    bus.on('user:authorization:received', () => {
       this.setState({
-        authorization: status
+        authorization: true,
+        paymentStatus: 'authorized'
       });
+
+      alert('Authorization successfully granted');
     });
+
+    bus.on('authorization:cancelled', (error) => {
+      this.setState({
+        authorization: false,
+        paymentStatus: 'authorization'
+      });
+      alert(error);
+    });
+
+    bus.trigger('user:authorization:requested');
   }
 
   handleSubscribe() {
@@ -208,11 +225,19 @@ class SubscriptionInfo extends React.Component {
     return result;
   }
 
+  loadingStateListener() {
+    bus.on('loading:state', () => {
+      this.setState({
+      paymentStatus: 'loading'
+    });
+    });
+  }
+
   returnPayButtonState() {
     const authorization = (
       <div className='give-auth'>
         <p onClick={() => {
-          bus.trigger('user:authorization:requested');
+          this.handleAuthorization();
         }}>Give Authorization</p>
       </div>
     );
@@ -233,6 +258,15 @@ class SubscriptionInfo extends React.Component {
       </div>
     );
 
+    const loading = (
+      <div className='loading'>
+        <PropagateLoader
+          className='subscription-loading'
+          color={'white'}
+        />
+      </div>
+    );
+
     if (!this.checkDaiSelected()) {
       return (
         <Link to='/conversion'>
@@ -243,7 +277,7 @@ class SubscriptionInfo extends React.Component {
       );
     }
 
-    if (!this.state.authorization) {
+    if (!this.state.authorization && this.state.paymentStatus != 'loading') {
       return authorization;
     }
 
@@ -252,7 +286,7 @@ class SubscriptionInfo extends React.Component {
         return activate;
       case 'loading':
         return loading;
-      default:
+      case 'authorized':
         return subscribe;
     }
   }

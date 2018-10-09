@@ -96,20 +96,21 @@ export default class SubscriptionStore {
 
   listenAuthorization() {
     bus.on('user:authorization:requested', () => {
+      bus.trigger('loading:state');
       this.eightEx.subscriptions.giveAuthorisation(
       ).then((obj) => {
         if (obj !== null) {
-          bus.trigger('user:authorization:received', true);
-          bus.trigger('user:subscribe:requested');
+          bus.trigger('user:authorization:received');
         } else {
           console.log('User cancelled transaction');
         }
-      });
+      }).catch((error) => bus.trigger('authorization:cancelled', error));
     });
   };
 
   listenSubscribe() {
     bus.on('start:subscribe:process', () => {
+      bus.trigger('loading:state');
       const txData = null;
       const metaData = null;
       this.eightEx.subscriptions.subscribe(
@@ -126,7 +127,6 @@ export default class SubscriptionStore {
       this.eightEx.subscriptions.hasGivenAuthorisation(
         this.address
       ).then((boolean) => {
-        console.log(boolean);
         if(boolean === true) {
           bus.trigger('start:subscribe:process');
         } else {
@@ -138,6 +138,7 @@ export default class SubscriptionStore {
 
   listenUserActivation() {
     bus.on('user:activate:requested', () => {
+      bus.trigger('loading:state');
       const txData = null;
       if (this.subscriptionHash) {
         this.eightEx.subscriptions.activate(
