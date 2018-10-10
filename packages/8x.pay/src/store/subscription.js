@@ -1,8 +1,5 @@
 import bus from '../bus';
 import EightEx from '8x.js';
-
-import { default as Images } from '../middleware/images';
-import { ExecutorAbi } from '@8xprotocol/artifacts';
 import BigNumber from 'bignumber.js';
 
 import { getContract, getToken } from '../constants';
@@ -13,6 +10,7 @@ export default class SubscriptionStore {
     this.startListeners();
     this.listenPlanHash();
     this.listenPlanRequested();
+
   }
 
   startListeners() {
@@ -25,6 +23,7 @@ export default class SubscriptionStore {
         executorAddress: getContract('Executor')
       });
 
+      // Retrieve metamask account
       web3.eth.getAccounts((err, accounts) => {
 
         if (err != null) {
@@ -34,18 +33,30 @@ export default class SubscriptionStore {
         } else {
 
           this.address = accounts;
-          console.log(this.address);
           this.web3 = web3;
-          this.listenAuthorization();
-          this.listenSubscribe();
-          this.listenUserActivation();
+
+          // Check if user has already authorized 
+          this.checkAlreadyAuthorized();
+          // Start listeners for subscription process
+          this.authorizationRequestListener();
+          this.subscribeRequestListener();
+          this.activateSubscriptionListener();
         }
       });
     });
   }
 
+  checkAlreadyAuthorized() {
+    this.eightEx.subscriptions.hasGivenAuthorisation(this.address).then((result) => {
+      if (result == true) {
+        console.log('The user has already given authorisation');
+        bus.trigger('user:authorization:received');
+      }
+    });
+  }
+
   listenPlanHash() {
-    bus.on('planhash:sent', (planHash) => {
+    bus.on('planHash:sent', (planHash) => {
       this.planHash = planHash;
     });
   }
@@ -65,6 +76,7 @@ export default class SubscriptionStore {
         return;
       }
 
+      // Get the actual plan using the planHash passed in
       this.eightEx.plans.get(
         this.planHash
       ).then((elem) => {
@@ -83,32 +95,22 @@ export default class SubscriptionStore {
           bus.trigger('subscription:plan:sent', planObj);
         }
       });
-
-      this.eightEx.subscriptions.hasGivenAuthorisation(this.address).then((result) => {
-        if (result == true) {
-          console.log('The user has already given authorisation');
-          bus.trigger('user:authorization:received', true);
-        }
-      });
-
     });
   };
 
-  listenAuthorization() {
+  authorizationRequestListener() {
     bus.on('user:authorization:requested', () => {
       bus.trigger('loading:state');
       this.eightEx.subscriptions.giveAuthorisation(
-      ).then((obj) => {
-        if (obj !== null) {
-          bus.trigger('user:authorization:received');
-        } else {
-          console.log('User cancelled transaction');
-        }
-      }).catch((error) => bus.trigger('authorization:cancelled', error));
+      ).then((txHash) => {
+        this.eightEx.blockchain.awaitTransactionMinedAsync(
+          txHash
+        ).then(bus.trigger('user:authorization:received'));
+        }).catch((error) => bus.trigger('authorization:cancelled', error));
     });
   };
 
-  listenSubscribe() {
+  subscribeRequestListener() {
     bus.on('start:subscribe:process', () => {
       bus.trigger('loading:state');
       const txData = null;
@@ -118,7 +120,7 @@ export default class SubscriptionStore {
         metaData,
         txData
       ).then((subscriptionHash) => {
-        bus.trigger('user:subscribe:completed', subscriptionHash, true);
+        bus.trigger('user:subscribe:completed', subscriptionHash);
         this.subscriptionHash = subscriptionHash;
       });
     });
@@ -136,7 +138,7 @@ export default class SubscriptionStore {
     });
   }
 
-  listenUserActivation() {
+  activateSubscriptionListener() {
     bus.on('user:activate:requested', () => {
       bus.trigger('loading:state');
       const txData = null;
@@ -144,9 +146,12 @@ export default class SubscriptionStore {
         this.eightEx.subscriptions.activate(
           this.subscriptionHash,
           txData
-        ).then((receipt) => {
-          bus.trigger('user:activate:completed', this.subscriptionHash, true);
-          console.log('Subscription receipt is' + '' + receipt);
+        ).then((txHash) => {
+          this.eightEx.blockchain.awaitTransactionMinedAsync(
+            txHash
+          ).then(bus.trigger('user:activate:completed', this.subscriptionHash),
+            console.log('Subscription receipt is' + ' ' + txHash)
+          ).catch((error) => console.log(error));
         });
       };
     });
