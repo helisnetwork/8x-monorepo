@@ -81,7 +81,6 @@ export default class SubscriptionStore {
         this.planHash
       ).then((elem) => {
         this.currentPlan = Array.from(elem);
-        console.log(elem);
         if (this.currentPlan) {
           const currencyBase = new BigNumber(10).pow(18);
           const planObj = (({ image, name, description, amount, interval }) => ({
@@ -91,7 +90,6 @@ export default class SubscriptionStore {
             subscriptionAmount: amount.div(currencyBase).toNumber(),
             subscriptionPeriod: interval
           }))(elem);
-          console.log(planObj);
           bus.trigger('subscription:plan:sent', planObj);
         }
       });

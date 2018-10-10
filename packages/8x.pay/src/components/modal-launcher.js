@@ -16,7 +16,6 @@ class SimpleModalLauncher extends Component {
   }
 
   listenToggleModal() {
-    console.log('called');
     bus.on('modal:show',(status) => {
       this.setState({
         showModal: status
@@ -31,7 +30,6 @@ class SimpleModalLauncher extends Component {
       if (typeof web3 !== 'undefined') {
         // Use Mist/MetaMask's provider
         web3 = new Web3(web3.currentProvider);
-        console.log('used metamask web3');
 
       } else {
         console.log('No web3? You should consider trying MetaMask!');

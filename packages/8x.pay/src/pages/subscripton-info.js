@@ -73,8 +73,6 @@ class SubscriptionInfo extends React.Component {
       authorization: true,
       paymentStatus: 'authorized'
     });
-
-    alert('Authorization successfully granted');
   }
 
   handleAuthorization() {

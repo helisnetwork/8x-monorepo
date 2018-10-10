@@ -39,8 +39,6 @@ class MetamaskHandler extends React.Component {
       return;
     }
 
-    console.log('Metamask is installed');
-
     this.checkMetaMaskState();
     this.watchMetaMaskState();
 
@@ -55,7 +53,6 @@ class MetamaskHandler extends React.Component {
         console.log('MetaMask is locked');
         this.updateStatus('locked');
       } else {
-        console.log('MetaMask is unlocked');
         this.updateStatus('unlocked');
         this.getMetaMaskData();
       }
