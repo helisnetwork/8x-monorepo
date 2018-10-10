@@ -191,7 +191,6 @@ class SubscriptionInfo extends React.Component {
   resetCopyState() {
     setTimeout(() => {
       if (this.state.copied == true) {
-        console.log('copy set to false');
         this.setState({
           copied: false
         });
