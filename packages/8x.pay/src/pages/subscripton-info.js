@@ -355,7 +355,7 @@ class SubscriptionInfo extends React.Component {
             <div className='item-address'>
               <p className='text-address'>{this.props.userAddress}</p>
               <CopyToClipboard
-                text={this.props.useraddress}
+                text={this.props.userAddress}
                 onCopy={() => {
                   this.setState({copied: true});
                   this.resetCopyState();
