@@ -22,8 +22,11 @@
   "dependencies": {
     "8x.js": "^0.2.11",
     "@8xprotocol/artifacts": "^0.2.1",
+    "@ledgerhq/hw-transport-u2f": "^4.24.0",
+    "@ledgerhq/web3-subprovider": "^4.24.0",
     "bignumber.js": "^4.1.0",
     "dotenv": "^6.0.0",
+    "ethereumjs-ledger": "^2.1.5",
     "history": "^4.7.2",
     "prop-types": "^15.6.2",
     "react-copy-to-clipboard": "^5.0.1",
