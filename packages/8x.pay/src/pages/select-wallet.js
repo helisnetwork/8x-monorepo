@@ -28,7 +28,7 @@ class SelectWallet extends React.Component {
                   </div>
                 </div>
               </Link>
-              {/*<Link to='/ledger-handler'>*/}
+              <Link to='/ledger-handler'>
               <div className="item ledger">
                 <div className="logo">
                   <img src={Images.ledgerLogo}/>
@@ -38,7 +38,7 @@ class SelectWallet extends React.Component {
                   <p>Coming soon...</p>
                 </div>
               </div>
-              {/*</Link>*/}
+              </Link>
               {/*<Link to='/trezor-handler'>*/}
               <div className="item trezor">
                 <div className="logo">
