@@ -44,16 +44,15 @@ class SubscriptionInfo extends React.Component {
     this.handleSelectedCurrency();
     this.handleSelectedPeriod();
     this.loadingStateListener();
-
+    this.authorizationListener();
+    
     bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
     bus.trigger('subscription:plan:requested');
-    bus.on('user:authorization:received', this.authorizationListener());
     bus.on('loading:state', this.loadingStateListener());
   }
 
   componentWillUnmount() {
     bus.off('subscription:plan:sent', this.subscriptionPlanHandler);
-    bus.off('user:authorization:received', this.authorizationListener());
     bus.off('loading:state', this.loadingStateListener());
   }
 
@@ -69,25 +68,33 @@ class SubscriptionInfo extends React.Component {
 
   // Separated this listener so we can check whether a user has given authorization before and therefore renders subscribe button immediately
   authorizationListener() {
-    this.setState({
-      authorization: true,
-      paymentStatus: 'authorized'
+    bus.on('user:authorization:received', () => {
+      this.setState({
+        authorization: true,
+        paymentStatus: 'authorized'
+      });
     });
+    bus.trigger('authorization:status');
   }
 
   handleAuthorization() {
-    bus.on('authorization:cancelled', (error) => {
+    bus.on('authorization:process:failed', () => {
       this.setState({
         authorization: false,
-        paymentStatus: 'authorization'
+        paymentStatus: ''
       });
-      alert(error);
     });
 
     bus.trigger('user:authorization:requested');
   }
 
   handleSubscribe() {
+    bus.on('subscription:process:failed', () => {
+      this.setState({
+        paymentStatus: 'authorized'
+      });
+    });
+    
     bus.on('user:subscribe:completed', (hash) => {
       this.setState({
         paymentStatus: 'subscribed'
@@ -99,14 +106,19 @@ class SubscriptionInfo extends React.Component {
   }
 
   handleActivateSubscription() {
-    bus.on('user:activate:completed', (subscriptionHash) => {
+    bus.on('activation:process:failed', () => {
+      this.setState({
+        paymentStatus: 'subscribed'
+      });
+    });
+
+    bus.on('user:activate:completed', () => {
       this.setState({
         paymentStatus: 'activated'
       });
-      console.log('activated');
     });
-    bus.trigger('user:activate:requested');
 
+    bus.trigger('user:activate:requested');
   }
 
   // Gets data from selected currency of user
@@ -234,26 +246,29 @@ class SubscriptionInfo extends React.Component {
 
   returnPayButtonState() {
     const authorization = (
-      <div className='give-auth'>
-        <p onClick={() => {
-          this.handleAuthorization();
-        }}>Give Authorization</p>
+      <div className='give-auth' 
+        onClick={() => {
+        this.handleAuthorization();
+      }}>
+        <p>Give Authorization</p>
       </div>
     );
 
     const subscribe = (
-      <div className='subscribe'>
-        <p onClick={() => {
-          this.handleSubscribe();
-        }}>Subscribe</p>
+      <div className='subscribe' 
+        onClick={() => {
+        this.handleSubscribe();
+      }}>
+        <p>Subscribe</p>
       </div>
     );
 
     const activate = (
-      <div className='activate'>
-        <p onClick={() => {
-          this.handleActivateSubscription();
-        }}>Activate Subscription</p>
+      <div className='activate' 
+        onClick={() => {
+        this.handleActivateSubscription();
+      }}>
+        <p>Activate Subscription</p>
       </div>
     );
 
