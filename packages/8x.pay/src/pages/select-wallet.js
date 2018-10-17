@@ -28,7 +28,7 @@ class SelectWallet extends React.Component {
                   </div>
                 </div>
               </Link>
-              <Link to='/ledger-handler'>
+              {/*<Link to='/ledger-handler'>*/}
               <div className="item ledger">
                 <div className="logo">
                   <img src={Images.ledgerLogo}/>
@@ -38,7 +38,7 @@ class SelectWallet extends React.Component {
                   <p>Coming soon...</p>
                 </div>
               </div>
-              </Link>
+              {/*</Link>*/}
               {/*<Link to='/trezor-handler'>*/}
               <div className="item trezor">
                 <div className="logo">
@@ -49,16 +49,6 @@ class SelectWallet extends React.Component {
                   <p>Coming soon...</p>
                 </div>
               </div>
-              {/*</Link>*/}
-              {/*<a className="item exchange">
-                <div className="logo">
-                  <img src={Images.trezorLogo}/>
-                </div>
-                <div className="text">
-                  <h2>Exchange</h2>
-                  <p>You store your cryptocurrency on an exchange, such as Binance or Coinbase.</p>
-                </div>
-                </a>*/}
             </div>
           </div>
         </div>

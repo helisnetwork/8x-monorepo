@@ -3,9 +3,6 @@ import styled from 'styled-components';
 
 import SelectWallet from '../pages/select-wallet';
 import MetamaskHandler from '../pages/metamask-handler';
-import LedgerHandler from '../pages/ledger-handler';
-import ConversionPrompt from '../pages/conversion-prompt';
-import BeginSubscription from '../pages/begin-subscription';
 
 import {
   Route,
@@ -32,9 +29,6 @@ function Container({ location }) {
             <Switch location = { location }>
               <Route exact path="/" component={SelectWallet}/>
               <Route path="/metamask-handler" component={MetamaskHandler}/>
-              <Route path="/ledger-handler" component={LedgerHandler}/>
-              <Route path="/conversion" component={ConversionPrompt}/>
-              <Route path="/begin-subscription" component={BeginSubscription}/>
             </Switch>
           </section>
         </CSSTransition>
