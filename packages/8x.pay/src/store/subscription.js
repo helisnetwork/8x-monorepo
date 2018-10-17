@@ -39,6 +39,7 @@ export default class SubscriptionStore {
           this.checkAlreadyAuthorized();
           // Start listeners for subscription process
           this.authorizationRequestListener();
+          this.startSubscribeListener();
           this.subscribeRequestListener();
           this.activateSubscriptionListener();
         }
@@ -47,10 +48,11 @@ export default class SubscriptionStore {
   }
 
   checkAlreadyAuthorized() {
-    this.eightEx.subscriptions.hasGivenAuthorisation(this.address).then((result) => {
-      if (result == true) {
-        console.log('The user has already given authorisation');
-        bus.trigger('user:authorization:received');
+    bus.on('authorization:status', async () => {
+      let authorizedStatus = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
+        if (authorizedStatus == true) {
+          bus.trigger('user:authorization:received');
+          console.log('The user has already given authorization');
       }
     });
   }
@@ -62,7 +64,7 @@ export default class SubscriptionStore {
   }
 
   listenPlanRequested() {
-    bus.on('subscription:plan:requested', () => {
+    bus.on('subscription:plan:requested', async () => {
 
       // Show dummy data if there's no plan hash
       if (!this.planHash) {
@@ -77,80 +79,104 @@ export default class SubscriptionStore {
       }
 
       // Get the actual plan using the planHash passed in
-      this.eightEx.plans.get(
+      let planData = await this.eightEx.plans.get(
         this.planHash
-      ).then((elem) => {
-        this.currentPlan = Array.from(elem);
-        if (this.currentPlan) {
-          const currencyBase = new BigNumber(10).pow(18);
-          const planObj = (({ image, name, description, amount, interval }) => ({
-            logo: image,
-            subscriptionName: name,
-            subscriptionDetails: description,
-            subscriptionAmount: amount.div(currencyBase).toNumber(),
-            subscriptionPeriod: interval
-          }))(elem);
-          bus.trigger('subscription:plan:sent', planObj);
-        }
-      });
+      );
+      
+      if(planData) {
+        const currencyBase = new BigNumber(10).pow(18);
+        const planObj = (({ image, name, description, amount, interval }) => ({
+          logo: image,
+          subscriptionName: name,
+          subscriptionDetails: description,
+          subscriptionAmount: amount.div(currencyBase).toNumber(),
+          subscriptionPeriod: interval
+        }))(planData);
+        bus.trigger('subscription:plan:sent', planObj);
+      }
     });
   };
 
   authorizationRequestListener() {
-    bus.on('user:authorization:requested', () => {
+    bus.on('user:authorization:requested', async () => {
       bus.trigger('loading:state');
-      this.eightEx.subscriptions.giveAuthorisation(
-      ).then((txHash) => {
-        this.eightEx.blockchain.awaitTransactionMinedAsync(
-          txHash
-        ).then(bus.trigger('user:authorization:received'));
-        }).catch((error) => bus.trigger('authorization:cancelled', error));
+      try {
+        let authorizationTxHash = await this.eightEx.subscriptions.giveAuthorisation(
+        );
+
+        let authorizationStatus = await this.eightEx.blockchain.awaitTransactionMinedAsync(
+          authorizationTxHash
+        ); 
+
+        if(authorizationStatus) {
+          bus.trigger('user:authorization:received', true);
+        }
+        
+      } catch (error) {
+        bus.trigger('authorization:process:failed', error);
+        console.log(error);
+      }
     });
   };
 
   subscribeRequestListener() {
-    bus.on('start:subscribe:process', () => {
+    bus.on('user:subscribe:requested', async () => {
+      try {
+        let hasUserGivenAuthorization = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
+
+        if(hasUserGivenAuthorization === true) {
+          bus.trigger('start:subscribe:process');
+        } else {
+          bus.trigger('authorization:process:failed');
+          console.log('Authorization not given, please authorize first');
+        }
+      } catch (error) {
+        console.log('Something went wrong with hasGivenAuthorisation' + ' ' + error); 
+      }
+    });
+  }
+
+  startSubscribeListener() {
+    bus.on('start:subscribe:process', async () => {
       bus.trigger('loading:state');
       const txData = null;
       const metaData = null;
-      this.eightEx.subscriptions.subscribe(
-        this.planHash,
-        metaData,
-        txData
-      ).then((subscriptionHash) => {
-        bus.trigger('user:subscribe:completed', subscriptionHash);
-        this.subscriptionHash = subscriptionHash;
-      });
-    });
 
-    bus.on('user:subscribe:requested', () => {
-      this.eightEx.subscriptions.hasGivenAuthorisation(
-        this.address
-      ).then((boolean) => {
-        if(boolean === true) {
-          bus.trigger('start:subscribe:process');
-        } else {
-          console.log('Authorization not given');
+      try {
+        this.subscriptionHash = await this.eightEx.subscriptions.subscribe(this.planHash, metaData, txData);
+        
+        if(this.subscriptionHash) {
+          bus.trigger('user:subscribe:completed', this.subscriptionHash);
         }
-      });
+        
+      } catch (error) {
+        bus.trigger('subscription:process:failed');
+        console.log(error);
+      }
     });
   }
 
   activateSubscriptionListener() {
-    bus.on('user:activate:requested', () => {
+    bus.on('user:activate:requested', async () => {
       bus.trigger('loading:state');
       const txData = null;
       if (this.subscriptionHash) {
-        this.eightEx.subscriptions.activate(
-          this.subscriptionHash,
-          txData
-        ).then((txHash) => {
-          this.eightEx.blockchain.awaitTransactionMinedAsync(
-            txHash
-          ).then(bus.trigger('user:activate:completed', this.subscriptionHash),
-            console.log('Subscription receipt is' + ' ' + txHash)
-          ).catch((error) => console.log(error));
-        });
+        try {
+          let activationTxHash = await this.eightEx.subscriptions.activate(this.subscriptionHash, txData);
+
+          let activationStatus = await this.eightEx.blockchain.awaitTransactionMinedAsync(
+            activationTxHash
+          ); 
+
+          if(activationStatus) {
+            bus.trigger('user:activate:completed', this.subscriptionHash);
+            console.log('Subscription receipt is' + ' ' + activationTxHash);
+          }
+          
+        } catch (error) {
+          bus.trigger('activation:process:failed'); 
+          console.log(error);
+        }
       };
     });
   }
