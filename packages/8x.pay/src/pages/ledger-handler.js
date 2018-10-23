@@ -4,13 +4,11 @@ import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import createLedgerSubprovider from '@ledgerhq/web3-subprovider';
 import ProviderEngine from 'web3-provider-engine';
 import FetchSubprovider from 'web3-provider-engine/subproviders/fetch';
-// import { LedgerEthereum, BrowserLedgerConnectionFactory, Network } from 'ethereumjs-ledger';
 import SubscriptionInfo from './subscripton-info';
 
 // configuration can be overrided by env variables
 const rpcUrl = 'https://kovan.infura.io/';
 const networkId = 42;
-
 
 class LedgerHandler extends React.Component{
 
@@ -18,40 +16,46 @@ class LedgerHandler extends React.Component{
     super(props);
     
     this.state = {
-      status: 'locked'
+      status: 'unlocked'
 
     };
 
-    this.ledgerAddress();
+    this.initialize();
     
   }
 
-  // initializeLedger () {
-  //   const web3 = this.getWeb3();
-  //   const accounts = new Promise((resolve, reject) => {
-  //     web3.eth.getAccounts((error, accounts) => {
-  //       if (error) reject(error);
-  //       else resolve(accounts);
-  //     });
-  //   });
-  //   console.log(accounts);
-  // };
+  async initialize() {
+    try {
+      // const device = await (new Eth(await TransportU2F.create())).getAppConfiguration()
+      const engine = new ProviderEngine()
+      const getTransport = async () => TransportU2F.create()
+      const ledger = createLedgerSubprovider(getTransport, {
+        networkId,
+        accountsLength: 5,
+      })
 
-  createWeb3() {
-    const engine = new ProviderEngine();
-    const getTransport = () => TransportU2F.create();
-    const ledger = createLedgerSubprovider(getTransport, {
-      networkId,
-      accountsLength: 5
-    });
-    engine.addProvider(ledger);
-    engine.addProvider(new FetchSubprovider({ rpcUrl }));
-    engine.start();
-    return new Web3(engine);
+      // set ETH App on ledger to provider object
+      // this.device = device
+
+      engine.addProvider(ledger)
+      // engine.addProvider(new RpcSubprovider({ rpcUrl }))
+      engine.addProvider(new FetchSubprovider({ rpcUrl }))
+      engine.start()
+
+      this.web3 = new Web3(engine)
+      this.state = {}
+
+      return this.web3
+
+    } catch (error) {
+      console.error(error)
+      this.walletAvailable = false
+      throw new Error(error)
+    }
   }
 
-  ledgerAddress() {
-    this.web3 = this.createWeb3();
+  async ledgerAddress() {
+    this.web3 = await this.createWeb3();
     this.web3.eth.getAccounts((err, accounts) => {
       if (err != null) {
         console.log(err);
@@ -65,7 +69,6 @@ class LedgerHandler extends React.Component{
       }
     });
   }
-
   
   render () {
     return (
@@ -73,7 +76,6 @@ class LedgerHandler extends React.Component{
     );
   }
       
-
 };
 
 export default LedgerHandler;
