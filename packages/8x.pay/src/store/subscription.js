@@ -8,13 +8,11 @@ export default class SubscriptionStore {
   constructor() {
 
     this.startListeners();
-    this.listenPlanHash();
     this.listenPlanRequested();
-
   }
 
   startListeners() {
-    bus.on('web3:initialised', web3 => {
+    bus.on('web3:initialised', (web3) => {
 
       this.eightEx = new EightEx(web3, {
         volumeSubscriptionAddress: getContract('VolumeSubscription'),
@@ -22,6 +20,7 @@ export default class SubscriptionStore {
         transferProxyAddress: getContract('TransferProxy'),
         executorAddress: getContract('Executor')
       });
+
 
       // Retrieve metamask account
       web3.eth.getAccounts((err, accounts) => {
@@ -34,6 +33,8 @@ export default class SubscriptionStore {
 
           this.address = accounts;
           this.web3 = web3;
+
+          this.listenPlanHash();
 
           // Check if user has already authorized 
           this.checkAlreadyAuthorized();
