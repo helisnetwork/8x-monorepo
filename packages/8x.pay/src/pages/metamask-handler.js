@@ -23,11 +23,9 @@ class MetamaskHandler extends React.Component {
     bus.trigger('metamask:approval:requested');
   }
   // Function used to update the state of MetaMask Handler.
-  updateStatus(status,address,balance) {
+  updateStatus(status) {
     this.setState({
-      status: status,
-      address: address,
-      ethBalance: balance
+      status: status
     });
   };
 
@@ -51,7 +49,7 @@ class MetamaskHandler extends React.Component {
       else if (window.web3) {
         window.web3 = new Web3(web3.currentProvider);
         // Acccounts always exposed
-        web3.eth.sendTransaction({/* ... */});
+        bus.trigger('web3:initialised', web3);
       }
       // Non-dapp browsers...
       else {
@@ -67,7 +65,8 @@ class MetamaskHandler extends React.Component {
         daiBalance: bal
       })
     });
-    bus.trigger('ERC20:balance:requested'); 
+    bus.trigger('ERC20:balance:requested');
+     
 
     bus.on('ETH:balance:sent', (bal) => {
       this.setState({
@@ -83,87 +82,6 @@ class MetamaskHandler extends React.Component {
       })
     });
   }
-  // Checks if user is logged into MetaMask
-  // checkMetaMaskState () {
-  //   bus.on('web3:initialised', (web3) => {
-  //     web3.eth.getAccounts((err, accounts) => {
-  //       if (err != null) {
-  //         console.log(err);
-  //         this.updateStatus('error');
-  //       } else if (accounts.length === 0) {
-  //         console.log('MetaMask is locked');
-  //         this.updateStatus('locked');
-  //       } else {
-  //         this.updateStatus('unlocked');
-  //         this.getMetaMaskData();
-  //       }
-  //     });
-  //   });
-  // }
-
-  // Checks for user account changes (login, logout) on metamask and updates state if valid.
-  // watchMetaMaskState() {
-  //   var account = web3.eth.accounts[0];
-  //   var accountInterval = setInterval(() => {
-  //     if (web3.eth.accounts[0] !== account) {
-  //       account = web3.eth.accounts[0];
-  //       this.checkMetaMaskState();
-  //     }
-
-  //     this.checkMetaMaskBalance();
-  //   }, 100);
-  // }
-
-  // Checks MetaMask balance every 5 seconds while waiting for user deposit
-  // checkMetaMaskBalance() {
-  //   setTimeout(() => {
-  //     this.getMetaMaskData();
-  //   }, 2000);
-  // };
-
-  // Supplies components with MetaMask address and balance
-  // getMetaMaskData() {
-  //   bus.on('status', (status, address) => {
-  //     this.updateStatus(
-  //       status,
-  //       address
-  //     );
-      // this.getERC20Balance();
-      // this.web3 = web3;
-      // var address = web3.eth.accounts[0];
-      // this.updateStatus('unlocked');
-      // web3.eth.getBalance(address, (err,result) => {
-      //   if (!err){
-      //     this.updateStatus(
-      //       this.state.status,
-      //       address,
-      //       web3.fromWei(result, 'ether').toNumber()
-      //     );
-      //   } else {
-      //     console.log('error');
-      //   }
-      // });
-      // this.getERC20Balance();
-  //   });
-  // }
-
-  // Gets DAI balance of user address
-  // getERC20Balance() {
-  //   var token = web3.eth.contract(MockTokenAbi.abi).at(getToken('DAI'));
-
-  //   token.balanceOf.call(web3.eth.accounts[0],  (err, bal) => {
-  //     if (err) {
-  //       console.error(err);
-  //     }
-
-  //     const divideBalance = bal/Math.pow(10,18);
-
-  //     this.setState({
-  //       daiBalance: divideBalance
-  //     });
-
-  //   });
-  // }
 
   render() {
     return (
