@@ -284,8 +284,8 @@ class SubscriptionInfo extends React.Component {
     if (!this.checkDaiSelected()) {
       return (
         <Link to='/conversion'>
-          <div className='transaction'>
-            <p>Continue</p>
+          <div className='conversion'>
+            <p>Convert</p>
           </div>
         </Link>
       );
