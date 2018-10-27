@@ -4,7 +4,7 @@ import React from 'react';
 class DropdownButton extends React.Component {
   render() {
     return (
-      <div className="container">
+      <div className="dropdown-container">
         <button className="dropdown" onClick={() => this.props.action(this.props.item)}>
           <div className="label">
             <div className="left">
