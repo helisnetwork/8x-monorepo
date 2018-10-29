@@ -29,8 +29,8 @@ function Container({ location }) {
         >
           <section className="route-section">
             <Switch location = { location }>
-              {/*@TODO: Change back to select-wallet*/}
-              <Route exact path="/" component={PaymentGuide}/>
+              <Route exact path="/" component={SelectWallet}/>
+              <Route path="/guide" component={PaymentGuide}/>
               <Route path="/metamask-handler" component={MetamaskHandler}/>
             </Switch>
           </section>
