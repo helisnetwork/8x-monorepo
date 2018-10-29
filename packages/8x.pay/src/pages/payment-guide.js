@@ -1,4 +1,5 @@
 import React from 'react'; 
+import { Link } from 'react-router-dom';
 import { default as Images } from '../middleware/images';
 
 class PaymentGuide extends React.Component {
@@ -45,9 +46,11 @@ class PaymentGuide extends React.Component {
                 </div>
               </div>
             </div>
-            <div className="get-started-button">
-              <p>Get Started</p>
-            </div>
+            <Link to='/approve'>
+              <div className="get-started-button">
+                <p>Get Started</p>
+              </div>
+            </Link>
           </div>
         </div>
       </div>
