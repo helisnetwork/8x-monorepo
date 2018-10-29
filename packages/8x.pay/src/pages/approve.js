@@ -2,12 +2,14 @@ import React from 'react';
 import { default as Images } from '../middleware/images';
 
 import { MoonLoader } from 'react-spinners';
+import { css } from 'react-emotion';
 
 class Approve extends React.Component {
   constructor(props){
     super(props); 
 
   };
+
 
   render() {
     return (
@@ -25,7 +27,7 @@ class Approve extends React.Component {
             </div>
             <div className="approve-button">
               <div className="approve-container">
-                <MoonLoader className='approve-spinner' color={'#9F98BF'} sizeUnit={"px"} size={20}/>
+                <MoonLoader color={'#8E87B1'} sizeUnit={"px"} size={25}/>
                 <p>Awaiting Approval</p>
                 <div></div>
               </div>
@@ -33,7 +35,6 @@ class Approve extends React.Component {
           </div>
         </div>
       </div>
-
     );
   }
 }
