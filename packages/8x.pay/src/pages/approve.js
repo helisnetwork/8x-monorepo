@@ -1,14 +1,82 @@
 import React from 'react'; 
 import { default as Images } from '../middleware/images';
+import bus from '../bus';
 
 import { MoonLoader } from 'react-spinners';
-import { css } from 'react-emotion';
 
 class Approve extends React.Component {
   constructor(props){
     super(props); 
 
+    this.state = {
+      approve: false,
+      awaiting: false
+    };
+
+    this.submitAuthorization = this.submitAuthorization.bind(this);
+    this.updateApproveState = this.updateApproveState.bind(this);
+    this.catchAuthFailed = this.catchAuthFailed.bind(this);
+
   };
+
+  componentDidMount() {
+    this.updateApproveState();  
+    this.catchAuthFailed();
+  }
+
+  catchAuthFailed() {
+    bus.on('authorization:process:failed', () => {
+      this.setState({
+        approve: false,
+        awaiting: false 
+      });
+    });
+  }
+
+  submitAuthorization() {
+    bus.trigger('user:authorization:requested');
+
+    this.setState({
+      awaiting: true
+    });
+  }
+
+  updateApproveState() {
+    bus.on('user:authorizaton:received', (status) => {
+      console.log('hi');
+      this.setState({
+        approve: status,
+        awaiting: false 
+      });
+    });
+  }
+
+  returnApproveButton() {
+    if(this.state.approve === true && this.state.awaiting === false) {
+      return (
+        <div className='approve-complete'>
+          <p>Approved</p>
+        </div>
+      );
+    }
+    else if(this.state.approve === false && this.state.awaiting === true){
+      return (
+        <div className="approve-container">
+          <MoonLoader color={'#8E87B1'} sizeUnit={"px"} size={25}/>
+          <p>Awaiting Approval</p>
+          <div></div>
+        </div>
+      );
+    }
+    else if(this.state.approve === false && this.state.awaiting === false) {
+      return (
+        <div className="approve-complete" onClick={() => {this.submitAuthorization()}}>
+          <p>Approve Tokens</p>
+        </div>
+      );
+    }
+
+  }
 
 
   render() {
@@ -26,11 +94,7 @@ class Approve extends React.Component {
               <p>Please approve the transaction in the Metamask window to continue the subscription process.</p>
             </div>
             <div className="approve-button">
-              <div className="approve-container">
-                <MoonLoader color={'#8E87B1'} sizeUnit={"px"} size={25}/>
-                <p>Awaiting Approval</p>
-                <div></div>
-              </div>
+              {this.returnApproveButton()}
             </div>
           </div>
         </div>
