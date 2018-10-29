@@ -37,11 +37,26 @@
                 width: 75%;
 
                 p {
-                    font-weight: 400;
                     color: #9F98BF;
                     font-weight: 600; 
             
                 }
+            }
+
+            .approve-complete {
+                cursor: pointer;
+                display: flex;
+                justify-content: space-around;
+                background-color: #5944EE;
+                padding: 0.5em 0em;
+                border-radius: 0.85em;
+                width: 75%;
+                
+                p {
+                    color: white;
+                    font-weight: 600;
+                }
+               
             }
             
 
