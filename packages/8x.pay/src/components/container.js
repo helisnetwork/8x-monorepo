@@ -3,6 +3,8 @@ import styled from 'styled-components';
 
 import SelectWallet from '../pages/select-wallet';
 import MetamaskHandler from '../pages/metamask-handler';
+import PaymentGuide from '../pages/payment-guide';
+
 
 import {
   Route,
@@ -27,7 +29,8 @@ function Container({ location }) {
         >
           <section className="route-section">
             <Switch location = { location }>
-              <Route exact path="/" component={SelectWallet}/>
+              {/*@TODO: Change back to select-wallet*/}
+              <Route exact path="/" component={PaymentGuide}/>
               <Route path="/metamask-handler" component={MetamaskHandler}/>
             </Switch>
           </section>
