@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import SelectWallet from '../pages/select-wallet';
 import MetamaskHandler from '../pages/metamask-handler';
 import PaymentGuide from '../pages/payment-guide';
+import Approve from '../pages/approve';
 
 
 import {
@@ -29,7 +30,7 @@ function Container({ location }) {
         >
           <section className="route-section">
             <Switch location = { location }>
-              <Route exact path="/" component={SelectWallet}/>
+              <Route exact path="/" component={Approve}/>
               <Route path="/guide" component={PaymentGuide}/>
               <Route path="/metamask-handler" component={MetamaskHandler}/>
             </Switch>
