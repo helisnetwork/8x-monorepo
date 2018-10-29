@@ -18,6 +18,7 @@ import arrow from '../assets/images/arrow.png';
 import convert from '../assets/images/convert.png'; 
 import authorization from '../assets/images/authorization.png'; 
 import daiPeriod from '../assets/images/dai-period.png';
+import metamaskLarge from '../assets/images/metamask-head.png';
 
 export default {
   metamaskLogo,
@@ -38,6 +39,7 @@ export default {
   arrow,
   convert, 
   authorization, 
-  daiPeriod
+  daiPeriod,
+  metamaskLarge
 
 };
