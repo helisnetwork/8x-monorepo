@@ -1,7 +1,10 @@
 /* Import statements */
 import React from 'react';
 import SubscriptionInfo from './subscripton-info';
+import PaymentGuide from './payment-guide';
+
 import bus from '../bus';
+
 import { MockTokenAbi, ConfigAddresses } from '@8xprotocol/artifacts';
 import { getToken } from '../constants';
 
@@ -13,9 +16,12 @@ class MetamaskHandler extends React.Component {
       status: 'loading',
       address: '',
       ethBalance: '',
-      daiBalance: ''
+      daiBalance: '',
+      authorized: false
     };
+
     this.initialiseMetaMask();
+    this.checkPreviouslyAuthorized();
     this.userInfoListener();
   }
 
@@ -59,6 +65,16 @@ class MetamaskHandler extends React.Component {
     });
   }
 
+  checkPreviouslyAuthorized () {
+    bus.on('user:authorization:received', () => {
+      this.setState({
+        authorized: true
+      });
+    });
+
+    bus.trigger('authorization:status');
+  }
+
   userInfoListener() {
     bus.on('ERC20:balance:sent', (bal) => {
       this.setState({
@@ -84,14 +100,20 @@ class MetamaskHandler extends React.Component {
   }
 
   render() {
-    return (
-      <SubscriptionInfo
-        status={this.state.status}
-        userAddress={this.state.address}
-        ethBalance={this.state.ethBalance}
-        daiBalance={this.state.daiBalance}
-      />
-    );
+    if(this.state.authorized === false) {
+      return (
+        <SubscriptionInfo
+          status={this.state.status}
+          userAddress={this.state.address}
+          ethBalance={this.state.ethBalance}
+          daiBalance={this.state.daiBalance}
+        />
+      ); 
+    } else {
+      return (
+        <PaymentGuide/>
+      );
+    }
   }
 };
 
