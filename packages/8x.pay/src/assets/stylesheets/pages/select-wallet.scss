@@ -27,15 +27,15 @@
         p {
             color: #958DB7;
             font-weight: 400;
-            font-size: 0.85em;
-            letter-spacing: 0.03em;
+            font-size: 1em;
+            letter-spacing: 0.02em;
 
         }
 
         h1 {
-            font-size: 1.25em;
+            font-size: 1.5em;
             font-weight: 600;
-            letter-spacing: 0.03em;
+            letter-spacing: 0.02em;
 
         }
     }
@@ -94,7 +94,7 @@
 
                 p {
                     font-size: 1em;
-                    font-weight: 300;
+                    font-weight: 400;
 
                     @include mobile {
                         font-size: 0.85em;
