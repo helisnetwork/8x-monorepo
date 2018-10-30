@@ -24,7 +24,7 @@ class MetaMaskInstall extends React.Component {
         <div className="small-card">
           <Header title="MetaMask Not Installed" previousPage="/"/>
           <div className="prompt">
-            <img src={Images.metamaskLogo} className="logo"/>
+            <img src={Images.metamaskInstall} className="logo"/>
             <p className="text">Please make sure the MetaMask plugin is installed on this browser.</p>
             <a href="https://www.metamask.io" target="_blank" rel="noopener noreferrer" className="button" onClick={() => {this.openInNewTab('https://www.metamask.io')}}>
               <p className="metamask-download">Download MetaMask</p>

@@ -19,6 +19,8 @@ import convert from '../assets/images/convert.png';
 import authorization from '../assets/images/authorization.png'; 
 import daiPeriod from '../assets/images/dai-period.png';
 import metamaskLarge from '../assets/images/metamask-head.png';
+import metamaskLocked from '../assets/images/metamask-locked.png';
+import metamaskInstall from '../assets/images/metamask-install.png';
 
 export default {
   metamaskLogo,
@@ -40,6 +42,8 @@ export default {
   convert, 
   authorization, 
   daiPeriod,
-  metamaskLarge
+  metamaskLarge,
+  metamaskLocked,
+  metamaskInstall
 
 };

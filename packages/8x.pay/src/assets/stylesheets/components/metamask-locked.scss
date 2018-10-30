@@ -3,7 +3,7 @@
 
     .locked-container {
         text-align: center;
-        margin: 0em 4em;
+        margin: 0em 5em;
 
         .locked-title {
             font-size: 1.25em; 
@@ -12,9 +12,9 @@
         }
 
         img {
-            width: 4em;
-            background-image: linear-gradient(to bottom right,#FF9C3F, #F6D365);
-            padding: 1em 7em;
+            width: 8em;
+            padding: 0.5em 7em;
+            padding-top: 2em;
             border-radius: 0.85em;
         }
 

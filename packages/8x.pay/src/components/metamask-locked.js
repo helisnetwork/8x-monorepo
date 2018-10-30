@@ -15,9 +15,8 @@ class MetaMaskLocked extends React.Component {
         <div className="small-card">
           <Header title="MetaMask Locked" previousPage="/"/>
           <div className="locked-container">
-            <h2 className="locked-title">Please unlock your MetaMask</h2>
-            <img className="graphic" src={Images.metamaskLogo}/>
-            <p className="locked-text">Login and select your MetaMask account to proceed to payment page</p>
+            <img className="graphic" src={Images.metamaskLocked}/>
+            <p className="locked-text">Unlock MetaMask to interact with 8x.Pay and complete your subscription</p>
           </div>
         </div> 
       </div>
