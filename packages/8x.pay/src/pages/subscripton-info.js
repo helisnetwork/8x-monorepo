@@ -28,17 +28,23 @@ class SubscriptionInfo extends React.Component {
       subscriptionPeriod: '',
       subscribe: false,
       paymentStatus: '',
+      address: '',
+      ethBalance: '',
+      daiBalance: '',
 
     };
 
+  
     this.handleSelectedCurrency = this.handleSelectedCurrency.bind(this);
     this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
     this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
     this.loadingStateListener = this.loadingStateListener.bind(this);
+    this.userInfoListener = this.userInfoListener.bind(this);
 
   }
 
   componentDidMount() {
+    this.userInfoListener();
     this.initializeDropdownItems();
     this.loadingStateListener();
     
@@ -52,6 +58,7 @@ class SubscriptionInfo extends React.Component {
     bus.off('loading:state', this.loadingStateListener());
   }
 
+
   initializeDropdownItems() {
     const currencyItems = this.dropdownItems();
     const timeItems = this.timeItems(); 
@@ -60,6 +67,34 @@ class SubscriptionInfo extends React.Component {
     this.handleSelectedPeriod(timeItems[0].name);
 
   }
+
+  userInfoListener() {
+    bus.on('user:address:sent', (address) => {
+      this.setState({
+        address: address
+      })
+    });
+
+    bus.trigger('user:address:requested');
+
+    bus.on('ERC20:balance:sent', (bal) => {
+      this.setState({
+        daiBalance: bal
+      })
+    });
+
+    bus.trigger('ERC20:balance:requested');
+     
+    bus.on('ETH:balance:sent', (bal) => {
+      this.setState({
+        ethBalance: bal
+      })
+    });
+
+    bus.trigger('ETH:balance:requested');
+  
+  }
+
   subscriptionPlanHandler(object) {
     this.setState({
       logo: object.logo,
@@ -342,9 +377,9 @@ class SubscriptionInfo extends React.Component {
               <p className='text'>to your personal wallet</p>
             </div>
             <div className='item-address'>
-              <p className='text-address'>{this.props.userAddress}</p>
+              <p className='text-address'>{this.state.address}</p>
               <CopyToClipboard
-                text={this.props.userAddress}
+                text={this.state.address}
                 onCopy={() => {
                   this.setState({copied: true});
                   this.resetCopyState();
@@ -361,7 +396,7 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className='balance'>
               <p>Current Balance</p>
-              <p className='currency'>{this.checkDaiSelected() ? this.props.daiBalance : this.props.ethBalance} {this.state.selectedCurrency}</p>
+              <p className='currency'>{this.checkDaiSelected() ? this.state.daiBalance : this.state.ethBalance} {this.state.selectedCurrency}</p>
             </div>
             { this.returnPayButtonState() }
           </div>

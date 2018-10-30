@@ -22,37 +22,50 @@ export default class UserStore {
           this.address = accounts[0];
           this.web3 = web3;
           
+
           this.getERC20Balance();
           this.getETHBalance();
+          this.sendUserAddress();
 
-          bus.trigger('status', 'unlocked', this.address);
+          bus.trigger('status', 'unlocked');
         }
       });
     });
   }
 
+  sendUserAddress() {
+    bus.on('user:address:requested', () => {
+      bus.trigger('user:address:sent', this.address);
+    });
+
+  }
+
   getERC20Balance() {
-    var token = this.web3.eth.contract(MockTokenAbi.abi).at(getToken('DAI'));
+    bus.on('ERC20:balance:requested', () => {
+      var token = this.web3.eth.contract(MockTokenAbi.abi).at(getToken('DAI'));
 
-    token.balanceOf.call(this.address,  (err, bal) => {
-      if (err) {
-      }
+      token.balanceOf.call(this.address,  (err, bal) => {
+        if (err) {
+        }
 
-      const divideBalance = bal/Math.pow(10,18);
+        const divideBalance = bal/Math.pow(10,18);
 
-      bus.trigger('ERC20:balance:sent', divideBalance); 
+        bus.trigger('ERC20:balance:sent', divideBalance); 
+      });
     });
   }
 
   getETHBalance() {    
-    this.web3.eth.getBalance(this.address, (err, result) => {
-      if (!err) {
-        const bal = web3.fromWei(result, 'ether').toNumber();
-        bus.trigger('ETH:balance:sent', bal);
+    bus.on('ETH:balance:requested', () => {
+      this.web3.eth.getBalance(this.address, (err, result) => {
+        if (!err) {
+          const bal = web3.fromWei(result, 'ether').toNumber();
+          bus.trigger('ETH:balance:sent', bal);
 
-      } else {
-        console.log('error retrieving ETH balance');
-      }
+        } else {
+          console.log('error retrieving ETH balance');
+        }
+      });
     });
   }
 };
