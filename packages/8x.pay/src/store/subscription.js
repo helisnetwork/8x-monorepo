@@ -122,23 +122,6 @@ export default class SubscriptionStore {
     });
   };
 
-  // subscribeRequestListener() {
-  //   bus.on('user:subscribe:requested', async () => {
-  //     try {
-  //       let hasUserGivenAuthorization = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
-
-  //       if(hasUserGivenAuthorization === true) {
-  //         bus.trigger('start:subscribe:process');
-  //       } else {
-  //         bus.trigger('authorization:process:failed');
-  //         console.log('Authorization not given, please authorize first');
-  //       }
-  //     } catch (error) {
-  //       console.log('Something went wrong with hasGivenAuthorisation' + ' ' + error); 
-  //     }
-  //   });
-  // }
-
   startSubscribeListener() {
     bus.on('user:subscribe:requested', async () => {
       bus.trigger('loading:state');
