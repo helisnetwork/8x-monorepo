@@ -3,11 +3,30 @@ import React from 'react';
 import Header from './header';
 import { default as Images } from '../middleware/images';
 
+import bus from '../bus';
+
 
 class MetaMaskLocked extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      locked: true
+    }
+
   }
+
+  componentDidMount() {
+
+    this.checkUnlock();
+  }
+
+  checkUnlock() {
+    var unlockInterval = setInterval(() => {   
+      bus.trigger('user:get:account:status', web3)
+    }, 500);
+  }
+
 
   render () {
     return (

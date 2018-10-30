@@ -6,27 +6,36 @@ export default class UserStore {
   constructor(){
 
     this.startListening();
+    this.listenUserActivity();
   }
 
   startListening() {
     bus.on('web3:initialised', (web3) => {
+      this.web3 = web3;
+      bus.trigger('user:get:account:status', this.web3); 
+          
+      this.getERC20Balance();
+      this.getETHBalance();
+      this.sendUserAddress(); 
+         
+    });
+  }
+
+  listenUserActivity() {
+    bus.on('user:get:account:status', (web3) => {
 
       web3.eth.getAccounts((err, accounts) => {
-        if (err != null) {
-          bus.trigger('status', 'error'); 
+      if(err != null) {
+        bus.trigger('status', 'error'); 
 
         } else if (accounts.length === 0) {
           bus.trigger('status', 'locked');
 
         } else {
           this.address = accounts[0];
-          this.web3 = web3;
-          
 
-          this.getERC20Balance();
-          this.getETHBalance();
-          this.sendUserAddress();
-
+          bus.trigger('user:address:requested');
+          // bus.trigger('unlocked');
           bus.trigger('status', 'unlocked');
         }
       });

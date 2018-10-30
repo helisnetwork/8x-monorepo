@@ -38,10 +38,10 @@ export default class SubscriptionStore {
 
           // Check if user has already authorized 
           this.checkAlreadyAuthorized();
+
           // Start listeners for subscription process
           this.authorizationRequestListener();
           this.startSubscribeListener();
-          // this.subscribeRequestListener();
           this.activateSubscriptionListener();
         }
       });
@@ -53,7 +53,7 @@ export default class SubscriptionStore {
       let authorizedStatus = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
         if (authorizedStatus == true) {
           bus.trigger('user:authorization:true');
-          console.log('The user has already given authorization');
+          // console.log('The user has already given authorization');
       }
     });
     bus.trigger('authorization:status');

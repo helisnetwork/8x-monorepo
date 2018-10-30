@@ -6,7 +6,7 @@ import Dropdown from '../components/dropdown.js';
 import Header from '../components/header.js';
 import MetaMaskInstall from '../components/metamask-install.js';
 import MetaMaskLocked from '../components/metamask-locked.js';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import bus from '../bus';
 import { PropagateLoader } from 'react-spinners';
 
@@ -40,6 +40,7 @@ class SubscriptionInfo extends React.Component {
     this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
     this.loadingStateListener = this.loadingStateListener.bind(this);
     this.userInfoListener = this.userInfoListener.bind(this);
+    this.checkUserActivity = this.checkUserActivity.bind(this);
 
   }
 
@@ -47,6 +48,7 @@ class SubscriptionInfo extends React.Component {
     this.userInfoListener();
     this.initializeDropdownItems();
     this.loadingStateListener();
+    this.checkUserActivity();
     
     bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
     bus.trigger('subscription:plan:requested');
@@ -58,6 +60,12 @@ class SubscriptionInfo extends React.Component {
     bus.off('loading:state', this.loadingStateListener());
   }
 
+
+  checkUserActivity() {
+    var unlockInterval = setInterval(() => {   
+      bus.trigger('user:get:account:status', web3)
+    }, 500);
+  }
 
   initializeDropdownItems() {
     const currencyItems = this.dropdownItems();
@@ -327,11 +335,8 @@ class SubscriptionInfo extends React.Component {
     case 'not installed':
       return this.renderInstallPrompt();
       break;
-    case 'loading':
-      return this.renderLoading();
-      break;
-    default:
-      return this.renderError();
+    default: 
+      return null;
     }
   }
 
@@ -417,14 +422,6 @@ class SubscriptionInfo extends React.Component {
     );
   }
 
-  // @TODO: Add a page for loading trezor and ledger screens
-  renderLoading() {
-    return (
-      <div>
-        <p>Loading...</p>
-      </div>
-    );
-  }
 };
 
 export default SubscriptionInfo;

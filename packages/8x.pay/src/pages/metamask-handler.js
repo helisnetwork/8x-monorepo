@@ -15,13 +15,12 @@ class MetamaskHandler extends React.Component {
 
     };
 
-    this.initialiseMetaMask();
-    this.checkPreviouslyAuthorized();
-    this.checkStatus();
   }
 
   componentDidMount() {
-
+    this.initialiseMetaMask();
+    this.checkPreviouslyAuthorized();
+    this.checkStatus();
     bus.trigger('metamask:approval:requested');
   }
 
@@ -42,11 +41,13 @@ class MetamaskHandler extends React.Component {
       // Modern dapp browsers...
       if (window.ethereum) {
         window.web3 = new Web3(ethereum);
+
         try {
-          // Request account access if needed
+          // Request access to expose user accounts
           await ethereum.enable();
-          // Acccounts now exposed
+      
           bus.trigger('web3:initialised', web3);
+
         } catch (error) {
           console.log('error');
           // User denied account access...
@@ -55,14 +56,21 @@ class MetamaskHandler extends React.Component {
       // Legacy dapp browsers...
       else if (window.web3) {
         window.web3 = new Web3(web3.currentProvider);
-        // Acccounts always exposed
+  
         bus.trigger('web3:initialised', web3);
       }
-      // Non-dapp browsers...
+      // Non-dapp browsers, redirect to a prompt to install metamask 
       else {
-        console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
         this.updateStatus('not installed');
       }
+    });
+  }
+
+  checkStatus () {
+    bus.on('status', (status) => {
+      this.setState({
+        status: status,
+      })
     });
   }
 
@@ -75,14 +83,6 @@ class MetamaskHandler extends React.Component {
     });
 
     bus.trigger('authorization:status');
-  }
-
-  checkStatus () {
-    bus.on('status', (status) => {
-      this.setState({
-        status: status,
-      })
-    });
   }
 
   render() {
