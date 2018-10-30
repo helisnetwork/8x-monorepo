@@ -11,26 +11,24 @@ class MetamaskHandler extends React.Component {
     super(props);
     this.state = {
       status: 'loading',
-      address: '',
-      ethBalance: '',
-      daiBalance: '',
       authorized: '',
-      redirectApprove: false
+
     };
 
     this.initialiseMetaMask();
     this.checkPreviouslyAuthorized();
-    this.checkRedirectAuthorization();
-    this.userInfoListener();
+    this.checkStatus();
   }
 
   componentDidMount() {
+
     bus.trigger('metamask:approval:requested');
   }
 
   componentWillUnmount() {
     this.checkPreviouslyAuthorized();
   }
+
   // Function used to update the state of MetaMask Handler.
   updateStatus(status) {
     this.setState({
@@ -68,16 +66,6 @@ class MetamaskHandler extends React.Component {
     });
   }
 
-  checkRedirectAuthorization() {
-    if (this.props.location.state && this.props.location.state.approve) {
-      if(this.props.location.state.approve === true) {
-        this.setState({
-          redirectApprove: true
-        });
-      }
-    }
-  }
-
   checkPreviouslyAuthorized () {
     bus.on('user:authorization:true', () => {
 
@@ -89,43 +77,34 @@ class MetamaskHandler extends React.Component {
     bus.trigger('authorization:status');
   }
 
-  userInfoListener() {
-    bus.on('ERC20:balance:sent', (bal) => {
-      this.setState({
-        daiBalance: bal
-      })
-    });
-    bus.trigger('ERC20:balance:requested');
-     
-
-    bus.on('ETH:balance:sent', (bal) => {
-      this.setState({
-        ethBalance: bal
-      })
-    });
-    bus.trigger('ETH:balance:requested');
-
-    bus.on('status', (status, address) => {
+  checkStatus () {
+    bus.on('status', (status) => {
       this.setState({
         status: status,
-        address: address
       })
     });
   }
 
   render() {
-    if(this.state.authorized === true) {
+    if(this.state.status === 'unlocked') {
+      if(this.state.authorized === true) {
+        return (
+          <SubscriptionInfo
+            status={this.state.status}
+          />
+        ); 
+      } else if(this.state.authorized === false) {
+        return (
+          <PaymentGuide/>
+        );
+      } else {
+        return null;
+      }
+    } else {
       return (
         <SubscriptionInfo
           status={this.state.status}
-          userAddress={this.state.address}
-          ethBalance={this.state.ethBalance}
-          daiBalance={this.state.daiBalance}
         />
-      ); 
-    } else {
-      return (
-        <PaymentGuide/>
       );
     }
   }
