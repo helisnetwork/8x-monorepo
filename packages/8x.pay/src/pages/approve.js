@@ -38,8 +38,7 @@ class Approve extends React.Component {
   }
 
   submitAuthorization() {
-
-    bus.trigger('user:authorization:requested');
+  bus.trigger('user:authorization:requested');
     this.setState({
       awaiting: true
     });
@@ -57,12 +56,9 @@ class Approve extends React.Component {
   returnApproveButton() {
     if(this.state.approve === true) {
       return (
-        <Redirect
-          to={{
-            pathname: '/subscription-info',
-            state: { approve: this.state.approve }
-          }}
-        />
+        <div className="approve-complete">
+          <p>Approved</p>
+        </div>
       );
     }
     else if(this.state.approve === false && this.state.awaiting === true){
@@ -85,26 +81,34 @@ class Approve extends React.Component {
   }
 
   render() {
-    return (
-      <div>
-        <div className="small-card">
-          <div className="hero-approve">
-            <div className="metamask-graphic">
-              <img src={Images.metamaskLarge}/>
-            </div>
-            <div className="approve-large-text">
-              <h1>You'll need to approve Dai for your subscription via Metamask</h1>
-            </div>
-            <div className="approve-small-text">
-              <p>Please approve the transaction in the Metamask window to continue the subscription process.</p>
-            </div>
-            <div className="approve-button">
-              {this.returnApproveButton()}
+    if(this.state.approve === false) {
+      return (
+        <div>
+          <div className="small-card">
+            <div className="hero-approve">
+              <div className="metamask-graphic">
+                <img src={Images.metamaskLarge}/>
+              </div>
+              <div className="approve-large-text">
+                <h1>You'll need to approve Dai for your subscription via Metamask</h1>
+              </div>
+              <div className="approve-small-text">
+                <p>Please approve the transaction in the Metamask window to continue the subscription process.</p>
+              </div>
+              <div className="approve-button">
+                {this.returnApproveButton()}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    );
+      );
+  } else {
+      return ( 
+        <SubscriptionInfo
+          status="unlocked"
+        />
+      );
+    }
   }
 }
 export default Approve;
