@@ -26,7 +26,7 @@ class SubscriptionInfo extends React.Component {
       subscriptionDetails: '',
       subscriptionAmount: '',
       subscriptionPeriod: '',
-      authorization: false,
+      subscribe: false,
       paymentStatus: '',
 
     };
@@ -34,17 +34,13 @@ class SubscriptionInfo extends React.Component {
     this.handleSelectedCurrency = this.handleSelectedCurrency.bind(this);
     this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
     this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
-    this.handleAuthorization = this.handleAuthorization.bind(this);
     this.loadingStateListener = this.loadingStateListener.bind(this);
-    this.authorizationListener = this.authorizationListener.bind(this);
 
   }
 
   componentDidMount() {
-    this.handleSelectedCurrency();
-    this.handleSelectedPeriod();
+    this.initializeDropdownItems();
     this.loadingStateListener();
-    this.authorizationListener();
     
     bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
     bus.trigger('subscription:plan:requested');
@@ -56,6 +52,14 @@ class SubscriptionInfo extends React.Component {
     bus.off('loading:state', this.loadingStateListener());
   }
 
+  initializeDropdownItems() {
+    const currencyItems = this.dropdownItems();
+    const timeItems = this.timeItems(); 
+
+    this.handleSelectedCurrency(currencyItems[0].name);
+    this.handleSelectedPeriod(timeItems[0].name);
+
+  }
   subscriptionPlanHandler(object) {
     this.setState({
       logo: object.logo,
@@ -66,28 +70,6 @@ class SubscriptionInfo extends React.Component {
     });
   };
 
-  // Separated this listener so we can check whether a user has given authorization before and therefore renders subscribe button immediately
-  authorizationListener() {
-    bus.on('user:authorization:received', () => {
-      this.setState({
-        authorization: true,
-        paymentStatus: 'authorized'
-      });
-    });
-    bus.trigger('authorization:status');
-  }
-
-  handleAuthorization() {
-    bus.on('authorization:process:failed', () => {
-      this.setState({
-        authorization: false,
-        paymentStatus: ''
-      });
-    });
-
-    bus.trigger('user:authorization:requested');
-  }
-
   handleSubscribe() {
     bus.on('subscription:process:failed', () => {
       this.setState({
@@ -97,6 +79,7 @@ class SubscriptionInfo extends React.Component {
     
     bus.on('user:subscribe:completed', (hash) => {
       this.setState({
+        subscribe: true,
         paymentStatus: 'subscribed'
       });
       console.log('Subscription Hash is:' + '' + hash );
@@ -209,7 +192,6 @@ class SubscriptionInfo extends React.Component {
         return;
       }
     }, 2000);
-
   };
 
   humanizeDuration(timeInSeconds) {
@@ -245,14 +227,6 @@ class SubscriptionInfo extends React.Component {
   }
 
   returnPayButtonState() {
-    const authorization = (
-      <div className='give-auth' 
-        onClick={() => {
-        this.handleAuthorization();
-      }}>
-        <p>Give Authorization</p>
-      </div>
-    );
 
     const subscribe = (
       <div className='subscribe' 
@@ -281,6 +255,7 @@ class SubscriptionInfo extends React.Component {
       </div>
     );
 
+    //@TODOO: This will be the button that leads into Kyber Conversion process
     if (!this.checkDaiSelected()) {
       return (
         <Link to='/conversion'>
@@ -291,8 +266,8 @@ class SubscriptionInfo extends React.Component {
       );
     }
 
-    if (!this.state.authorization && this.state.paymentStatus != 'loading') {
-      return authorization;
+    if (!this.state.subscribe && this.state.paymentStatus !== 'loading') {
+      return subscribe;
     }
 
     switch (this.state.paymentStatus) {

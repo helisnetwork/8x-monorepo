@@ -5,9 +5,6 @@ import PaymentGuide from './payment-guide';
 
 import bus from '../bus';
 
-import { MockTokenAbi, ConfigAddresses } from '@8xprotocol/artifacts';
-import { getToken } from '../constants';
-
 class MetamaskHandler extends React.Component {
 
   constructor (props) {
@@ -17,16 +14,22 @@ class MetamaskHandler extends React.Component {
       address: '',
       ethBalance: '',
       daiBalance: '',
-      authorized: false
+      authorized: '',
+      redirectApprove: false
     };
 
     this.initialiseMetaMask();
     this.checkPreviouslyAuthorized();
+    this.checkRedirectAuthorization();
     this.userInfoListener();
   }
 
   componentDidMount() {
     bus.trigger('metamask:approval:requested');
+  }
+
+  componentWillUnmount() {
+    this.checkPreviouslyAuthorized();
   }
   // Function used to update the state of MetaMask Handler.
   updateStatus(status) {
@@ -65,8 +68,19 @@ class MetamaskHandler extends React.Component {
     });
   }
 
+  checkRedirectAuthorization() {
+    if (this.props.location.state && this.props.location.state.approve) {
+      if(this.props.location.state.approve === true) {
+        this.setState({
+          redirectApprove: true
+        });
+      }
+    }
+  }
+
   checkPreviouslyAuthorized () {
-    bus.on('user:authorization:received', () => {
+    bus.on('user:authorization:true', () => {
+
       this.setState({
         authorized: true
       });
@@ -100,7 +114,7 @@ class MetamaskHandler extends React.Component {
   }
 
   render() {
-    if(this.state.authorized === false) {
+    if(this.state.authorized === true) {
       return (
         <SubscriptionInfo
           status={this.state.status}

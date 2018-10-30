@@ -2,7 +2,10 @@ import React from 'react';
 import { default as Images } from '../middleware/images';
 import bus from '../bus';
 
+import { Redirect } from 'react-router-dom';
+
 import { MoonLoader } from 'react-spinners';
+import SubscriptionInfo from './subscripton-info';
 
 class Approve extends React.Component {
   constructor(props){
@@ -11,6 +14,7 @@ class Approve extends React.Component {
     this.state = {
       approve: false,
       awaiting: false
+
     };
 
     this.submitAuthorization = this.submitAuthorization.bind(this);
@@ -20,7 +24,7 @@ class Approve extends React.Component {
   };
 
   componentDidMount() {
-    this.updateApproveState();  
+    this.updateApproveState(); 
     this.catchAuthFailed();
   }
 
@@ -34,16 +38,15 @@ class Approve extends React.Component {
   }
 
   submitAuthorization() {
-    bus.trigger('user:authorization:requested');
 
+    bus.trigger('user:authorization:requested');
     this.setState({
       awaiting: true
     });
   }
 
   updateApproveState() {
-    bus.on('user:authorizaton:received', (status) => {
-      console.log('hi');
+    bus.on('user:authorization:received', (status) => {
       this.setState({
         approve: status,
         awaiting: false 
@@ -52,11 +55,14 @@ class Approve extends React.Component {
   }
 
   returnApproveButton() {
-    if(this.state.approve === true && this.state.awaiting === false) {
+    if(this.state.approve === true) {
       return (
-        <div className='approve-complete'>
-          <p>Approved</p>
-        </div>
+        <Redirect
+          to={{
+            pathname: '/subscription-info',
+            state: { approve: this.state.approve }
+          }}
+        />
       );
     }
     else if(this.state.approve === false && this.state.awaiting === true){
@@ -77,7 +83,6 @@ class Approve extends React.Component {
     }
 
   }
-
 
   render() {
     return (

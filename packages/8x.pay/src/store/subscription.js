@@ -41,7 +41,7 @@ export default class SubscriptionStore {
           // Start listeners for subscription process
           this.authorizationRequestListener();
           this.startSubscribeListener();
-          this.subscribeRequestListener();
+          // this.subscribeRequestListener();
           this.activateSubscriptionListener();
         }
       });
@@ -52,10 +52,11 @@ export default class SubscriptionStore {
     bus.on('authorization:status', async () => {
       let authorizedStatus = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
         if (authorizedStatus == true) {
-          bus.trigger('user:authorization:received');
+          bus.trigger('user:authorization:true');
           console.log('The user has already given authorization');
       }
     });
+    bus.trigger('authorization:status');
   }
 
   listenPlanHash() {
@@ -66,7 +67,7 @@ export default class SubscriptionStore {
 
   listenPlanRequested() {
     bus.on('subscription:plan:requested', async () => {
-
+      
       // Show dummy data if there's no plan hash
       if (!this.planHash) {
         bus.trigger('subscription:plan:sent', {
@@ -110,6 +111,7 @@ export default class SubscriptionStore {
         ); 
 
         if(authorizationStatus) {
+          console.log(authorizationTxHash);
           bus.trigger('user:authorization:received', true);
         }
         
@@ -120,25 +122,25 @@ export default class SubscriptionStore {
     });
   };
 
-  subscribeRequestListener() {
-    bus.on('user:subscribe:requested', async () => {
-      try {
-        let hasUserGivenAuthorization = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
+  // subscribeRequestListener() {
+  //   bus.on('user:subscribe:requested', async () => {
+  //     try {
+  //       let hasUserGivenAuthorization = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
 
-        if(hasUserGivenAuthorization === true) {
-          bus.trigger('start:subscribe:process');
-        } else {
-          bus.trigger('authorization:process:failed');
-          console.log('Authorization not given, please authorize first');
-        }
-      } catch (error) {
-        console.log('Something went wrong with hasGivenAuthorisation' + ' ' + error); 
-      }
-    });
-  }
+  //       if(hasUserGivenAuthorization === true) {
+  //         bus.trigger('start:subscribe:process');
+  //       } else {
+  //         bus.trigger('authorization:process:failed');
+  //         console.log('Authorization not given, please authorize first');
+  //       }
+  //     } catch (error) {
+  //       console.log('Something went wrong with hasGivenAuthorisation' + ' ' + error); 
+  //     }
+  //   });
+  // }
 
   startSubscribeListener() {
-    bus.on('start:subscribe:process', async () => {
+    bus.on('user:subscribe:requested', async () => {
       bus.trigger('loading:state');
       const txData = null;
       const metaData = null;
