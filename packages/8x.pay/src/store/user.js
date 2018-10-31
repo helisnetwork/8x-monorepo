@@ -39,16 +39,13 @@ export default class UserStore {
               this.address = accounts[0];
               bus.trigger('user:address:requested');
               bus.trigger('status', 'unlocked');
+              bus.trigger('ERC20:balance:requested');
+              bus.trigger('ETH:balance:requested');
 
             } else {
               bus.trigger('status', 'wrong network');
             }
           });
-
-          
-
-          // bus.trigger('user:address:requested');
-          // bus.trigger('status', 'unlocked');
         }
       });
     });
