@@ -27,6 +27,10 @@ class MetamaskHandler extends React.Component {
 
   componentWillUnmount() {
     this.checkPreviouslyAuthorized();
+    bus.off('metamask:approval:requested');
+    bus.off('status');
+    bus.off('user:authorization:true');
+
   }
 
   // Function used to update the state of MetaMask Handler.
