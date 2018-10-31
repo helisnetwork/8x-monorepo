@@ -8,7 +8,7 @@ export default class SubscriptionStore {
   constructor() {
 
     this.startListeners();
-    this.listenPlanRequested();
+    this.listenPlanHash();
   }
 
   startListeners() {
@@ -21,6 +21,7 @@ export default class SubscriptionStore {
         executorAddress: getContract('Executor')
       });
 
+      this.listenPlanRequested();
 
       // Retrieve metamask account
       web3.eth.getAccounts((err, accounts) => {
@@ -33,8 +34,6 @@ export default class SubscriptionStore {
 
           this.address = accounts;
           this.web3 = web3;
-
-          this.listenPlanHash();
 
           // Check if user has already authorized 
           this.checkAlreadyAuthorized();
@@ -60,6 +59,7 @@ export default class SubscriptionStore {
 
   listenPlanHash() {
     bus.on('planHash:sent', (planHash) => {
+      console.log(planHash);
       this.planHash = planHash;
     });
   }
