@@ -22,6 +22,7 @@ import metamaskLarge from '../assets/images/metamask-head.png';
 import metamaskLocked from '../assets/images/metamask-locked.png';
 import metamaskInstall from '../assets/images/metamask-install.png';
 import metamaskNetwork from '../assets/images/metamask-network.png';
+import walletConnect from '../assets/images/wallet-connect.png';
 
 export default {
   metamaskLogo,
@@ -46,6 +47,7 @@ export default {
   metamaskLarge,
   metamaskLocked,
   metamaskInstall,
-  metamaskNetwork
+  metamaskNetwork,
+  walletConnect
 
 };

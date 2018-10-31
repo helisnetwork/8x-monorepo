@@ -18,6 +18,7 @@
     }
 
     .card-header {
+        padding: 0.5em;
         text-align: center;
 
         @include mobile {
@@ -113,6 +114,10 @@
         .metamask {
             background-image: linear-gradient(to bottom right,#FF9C3F, #F6D365);
 
+        }
+
+        .walletconnect {
+            background-image: linear-gradient(to bottom right, rgba(255,255,255,1) 0%, rgba(199,199,199,1) 0%, rgba(217,217,217,1) 100%);
         }
 
         .ledger {

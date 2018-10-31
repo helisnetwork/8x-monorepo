@@ -13,8 +13,8 @@ class SelectWallet extends React.Component {
         <div className="small-card">
           <div className="main-card">
             <div className="card-header">
-              <h1>Where are your funds stored?</h1>
-              <p>Please select an option</p>
+              <h1>Open Your Subscription Wallet</h1>
+              <p>To continue, log into your wallet.</p>
             </div>
             <div className="options-container">
               <Link to='/metamask-handler'> 
@@ -28,6 +28,17 @@ class SelectWallet extends React.Component {
                   </div>
                 </div>
               </Link>
+              {/* <Link to='/wallet-connect'>  */}
+                <div className="item walletconnect">
+                  <div className="logo">
+                    <img src={Images.walletConnect}/>
+                  </div>
+                  <div className="text">
+                    <h2>Wallet Connect</h2>
+                    <p>Wallet Connect enables communication between desktop Dapps and mobile Wallets.</p>
+                  </div>
+                </div>
+              {/* </Link> */}
               {/*<Link to='/ledger-handler'>*/}
               <div className="item ledger">
                 <div className="logo">
