@@ -7,12 +7,16 @@ class SimpleModalLauncher extends Component {
 
   constructor(props) {
     super(props);
-    
+
     this.state = {
       showModal: false,
     };
 
     this.listenToggleModal();
+  }
+
+  componentWillUnmount() {
+    bus.off('modal:show');
   }
 
   listenToggleModal() {
