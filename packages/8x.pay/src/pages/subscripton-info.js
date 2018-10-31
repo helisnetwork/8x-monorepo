@@ -181,7 +181,6 @@ class SubscriptionInfo extends React.Component {
         var currencyConversion = data.ETH_DAI.currentPrice * 1.01;
         let roundedNumber = currencyConversion.toFixed(6);
 
-        console.log('kyber conversion updated');
         this.setState({
           kyberConversion: roundedNumber
         });
@@ -210,11 +209,12 @@ class SubscriptionInfo extends React.Component {
         name: 'Dai',
         ticker: 'DAI'
       },
-      {
-        image: Images.ethLogo,
-        name: 'Ethereum',
-        ticker: 'ETH'
-      }
+      //@TODO: Implement Kyber 
+      // {
+      //   image: Images.ethLogo,
+      //   name: 'Ethereum',
+      //   ticker: 'ETH'
+      // }
     ];
   }
 

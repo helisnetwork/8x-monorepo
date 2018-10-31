@@ -53,7 +53,6 @@ export default class SubscriptionStore {
       let authorizedStatus = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
         if (authorizedStatus == true) {
           bus.trigger('user:authorization:true');
-          // console.log('The user has already given authorization');
       }
     });
     bus.trigger('authorization:status');
