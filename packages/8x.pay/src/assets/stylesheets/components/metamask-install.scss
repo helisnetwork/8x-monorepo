@@ -9,7 +9,8 @@
 
     .prompt {
         text-align: center;
-
+        padding: 1em;
+        padding-top: 2em;
         margin: 0em 5em;
         display: flex;
         align-items: center;
@@ -30,7 +31,7 @@
        
 
             img {
-                width: 3em;
+                width: 8em;
             }
         
 
@@ -51,6 +52,9 @@
                 margin: 0 2em;
                 border-radius: 0.85em;
                 padding: 0.85em 4em;
+                font-weight: 600;
+                
+                
             }
         }
     }

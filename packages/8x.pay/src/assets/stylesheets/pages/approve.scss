@@ -1,0 +1,68 @@
+.small-card {
+
+    .hero-approve {
+        padding: 2em;
+        margin: 1em;
+        text-align: center;
+
+
+        .approve-large-text {
+            color: #0E0639;
+            padding: 1em;
+            padding-bottom: 0.5em;
+
+            h1 {
+                font-size: 1.50em;
+                font-weight: 600;
+            }
+        }
+
+        .approve-small-text {
+            padding-top: 0.5em;
+            padding-bottom: 2em;
+            color: #9B97B3;
+        }
+
+        .approve-button {
+            display: flex; 
+            justify-content: center;
+            align-content: center;
+
+            .approve-container {
+                display: flex;
+                justify-content: space-around;
+                background-color: #EAEAF0;
+                padding: 0.5em 0em;
+                border-radius: 0.85em;
+                width: 75%;
+
+                p {
+                    color: #9F98BF;
+                    font-weight: 600; 
+            
+                }
+            }
+
+            .approve-complete {
+                cursor: pointer;
+                display: flex;
+                justify-content: space-around;
+                background-color: #5944EE;
+                padding: 0.5em 0em;
+                border-radius: 0.85em;
+                width: 75%;
+                
+                p {
+                    color: white;
+                    font-weight: 600;
+                }
+               
+            }
+            
+
+            
+        }
+
+
+    }
+}

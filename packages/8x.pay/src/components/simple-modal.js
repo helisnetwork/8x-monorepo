@@ -33,7 +33,6 @@ class SimpleModal extends Component {
     if (keys[e.keyCode]) { keys[e.keyCode](); }
   }
 
-  // Changed !isNil(this.modal) to allow drop down menus to work within modal
   handleOutsideClick(e) {
     e.preventDefault();
     if (isNil(this.modal)) {
@@ -57,11 +56,6 @@ class SimpleModal extends Component {
             {children}
           </div>
         </div>
-        <button
-          type="button"
-          className='close-button'
-          onClick={() => bus.trigger('modal:show', false)}
-        />
       </div>
     );
   }

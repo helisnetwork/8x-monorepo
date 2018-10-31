@@ -22,6 +22,7 @@
   "dependencies": {
     "8x.js": "^0.2.11",
     "@8xprotocol/artifacts": "^0.2.1",
+    "@emotion/core": "^10.0.0-beta.6",
     "@ledgerhq/hw-transport-u2f": "^4.24.0",
     "@ledgerhq/web3-subprovider": "^4.24.0",
     "bignumber.js": "^4.1.0",

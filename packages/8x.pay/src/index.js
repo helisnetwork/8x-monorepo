@@ -24,10 +24,6 @@ TRANSFER_PROXY = ""
 import React from 'react';
 
 import { MemoryRouter } from 'react-router-dom';
-import {
-  TransitionGroup,
-  CSSTransition
-} from 'react-transition-group';
 
 import Container from './components/container';
 import ModalLauncher from './components/modal-launcher';

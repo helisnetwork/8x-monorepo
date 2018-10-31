@@ -6,7 +6,8 @@ import Dropdown from '../components/dropdown.js';
 import Header from '../components/header.js';
 import MetaMaskInstall from '../components/metamask-install.js';
 import MetaMaskLocked from '../components/metamask-locked.js';
-import { Link } from 'react-router-dom';
+import MetaMaskNetwork from '../components/metamask-network.js';
+import { Link, Redirect } from 'react-router-dom';
 import bus from '../bus';
 import { PropagateLoader } from 'react-spinners';
 
@@ -26,25 +27,28 @@ class SubscriptionInfo extends React.Component {
       subscriptionDetails: '',
       subscriptionAmount: '',
       subscriptionPeriod: '',
-      authorization: false,
+      subscribe: false,
       paymentStatus: '',
+      address: '',
+      ethBalance: '',
+      daiBalance: '',
 
     };
 
     this.handleSelectedCurrency = this.handleSelectedCurrency.bind(this);
     this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
     this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
-    this.handleAuthorization = this.handleAuthorization.bind(this);
     this.loadingStateListener = this.loadingStateListener.bind(this);
-    this.authorizationListener = this.authorizationListener.bind(this);
+    this.userInfoListener = this.userInfoListener.bind(this);
+    this.checkUserActivity = this.checkUserActivity.bind(this);
 
   }
 
   componentDidMount() {
-    this.handleSelectedCurrency();
-    this.handleSelectedPeriod();
+    this.userInfoListener();
+    this.initializeDropdownItems();
     this.loadingStateListener();
-    this.authorizationListener();
+    this.checkUserActivity();
     
     bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
     bus.trigger('subscription:plan:requested');
@@ -52,8 +56,60 @@ class SubscriptionInfo extends React.Component {
   }
 
   componentWillUnmount() {
+    clearInterval(this.unlockInterval);
     bus.off('subscription:plan:sent', this.subscriptionPlanHandler);
     bus.off('loading:state', this.loadingStateListener());
+    bus.off('user:address:sent'); 
+    bus.off('ERC20:balance:sent');
+    bus.off('ETH:balance:sent');
+    bus.off('subscription:process:failed');
+    bus.off('user:subscribe:completed');
+    bus.off('activation:process:failed');
+    bus.off('user:activate:completed');
+    bus.off('loading:state');
+  }
+
+
+  checkUserActivity() {
+    this.unlockInterval = setInterval(() => {   
+      bus.trigger('user:get:account:status', web3)
+    }, 500);
+  }
+
+  initializeDropdownItems() {
+    const currencyItems = this.dropdownItems();
+    const timeItems = this.timeItems(); 
+
+    this.handleSelectedCurrency(currencyItems[0].name);
+    this.handleSelectedPeriod(timeItems[0].name);
+
+  }
+
+  userInfoListener() {
+    bus.on('user:address:sent', (address) => {
+      this.setState({
+        address: address
+      })
+    });
+
+    bus.trigger('user:address:requested');
+
+    bus.on('ERC20:balance:sent', (bal) => {
+      this.setState({
+        daiBalance: bal
+      })
+    });
+
+    bus.trigger('ERC20:balance:requested');
+     
+    bus.on('ETH:balance:sent', (bal) => {
+      this.setState({
+        ethBalance: bal
+      })
+    });
+
+    bus.trigger('ETH:balance:requested');
+  
   }
 
   subscriptionPlanHandler(object) {
@@ -66,28 +122,6 @@ class SubscriptionInfo extends React.Component {
     });
   };
 
-  // Separated this listener so we can check whether a user has given authorization before and therefore renders subscribe button immediately
-  authorizationListener() {
-    bus.on('user:authorization:received', () => {
-      this.setState({
-        authorization: true,
-        paymentStatus: 'authorized'
-      });
-    });
-    bus.trigger('authorization:status');
-  }
-
-  handleAuthorization() {
-    bus.on('authorization:process:failed', () => {
-      this.setState({
-        authorization: false,
-        paymentStatus: ''
-      });
-    });
-
-    bus.trigger('user:authorization:requested');
-  }
-
   handleSubscribe() {
     bus.on('subscription:process:failed', () => {
       this.setState({
@@ -97,6 +131,7 @@ class SubscriptionInfo extends React.Component {
     
     bus.on('user:subscribe:completed', (hash) => {
       this.setState({
+        subscribe: true,
         paymentStatus: 'subscribed'
       });
       console.log('Subscription Hash is:' + '' + hash );
@@ -146,7 +181,6 @@ class SubscriptionInfo extends React.Component {
         var currencyConversion = data.ETH_DAI.currentPrice * 1.01;
         let roundedNumber = currencyConversion.toFixed(6);
 
-        console.log('kyber conversion updated');
         this.setState({
           kyberConversion: roundedNumber
         });
@@ -156,7 +190,7 @@ class SubscriptionInfo extends React.Component {
   calculateSendAmount () {
     //this.getKyberInformation();
     if (this.state.selectedCurrency === 'Dai') {
-      return (parseFloat(this.state.selectedPeriod) * parseFloat(this.state.subscriptionAmount)).toFixed(6);
+      return (parseFloat(this.state.selectedPeriod) * parseFloat(this.state.subscriptionAmount)).toFixed(4);
     }
     else if (this.state.selectedCurrency === 'Ethereum') {
       return (this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionAmount).toFixed(4);
@@ -175,11 +209,12 @@ class SubscriptionInfo extends React.Component {
         name: 'Dai',
         ticker: 'DAI'
       },
-      {
-        image: Images.ethLogo,
-        name: 'Ethereum',
-        ticker: 'ETH'
-      }
+      //@TODO: Implement Kyber 
+      // {
+      //   image: Images.ethLogo,
+      //   name: 'Ethereum',
+      //   ticker: 'ETH'
+      // }
     ];
   }
 
@@ -209,7 +244,6 @@ class SubscriptionInfo extends React.Component {
         return;
       }
     }, 2000);
-
   };
 
   humanizeDuration(timeInSeconds) {
@@ -245,14 +279,6 @@ class SubscriptionInfo extends React.Component {
   }
 
   returnPayButtonState() {
-    const authorization = (
-      <div className='give-auth' 
-        onClick={() => {
-        this.handleAuthorization();
-      }}>
-        <p>Give Authorization</p>
-      </div>
-    );
 
     const subscribe = (
       <div className='subscribe' 
@@ -281,6 +307,7 @@ class SubscriptionInfo extends React.Component {
       </div>
     );
 
+    //@TODOO: This will be the button that leads into Kyber Conversion process
     if (!this.checkDaiSelected()) {
       return (
         <Link to='/conversion'>
@@ -291,8 +318,8 @@ class SubscriptionInfo extends React.Component {
       );
     }
 
-    if (!this.state.authorization && this.state.paymentStatus != 'loading') {
-      return authorization;
+    if (!this.state.subscribe && this.state.paymentStatus !== 'loading') {
+      return subscribe;
     }
 
     switch (this.state.paymentStatus) {
@@ -317,11 +344,11 @@ class SubscriptionInfo extends React.Component {
     case 'not installed':
       return this.renderInstallPrompt();
       break;
-    case 'loading':
-      return this.renderLoading();
+    case 'wrong network':
+      return this.renderWrongNetwork();
       break;
-    default:
-      return this.renderError();
+    default: 
+      return null;
     }
   }
 
@@ -367,9 +394,9 @@ class SubscriptionInfo extends React.Component {
               <p className='text'>to your personal wallet</p>
             </div>
             <div className='item-address'>
-              <p className='text-address'>{this.props.userAddress}</p>
+              <p className='text-address'>{this.state.address}</p>
               <CopyToClipboard
-                text={this.props.userAddress}
+                text={this.state.address}
                 onCopy={() => {
                   this.setState({copied: true});
                   this.resetCopyState();
@@ -386,7 +413,7 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className='balance'>
               <p>Current Balance</p>
-              <p className='currency'>{this.checkDaiSelected() ? this.props.daiBalance : this.props.ethBalance} {this.state.selectedCurrency}</p>
+              <p className='currency'>{this.checkDaiSelected() ? this.state.daiBalance : this.state.ethBalance} {this.state.selectedCurrency}</p>
             </div>
             { this.returnPayButtonState() }
           </div>
@@ -407,14 +434,12 @@ class SubscriptionInfo extends React.Component {
     );
   }
 
-  // @TODO: Add a page for loading trezor and ledger screens
-  renderLoading() {
+  renderWrongNetwork() {
     return (
-      <div>
-        <p>Loading...</p>
-      </div>
-    );
+      <MetaMaskNetwork/>
+    )
   }
+
 };
 
 export default SubscriptionInfo;

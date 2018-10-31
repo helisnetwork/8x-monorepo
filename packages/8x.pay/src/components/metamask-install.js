@@ -7,7 +7,16 @@ import Header from './header';
 class MetaMaskInstall extends React.Component {
   constructor() {
     super();
+    
+    this.openInNewTab = this.openInNewTab.bind(this);
+
   };
+
+
+  openInNewTab(url) {
+    var win = window.open(url, '_blank');
+    win.focus();
+  }
 
   render() {
     return (
@@ -15,10 +24,9 @@ class MetaMaskInstall extends React.Component {
         <div className="small-card">
           <Header title="MetaMask Not Installed" previousPage="/"/>
           <div className="prompt">
-            <h2 className="install">8x Pay cannot detect MetaMask on your browser</h2>
-            <img src={Images.metamaskLogo} className="logo"/>
+            <img src={Images.metamaskInstall} className="logo"/>
             <p className="text">Please make sure the MetaMask plugin is installed on this browser.</p>
-            <a href="https://www.metamask.io" className="button">
+            <a href="https://www.metamask.io" target="_blank" rel="noopener noreferrer" className="button" onClick={() => {this.openInNewTab('https://www.metamask.io')}}>
               <p className="metamask-download">Download MetaMask</p>
             </a>
           </div>
