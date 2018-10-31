@@ -28,7 +28,7 @@ export default class SubscriptionStore {
         if (err != null) {
           console.log('cannot get address');
         } else if (accounts.length === 0 ) {
-          console.log('you have not logged in');
+      
         } else {
 
           this.address = accounts;
