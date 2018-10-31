@@ -5,7 +5,6 @@ import SelectWallet from '../pages/select-wallet';
 import MetamaskHandler from '../pages/metamask-handler';
 import PaymentGuide from '../pages/payment-guide';
 import Approve from '../pages/approve';
-import MetaMaskLocked from './metamask-locked';
 
 
 import {
@@ -18,6 +17,7 @@ import {
   TransitionGroup,
   CSSTransition
 } from 'react-transition-group';
+
 
 
 
@@ -36,7 +36,6 @@ function Container({ location }) {
               <Route path="/guide" component={PaymentGuide}/>
               <Route path="/approve" component={Approve}/>
               <Route path="/metamask-handler" component={MetamaskHandler}/>
-              <Route path="/metamask-locked" component={MetaMaskLocked}/>
             </Switch>
           </section>
         </CSSTransition>

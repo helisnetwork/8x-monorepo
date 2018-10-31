@@ -13,35 +13,12 @@ export default class UserStore {
     bus.on('web3:initialised', (web3) => {
       this.web3 = web3;
 
-      web3.version.getNetwork((err, netId) => {
-        switch (netId) {
-          case "1":
-            console.log('This is mainnet')
-            break
-          case "2":
-            console.log('This is the deprecated Morden test network.')
-            break
-          case "3":
-            console.log('This is the ropsten test network.')
-            break
-          case "4":
-            console.log('This is the Rinkeby test network.')
-            break
-          case "42":
-            console.log('This is the Kovan test network.')
-            break
-          default:
-            console.log('This is an unknown network.')
-        }
-      })
-
-      
       bus.trigger('user:get:account:status', this.web3); 
           
       this.getERC20Balance();
       this.getETHBalance();
       this.sendUserAddress(); 
-         
+    
     });
   }
 
@@ -56,11 +33,22 @@ export default class UserStore {
           bus.trigger('status', 'locked');
 
         } else {
-          this.address = accounts[0];
 
-          bus.trigger('user:address:requested');
-          // bus.trigger('unlocked');
-          bus.trigger('status', 'unlocked');
+          web3.version.getNetwork((err, netId) => {
+            if(netId === '42') {
+              this.address = accounts[0];
+              bus.trigger('user:address:requested');
+              bus.trigger('status', 'unlocked');
+
+            } else {
+              bus.trigger('status', 'wrong network');
+            }
+          });
+
+          
+
+          // bus.trigger('user:address:requested');
+          // bus.trigger('status', 'unlocked');
         }
       });
     });

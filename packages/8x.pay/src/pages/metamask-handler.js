@@ -21,6 +21,7 @@ class MetamaskHandler extends React.Component {
     this.initialiseMetaMask();
     this.checkPreviouslyAuthorized();
     this.checkStatus();
+    
     bus.trigger('metamask:approval:requested');
   }
 
