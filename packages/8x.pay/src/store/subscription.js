@@ -59,7 +59,6 @@ export default class SubscriptionStore {
 
   listenPlanHash() {
     bus.on('planHash:sent', (planHash) => {
-      console.log(planHash);
       this.planHash = planHash;
     });
   }

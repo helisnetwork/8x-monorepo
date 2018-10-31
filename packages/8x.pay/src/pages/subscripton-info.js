@@ -190,7 +190,7 @@ class SubscriptionInfo extends React.Component {
   calculateSendAmount () {
     //this.getKyberInformation();
     if (this.state.selectedCurrency === 'Dai') {
-      return (parseFloat(this.state.selectedPeriod) * parseFloat(this.state.subscriptionAmount)).toFixed(6);
+      return (parseFloat(this.state.selectedPeriod) * parseFloat(this.state.subscriptionAmount)).toFixed(4);
     }
     else if (this.state.selectedCurrency === 'Ethereum') {
       return (this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionAmount).toFixed(4);
