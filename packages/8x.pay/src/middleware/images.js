@@ -21,6 +21,7 @@ import daiPeriod from '../assets/images/dai-period.png';
 import metamaskLarge from '../assets/images/metamask-head.png';
 import metamaskLocked from '../assets/images/metamask-locked.png';
 import metamaskInstall from '../assets/images/metamask-install.png';
+import metamaskNetwork from '../assets/images/metamask-network.png';
 
 export default {
   metamaskLogo,
@@ -44,6 +45,7 @@ export default {
   daiPeriod,
   metamaskLarge,
   metamaskLocked,
-  metamaskInstall
+  metamaskInstall,
+  metamaskNetwork
 
 };
