@@ -1,6 +1,6 @@
 {
   "name": "8x.pay",
-  "version": "0.2.41",
+  "version": "0.3.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -27,7 +27,6 @@
     "@ledgerhq/web3-subprovider": "^4.24.0",
     "bignumber.js": "^4.1.0",
     "dotenv": "^6.0.0",
-    "ethereumjs-ledger": "^2.1.5",
     "history": "^4.7.2",
     "prop-types": "^15.6.2",
     "react-copy-to-clipboard": "^5.0.1",
