@@ -6,6 +6,7 @@ import Dropdown from '../components/dropdown.js';
 import Header from '../components/header.js';
 import MetaMaskInstall from '../components/metamask-install.js';
 import MetaMaskLocked from '../components/metamask-locked.js';
+import MetaMaskNetwork from '../components/metamask-network.js';
 import { Link, Redirect } from 'react-router-dom';
 import bus from '../bus';
 import { PropagateLoader } from 'react-spinners';
@@ -34,7 +35,6 @@ class SubscriptionInfo extends React.Component {
 
     };
 
-  
     this.handleSelectedCurrency = this.handleSelectedCurrency.bind(this);
     this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
     this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
@@ -56,13 +56,22 @@ class SubscriptionInfo extends React.Component {
   }
 
   componentWillUnmount() {
+    clearInterval(this.unlockInterval);
     bus.off('subscription:plan:sent', this.subscriptionPlanHandler);
     bus.off('loading:state', this.loadingStateListener());
+    bus.off('user:address:sent'); 
+    bus.off('ERC20:balance:sent');
+    bus.off('ETH:balance:sent');
+    bus.off('subscription:process:failed');
+    bus.off('user:subscribe:completed');
+    bus.off('activation:process:failed');
+    bus.off('user:activate:completed');
+    bus.off('loading:state');
   }
 
 
   checkUserActivity() {
-    var unlockInterval = setInterval(() => {   
+    this.unlockInterval = setInterval(() => {   
       bus.trigger('user:get:account:status', web3)
     }, 500);
   }
@@ -335,6 +344,9 @@ class SubscriptionInfo extends React.Component {
     case 'not installed':
       return this.renderInstallPrompt();
       break;
+    case 'wrong network':
+      return this.renderWrongNetwork();
+      break;
     default: 
       return null;
     }
@@ -420,6 +432,12 @@ class SubscriptionInfo extends React.Component {
     return (
       <MetaMaskInstall/>
     );
+  }
+
+  renderWrongNetwork() {
+    return (
+      <MetaMaskNetwork/>
+    )
   }
 
 };
