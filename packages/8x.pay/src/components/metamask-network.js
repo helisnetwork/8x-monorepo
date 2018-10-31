@@ -21,10 +21,10 @@ class MetaMaskNetwork extends React.Component {
     return (
       <div className="background">
         <div className="small-card">
-          <Header title="MetaMask Locked" previousPage="/"/>
+          <Header title="Metamask Network" previousPage="/"/>
           <div className="locked-container">
             <img className="graphic" src={Images.metamaskNetwork}/>
-            <p className="locked-text">Unlock MetaMask to interact with 8x.Pay and complete your subscription</p>
+            <p className="locked-text">You are connected to the wrong network. Please switch over to the <span>Kovan Network</span></p>
           </div>
         </div> 
       </div>
@@ -32,4 +32,4 @@ class MetaMaskNetwork extends React.Component {
   }
 }
 
-export default MetaMaskLocked; 
+export default MetaMaskNetwork; 
