@@ -1,9 +1,9 @@
 /* Import statements */
 import React from 'react';
 import SubscriptionInfo from './subscripton-info';
+import PaymentGuide from './payment-guide';
+
 import bus from '../bus';
-import { MockTokenAbi, ConfigAddresses } from '@8xprotocol/artifacts';
-import { getToken } from '../constants';
 
 class MetamaskHandler extends React.Component {
 
@@ -11,17 +11,28 @@ class MetamaskHandler extends React.Component {
     super(props);
     this.state = {
       status: 'loading',
-      address: '',
-      ethBalance: '',
-      daiBalance: ''
+      authorized: '',
+
     };
-    this.initialiseMetaMask();
-    this.userInfoListener();
+
   }
 
   componentDidMount() {
+    this.initialiseMetaMask();
+    this.checkPreviouslyAuthorized();
+    this.checkStatus();
+    
     bus.trigger('metamask:approval:requested');
   }
+
+  componentWillUnmount() {
+    this.checkPreviouslyAuthorized();
+    bus.off('metamask:approval:requested');
+    bus.off('status');
+    bus.off('user:authorization:true');
+
+  }
+
   // Function used to update the state of MetaMask Handler.
   updateStatus(status) {
     this.setState({
@@ -35,11 +46,13 @@ class MetamaskHandler extends React.Component {
       // Modern dapp browsers...
       if (window.ethereum) {
         window.web3 = new Web3(ethereum);
+
         try {
-          // Request account access if needed
+          // Request access to expose user accounts
           await ethereum.enable();
-          // Acccounts now exposed
+      
           bus.trigger('web3:initialised', web3);
+
         } catch (error) {
           console.log('error');
           // User denied account access...
@@ -48,50 +61,57 @@ class MetamaskHandler extends React.Component {
       // Legacy dapp browsers...
       else if (window.web3) {
         window.web3 = new Web3(web3.currentProvider);
-        // Acccounts always exposed
+  
         bus.trigger('web3:initialised', web3);
       }
-      // Non-dapp browsers...
+      // Non-dapp browsers, redirect to a prompt to install metamask 
       else {
-        console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
         this.updateStatus('not installed');
       }
     });
   }
 
-  userInfoListener() {
-    bus.on('ERC20:balance:sent', (bal) => {
-      this.setState({
-        daiBalance: bal
-      })
-    });
-    bus.trigger('ERC20:balance:requested');
-     
-
-    bus.on('ETH:balance:sent', (bal) => {
-      this.setState({
-        ethBalance: bal
-      })
-    });
-    bus.trigger('ETH:balance:requested');
-
-    bus.on('status', (status, address) => {
+  checkStatus () {
+    bus.on('status', (status) => {
       this.setState({
         status: status,
-        address: address
       })
     });
   }
 
+  checkPreviouslyAuthorized () {
+    bus.on('user:authorization:true', () => {
+
+      this.setState({
+        authorized: true
+      });
+    });
+
+    bus.trigger('authorization:status');
+  }
+
   render() {
-    return (
-      <SubscriptionInfo
-        status={this.state.status}
-        userAddress={this.state.address}
-        ethBalance={this.state.ethBalance}
-        daiBalance={this.state.daiBalance}
-      />
-    );
+    if(this.state.status === 'unlocked') {
+      if(this.state.authorized === true) {
+        return (
+          <SubscriptionInfo
+            status={this.state.status}
+          />
+        ); 
+      } else if(this.state.authorized === false) {
+        return (
+          <PaymentGuide/>
+        );
+      } else {
+        return null;
+      }
+    } else {
+      return (
+        <SubscriptionInfo
+          status={this.state.status}
+        />
+      );
+    }
   }
 };
 

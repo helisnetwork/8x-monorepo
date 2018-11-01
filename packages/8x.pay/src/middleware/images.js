@@ -15,6 +15,14 @@ import checkTick from '../assets/images/check.png';
 import lockPicture from '../assets/images/locked.png';
 import daiConfirm from '../assets/images/dai-confirm.png';
 import arrow from '../assets/images/arrow.png';
+import convert from '../assets/images/convert.png'; 
+import authorization from '../assets/images/authorization.png'; 
+import daiPeriod from '../assets/images/dai-period.png';
+import metamaskLarge from '../assets/images/metamask-head.png';
+import metamaskLocked from '../assets/images/metamask-locked.png';
+import metamaskInstall from '../assets/images/metamask-install.png';
+import metamaskNetwork from '../assets/images/metamask-network.png';
+import walletConnect from '../assets/images/wallet-connect.png';
 
 export default {
   metamaskLogo,
@@ -32,7 +40,14 @@ export default {
   checkTick,
   lockPicture,
   daiConfirm,
-  arrow
-
+  arrow,
+  convert, 
+  authorization, 
+  daiPeriod,
+  metamaskLarge,
+  metamaskLocked,
+  metamaskInstall,
+  metamaskNetwork,
+  walletConnect
 
 };

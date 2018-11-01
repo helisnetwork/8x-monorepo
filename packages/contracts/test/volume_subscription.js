@@ -328,7 +328,7 @@ contract('VolumeSubscription', function(accounts) {
               ["test"]
             );
 
-            await assertRevert(contract.subscribe(incorrectHash, "{}", {from: subscriber}));
+            await assertRevert(contract.createSubscription(incorrectHash, "{}", {from: subscriber}));
 
         });
 
@@ -336,7 +336,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await contract.setTime(now);
 
-            let newSubscription = await contract.subscribe(
+            let newSubscription = await contract.createSubscription(
               planHash, "", {from: subscriber}
             );
 
@@ -361,7 +361,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should throw when trying to resubscribe with an existing active subscription", async function() {
 
-            await assertRevert(contract.subscribe(
+            await assertRevert(contract.createSubscription(
                 planHash, 0, {from: subscriber}
             ));
 
@@ -415,7 +415,7 @@ contract('VolumeSubscription', function(accounts) {
 
             planHash = newPlan.logs[0].args.planIdentifier;
 
-            let newSubscription = await contract.subscribe(
+            let newSubscription = await contract.createSubscription(
               planHash, 0, {from: subscriber}
             );
 
@@ -457,7 +457,7 @@ contract('VolumeSubscription', function(accounts) {
 
             planHash = newPlan.logs[0].args.planIdentifier;
 
-            let newSubscription = await contract.subscribe(
+            let newSubscription = await contract.createSubscription(
               planHash, 0, {from: subscriber}
             );
 
@@ -475,7 +475,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await contract.setTime(futureDate - 90);
 
-            let newSubscription2 = await contract.subscribe(
+            let newSubscription2 = await contract.createSubscription(
                 planHash, "", {from: subscriber}
             );
 

@@ -3,6 +3,9 @@ import styled from 'styled-components';
 
 import SelectWallet from '../pages/select-wallet';
 import MetamaskHandler from '../pages/metamask-handler';
+import PaymentGuide from '../pages/payment-guide';
+import Approve from '../pages/approve';
+
 
 import {
   Route,
@@ -14,6 +17,8 @@ import {
   TransitionGroup,
   CSSTransition
 } from 'react-transition-group';
+
+
 
 
 function Container({ location }) {
@@ -28,6 +33,8 @@ function Container({ location }) {
           <section className="route-section">
             <Switch location = { location }>
               <Route exact path="/" component={SelectWallet}/>
+              <Route path="/guide" component={PaymentGuide}/>
+              <Route path="/approve" component={Approve}/>
               <Route path="/metamask-handler" component={MetamaskHandler}/>
             </Switch>
           </section>

@@ -8,7 +8,7 @@ export default class SubscriptionStore {
   constructor() {
 
     this.startListeners();
-    this.listenPlanRequested();
+    this.listenPlanHash();
   }
 
   startListeners() {
@@ -21,6 +21,7 @@ export default class SubscriptionStore {
         executorAddress: getContract('Executor')
       });
 
+      this.listenPlanRequested();
 
       // Retrieve metamask account
       web3.eth.getAccounts((err, accounts) => {
@@ -28,20 +29,18 @@ export default class SubscriptionStore {
         if (err != null) {
           console.log('cannot get address');
         } else if (accounts.length === 0 ) {
-          console.log('you have not logged in');
+      
         } else {
 
           this.address = accounts;
           this.web3 = web3;
 
-          this.listenPlanHash();
-
           // Check if user has already authorized 
           this.checkAlreadyAuthorized();
+
           // Start listeners for subscription process
           this.authorizationRequestListener();
           this.startSubscribeListener();
-          this.subscribeRequestListener();
           this.activateSubscriptionListener();
         }
       });
@@ -52,10 +51,10 @@ export default class SubscriptionStore {
     bus.on('authorization:status', async () => {
       let authorizedStatus = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
         if (authorizedStatus == true) {
-          bus.trigger('user:authorization:received');
-          console.log('The user has already given authorization');
+          bus.trigger('user:authorization:true');
       }
     });
+    bus.trigger('authorization:status');
   }
 
   listenPlanHash() {
@@ -66,7 +65,7 @@ export default class SubscriptionStore {
 
   listenPlanRequested() {
     bus.on('subscription:plan:requested', async () => {
-
+      
       // Show dummy data if there's no plan hash
       if (!this.planHash) {
         bus.trigger('subscription:plan:sent', {
@@ -110,6 +109,7 @@ export default class SubscriptionStore {
         ); 
 
         if(authorizationStatus) {
+          console.log(authorizationTxHash);
           bus.trigger('user:authorization:received', true);
         }
         
@@ -120,25 +120,8 @@ export default class SubscriptionStore {
     });
   };
 
-  subscribeRequestListener() {
-    bus.on('user:subscribe:requested', async () => {
-      try {
-        let hasUserGivenAuthorization = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
-
-        if(hasUserGivenAuthorization === true) {
-          bus.trigger('start:subscribe:process');
-        } else {
-          bus.trigger('authorization:process:failed');
-          console.log('Authorization not given, please authorize first');
-        }
-      } catch (error) {
-        console.log('Something went wrong with hasGivenAuthorisation' + ' ' + error); 
-      }
-    });
-  }
-
   startSubscribeListener() {
-    bus.on('start:subscribe:process', async () => {
+    bus.on('user:subscribe:requested', async () => {
       bus.trigger('loading:state');
       const txData = null;
       const metaData = null;
