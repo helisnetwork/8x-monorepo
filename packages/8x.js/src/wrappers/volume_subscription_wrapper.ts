@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 
 import { Web3Utils, VolumeSubscriptionAbi } from '@8xprotocol/artifacts';
 import { generateTxOpts } from '../utils/transaction_utils';
-import { Address, Bytes32, TxData, TxHash, Plan, Subscription } from '@8xprotocol/types';
+import { Address, Bytes32, TxData, TxHash, Plan, Subscription, UInt } from '@8xprotocol/types';
 import { SECONDS_IN_DAY } from '../constants';
 
 import { getFormattedLogsFromTxHash, getFormattedLogsFromReceipt, formatLogEntry, getPastLogs } from '../utils/logs';
@@ -157,11 +157,21 @@ export default class VolumeSubscriptionWrapper {
   }
 
   public async getSubscriptionsByPlan(
-    planHash: Bytes32
-  ): Promise<Subscription[]> {
+    plan: Plan
+  ): Promise<UInt> {
 
-    return await this.getSubscribersBy('planIdentifier', planHash);
+    var planSubscribersPromise = plan.map(async plan => {
+      let result = await this.getSubscribersBy('planIdentifier', plan.planHash);
+      return result.filter(subscription => {
+        let dueDate =
+          subscription.lastPaymentDate + plan.planPeriod * 24 * 60 * 60;
+        return (
+          Date.now() / 1000 <= dueDate && subscription.lastPaymentDate > 0
+        );
+      }).length;
+    });
 
+    return await Promise.all(planSubscribersPromise);
   }
 
   private async getSubscribersBy(

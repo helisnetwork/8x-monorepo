@@ -138,17 +138,17 @@ export default class PlanAPI {
    *
    * Get all the subscribers of a subscription plan.
    *
-   * @param planHash    Plan hash returned upon creating a plan.
+   * @param plan    Object of plans created by owner.
    *
-   * @returns           An array of Subscription objects.
+   * @returns          An uint number of subscribers
    * @priority          4
    *
    */
   public async getSubscribers(
-    planHash: Bytes32
-  ): Promise<Subscription[]> {
+    plan: Plan
+  ): Promise<UInt> {
 
-    return await this.volumeSubscriptionWrapper.getSubscriptionsByPlan(planHash);
+    return await this.volumeSubscriptionWrapper.getSubscriptionsByPlan(plan);
 
   }
 
