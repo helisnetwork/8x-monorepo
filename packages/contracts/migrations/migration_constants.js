@@ -1,4 +1,4 @@
-const MAXIMUM_INTERVAL_DIVISOR = 7;
+const MAXIMUM_INTERVAL_DIVISOR = 5;
 
 function configPath() {
     return `${process.cwd()}/../artifacts/src/addresses/config.json`;
