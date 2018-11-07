@@ -3,6 +3,7 @@ import Header from '../components/header';
 import { default as Images } from '../middleware/images';
 import { Link } from 'react-router-dom'; 
 import Dropdown from '../components/dropdown';
+import bus from '../bus';
 
 class ConversionPrompt extends React.Component {
 
@@ -14,6 +15,7 @@ class ConversionPrompt extends React.Component {
     };
 
     this.handleSelectedConversionPeriod = this.handleSelectedConversionPeriod.bind(this);
+    this.handleKyberConversion = this.handleKyberConversion.bind(this);
 
   }
 
@@ -21,6 +23,15 @@ class ConversionPrompt extends React.Component {
     this.setState({
       conversionPeriod: period
     });
+  }
+
+  handleKyberConversion() {
+    bus.on('conversion:complete', () => {
+      console.log('done');
+    });
+
+    bus.trigger('conversion:requested');
+
   }
 
   conversionPeriod() {
@@ -71,11 +82,11 @@ class ConversionPrompt extends React.Component {
             <p className="title">1 ETH = 203.00 DAI</p>
           </div>
         </div>
-        <Link to='/begin-subscription'>
-          <div className="button">
+        {/* <Link to='/begin-subscription'> */}
+          <div className="button" onClick={() => {this.handleKyberConversion();}}>
             <p className="convert">Convert</p>
           </div>
-        </Link>
+        {/* </Link> */}
       </div>
     );
   }
