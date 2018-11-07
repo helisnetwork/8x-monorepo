@@ -19,7 +19,6 @@ import {
   deployTransferProxy,
   deployStakeContract,
   deployPaymentRegistry,
-  deployRequirements
 } from '@8xprotocol/dev-utils';
 
 import EightEx from '../src/index';

@@ -21,8 +21,6 @@ import {
   TransferProxyContract,
   PaymentRegistryAbi,
   PaymentRegistryContract,
-  RequirementsAbi,
-  RequirementsContract,
   StakeContract,
   ExecutorAbi,
   ExecutorContract,
@@ -275,31 +273,6 @@ export const deployPaymentRegistry = async(
   );
 
   return paymentRegistryInstance;
-
-}
-
-export const deployRequirements = async(
-  provider: Provider,
-  owner: Address
-) => {
-
-  const web3 = new Web3(provider);
-  const defaults = TX_DEFAULTS(owner);
-
-  let requirementsContract = contract(RequirementsAbi);
-  requirementsContract.setProvider(provider);
-  requirementsContract.setNetwork(50);
-  requirementsContract.defaults(defaults);
-
-  const deployedRequirementsContract = await requirementsContract.new();
-
-  const requirementsContractInstance = await RequirementsContract.at(
-    deployedRequirementsContract.address,
-    web3,
-    defaults
-  );
-
-  return requirementsContractInstance;
 
 }
 
