@@ -25,7 +25,7 @@ module.exports = function(deployer, network, accounts) {
     const MockToken = artifacts.require("./test/MockToken.sol");
     const MockKyberNetwork = artifacts.require("./test/MockKyberNetwork.sol");
 
-    return deployer.then(async () => {
+    return deployer.then(async() => {
 
         let executor;
         let volumeSubscription;
@@ -60,8 +60,6 @@ module.exports = function(deployer, network, accounts) {
             stakeContract.address,
             paymentRegistry.address,
             approvedRegistry.address,
-            requirementsContract.address,
-            Constants.LOCK_UP_PERCENTAGE,
             Constants.MAXIMUM_INTERVAL_DIVISOR
         );
 
@@ -73,8 +71,7 @@ module.exports = function(deployer, network, accounts) {
         const contractsJson = fs.readJsonSync(file, { throws: false }) || {};
 
         let output = {
-            'addresses': [
-                {
+            'addresses': [{
                     'name': 'Executor',
                     'address': executor.address
                 },
@@ -111,18 +108,14 @@ module.exports = function(deployer, network, accounts) {
                     'address': kyberNetworkAddress
                 }
             ],
-            'approvedTokens': [
-                {
-                    'ticker': 'DAI',
-                    'address': daiAddress
-                }
-            ],
-            'approvedContracts': [
-                {
-                    'name': 'VolumeSubscription',
-                    'address': volumeSubscription.address
-                }
-            ],
+            'approvedTokens': [{
+                'ticker': 'DAI',
+                'address': daiAddress
+            }],
+            'approvedContracts': [{
+                'name': 'VolumeSubscription',
+                'address': volumeSubscription.address
+            }],
             lockUpPercentage: Constants.LOCK_UP_PERCENTAGE,
             maximumIntervalDivisor: Constants.MAXIMUM_INTERVAL_DIVISOR,
         };

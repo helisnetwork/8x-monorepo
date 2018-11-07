@@ -102,8 +102,6 @@ describe('Basic', () => {
       paymentRegistry,
       volumeSubscription,
       approvedRegistry.address,
-      requirements.address,
-      800,
       1
     );
 

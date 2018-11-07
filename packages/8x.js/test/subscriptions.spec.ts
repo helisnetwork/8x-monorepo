@@ -65,7 +65,6 @@ describe('SubscriptionAPI', () => {
 
     const stakeContract = await deployStakeContract(provider, contractOwner, '');
     const paymentRegistry = await deployPaymentRegistry(provider, contractOwner);
-    const requirements = await deployRequirements(provider, contractOwner);
 
     executor = await deployExecutor(
       provider,
@@ -75,8 +74,6 @@ describe('SubscriptionAPI', () => {
       paymentRegistry,
       volumeSubscription,
       approvedRegistry.address,
-      requirements.address,
-      800,
       7
     );
 

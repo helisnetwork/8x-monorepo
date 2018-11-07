@@ -100,7 +100,6 @@ contract PaymentRegistry is Authorizable {
 
         require(currentTimestamp() >= currentPayment.dueDate);
         require(_nextPayment >= currentTimestamp());
-        require(_staked > 0);
 
         if (currentPayment.claimant != 0) {
             require(currentTimestamp() <= currentPayment.dueDate + currentPayment.executionPeriod);
