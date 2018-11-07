@@ -149,8 +149,6 @@ export const deployExecutor = async(
   paymentRegistryInstance: PaymentRegistryContract,
   volumeSubscriptionInstance: VolumeSubscriptionContract,
   approvedRegistry: Address,
-  requirements: Address,
-  lockUp: number,
   divisor: number
 ) => {
 
@@ -167,8 +165,6 @@ export const deployExecutor = async(
     stakeContractInstance.address,
     paymentRegistryInstance.address,
     approvedRegistry,
-    requirements,
-    new BigNumber(lockUp),
     new BigNumber(divisor),
   );
 
