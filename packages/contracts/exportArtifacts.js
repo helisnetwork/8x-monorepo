@@ -1,15 +1,14 @@
 // Core + ETH currency contract
 const artifacts = [
-	'Executor',
-	'VolumeSubscription',
-	'ApprovedRegistry',
-	'Requirements',
-	'PaymentRegistry',
-	'StakeContract',
-	'MockKyberNetwork',
-	'MockToken',
-	'MockVolumeSubscription',
-	'TransferProxy'
+    'Executor',
+    'VolumeSubscription',
+    'ApprovedRegistry',
+    'PaymentRegistry',
+    'StakeContract',
+    'MockKyberNetwork',
+    'MockToken',
+    'MockVolumeSubscription',
+    'TransferProxy'
 ];
 
 const PACKAGE = require('./package.json');
@@ -39,25 +38,25 @@ assert(contractHaveBeenCompiled, `No json compiled file found in ${BUILD_DIR}. D
 // Takes the export of `truffle compile` and add and remove some information
 // Manually executed
 artifacts.forEach(function(name) {
-	const artifact = require(BUILD_DIR + name + '.json');
+    const artifact = require(BUILD_DIR + name + '.json');
 
-	let artifactExported = {
-		contractName: artifact.contractName,
-		abi: artifact.abi,
-		bytecode: artifact.bytecode,
-		compiler: artifact.compiler,
-		version: PACKAGE.version,
-		networks: {}
-	};
+    let artifactExported = {
+        contractName: artifact.contractName,
+        abi: artifact.abi,
+        bytecode: artifact.bytecode,
+        compiler: artifact.compiler,
+        version: PACKAGE.version,
+        networks: {}
+    };
 
-	let abiJSON = JSON.stringify(artifactExported, null, 2);
-	let typescriptAbi = "export const " + artifact.contractName + " = \n" + abiJSON;
+    let abiJSON = JSON.stringify(artifactExported, null, 2);
+    let typescriptAbi = "export const " + artifact.contractName + " = \n" + abiJSON;
 
-	const jsonPath = JSON_DIR + name + '.json';
-	fs.writeFileSync(jsonPath, abiJSON);
+    const jsonPath = JSON_DIR + name + '.json';
+    fs.writeFileSync(jsonPath, abiJSON);
 
-	const typeScriptPath = TS_DIR + name + '.ts';
-	fs.writeFileSync(typeScriptPath, typescriptAbi);
+    const typeScriptPath = TS_DIR + name + '.ts';
+    fs.writeFileSync(typeScriptPath, typescriptAbi);
 
 });
 
@@ -67,18 +66,18 @@ const ADDRESSES_BUILD_DIR = '../artifacts/src/build/addresses/';
 fs.ensureDirSync(ADDRESSES_BUILD_DIR);
 
 const addressFiles = [
-	'config',
-	'dependencies',
-	'tokens'
+    'config',
+    'dependencies',
+    'tokens'
 ];
 
 addressFiles.forEach(function(name) {
 
-	const jsonFile = fs.readJSONSync(ADDRESSES_ORIGINAL_DIR + name + '.json');
+    const jsonFile = fs.readJSONSync(ADDRESSES_ORIGINAL_DIR + name + '.json');
 
-	const savePath = ADDRESSES_BUILD_DIR + name + '.ts';
-	let typescriptAddresses = "export const " + name + " = \n" + JSON.stringify(jsonFile, null, 2);
-	fs.writeFileSync(savePath, typescriptAddresses);
+    const savePath = ADDRESSES_BUILD_DIR + name + '.ts';
+    let typescriptAddresses = "export const " + name + " = \n" + JSON.stringify(jsonFile, null, 2);
+    fs.writeFileSync(savePath, typescriptAddresses);
 
 });
 
