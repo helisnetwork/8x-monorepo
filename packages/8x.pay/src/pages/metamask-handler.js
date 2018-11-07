@@ -52,6 +52,7 @@ class MetamaskHandler extends React.Component {
           await ethereum.enable();
       
           bus.trigger('web3:initialised', web3);
+          bus.trigger('conversion:requested');
 
         } catch (error) {
           console.log('error');
