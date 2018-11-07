@@ -9,7 +9,7 @@ class SimpleModalLauncher extends Component {
     super(props);
 
     this.state = {
-      showModal: false,
+      showModal: true,
     };
 
     this.listenToggleModal();
