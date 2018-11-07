@@ -3,7 +3,6 @@
 import { ApprovedRegistry } from './build/abi/ts/ApprovedRegistry';
 import { Executor } from './build/abi/ts/Executor';
 import { PaymentRegistry } from './build/abi/ts/PaymentRegistry';
-import { Requirements } from './build/abi/ts/Requirements';
 import { StakeContract } from './build/abi/ts/StakeContract';
 import { VolumeSubscription } from './build/abi/ts/VolumeSubscription';
 import { TransferProxy } from './build/abi/ts/TransferProxy';
@@ -16,7 +15,6 @@ export {
   ApprovedRegistry as ApprovedRegistryAbi,
   Executor as ExecutorAbi,
   PaymentRegistry as PaymentRegistryAbi,
-  Requirements as RequirementsAbi,
   StakeContract as StakeContractAbi,
   VolumeSubscription as VolumeSubscriptionAbi,
   TransferProxy as TransferProxyAbi,
@@ -30,7 +28,6 @@ export {
 import { ApprovedRegistryContract } from './build/wrappers/approved_registry';
 import { ExecutorContract } from './build/wrappers/executor';
 import { PaymentRegistryContract } from './build/wrappers/payment_registry';
-import { RequirementsContract } from './build/wrappers/requirements';
 import { StakeContractContract } from './build/wrappers/stake_contract';
 import { VolumeSubscriptionContract } from './build/wrappers/volume_subscription';
 import { TransferProxyContract } from './build/wrappers/transfer_proxy';
@@ -43,7 +40,6 @@ export {
   ApprovedRegistryContract,
   ExecutorContract,
   PaymentRegistryContract,
-  RequirementsContract,
   StakeContractContract as StakeContract,
   VolumeSubscriptionContract,
   TransferProxyContract,

@@ -188,8 +188,7 @@ contract Executor is Ownable {
             return;
         }
 
-        uint lockUp = 1;
-        require(stakeContract.getAvailableStake(msg.sender, tokenAddress) > lockUp, "There aren't enough unlocked staked tokens");
+        require(stakeContract.getAvailableStake(msg.sender, tokenAddress) > 1, "At least one token is required to process subscriptions");
 
         paymentRegistry.claimPayment(
             _subscriptionIdentifier, // Identifier of subscription
@@ -202,7 +201,7 @@ contract Executor is Ownable {
             _subscriptionIdentifier,
             msg.sender,
             dueDate + interval,
-            lockUp
+            0
         );
     }
 
@@ -267,6 +266,65 @@ contract Executor is Ownable {
             msg.sender,
             staked
         );
+    }
+
+        /** @dev Release the payment/responsibility of a service node
+      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
+    function releaseSubscription(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier
+    )
+        public
+    {
+
+        // Get the payment registry information
+        (
+            address tokenAddress,
+            uint dueDate,
+            ,
+            ,
+            uint lastPaymentDate,
+            address claimant,
+            uint executionPeriod,
+            uint staked
+        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+
+        // Check that it belongs to the rightful claimant/service node
+        // This also means we're not talking about a first time payment
+        require(claimant == msg.sender, "Must be the original claimant");
+
+        // Ensure it's a valid subscription
+        require(Collectable(_subscriptionContract).isValidSubscription(_subscriptionIdentifier) == true, "The subscription must be valid");
+
+        // Make sure we're within the cancellation window
+        uint minimumDate = lastPaymentDate + executionPeriod;
+        uint interval = dueDate - lastPaymentDate;
+        uint maximumDate = minimumDate + (interval / maximumIntervalDivisor);
+
+        require(
+            currentTimestamp() >= minimumDate && // Must be past last payment date and the execution period
+            currentTimestamp() < maximumDate,  // Can't be past the cancellation period
+            "The time period must not have passed"
+        );
+
+        // Call the remove claim on payments registry
+        paymentRegistry.removeClaimant(
+            _subscriptionIdentifier,
+            msg.sender
+        );
+
+        // Unstake tokens
+        stakeContract.unlockTokens(
+            msg.sender,
+            tokenAddress,
+            staked
+        );
+
+        // Emit the correct event
+        emit SubscriptionReleased(_subscriptionIdentifier, msg.sender, dueDate);
+
     }
 
     /**

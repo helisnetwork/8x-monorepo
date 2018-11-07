@@ -9,7 +9,7 @@ module.exports = function(deployer, network, accounts) {
 
     console.log(`Using network: ${network}`);
 
-    if (network == 'develop') {
+    if (!['ropsten', 'kovan', 'rinkeby', 'main'].contains(network)) {
         return;
     }
 
@@ -17,7 +17,6 @@ module.exports = function(deployer, network, accounts) {
     const ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
     const PaymentRegistry = artifacts.require("./PaymentRegistry.sol");
     const StakeContract = artifacts.require("./StakeContract.sol");
-    const Requirements = artifacts.require("./Requirements.sol");
     const VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
     const Executor = artifacts.require("./Executor.sol");
     const EightExToken = artifacts.require("./EightExToken.sol");
@@ -33,7 +32,6 @@ module.exports = function(deployer, network, accounts) {
 
         let transferProxy = await deployer.deploy(TransferProxy);
         let paymentRegistry = await deployer.deploy(PaymentRegistry);
-        let requirementsContract = await deployer.deploy(Requirements);
 
         let eightExToken = await deployer.deploy(EightExToken);
         let stakeContract = await deployer.deploy(StakeContract, eightExToken.address);
@@ -90,10 +88,6 @@ module.exports = function(deployer, network, accounts) {
                 {
                     'name': 'PaymentRegistry',
                     'address': paymentRegistry.address
-                },
-                {
-                    'name': 'Requirements',
-                    'address': requirementsContract.address
                 },
                 {
                     'name': 'EightExToken',
