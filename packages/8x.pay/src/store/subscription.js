@@ -14,6 +14,7 @@ export default class SubscriptionStore {
   startListeners() {
     bus.on('web3:initialised', (web3) => {
 
+
       this.eightEx = new EightEx(web3, {
         volumeSubscriptionAddress: getContract('VolumeSubscription'),
         transactingTokenAddress: getToken('DAI'),
@@ -23,38 +24,35 @@ export default class SubscriptionStore {
 
       this.listenPlanRequested();
 
-      // Retrieve metamask account
-      web3.eth.getAccounts((err, accounts) => {
+      //Start subscription listener after this.address is avaliable and web3 set. 
+      bus.on('user:address:sent', (address) => {
 
-        if (err != null) {
-          console.log('cannot get address');
-        } else if (accounts.length === 0 ) {
-      
-        } else {
+        this.address = address; 
+        this.web3 = web3; 
+        // Check if user has already authorized 
+        this.checkAlreadyAuthorized();
 
-          this.address = accounts;
-          this.web3 = web3;
+        // Start listeners for subscription process
+        this.authorizationRequestListener();
+        this.startSubscribeListener();
+        this.activateSubscriptionListener();
 
-          // Check if user has already authorized 
-          this.checkAlreadyAuthorized();
-
-          // Start listeners for subscription process
-          this.authorizationRequestListener();
-          this.startSubscribeListener();
-          this.activateSubscriptionListener();
-        }
       });
     });
   }
 
   checkAlreadyAuthorized() {
+    
     bus.on('authorization:status', async () => {
       let authorizedStatus = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
         if (authorizedStatus == true) {
-          bus.trigger('user:authorization:true');
-      }
+          bus.trigger('user:authorization', true);
+        } else {
+          bus.trigger('user:authorization', false);
+        }
     });
-    bus.trigger('authorization:status');
+
+    // bus.trigger('authorization:status');
   }
 
   listenPlanHash() {
@@ -122,6 +120,7 @@ export default class SubscriptionStore {
 
   startSubscribeListener() {
     bus.on('user:subscribe:requested', async () => {
+      console.log('how many');
       bus.trigger('loading:state');
       const txData = null;
       const metaData = null;

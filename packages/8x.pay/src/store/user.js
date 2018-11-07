@@ -38,6 +38,7 @@ export default class UserStore {
             if(netId === '42') {
               this.address = accounts[0];
               bus.trigger('user:address:requested');
+              bus.trigger('authorization:status');
               bus.trigger('status', 'unlocked');
               bus.trigger('ERC20:balance:requested');
               bus.trigger('ETH:balance:requested');
