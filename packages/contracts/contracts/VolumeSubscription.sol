@@ -331,7 +331,7 @@ contract VolumeSubscription is Collectable {
         return planHash;
     }
 
-    /** dev This is the function for creating a new subscription.
+    /** @dev This is the function for creating a new subscription.
       * @param _planHash a reference to the subscribed plan
       * @param _data extra data store.
     */
@@ -368,6 +368,22 @@ contract VolumeSubscription is Collectable {
         emit CreatedSubscription(subscriptionHash, _planHash, msg.sender);
 
         return subscriptionHash;
+    }
+
+    /** @dev Create a subscription and call another contract/function
+      * @param _planHash a reference to the subscribed plan
+      * @param _data extra data store.
+      * @param _callbackAddress the address to call afterwards
+      * @param _callbackData the data you'd like to pass to the external function
+    */
+    function createSubscriptionAndCall(
+        bytes32 _planHash, 
+        string _data, 
+        address _callbackAddress, 
+        bytes32 _callbackData
+    ) public {
+        createSubscription(_planHash, _data);
+        _callbackAddress.call(_callbackData);
     }
 
     /** @dev Updates the plan's owner.

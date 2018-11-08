@@ -19,7 +19,7 @@
       "*": [
         "node_modules/@0xproject/types/*",
         "node_modules/@0xproject/typescript-typings/types/*",
-        "src/types/*",
+        "src/types/*"
       ]
     }
   },

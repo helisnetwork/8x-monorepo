@@ -1,79 +1,79 @@
 {
-  "name": "8x.js",
-  "version": "0.2.11",
-  "description": "",
-  "main": "dist/index.js",
-  "typings": "dist/types/index.d.ts",
-  "scripts": {
-    "test": "jest --runInBand",
-    "test:watch": "jest --watch --runInBand",
-    "clean": "rimraf -rf ./dist",
-    "lint": "tslint --project tsconfig.json -c tslint.json",
-    "generate-docs": "typedoc --json ../docs/source/includes/_api.json ./src/apis/ --exclude ./node_modules && node generateMarkdown.js",
-    "build": "npm run clean && tsc && npm run generate-docs",
-    "prepublishOnly": "npm run build"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/jest": "^22.2.3",
-    "chai": "^4.1.2",
-    "jest": "^22.4.4",
-    "ts-jest": "^22.4.6",
-    "typedoc": "^0.12.0",
-    "typescript": "^2.7.1"
-  },
-  "dependencies": {
-    "@0xproject/types": "^1.0.1-rc.4",
-    "@0xproject/typescript-typings": "^1.0.4",
-    "@0xproject/utils": "^1.0.8",
-    "@8xprotocol/artifacts": "^0.2.0",
-    "@8xprotocol/dev-utils": "^0.2.0",
-    "@8xprotocol/types": "^0.2.0",
-    "@types/chai": "^4.1.4",
-    "@types/fs-extra": "^5.0.4",
-    "@types/lodash": "^4.14.116",
-    "@types/node": "^8.5.1",
-    "abi-decoder": "^1.2.0",
-    "bignumber.js": "^4.1.0",
-    "dedent-js": "^1.0.1",
-    "fs": "0.0.1-security",
-    "fs-extra": "^7.0.0",
-    "lodash": "^4.17.11",
-    "lodash.compact": "^3.0.1",
-    "rimraf": "^2.6.2",
-    "tiny-promisify": "^1.0.0",
-    "truffle-contract": "^3.0.1",
-    "truffle-hdwallet-provider": "0.0.6",
-    "ts-node": "^7.0.1",
-    "typescript": "^2.6.2",
-    "web3": "0.20.0",
-    "web3-utils": "^1.0.0-beta.36"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
+    "name": "8x.js",
+    "version": "0.2.11",
+    "description": "",
+    "main": "dist/index.js",
+    "typings": "dist/types/index.d.ts",
+    "scripts": {
+        "test": "jest --runInBand",
+        "test:watch": "jest --watch --runInBand",
+        "clean": "rimraf -rf ./dist",
+        "lint": "tslint --project tsconfig.json -c tslint.json",
+        "generate-docs": "typedoc --json ../docs/source/includes/_api.json ./src/apis/ --exclude ./node_modules && node generateMarkdown.js",
+        "build": "npm run clean && tsc && npm run generate-docs",
+        "prepublishOnly": "npm run build"
     },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "testPathIgnorePatterns": [
-      "/dist/"
-    ],
-    "testURL": "http://localhost/",
-    "modulePaths": [
-      "node_modules/"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
-  },
-  "gitHead": "020ba4cf5148f4bf965f640759e6d5685ed514c9"
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/jest": "^22.2.3",
+        "chai": "^4.1.2",
+        "jest": "^22.4.4",
+        "ts-jest": "^22.4.6",
+        "typedoc": "^0.12.0",
+        "typescript": "^2.6.2"
+    },
+    "dependencies": {
+        "@0xproject/types": "^1.0.1-rc.4",
+        "@0xproject/typescript-typings": "^1.0.4",
+        "@0xproject/utils": "^1.0.8",
+        "@8xprotocol/artifacts": "^0.2.0",
+        "@8xprotocol/dev-utils": "^0.2.0",
+        "@8xprotocol/types": "^0.2.0",
+        "@types/chai": "^4.1.4",
+        "@types/fs-extra": "^5.0.4",
+        "@types/lodash": "^4.14.116",
+        "@types/node": "^8.5.1",
+        "abi-decoder": "^1.2.0",
+        "bignumber.js": "^4.1.0",
+        "dedent-js": "^1.0.1",
+        "fs": "0.0.1-security",
+        "fs-extra": "^7.0.1",
+        "lodash": "^4.17.11",
+        "lodash.compact": "^3.0.1",
+        "rimraf": "^2.6.2",
+        "tiny-promisify": "^1.0.0",
+        "truffle-contract": "^3.0.1",
+        "truffle-hdwallet-provider": "0.0.6",
+        "ts-node": "^7.0.1",
+        "typescript": "^3.0.3",
+        "web3": "0.20.0",
+        "web3-utils": "^1.0.0-beta.36"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "jest": {
+        "transform": {
+            "^.+\\.tsx?$": "ts-jest"
+        },
+        "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+        "testPathIgnorePatterns": [
+            "/dist/"
+        ],
+        "testURL": "http://localhost/",
+        "modulePaths": [
+            "node_modules/"
+        ],
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js",
+            "jsx",
+            "json",
+            "node"
+        ]
+    },
+    "gitHead": "020ba4cf5148f4bf965f640759e6d5685ed514c9"
 }
