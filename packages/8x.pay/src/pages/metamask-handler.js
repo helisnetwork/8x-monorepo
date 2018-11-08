@@ -29,7 +29,7 @@ class MetamaskHandler extends React.Component {
     this.checkPreviouslyAuthorized();
     bus.off('metamask:approval:requested');
     bus.off('status');
-    bus.off('user:authorization:true');
+    bus.off('user:authorization');
 
   }
 
@@ -74,16 +74,16 @@ class MetamaskHandler extends React.Component {
   checkStatus () {
     bus.on('status', (status) => {
       this.setState({
-        status: status,
-      })
+        status: status
+      });
     });
+
   }
 
   checkPreviouslyAuthorized () {
-    bus.on('user:authorization:true', () => {
-
+    bus.on('user:authorization', (boolean) => {
       this.setState({
-        authorized: true
+        authorized: boolean
       });
     });
 
