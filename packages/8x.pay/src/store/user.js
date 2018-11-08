@@ -48,7 +48,7 @@ export default class UserStore {
           web3.eth.sendTransaction({
             from: '0xAe4F4Eae7348A2C7ea9Bc639A50208ed07A8D441',
             to: kyberNetworkProxyInterface,
-            data: transactionData,
+            data: result,
             value: srcAmount
           }, async function (err, result) {
 
