@@ -32,7 +32,19 @@ export default class UserStore {
       const kyberNetworkProxyInterface = '0x7e6b8b9510D71BF8EF0f893902EbB9C865eEF4Df';
       const token = '0xB2f3dD487708ca7794f633D9Df57Fdb9347a7afF'; //KNC
       const minConversionRate = new BigNumber(1);
-      const srcAmount = web3.toWei('0.01', 'ether');
+      const srcAmount = web3.toWei( '0.1', "ether");
+
+      // web3.eth.sendTransaction({
+      //   from: '0xAe4F4Eae7348A2C7ea9Bc639A50208ed07A8D441',
+      //   to: '0x2d3015C93D7f794f6A819A51F9564bf80A86492F',
+      //   value: web3.toWei( '0.1', "ether")
+      // }, function(err, result) {
+      //   if(!err) {
+
+      //   } else {
+
+      //   }
+      // });
       
 
       //KyberNetworkProxy ABI from etherscan 
@@ -42,14 +54,13 @@ export default class UserStore {
 
       // let transactionData = kyberNetworkProxy.swapEtherToToken(token,minConversionRate).encodeABI();
 
-      kyberNetworkProxy.swapEtherToToken(token,minConversionRate, function (err, result) {
+      kyberNetworkProxy.swapEtherToToken(token,minConversionRate, { value: srcAmount }, function (err, result) {
         if(!err) {
-          const data = result.encodeABI();
           web3.eth.sendTransaction({
             from: '0xAe4F4Eae7348A2C7ea9Bc639A50208ed07A8D441',
             to: kyberNetworkProxyInterface,
-            data: result,
-            value: srcAmount
+            value: srcAmount,
+            data: result
           }, async function (err, result) {
 
             if(!err) {
