@@ -1,7 +1,48 @@
 {
-  "name": "8x-monorepo",
-  "private": false,
+  "name": "@8xprotocol/contracts",
+  "version": "0.2.0",
   "devDependencies": {
-    "lerna": "^3.2.1"
-  }
+    "@0xproject/abi-gen": "^1.0.7",
+    "@8xprotocol/types": "^0.2.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-preset-stage-3": "^6.17.0",
+    "babel-register": "^6.26.0",
+    "npm-run-all": "^4.1.3",
+    "rimraf": "^2.6.2",
+    "truffle-assertions": "^0.6.3",
+    "truffle-hdwallet-provider-privkey": "^0.3.0",
+    "typechain": "^0.3.5",
+    "web3-provider-engine": "^14.0.6"
+  },
+  "private": true,
+  "dependencies": {
+    "bignumber.js": "^4.1.0",
+    "dotenv": "^6.0.0",
+    "ethereumjs-abi": "^0.6.5",
+    "fs-extra": "^7.0.0",
+    "mustache": "^3.0.0",
+    "truffle-hdwallet-provider": "0.0.6",
+    "types-ethereumjs-util": "^0.0.5",
+    "typescript": "^2.9.2",
+    "web3": "^1.0.0-beta.36"
+  },
+  "scripts": {
+    "test-contracts": "truffle test || true",
+    "clean": "rimraf -rf ./build ./export",
+    "lint-base": "solhint contracts/**/*.sol || true",
+    "lint-test": "solhint contracts/**/**/*.sol || true",
+    "lint-contracts": "solhint contracts/*.sol || true",
+    "test": "npm-run-all test-contracts lint-base lint-test lint-contracts",
+    "lint": "npm-run-all lint-base lint-test lint-contracts",
+    "generate-artifacts-typings": "node_modules/@0xproject/abi-gen/bin/abi-gen.js --abis '../artifacts/src/build/abi/json/**/*.json' --out '../artifacts/src/build/wrappers' --template './contract_templates/contract.mustache' --partials './contract_templates/partials/*.mustache'",
+    "build": "truffle compile && node exportArtifacts && npm run generate-artifacts-typings",
+    "deploy:develop": "npm run clean && truffle migrate --reset --network develop && npm run build",
+    "deploy:kovan": "npm run clean && truffle migrate --reset --network kovan && npm run build",
+    "deploy:main": "npm run clean && truffle migrate --reset --network main && && npm run build",
+    "prepublishOnly": "npm run build"
+  },
+  "gitHead": "3e65b57c6dae53cbafdb02719c4087bf600a44fa"
 }
