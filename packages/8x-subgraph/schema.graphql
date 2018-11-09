@@ -2,8 +2,8 @@
 #Events used - SubscriptionActivated
 type SubscriptionActivated @entity {
   id: ID! #subscriptionIdentifier
-  subscriptionAddress: String!
-  tokenAddress: String! 
+  subscriptionAddress: Bytes!
+  tokenAddress: Bytes! 
   dueDate: BigInt!
   amount: BigInt!
   fee: BigInt!
@@ -13,7 +13,7 @@ type SubscriptionActivated @entity {
 #Event used - SubscriptionProcessed 
 type SubscriptionProcessed @entity {
   id: ID! #subscriptionIdentifier 
-  claimant: String!
+  claimant: Bytes!
   dueDate: BigInt!
   staked: BigInt #Right now staking is expected to return null
 }
@@ -22,5 +22,5 @@ type SubscriptionProcessed @entity {
 #Event used - SubscriptionCancelled
 type SubscriptionCancelled @entity {
   id: ID! #subscriptionIdentifier
-  subscriptionAddress: String!
+  subscriptionAddress: Bytes!
 }
