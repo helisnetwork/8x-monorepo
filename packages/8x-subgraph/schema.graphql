@@ -1,8 +1,8 @@
 #Contracts used - Executor.sol
 #Events used - SubscriptionActivated
 type SubscriptionActivated @entity {
+  id: ID! #subscriptionIdentifier
   subscriptionAddress: String!
-  subscriptionIdentifier: Bytes! 
   tokenAddress: String! 
   dueDate: BigInt!
   amount: BigInt!
@@ -12,7 +12,7 @@ type SubscriptionActivated @entity {
 #Contract used - Executor.sol
 #Event used - SubscriptionProcessed 
 type SubscriptionProcessed @entity {
-  subscriptionIdentifier: Bytes!
+  id: ID! #subscriptionIdentifier 
   claimant: String!
   dueDate: BigInt!
   staked: BigInt #Right now staking is expected to return null
@@ -21,6 +21,6 @@ type SubscriptionProcessed @entity {
 #Contract used - Executor.sol
 #Event used - SubscriptionCancelled
 type SubscriptionCancelled @entity {
+  id: ID! #subscriptionIdentifier
   subscriptionAddress: String!
-  subscriptionIdentifier: Bytes!
 }
