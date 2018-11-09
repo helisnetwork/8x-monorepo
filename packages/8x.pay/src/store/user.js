@@ -32,7 +32,7 @@ export default class UserStore {
       const kyberNetworkProxyInterface = '0x7e6b8b9510D71BF8EF0f893902EbB9C865eEF4Df';
       const token = '0xB2f3dD487708ca7794f633D9Df57Fdb9347a7afF'; //KNC
       const minConversionRate = new BigNumber(1);
-      const srcAmount = web3.toWei(0.01, 'ether');
+      const srcAmount = web3.toWei('0.01', 'ether');
       
 
       //KyberNetworkProxy ABI from etherscan 
