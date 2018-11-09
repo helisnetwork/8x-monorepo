@@ -23,11 +23,11 @@ contract PaymentRegistry is Authorizable {
     // The bytes32 key is the subscription identifier
     mapping (bytes32 => Payment) public payments;
 
-    event PaymentCreated(bytes32 subscriptionIdentifer);
-    event PaymentClaimed(bytes32 subscriptionIdentifer, address claimant);
-    event PaymentClaimantRemoved(bytes32 subscriptionIdentifer, address claimant);
-    event PaymentClaimantTransferred(bytes32 subscriptionIdentifer, address claimant);
-    event PaymentCancelled(bytes32 subscriptionIdentifer);
+    event PaymentCreated(bytes32 subscriptionIdentifier);
+    event PaymentClaimed(bytes32 subscriptionIdentifier, address claimant);
+    event PaymentClaimantRemoved(bytes32 subscriptionIdentifier, address claimant);
+    event PaymentClaimantTransferred(bytes32 subscriptionIdentifier, address claimant);
+    event PaymentCancelled(bytes32 subscriptionIdentifier);
     event PaymentDeleted(bytes32 subscriptionIdentifier);
 
     /**
