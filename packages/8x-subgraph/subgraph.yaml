@@ -25,4 +25,4 @@ dataSources:
       handler: handleSubscriptionProcessed
     - event: SubscriptionCancelled(address,bytes32)
       handler: handleSubscriptionCancelled
-    file: ./mapping.ts 
+    file: ./mappings/Executor.ts 
