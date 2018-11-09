@@ -21,8 +21,6 @@ import {
   TransferProxyContract,
   PaymentRegistryAbi,
   PaymentRegistryContract,
-  RequirementsAbi,
-  RequirementsContract,
   StakeContract,
   ExecutorAbi,
   ExecutorContract,
@@ -151,8 +149,6 @@ export const deployExecutor = async(
   paymentRegistryInstance: PaymentRegistryContract,
   volumeSubscriptionInstance: VolumeSubscriptionContract,
   approvedRegistry: Address,
-  requirements: Address,
-  lockUp: number,
   divisor: number
 ) => {
 
@@ -169,8 +165,6 @@ export const deployExecutor = async(
     stakeContractInstance.address,
     paymentRegistryInstance.address,
     approvedRegistry,
-    requirements,
-    new BigNumber(lockUp),
     new BigNumber(divisor),
   );
 
@@ -275,31 +269,6 @@ export const deployPaymentRegistry = async(
   );
 
   return paymentRegistryInstance;
-
-}
-
-export const deployRequirements = async(
-  provider: Provider,
-  owner: Address
-) => {
-
-  const web3 = new Web3(provider);
-  const defaults = TX_DEFAULTS(owner);
-
-  let requirementsContract = contract(RequirementsAbi);
-  requirementsContract.setProvider(provider);
-  requirementsContract.setNetwork(50);
-  requirementsContract.defaults(defaults);
-
-  const deployedRequirementsContract = await requirementsContract.new();
-
-  const requirementsContractInstance = await RequirementsContract.at(
-    deployedRequirementsContract.address,
-    web3,
-    defaults
-  );
-
-  return requirementsContractInstance;
 
 }
 

@@ -19,8 +19,6 @@ contract MockExecutor is Executor, MockTime {
             address _stakeContractAddress,
             address _paymentRegistryAddress,
             address _approvedRegistryAddress,
-            address _requirementsAddress,
-            uint _lockUpPercentage,
             uint _divisor
         )
         Executor(
@@ -28,8 +26,6 @@ contract MockExecutor is Executor, MockTime {
           _stakeContractAddress,
           _paymentRegistryAddress,
           _approvedRegistryAddress,
-          _requirementsAddress,
-          _lockUpPercentage,
           _divisor
         )
         MockTime()

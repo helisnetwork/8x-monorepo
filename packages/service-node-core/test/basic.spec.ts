@@ -30,7 +30,6 @@ import {
   deployTransferProxy,
   deployStakeContract,
   deployPaymentRegistry,
-  deployRequirements,
   TX_DEFAULTS,
 } from '@8xprotocol/dev-utils';
 
@@ -92,7 +91,6 @@ describe('Basic', () => {
     transferProxy = await deployTransferProxy(provider, contractOwner);
     stakeContract = await deployStakeContract(provider, contractOwner, stakeToken.address);
     paymentRegistry = await deployPaymentRegistry(provider, contractOwner);
-    const requirements = await deployRequirements(provider, contractOwner);
 
     executor = await deployExecutor(
       provider,
@@ -102,8 +100,6 @@ describe('Basic', () => {
       paymentRegistry,
       volumeSubscription,
       approvedRegistry.address,
-      requirements.address,
-      800,
       1
     );
 

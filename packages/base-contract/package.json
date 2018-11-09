@@ -1,28 +1,28 @@
 {
-  "name": "@8xprotocol/base-contract",
-  "version": "0.2.0",
-  "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "clean": "rimraf rm -rf dist",
-    "build": "npm run clean && tsc"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@0xproject/types": "^1.0.1-rc.4",
-    "@0xproject/typescript-typings": "^0.3.2",
-    "@8xprotocol/types": "^0.2.0",
-    "@types/lodash": "^4.14.116",
-    "@types/node": "^8.5.1",
-    "bignumber.js": "^4.1.0",
-    "lodash": "^4.17.11",
-    "rimraf": "^2.6.2",
-    "web3": "0.20.0"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "gitHead": "e1c728ff2dbae514c8cefa792ceea0f54f230de9"
+    "name": "@8xprotocol/base-contract",
+    "version": "0.2.0",
+    "description": "",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "clean": "rimraf rm -rf dist",
+        "build": "npm run clean && tsc"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@0xproject/types": "^1.0.1-rc.4",
+        "@0xproject/typescript-typings": "^0.3.2",
+        "@8xprotocol/types": "^0.2.0",
+        "@types/lodash": "^4.14.116",
+        "@types/node": "^8.5.1",
+        "bignumber.js": "^4.1.0",
+        "lodash": "^4.17.11",
+        "rimraf": "^2.6.2",
+        "web3": "0.20.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "gitHead": "e1c728ff2dbae514c8cefa792ceea0f54f230de9"
 }

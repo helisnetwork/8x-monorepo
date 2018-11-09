@@ -10,7 +10,6 @@ import "./StakeContract.sol";
 import "./PaymentRegistry.sol";
 
 import "./interfaces/ApprovedRegistryInterface.sol";
-import "./interfaces/RequirementsInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -21,9 +20,7 @@ contract Executor is Ownable {
     StakeContract public stakeContract;
     PaymentRegistry public paymentRegistry;
     ApprovedRegistryInterface public approvedRegistry;
-    RequirementsInterface public requirementsContract;
 
-    uint public lockUpPercentage; // 1 Decimal Places (80.0% = 800).
     uint public maximumIntervalDivisor; // Latest to claim a payment or cancel.
 
     event SubscriptionActivated(
@@ -71,15 +68,12 @@ contract Executor is Ownable {
       * @param _stakeContractAddress the address for the stake contract.
       * @param _paymentRegistryAddress the address for the payment registry.
       * @param _approvedRegistryAddress the address for the approved registry contract.
-      * @param _requirementsAddress the address for the requirements contract.
     */
     constructor(
         address _transferProxyAddress,
         address _stakeContractAddress,
         address _paymentRegistryAddress,
         address _approvedRegistryAddress,
-        address _requirementsAddress,
-        uint _lockUpPercentage,
         uint _divisor
     )
         public
@@ -89,17 +83,7 @@ contract Executor is Ownable {
         stakeContract = StakeContract(_stakeContractAddress);
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
         approvedRegistry = ApprovedRegistryInterface(_approvedRegistryAddress);
-        requirementsContract = RequirementsInterface(_requirementsAddress);
-        lockUpPercentage = _lockUpPercentage;
         maximumIntervalDivisor = _divisor;
-    }
-
-    /** @dev Set the percentage of tokens to lock up.
-      * @param _percentage is the percentage to 1 decimal place. 80.0% = 800;
-    */
-    function setPercentageLockUp(uint _percentage) public onlyOwner {
-        // @TODO: Add tests for this.
-        lockUpPercentage = _percentage;
     }
 
     /** @dev Set the maximum time for a subscription to go on unprocessed or to cancel afterwards.
@@ -127,8 +111,8 @@ contract Executor is Ownable {
         Collectable subscription = Collectable(_subscriptionContract);
 
         // Check if the subscription is valid
-        require(approvedRegistry.isContractAuthorised(_subscriptionContract));
-        require(subscription.isValidSubscription(_subscriptionIdentifier) == false);
+        require(approvedRegistry.isContractAuthorised(_subscriptionContract), "Unauthorised contract");
+        require(subscription.isValidSubscription(_subscriptionIdentifier) == false, "Invalid subscription");
 
         // Get the detauls of the subscription
         ERC20 transactingToken = ERC20(subscription.getSubscriptionTokenAddress(_subscriptionIdentifier));
@@ -187,14 +171,14 @@ contract Executor is Ownable {
         ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
 
         // Ensure it's a fresh subscription or only the claimant
-        require(claimant == 0 || claimant == msg.sender);
+        require(claimant == 0 || claimant == msg.sender, "There's already a claimant for this subscription");
 
         // Make sure it's actually due
-        require(currentTimestamp() >= dueDate);
+        require(currentTimestamp() >= dueDate, "The due date has already passed");
 
         // Make sure it isn't too late to process
         uint interval = (dueDate - lastPaymentDate);
-        require(currentTimestamp() < (dueDate + (interval / maximumIntervalDivisor)));
+        require(currentTimestamp() < (dueDate + (interval / maximumIntervalDivisor)), "The subscription has already passed the processing period");
 
 
         if (attemptProcessingWithCallback(
@@ -204,98 +188,24 @@ contract Executor is Ownable {
             return;
         }
 
-        uint lockUp;
+        require(stakeContract.getAvailableStake(msg.sender, tokenAddress) > 1, "At least one token is required to process subscriptions");
 
-        // To whover is reading this, I had to duplicate determineStake() twice because of too
-        // many variables in the local stack. Blame the game, not the player.
-
-        if (claimant == 0) {
-            lockUp = processFirstTime(
-                _subscriptionIdentifier,
-                tokenAddress,
-                dueDate,
-                staked,
-                interval,
-                determineStake(tokenAddress, dueDate, interval)
-            );
-        } else if (claimant == msg.sender) {
-            lockUp = processExisting(
-                _subscriptionIdentifier,
-                tokenAddress,
-                dueDate,
-                staked,
-                interval,
-                determineStake(tokenAddress, dueDate, interval)
-            );
-        }
+        paymentRegistry.claimPayment(
+            _subscriptionIdentifier, // Identifier of subscription
+            msg.sender, // The claimant
+            dueDate + interval, // Next payment due date
+            0
+        );
 
         emit SubscriptionProcessed(
             _subscriptionIdentifier,
             msg.sender,
             dueDate + interval,
-            lockUp
+            0
         );
     }
 
-    /** @dev Release the payment/responsibility of a service node
-      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
-      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
-    */
-    function releaseSubscription(
-        address _subscriptionContract,
-        bytes32 _subscriptionIdentifier
-    )
-        public
-    {
-
-        // Get the payment registry informatio
-        (
-            address tokenAddress,
-            uint dueDate,
-            uint amount,
-            ,
-            uint lastPaymentDate,
-            address claimant,
-            uint executionPeriod,
-            uint staked
-        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
-
-        // Check that it belongs to the rightful claimant/service node
-        // This also means we're not talking about a first time payment
-        require(claimant == msg.sender);
-
-        // Ensure it's a valid subscription
-        require(Collectable(_subscriptionContract).isValidSubscription(_subscriptionIdentifier) == true);
-
-        // Make sure we're within the cancellation window
-        uint minimumDate = lastPaymentDate + executionPeriod;
-        uint interval = dueDate - lastPaymentDate;
-        uint maximumDate = minimumDate + (interval / maximumIntervalDivisor);
-
-        require(
-            currentTimestamp() >= minimumDate && // Must be past last payment date and the execution period
-            currentTimestamp() < maximumDate  // Can't be past the cancellation period
-        );
-
-        // Call the remove claim on payments registry
-        paymentRegistry.removeClaimant(
-            _subscriptionIdentifier,
-            msg.sender
-        );
-
-        // Unstake tokens
-        stakeContract.unlockTokens(
-            msg.sender,
-            tokenAddress,
-            staked
-        );
-
-        // Emit the correct event
-        emit SubscriptionReleased(_subscriptionIdentifier, msg.sender, dueDate);
-
-    }
-
-    /** @dev Catch another service node who didn't process their payment on time.
+     /** @dev Catch another service node who didn't process their payment on time.
       * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
     */
@@ -318,10 +228,11 @@ contract Executor is Ownable {
         ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
 
         // First make sure it's past the due date and execution period
-        require(currentTimestamp() > (dueDate + executionPeriod));
+        require(currentTimestamp() > (dueDate + executionPeriod), "The execution period has not passed");
 
         // Ensure the original claimant can't call this function
-        require(msg.sender != claimant);
+        require(claimant != 0, "There must be a claimant in the first place");
+        require(msg.sender != claimant, "The claimant cannot call catch late on himself");
 
         // Make the payment
         bool didProcess = attemptProcessingWithCallback(
@@ -357,31 +268,63 @@ contract Executor is Ownable {
         );
     }
 
-    function determineStake(
-        address _tokenAddress,
-        uint _startDate,
-        uint _interval
+        /** @dev Release the payment/responsibility of a service node
+      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
+    function releaseSubscription(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier
     )
         public
-        returns(uint)
     {
-        (
-            uint total,
-            uint lockedUp,
-            uint gini,
-            uint divideBy
-        ) = stakeContract.getTokenStakeDetails(_tokenAddress);
 
-        uint stake = requirementsContract.getStake(
-            gini,
-            divideBy,
-            _startDate,
-            currentTimestamp(),
-            _startDate + (_interval / maximumIntervalDivisor),
-            total - lockedUp
+        // Get the payment registry information
+        (
+            address tokenAddress,
+            uint dueDate,
+            ,
+            ,
+            uint lastPaymentDate,
+            address claimant,
+            uint executionPeriod,
+            uint staked
+        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+
+        // Check that it belongs to the rightful claimant/service node
+        // This also means we're not talking about a first time payment
+        require(claimant == msg.sender, "Must be the original claimant");
+
+        // Ensure it's a valid subscription
+        require(Collectable(_subscriptionContract).isValidSubscription(_subscriptionIdentifier) == true, "The subscription must be valid");
+
+        // Make sure we're within the cancellation window
+        uint minimumDate = lastPaymentDate + executionPeriod;
+        uint interval = dueDate - lastPaymentDate;
+        uint maximumDate = minimumDate + (interval / maximumIntervalDivisor);
+
+        require(
+            currentTimestamp() >= minimumDate && // Must be past last payment date and the execution period
+            currentTimestamp() < maximumDate,  // Can't be past the cancellation period
+            "The time period must not have passed"
         );
 
-        return stake;
+        // Call the remove claim on payments registry
+        paymentRegistry.removeClaimant(
+            _subscriptionIdentifier,
+            msg.sender
+        );
+
+        // Unstake tokens
+        stakeContract.unlockTokens(
+            msg.sender,
+            tokenAddress,
+            staked
+        );
+
+        // Emit the correct event
+        emit SubscriptionReleased(_subscriptionIdentifier, msg.sender, dueDate);
+
     }
 
     /**
@@ -445,7 +388,7 @@ contract Executor is Ownable {
         // Essentially it's a private function without the private modifier so that the
         // .call() function can be used.
 
-        require(msg.sender == address(this));
+        require(msg.sender == address(this), "Function can only be called by this contract");
 
         Collectable subscription = Collectable(_subscriptionContract);
 
@@ -453,7 +396,7 @@ contract Executor is Ownable {
 
         bool validSubscription = subscription.isValidSubscription(_subscriptionIdentifier);
 
-        require(validSubscription == true);
+        require(validSubscription == true, "Subscription must be valid");
 
         // @TODO: Make tests for gas cost subtraction
         uint pricedGas = getPricedGas(_subscriptionContract, _subscriptionIdentifier, _tokenAddress);
@@ -502,77 +445,13 @@ contract Executor is Ownable {
         uint balanceOfBusinessBeforeTransfer = _transactingToken.balanceOf(_to);
 
         // Check if the user has enough funds
-        require(_transactingToken.balanceOf(_from) >= _amount);
+        require(_transactingToken.balanceOf(_from) >= _amount, "The user doesn't have enough tokens");
 
         // Send currency to the destination business
         transferProxy.transferFrom(address(_transactingToken), _from, _to, _amount);
 
         // Check the business actually received the funds by checking the difference
-        require((_transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount);
-    }
-
-    function processFirstTime(
-        bytes32 subscriptionIdentifier,
-        address tokenAddress,
-        uint dueDate,
-        uint staked,
-        uint interval,
-        uint requiredStake
-    )
-        private
-        returns (uint)
-    {
-        // Check if they have enough tokens available
-        uint availableStake = stakeContract.getAvailableStake(msg.sender, tokenAddress);
-        require(availableStake >= requiredStake);
-
-        uint lockUp = (availableStake * lockUpPercentage) / 1000;
-        stakeContract.lockTokens(msg.sender, tokenAddress, lockUp);
-
-        paymentRegistry.claimPayment(
-            subscriptionIdentifier, // Identifier of subscription
-            msg.sender, // The claimant
-            dueDate + interval, // Next payment due date
-            lockUp
-        );
-
-        return lockUp;
-    }
-
-    function processExisting(
-        bytes32 subscriptionIdentifier,
-        address tokenAddress,
-        uint dueDate,
-        uint staked,
-        uint interval,
-        uint requiredStake
-    )
-        private
-        returns (uint)
-    {
-        uint lockUp = requiredStake;
-
-        if (requiredStake < staked) {
-            uint difference = staked - requiredStake;
-
-            stakeContract.unlockTokens(
-                msg.sender,
-                tokenAddress,
-                difference
-            );
-        } else {
-            lockUp = staked;
-        }
-
-        paymentRegistry.claimPayment(
-            subscriptionIdentifier, // Identifier of subscription
-            msg.sender, // The claimant
-            dueDate + interval, // Next payment due date
-            lockUp
-        );
-
-        return lockUp;
-
+        require((_transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount, "Before and after balances don't match up");
     }
 
     function getPricedGas(

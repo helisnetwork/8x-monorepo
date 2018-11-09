@@ -1,5 +1,4 @@
 import Web3 = require("web3");
-import _ from 'lodash';
 import * as ABIDecoder from 'abi-decoder';
 
 import {
@@ -11,6 +10,7 @@ import {
 import SubscriptionEvent from '../types/';
 
 import { Address } from '@8xprotocol/types';
+import { AbiDefinition } from "ethereum-types";
 
 export default class EventStore {
 
@@ -27,7 +27,7 @@ export default class EventStore {
   }
 
   public async startListening() {
-    const contract = this.web3.eth.contract(ExecutorAbi.abi).at(this.executorContract.address);
+    const contract = this.web3.eth.contract(ExecutorAbi.abi as AbiDefinition[]).at(this.executorContract.address);
     const eventsWatcher = contract.allEvents({
       fromBlock: 0,
       toBlock: "latest",

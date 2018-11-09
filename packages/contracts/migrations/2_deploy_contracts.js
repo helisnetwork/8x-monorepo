@@ -9,7 +9,7 @@ module.exports = function(deployer, network, accounts) {
 
     console.log(`Using network: ${network}`);
 
-    if (network == 'develop') {
+    if (!['ropsten', 'kovan', 'rinkeby', 'main'].contains(network)) {
         return;
     }
 
@@ -17,7 +17,6 @@ module.exports = function(deployer, network, accounts) {
     const ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
     const PaymentRegistry = artifacts.require("./PaymentRegistry.sol");
     const StakeContract = artifacts.require("./StakeContract.sol");
-    const Requirements = artifacts.require("./Requirements.sol");
     const VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
     const Executor = artifacts.require("./Executor.sol");
     const EightExToken = artifacts.require("./EightExToken.sol");
@@ -25,7 +24,7 @@ module.exports = function(deployer, network, accounts) {
     const MockToken = artifacts.require("./test/MockToken.sol");
     const MockKyberNetwork = artifacts.require("./test/MockKyberNetwork.sol");
 
-    return deployer.then(async () => {
+    return deployer.then(async() => {
 
         let executor;
         let volumeSubscription;
@@ -33,7 +32,6 @@ module.exports = function(deployer, network, accounts) {
 
         let transferProxy = await deployer.deploy(TransferProxy);
         let paymentRegistry = await deployer.deploy(PaymentRegistry);
-        let requirementsContract = await deployer.deploy(Requirements);
 
         let eightExToken = await deployer.deploy(EightExToken);
         let stakeContract = await deployer.deploy(StakeContract, eightExToken.address);
@@ -60,8 +58,6 @@ module.exports = function(deployer, network, accounts) {
             stakeContract.address,
             paymentRegistry.address,
             approvedRegistry.address,
-            requirementsContract.address,
-            Constants.LOCK_UP_PERCENTAGE,
             Constants.MAXIMUM_INTERVAL_DIVISOR
         );
 
@@ -73,8 +69,7 @@ module.exports = function(deployer, network, accounts) {
         const contractsJson = fs.readJsonSync(file, { throws: false }) || {};
 
         let output = {
-            'addresses': [
-                {
+            'addresses': [{
                     'name': 'Executor',
                     'address': executor.address
                 },
@@ -95,10 +90,6 @@ module.exports = function(deployer, network, accounts) {
                     'address': paymentRegistry.address
                 },
                 {
-                    'name': 'Requirements',
-                    'address': requirementsContract.address
-                },
-                {
                     'name': 'EightExToken',
                     'address': eightExToken.address
                 },
@@ -111,18 +102,14 @@ module.exports = function(deployer, network, accounts) {
                     'address': kyberNetworkAddress
                 }
             ],
-            'approvedTokens': [
-                {
-                    'ticker': 'DAI',
-                    'address': daiAddress
-                }
-            ],
-            'approvedContracts': [
-                {
-                    'name': 'VolumeSubscription',
-                    'address': volumeSubscription.address
-                }
-            ],
+            'approvedTokens': [{
+                'ticker': 'DAI',
+                'address': daiAddress
+            }],
+            'approvedContracts': [{
+                'name': 'VolumeSubscription',
+                'address': volumeSubscription.address
+            }],
             lockUpPercentage: Constants.LOCK_UP_PERCENTAGE,
             maximumIntervalDivisor: Constants.MAXIMUM_INTERVAL_DIVISOR,
         };

@@ -3,65 +3,65 @@ var json = JSON.parse(fs.readFileSync('../docs/source/includes/_api.json', 'utf8
 var dedent = require('dedent-js');
 
 let classes = json.children.filter((object) => {
-  return object.children
-}).filter((object) => {
-  return object.children[0].kindString == 'Class';
-}).map((object) => {
-  return object.children[0];
-}).map((object) => {
+        return object.children
+    }).filter((object) => {
+        return object.children[0].kindString == 'Class';
+    }).map((object) => {
+        return object.children[0];
+    }).map((object) => {
 
-  let comment = object.comment || {'name': '', 'shortText': '', 'tags': []};
-  let tags = comment.tags || [];
+        let comment = object.comment || { 'name': '', 'shortText': '', 'tags': [] };
+        let tags = comment.tags || [];
 
-  let path = tags.filter((tag) => tag.tag == 'path')[0] || {'text': ''};
-  let classDescription = tags.filter((tag) => tag.tag == 'comment')[0] || {'text': ''};
+        let path = tags.filter((tag) => tag.tag == 'path')[0] || { 'text': '' };
+        let classDescription = tags.filter((tag) => tag.tag == 'comment')[0] || { 'text': '' };
 
-  return {
-    'name': comment.shortText.trim(),
-    'description': classDescription.text.replace(/\\n/g, '').trim(),
-    'path': path.text.trim() || '',
-    'methods': object.children.filter((child) => {
-      return (child.kindString == 'Method');
-    })
-  }
-}).map((object) => {
+        return {
+            'name': comment.shortText.trim(),
+            'description': classDescription.text.replace(/\\n/g, '').trim(),
+            'path': path.text.trim() || '',
+            'methods': object.children.filter((child) => {
+                return (child.kindString == 'Method');
+            })
+        }
+    }).map((object) => {
 
-  let methods = object.methods.map((method) => {
-    let signatureObject = method.signatures[0];
-    let comment = signatureObject.comment || {
-      'shortText': '',
-      'text': '',
-      'returns': '',
-      'tags': [],
-      'parameters': []
-    };
+            let methods = object.methods.map((method) => {
+                        let signatureObject = method.signatures[0];
+                        let comment = signatureObject.comment || {
+                            'shortText': '',
+                            'text': '',
+                            'returns': '',
+                            'tags': [],
+                            'parameters': []
+                        };
 
-    let parameters = (signatureObject.parameters || []).map((paramater) => {
-      let strippedParameter = JSON.parse(JSON.stringify(paramater).replace(/\\n/g, ''))
+                        let parameters = (signatureObject.parameters || []).map((paramater) => {
+                            let strippedParameter = JSON.parse(JSON.stringify(paramater).replace(/\\n/g, ''))
 
-      let parameterType;
-      if (strippedParameter.type.type == 'union') {
-        parameterType = `(${strippedParameter.type.types.map((object) => object.name).join(' | ')})`;
-      } else {
-        parameterType = strippedParameter.type.name || ''
-      }
+                            let parameterType;
+                            if (strippedParameter.type.type == 'union') {
+                                parameterType = `(${strippedParameter.type.types.map((object) => object.name).join(' | ')})`;
+                            } else {
+                                parameterType = strippedParameter.type.name || ''
+                            }
 
-      let parameterComment = strippedParameter.comment || {'text' : ''};
-      return {
-        'name': strippedParameter.name || '',
-        'comment': parameterComment.text || '',
-        'type': parameterType
-      }
-    });
+                            let parameterComment = strippedParameter.comment || { 'text': '' };
+                            return {
+                                'name': strippedParameter.name || '',
+                                'comment': parameterComment.text || '',
+                                'type': parameterType
+                            }
+                        });
 
-    let typeObject = signatureObject.type || {
-      'name': '',
-      'typeArguments': []
-    };
+                        let typeObject = signatureObject.type || {
+                            'name': '',
+                            'typeArguments': []
+                        };
 
-    let returnType;
-    if (typeObject.type == 'reference') {
-      returnType = `Promise<${typeObject.typeArguments.map((item) => {
+                        let returnType;
+                        if (typeObject.type == 'reference') {
+                            returnType = `Promise<${typeObject.typeArguments.map((item) => {
         if (item.type == 'array') {
           return `[${item.elementType.name}]`;
         } else if (item.type == 'tuple') {
@@ -163,4 +163,4 @@ let markdown = classes.map((object) => {
 
 }).join("");
 
-fs.writeFile('../docs/source/includes/_api.md', markdown, 'utf-8');
+fs.writeFileSync('../docs/source/includes/_api.md', markdown, 'utf-8');

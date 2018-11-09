@@ -84,21 +84,17 @@ If you would like to contribute please fork the repo, create a new branch, fix t
 
 ##### Pre Requisites
 ```
-npm install
-npm install -g solhint
+npm install -g lerna
+npm install -g truffle
+npm install -g typescript@2.6.2
 ```
 
-##### Running Contract Tests
+##### Compiling All Packages
 ```
-truffle test
-```
-
-##### Running Style/Security Tests
-```
-npm run lint
+lerna run build
 ```
 
-##### Running Full Test Suite
+##### Running All Tests
 ```
-npm run test
+lerna run test
 ```

@@ -1,56 +1,50 @@
 {
-  "kovan": {
-    "addresses": [
-      {
-        "name": "Executor",
-        "address": "0x470194d300f9304c22de2b2379f4d6707929a826"
-      },
-      {
-        "name": "VolumeSubscription",
-        "address": "0x83e707e542ade68e9e350cbd7e9e973d5ff1e192"
-      },
-      {
-        "name": "ApprovedRegistry",
-        "address": "0x7499ff1e557ccf2c0984942f19f0414381bd9438"
-      },
-      {
-        "name": "TransferProxy",
-        "address": "0xa49f09793d618d861351359ab0fbbd4751487e8a"
-      },
-      {
-        "name": "PaymentRegistry",
-        "address": "0xe8cb0fb5820fe6a79533f19b5ec2497d572c1c49"
-      },
-      {
-        "name": "Requirements",
-        "address": "0x6042c4ceeeba5566c559bbd21b7cd7a27f0522ed"
-      },
-      {
-        "name": "EightExToken",
-        "address": "0x79468d682f46818c39f069556601b1e55cf5f56e"
-      },
-      {
-        "name": "StakeContract",
-        "address": "0x1a85078869da113a0568544cce40ea8b8db2556f"
-      },
-      {
-        "name": "KyberNetwork",
-        "address": "0x67376cb28db40294cba0ec3db6e152d4bd6ab3bc"
-      }
-    ],
-    "approvedTokens": [
-      {
-        "ticker": "DAI",
-        "address": "0xc4375b7de8af5a38a93548eb8453a498222c4ff2"
-      }
-    ],
-    "approvedContracts": [
-      {
-        "name": "VolumeSubscription",
-        "address": "0x83e707e542ade68e9e350cbd7e9e973d5ff1e192"
-      }
-    ],
-    "lockUpPercentage": 800,
-    "maximumIntervalDivisor": 7
-  }
+    "kovan": {
+        "addresses": [{
+                "name": "Executor",
+                "address": "0x470194d300f9304c22de2b2379f4d6707929a826"
+            },
+            {
+                "name": "VolumeSubscription",
+                "address": "0x83e707e542ade68e9e350cbd7e9e973d5ff1e192"
+            },
+            {
+                "name": "ApprovedRegistry",
+                "address": "0x7499ff1e557ccf2c0984942f19f0414381bd9438"
+            },
+            {
+                "name": "TransferProxy",
+                "address": "0xa49f09793d618d861351359ab0fbbd4751487e8a"
+            },
+            {
+                "name": "PaymentRegistry",
+                "address": "0xe8cb0fb5820fe6a79533f19b5ec2497d572c1c49"
+            },
+            {
+                "name": "Requirements",
+                "address": "0x6042c4ceeeba5566c559bbd21b7cd7a27f0522ed"
+            },
+            {
+                "name": "EightExToken",
+                "address": "0x79468d682f46818c39f069556601b1e55cf5f56e"
+            },
+            {
+                "name": "StakeContract",
+                "address": "0x1a85078869da113a0568544cce40ea8b8db2556f"
+            },
+            {
+                "name": "KyberNetwork",
+                "address": "0x67376cb28db40294cba0ec3db6e152d4bd6ab3bc"
+            }
+        ],
+        "approvedTokens": [{
+            "ticker": "DAI",
+            "address": "0xc4375b7de8af5a38a93548eb8453a498222c4ff2"
+        }],
+        "approvedContracts": [{
+            "name": "VolumeSubscription",
+            "address": "0x83e707e542ade68e9e350cbd7e9e973d5ff1e192"
+        }],
+        "maximumIntervalDivisor": 7
+    }
 }
