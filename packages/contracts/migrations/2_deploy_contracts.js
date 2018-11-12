@@ -9,7 +9,7 @@ module.exports = function(deployer, network, accounts) {
 
     console.log(`Using network: ${network}`);
 
-    if (!['ropsten', 'kovan', 'rinkeby', 'main'].contains(network)) {
+    if (network !== 'ropsten' && network !== 'kovan' && network !== 'rinkeby' && network !== 'main') {
         return;
     }
 

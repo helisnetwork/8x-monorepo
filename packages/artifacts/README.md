@@ -6,15 +6,14 @@ This repo contains the JSON and TypeScript ABI files necessary to interact with 
 
 | Contract Name                                                         | Address                                                      |
 | --------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Executor | 0x470194d300f9304c22de2b2379f4d6707929a826 |
-| VolumeSubscription | 0x83e707e542ade68e9e350cbd7e9e973d5ff1e192 |
-| ApprovedRegistry | 0x7499ff1e557ccf2c0984942f19f0414381bd9438 |
-| TransferProxy | 0xa49f09793d618d861351359ab0fbbd4751487e8a |
-| PaymentRegistry | 0xe8cb0fb5820fe6a79533f19b5ec2497d572c1c49 |
-| Requirements | 0x6042c4ceeeba5566c559bbd21b7cd7a27f0522ed |
-| EightExToken | 0x79468d682f46818c39f069556601b1e55cf5f56e |
-| StakeContract | 0x1a85078869da113a0568544cce40ea8b8db2556f |
-| KyberNetwork | 0x67376cb28db40294cba0ec3db6e152d4bd6ab3bc |
+| Executor | 0x22c4046aaa3e4c917a480b78ab0539e58263cf07 |
+| VolumeSubscription | 0x861fbac3de50783b9f7a6bd2bcc03f2298efce1c |
+| ApprovedRegistry | 0x61fc3a2e1518e7f16d5f18e885d1f9723aed79c4 |
+| TransferProxy | 0x0a890f03cf67a0fd392a1320ad4572af8d05699b |
+| PaymentRegistry | 0x08662d37eb59071d4528e67ed3c95bea84b0c65e |
+| EightExToken | 0x42f71046d88e926f72d6aca4ad491786e0a826a4 |
+| StakeContract | 0x5ffd8b6560821a3597eb208dd99cf3db57b67ec9 |
+| KyberNetwork | 0x7e6b8b9510D71BF8EF0f893902EbB9C865eEF4Df |
 
 ### Supported Tokens (Kovan)
 
