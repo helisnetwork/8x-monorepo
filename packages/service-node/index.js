@@ -51,7 +51,7 @@ provider.engine._providers.unshift(nonceTracker)
 nonceTracker.setEngine(provider.engine)
 
 const web3 = new Web3(provider);
-const repeater = new Repeater(web3, environment.EXECUTOR, environment.PUBLIC_KEY)
+const repeater = new Repeater(web3, environment.EXECUTOR, environment.PUBLIC_KEY.toLowerCase())
 
 const topUpAmount = new BigNumber(100).mul(10 ** 18);
 
