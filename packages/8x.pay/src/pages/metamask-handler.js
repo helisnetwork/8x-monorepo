@@ -102,7 +102,7 @@ class MetamaskHandler extends React.Component {
         return (
           <PaymentGuide/>
         );
-      } else {
+      } else if(this.state.authorized === '') {
         return null;
       }
     } else {
