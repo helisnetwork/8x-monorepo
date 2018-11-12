@@ -42,8 +42,8 @@ const environment = dotenv.config().parsed;
 let provider = new Web3.providers.HttpProvider(environment.NODE_ADDRESS);
 
 if (environment.PRIVATE_KEY) {
-  provider = new HDWalletProvider([environment.PRIVATE_KEY], environment.NODE_ADDRESS);
-  console.log('Private key set sucessfully');
+    provider = new HDWalletProvider([environment.PRIVATE_KEY.toLowerCase()], environment.NODE_ADDRESS);
+    console.log('Private key set sucessfully');
 }
 
 let nonceTracker = new NonceTrackerSubprovider()
@@ -53,22 +53,22 @@ nonceTracker.setEngine(provider.engine)
 const web3 = new Web3(provider);
 const repeater = new Repeater(web3, environment.EXECUTOR, environment.PUBLIC_KEY)
 
-const topUpAmount = new BigNumber(100).mul(10**18);
+const topUpAmount = new BigNumber(100).mul(10 ** 18);
 
 repeater.attemptTopUp(
-  topUpAmount,
-  environment.TRANSACTING_TOKEN,
-  environment.STAKE_TOKEN,
-  environment.STAKE_CONTRACT)
-.then(function() {
-  console.log('Top up successfull');
-  return repeater.start()
-}).then(function() {
-  console.log("Started node");
-}).catch(function(error) {
-  console.log(error);
-})
+        topUpAmount,
+        environment.TRANSACTING_TOKEN,
+        environment.STAKE_TOKEN,
+        environment.STAKE_CONTRACT)
+    .then(function() {
+        console.log('Top up successfull');
+        return repeater.start()
+    }).then(function() {
+        console.log("Started node");
+    }).catch(function(error) {
+        console.log(error);
+    })
 
 repeater.repeaterUpdated = function() {
-  console.log("Repeater events updated");
+    console.log("Repeater events updated");
 };
