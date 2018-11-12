@@ -1,23 +1,23 @@
 {
-  "name": "@8xprotocol/types",
-  "version": "0.3.2",
-  "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "clean": "rimraf rm -rf dist",
-    "build": "npm run clean && tsc"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@types/lodash": "^4.14.116",
-    "bignumber.js": "^4.1.0",
-    "lodash": "^4.17.11",
-    "rimraf": "^2.6.2"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "gitHead": "e1c728ff2dbae514c8cefa792ceea0f54f230de9"
+    "name": "@8xprotocol/types",
+    "version": "0.3.4",
+    "description": "",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "clean": "rimraf rm -rf dist",
+        "build": "npm run clean && tsc"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/lodash": "^4.14.116",
+        "bignumber.js": "^4.1.0",
+        "lodash": "^4.17.11",
+        "rimraf": "^2.6.2"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "gitHead": "e1c728ff2dbae514c8cefa792ceea0f54f230de9"
 }
