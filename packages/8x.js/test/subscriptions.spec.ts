@@ -77,7 +77,6 @@ describe('SubscriptionAPI', () => {
     );
 
     await approvedRegistry.addApprovedContract.sendTransactionAsync(volumeSubscription.address, {from: contractOwner});
-    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
 
     eightEx = new EightEx(web3, {
       volumeSubscriptionAddress: volumeSubscription.address,
@@ -126,6 +125,7 @@ describe('SubscriptionAPI', () => {
 
   test('should be able to create a subscription', async () => {
 
+    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
     subscriptionHash = await eightEx.subscriptions.subscribe(
       planHash,
       null,
@@ -147,6 +147,7 @@ describe('SubscriptionAPI', () => {
 
   test('should be able to activate a subscription', async () => {
 
+    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
     await eightEx.subscriptions.activate(
       subscriptionHash
     );
@@ -168,6 +169,7 @@ describe('SubscriptionAPI', () => {
 
   test('it should be able to get all subscriptions by subscriber', async () => {
 
+    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
     let anotherSubscriptionHash = await eightEx.subscriptions.subscribe(anotherPlanHash, null, {from: consumer});
     await eightEx.subscriptions.activate(anotherSubscriptionHash, {from: consumer});
 
@@ -183,6 +185,55 @@ describe('SubscriptionAPI', () => {
 
     let subscriptionsTwo = await eightEx.plans.getSubscribers(anotherPlanHash);
     expect(subscriptionsTwo.length).to.equal(1);
+
+  });
+
+  test('should show active on an activated subscription', async ()=> {
+
+    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
+    await eightEx.subscriptions.giveAuthorisation({from: consumer});
+    let allowance = await eightEx.subscriptions.hasGivenAuthorisation(consumer);
+    expect(allowance).to.be.true;
+
+    let subscriptionHash = await eightEx.subscriptions.subscribe(planHash, null, {from: consumer});
+    let activation = await eightEx.subscriptions.activate(subscriptionHash, {from: consumer});
+    expect(subscriptionHash).to.not.equal(null);
+    expect(activation).to.not.equal(null);
+
+    let subscriptionPaymentTest = await eightEx.subscriptions.getStatus(subscriptionHash);
+    expect(subscriptionPaymentTest[0]).to.equal('active');
+
+  });
+
+  test('should show inactive on a subscription that has not been activated', async ()=> {
+    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
+    await eightEx.subscriptions.giveAuthorisation({from: consumer});
+    let allowance = await eightEx.subscriptions.hasGivenAuthorisation(consumer);
+    expect(allowance).to.be.true;
+
+    let subscriptionHash = await eightEx.subscriptions.subscribe(planHash, null, {from: consumer});
+    expect(subscriptionHash).to.not.equal(null);
+
+    let subscriptionNotActivatedTest = await eightEx.subscriptions.getStatus(subscriptionHash);
+    expect(subscriptionNotActivatedTest[0]).to.equal('inactive');
+
+  });
+
+  test('should show inactive on a cancelled subscription', async ()=> {
+    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
+    await eightEx.subscriptions.giveAuthorisation({from: consumer});
+    let allowance = await eightEx.subscriptions.hasGivenAuthorisation(consumer);
+    expect(allowance).to.be.true;
+
+    let subscriptionHash = await eightEx.subscriptions.subscribe(planHash, null, {from: consumer});
+    let activation = await eightEx.subscriptions.activate(subscriptionHash, {from: consumer});
+    expect(subscriptionHash).to.not.equal(null);
+    expect(activation).to.not.equal(null);
+
+    await eightEx.subscriptions.cancel(subscriptionHash, {from: consumer});
+
+    let subscriptionCancelledTest = await eightEx.subscriptions.getStatus(subscriptionHash);
+    expect(subscriptionCancelledTest[0]).to.equal('inactive');
 
   });
 

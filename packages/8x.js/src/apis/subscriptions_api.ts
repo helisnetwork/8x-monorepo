@@ -225,20 +225,19 @@ export default class SubscriptionsAPI {
    * ```
    *
    * @param subscriptionHash        Unique subscription hash returned upon subscribing.
-   * @param plan                    Pass an existing plan object to prevent refetching.
-   * @param subscription            Pass an existing subscription object to prevent refetching.
    * @returns                       Current status, does user has enough tokens, does 8x got authorisation.
    * @priority                      6
    *
    */
   public async getStatus(
-    subscriptionHash: Bytes32,
-    plan?: Plan,
-    subscription?: Subscription
+    subscriptionHash: Bytes32
   ): Promise<[string, boolean, boolean]> {
 
-    subscription = subscription || await this.get(subscriptionHash);
-    plan = plan || await this.volumeSubscriptionWrapper.getPlan(subscription.planHash);
+    let subscription = await this.get(subscriptionHash);
+
+    let planHash = subscription.planHash;
+
+    let plan = await this.volumeSubscriptionWrapper.getPlan(planHash)
 
     const intervalDivisor = await this.executorWrapper.getIntervalDivisor();
     const now = Date.now() / 1000;
@@ -256,12 +255,12 @@ export default class SubscriptionsAPI {
     const permissionGranted = allowanceAmount >= plan.amount;
 
     // If we're before the payment date, happy days.
-    if (now < dueDate) {
+    if (now < dueDate && subscription.terminationDate === 0) {
       return ['active', hasEnough, permissionGranted];
     }
 
     // The subscription is being processed, plus give an extra hour for someone to catch out
-    if (now < dueDate + (plan.interval / intervalDivisor.toNumber()) + (60 * 60)) {
+    if (now < dueDate + (plan.interval / intervalDivisor.toNumber()) + (60 * 60) && subscription.terminationDate === 0) {
       return ['processing', hasEnough, permissionGranted];
     }
 
