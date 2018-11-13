@@ -233,6 +233,7 @@ contract Executor is Ownable {
         uint interval = (dueDate - lastPaymentDate);
         require(currentTimestamp() < (dueDate + (interval / maximumIntervalDivisor)), "The subscription has already passed the processing period");
 
+        require(stakeContract.getAvailableStake(msg.sender, tokenAddress) > 1, "At least one token is required to process subscriptions");
 
         if (attemptProcessingWithCallback(
             _subscriptionContract, _subscriptionIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, staked
@@ -240,8 +241,6 @@ contract Executor is Ownable {
             processingFailed(_subscriptionContract, _subscriptionIdentifier, tokenAddress, msg.sender, staked);
             return;
         }
-
-        require(stakeContract.getAvailableStake(msg.sender, tokenAddress) > 1, "At least one token is required to process subscriptions");
 
         paymentRegistry.claimPayment(
             _subscriptionIdentifier, // Identifier of subscription
@@ -382,6 +381,21 @@ contract Executor is Ownable {
 
     }
 
+    function getPricedGas(
+        address _contractAddress,
+        bytes32 _subscriptionIdentifier,
+        address _tokenAddress
+    )
+        public
+        view
+        returns (uint)
+    {
+        (uint gasCost, uint gasPrice) = Collectable(_contractAddress).getGasForExecution(_subscriptionIdentifier, 0);
+        uint rate = approvedRegistry.getRateFor(_tokenAddress);
+        uint standardCost = ((10**18) / rate) * (10**9) * (gasCost * (gasPrice / (10**9)));
+        return standardCost;
+    }
+
     /**
       * INTERNAL FUNCTIONS
     */
@@ -507,21 +521,6 @@ contract Executor is Ownable {
 
         // Check the business actually received the funds by checking the difference
         require((_transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount, "Before and after balances don't match up");
-    }
-
-    function getPricedGas(
-        address _contractAddress,
-        bytes32 _subscriptionIdentifier,
-        address _tokenAddress
-    )
-        private
-        returns (uint)
-    {
-        // @ TODO: Tests
-        (uint gasCost, uint gasPrice) = Collectable(_contractAddress).getGasForExecution(_subscriptionIdentifier, 0);
-        uint rate = approvedRegistry.getRateFor(_tokenAddress);
-        uint standardCost = ((gasCost * gasPrice / (10**9)) * ((10**18) / rate));
-        return standardCost;
     }
 
 }

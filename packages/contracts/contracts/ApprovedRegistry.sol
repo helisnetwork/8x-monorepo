@@ -28,6 +28,8 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     event TokenAdded(address indexed target);
     event TokenRemoved(address indexed target);
 
+    event CachedPriceOverwritten(address indexed token, uint indexed price);
+
     /**
       * MODIFIERS
     */
@@ -70,7 +72,14 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         }
 
         // Gas spike hence return cached value
-        return approvedTokenMapping[_tokenAddress] = rate;
+        uint cachedRate = approvedTokenMapping[_tokenAddress];
+
+        if (cachedRate == 0) {
+            // Fail safe in case Kyber gives 0
+            cachedRate = 66*10**14;
+        }
+
+        return cachedRate;
     }
 
     /** @dev Add an approved subscription contract to be used.
@@ -115,7 +124,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
                 approvedContractArray[i] = approvedContractArray[approvedContractArray.length - 1];
                 approvedContractArray.length--;
 
-                delete approvedContractMapping[_contractAddress];
+                approvedContractMapping[_contractAddress] = false;
                 emit ContractRemoved(_contractAddress);
 
                 break;
@@ -135,7 +144,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
                 approvedTokenArray[i] = approvedTokenArray[approvedTokenArray.length - 1];
                 approvedTokenArray.length--;
 
-                delete approvedTokenMapping[_tokenAddress];
+                approvedTokenMapping[_tokenAddress] = 0;
                 emit TokenRemoved(_tokenAddress);
 
                 break;
@@ -143,7 +152,6 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         }
 
         if (_tokenAddress == address(wrappedEther)) {
-            // @TODO: Write tests for this
             delete wrappedEther;
         }
     }
@@ -204,5 +212,16 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         return tokenFoundInRegistry;
     }
 
+    /** @dev Force overwrite the cached price
+      * @param _tokenAddress to set for
+      * @param _price to set for
+    */
+    function forceUpdateCachedPrice(address _tokenAddress, uint _price) 
+        public
+        onlyOwner
+    {
+        approvedTokenMapping[_tokenAddress] = _price;
+        emit CachedPriceOverwritten(_tokenAddress, _price);
+    }
 
 }
