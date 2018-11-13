@@ -86,6 +86,7 @@ If you would like to contribute please fork the repo, create a new branch, fix t
 npm install -g lerna
 npm install -g truffle
 npm install -g typescript@2.6.2
+npm install -g ganache-cli
 ```
 
 ##### Compiling All Packages
