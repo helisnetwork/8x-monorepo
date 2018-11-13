@@ -23,6 +23,8 @@ contract Executor is Ownable {
 
     uint public maximumIntervalDivisor; // Latest to claim a payment or cancel.
 
+    bool private paused;
+
     event SubscriptionActivated(
         address indexed subscriptionAddress,
         bytes32 indexed subscriptionIdentifier,
@@ -57,7 +59,28 @@ contract Executor is Ownable {
         bytes32 indexed subscriptionIdentifier
     );
 
-    event Checkpoint(uint number);
+    event Paused(address account);
+    event Unpaused(address account);
+
+    /**
+      * MODIFIERS
+    */
+
+    /**
+      * @dev Modifier to make a function callable only when the contract is not paused.
+    */
+    modifier whenNotPaused() {
+        require(!paused, "Contract is paused");
+        _;
+    }
+
+    /**
+      * @dev Modifier to make a function callable only when the contract is paused.
+    */
+    modifier whenPaused() {
+        require(paused, "Contract is not paused");
+        _;
+    }
 
     /**
       * PUBLIC FUNCTIONS
@@ -84,6 +107,7 @@ contract Executor is Ownable {
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
         approvedRegistry = ApprovedRegistryInterface(_approvedRegistryAddress);
         maximumIntervalDivisor = _divisor;
+        paused = false;
     }
 
     /** @dev Set the maximum time for a subscription to go on unprocessed or to cancel afterwards.
@@ -95,6 +119,33 @@ contract Executor is Ownable {
         maximumIntervalDivisor = _divisor;
     }
 
+    /**
+      * @dev called by the owner to pause, triggers stopped state
+    */
+    function pause() public onlyOwner whenNotPaused {
+        paused = true;
+        emit Paused(msg.sender);
+    }
+
+    /**
+      * @dev called by the owner to unpause, returns to normal state
+    */
+    function unpause() public onlyOwner whenPaused {
+        paused = false;
+        emit Unpaused(msg.sender);
+    }
+
+    /** @dev Check if the contract is paused
+      * @return true if the contract is paused, false otherwise.
+    */
+    function isPaused()
+        public 
+        view 
+        returns (bool) 
+    {
+        return paused;
+    }
+
     /** @dev Active a subscription once it's been created (make the first payment) paid from wrapped Ether.
       * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
       * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
@@ -104,6 +155,7 @@ contract Executor is Ownable {
         bytes32 _subscriptionIdentifier
     )
         public
+        whenNotPaused
         returns (bool success)
     {
 
@@ -157,6 +209,7 @@ contract Executor is Ownable {
         bytes32 _subscriptionIdentifier
     )
         public
+        whenNotPaused
     {
         // Get the current payment registry object (if it doesn't exist execution will eventually fail)
         (
@@ -214,6 +267,7 @@ contract Executor is Ownable {
         bytes32 _subscriptionIdentifier
     )
         public
+        whenNotPaused
     {
         // Get the payment object
         (
@@ -277,6 +331,7 @@ contract Executor is Ownable {
         bytes32 _subscriptionIdentifier
     )
         public
+        whenNotPaused
     {
 
         // Get the payment registry information

@@ -57,7 +57,7 @@ contract KyberNetworkInterface {
       * @param token Destination token
       * @param minConversionRate The minimal conversion rate. If actual rate is lower, trade is canceled.
       * @return amount of actual dest tokens
-    **/
+    */
     function swapEtherToToken(
         ERC20 token,
         uint minConversionRate

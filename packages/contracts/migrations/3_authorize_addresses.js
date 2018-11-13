@@ -1,4 +1,10 @@
+const Constants = require("./migration_constants");
+
 module.exports = function(deployer, network, accounts) {
+
+    if (!Constants.isActualDeployment(network)) {
+        return;
+    }
 
     const TransferProxy = artifacts.require("./TransferProxy.sol");
     const PaymentRegistry = artifacts.require("./PaymentRegistry.sol");
@@ -6,18 +12,18 @@ module.exports = function(deployer, network, accounts) {
     const VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
     const Executor = artifacts.require("./Executor.sol");
 
-    return deployer.then(async () => {
+    return deployer.then(async() => {
 
-      let transferProxy = await TransferProxy.deployed();
-      let stakeContract = await StakeContract.deployed();
-      let paymentRegistry = await PaymentRegistry.deployed();
-      let executor = await Executor.deployed();
-      let volumeSubscription = await VolumeSubscription.deployed();
+        let transferProxy = await TransferProxy.deployed();
+        let stakeContract = await StakeContract.deployed();
+        let paymentRegistry = await PaymentRegistry.deployed();
+        let executor = await Executor.deployed();
+        let volumeSubscription = await VolumeSubscription.deployed();
 
-      await transferProxy.addAuthorizedAddress(executor.address);
-      await stakeContract.addAuthorizedAddress(executor.address);
-      await paymentRegistry.addAuthorizedAddress(executor.address);
-      await volumeSubscription.addAuthorizedAddress(executor.address);
+        await transferProxy.addAuthorizedAddress(executor.address);
+        await stakeContract.addAuthorizedAddress(executor.address);
+        await paymentRegistry.addAuthorizedAddress(executor.address);
+        await volumeSubscription.addAuthorizedAddress(executor.address);
 
     });
 
