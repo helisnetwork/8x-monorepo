@@ -342,6 +342,39 @@ contract VolumeSubscription is Collectable {
         public
         returns (bytes32 newSubscriptionHash)
     {
+        createSubscriptionWithSalt(_planHash, _data, currentTimestamp());
+    }
+
+    /** @dev Create a subscription and call another contract/function
+      * @param _planHash a reference to the subscribed plan
+      * @param _data extra data store.
+      * @param _callbackAddress the address to call afterwards
+      * @param _callbackData the data you'd like to pass to the external function
+    */
+    function createSubscriptionAndCall(
+        bytes32 _planHash, 
+        string _data, 
+        uint _salt,
+        address _callbackAddress, 
+        bytes32 _callbackData
+    ) public {
+        createSubscriptionWithSalt(_planHash, _data, _salt);
+        _callbackAddress.call(_callbackData);
+    }
+
+     /** @dev This is the function for creating a new subscription with supplied entropy.
+      * @param _planHash a reference to the subscribed plan
+      * @param _data extra data store.
+      * @param _salt entropy to create hash for subscription hash.
+    */
+    function createSubscriptionWithSalt(
+        bytes32 _planHash,
+        string _data,
+        uint _salt
+    ) 
+        public
+        returns (bytes32 newSubscriptionHash)
+    {
         // @TODO: Check for overflows and underflows
 
         require(msg.sender != 0x0);
@@ -349,7 +382,7 @@ contract VolumeSubscription is Collectable {
         address planTokenAddress = plans[_planHash].tokenAddress;
 
         bytes32 subscriptionHash =
-            keccak256(abi.encodePacked(msg.sender, _planHash, currentTimestamp()));
+            keccak256(abi.encodePacked(msg.sender, _planHash, _salt));
 
         require(subscriptions[subscriptionHash].owner == 0x0);
         require(planTokenAddress != 0x0);
@@ -368,22 +401,6 @@ contract VolumeSubscription is Collectable {
         emit CreatedSubscription(subscriptionHash, _planHash, msg.sender);
 
         return subscriptionHash;
-    }
-
-    /** @dev Create a subscription and call another contract/function
-      * @param _planHash a reference to the subscribed plan
-      * @param _data extra data store.
-      * @param _callbackAddress the address to call afterwards
-      * @param _callbackData the data you'd like to pass to the external function
-    */
-    function createSubscriptionAndCall(
-        bytes32 _planHash, 
-        string _data, 
-        address _callbackAddress, 
-        bytes32 _callbackData
-    ) public {
-        createSubscription(_planHash, _data);
-        _callbackAddress.call(_callbackData);
     }
 
     /** @dev Updates the plan's owner.
