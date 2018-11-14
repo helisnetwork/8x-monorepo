@@ -24,6 +24,8 @@ module.exports = function(deployer, network, accounts) {
     const MockToken = artifacts.require("./test/MockToken.sol");
     const MockKyberNetwork = artifacts.require("./test/MockKyberNetwork.sol");
 
+    const MultiSigWalletWithTimeLock = artifacts.require("./test/MultiSigWalletWithTimeLock.sol");
+
     return deployer.then(async() => {
 
         let executor;
@@ -38,6 +40,8 @@ module.exports = function(deployer, network, accounts) {
 
         let kyberNetworkAddress = Dependencies.KyberNetwork[network] || (await deployer.deploy(MockKyberNetwork)).address;
         let daiAddress = Tokens.DAI.addresses[network] || (await deployer.deploy(MockToken)).address;
+
+        let contractOwner = network == 'main' ? await deployer.deploy(MultiSigWalletWithTimeLock) : accounts[0]
 
         // Deploy the Approved Registry with Kyber Network
         approvedRegistry = await deployer.deploy(ApprovedRegistry, kyberNetworkAddress);
