@@ -64,7 +64,7 @@ export default class ProcessorStore {
 
     let toProcess = this.events.filter((event) => {
       let result = (
-        (now >= event.dueDate) &&
+        (now >= event.dueDate + 60) &&
         (now <= (event.dueDate + 120)) &&
         (!event.claimant || event.claimant == this.serviceNodeAccount)
       );
