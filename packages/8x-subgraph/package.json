@@ -1,22 +1,21 @@
 {
-  "name": "8x-subgraph",
-  "version": "1.0.0",
-  "description": "The subgraph for 8x Protocol contracts",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "scripts": {
-    "codegen": "graph codegen --output-dir types/",
-    "build": "graph build",
-    "build-ipfs": "graph build --ipfs /ip4/127.0.0.1/tcp/5001",
-    "deploy":
-      "graph deploy --ipfs /ip4/127.0.0.1/tcp/5001 --node http://127.0.0.1 --subgraph-name 8x subgraph.yaml"
-  },
-  "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.4.0",
-    "@graphprotocol/graph-ts": "^0.4.0"
-  }
+    "name": "8x-subgraph",
+    "version": "1.0.0",
+    "description": "The subgraph for 8x Protocol contracts",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "scripts": {
+        "graph:codegen": "graph codegen --output-dir types/",
+        "graph:build": "graph build",
+        "graph:build-ipfs": "graph build --ipfs /ip4/127.0.0.1/tcp/5001",
+        "graph:deploy": "graph deploy --ipfs /ip4/127.0.0.1/tcp/5001 --node http://127.0.0.1 --subgraph-name 8x subgraph.yaml"
+    },
+    "devDependencies": {
+        "@graphprotocol/graph-cli": "^0.4.0",
+        "@graphprotocol/graph-ts": "^0.4.0"
+    }
 }
