@@ -13,6 +13,8 @@ module.exports = function(deployer, network, accounts) {
         return;
     }
 
+    const MultiSigWalletWithTimeLock = artifacts.require("./test/MultiSigWalletWithTimeLock.sol");
+
     const TransferProxy = artifacts.require("./TransferProxy.sol");
     const ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
     const PaymentRegistry = artifacts.require("./PaymentRegistry.sol");
@@ -29,6 +31,7 @@ module.exports = function(deployer, network, accounts) {
         let executor;
         let volumeSubscription;
         let approvedRegistry;
+        let multiSig;
 
         let transferProxy = await deployer.deploy(TransferProxy);
         let paymentRegistry = await deployer.deploy(PaymentRegistry);
@@ -38,6 +41,10 @@ module.exports = function(deployer, network, accounts) {
 
         let kyberNetworkAddress = Dependencies.KyberNetwork[network] || (await deployer.deploy(MockKyberNetwork)).address;
         let daiAddress = Tokens.DAI.addresses[network] || (await deployer.deploy(MockToken)).address;
+
+        // Deploy MultiSig with one owner, one confirmation and zero seconds to make a change
+        // This will be changed to something else once we move past an alpha stage
+        multiSig = await deployer.deploy(MultiSigWalletWithTimeLock, accounts[0], 1, 0);
 
         // Deploy the Approved Registry with Kyber Network
         approvedRegistry = await deployer.deploy(ApprovedRegistry, kyberNetworkAddress);
@@ -100,6 +107,10 @@ module.exports = function(deployer, network, accounts) {
                 {
                     'name': 'KyberNetwork',
                     'address': kyberNetworkAddress
+                },
+                {
+                    'name': 'MultSig',
+                    'address': multiSig.address
                 }
             ],
             'approvedTokens': [{
