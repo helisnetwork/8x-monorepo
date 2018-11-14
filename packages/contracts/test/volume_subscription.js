@@ -22,11 +22,11 @@ contract('VolumeSubscription', function(accounts) {
 
     before(async function() {
 
-        kyberNetwork = await MockKyberNetwork.new({from: contractOwner});
-        approvedRegistryContract = await ApprovedRegistry.new(kyberNetwork.address, {from: contractOwner});
+        kyberNetwork = await MockKyberNetwork.new({ from: contractOwner });
+        approvedRegistryContract = await ApprovedRegistry.new(kyberNetwork.address, { from: contractOwner });
 
-        contract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: accounts[0]});
-        token = await EightExToken.new({from: accounts[0]});
+        contract = await MockVolumeSubscription.new(approvedRegistryContract.address, { from: accounts[0] });
+        token = await EightExToken.new({ from: accounts[0] });
 
         await contract.addAuthorizedAddress(executorContract);
 
@@ -57,27 +57,27 @@ contract('VolumeSubscription', function(accounts) {
 
         it('should not be able to update the gas price as an unauthorised address', async function() {
 
-            await assertRevert(contract.setGasPrice(5, {from: unauthorizedAddress}));
+            await assertRevert(contract.setGasPrice(5, { from: unauthorizedAddress }));
 
         });
 
         it('should be able to update the gas price as an authorised address', async function() {
 
-            await contract.setGasPrice(1*10**9, {from: contractOwner});
+            await contract.setGasPrice(1 * 10 ** 9, { from: contractOwner });
             let details = await contract.getGasForExecution.call('', 0);
-            assert.equal(details[1], 1*10**9);
+            assert.equal(details[1], 1 * 10 ** 9);
 
         });
 
         it('should not be able to update the gas cost as an unauthorised address', async function() {
 
-            await assertRevert(contract.setGasCost(5, {from: unauthorizedAddress}));
+            await assertRevert(contract.setGasCost(5, { from: unauthorizedAddress }));
 
         });
 
         it('should be able to update the gas price as an authorised address', async function() {
 
-            await contract.setGasCost(100000, {from: contractOwner});
+            await contract.setGasCost(100000, { from: contractOwner });
             let details = await contract.getGasForExecution.call('', 0);
             assert.equal(details[0], 100000);
 
@@ -90,9 +90,9 @@ contract('VolumeSubscription', function(accounts) {
         it("should throw when creating a plan with an invalid owner address", async function() {
 
             await assertRevert(
-              contract.createPlan(
-                0, token.address, web3.utils.fromAscii("plan.new.incorrect"), 30, 100, 5, 0, {from: business}
-              )
+                contract.createPlan(
+                    0, token.address, web3.utils.fromAscii("plan.new.incorrect"), 30, 100, 5, 0, { from: business }
+                )
             );
 
         });
@@ -100,9 +100,9 @@ contract('VolumeSubscription', function(accounts) {
         it("should throw when creating a plan with an invalid identifier", async function() {
 
             await assertRevert(
-              contract.createPlan(
-                business, token.address, "", 30, 100, 5, 0, {from: business}
-              )
+                contract.createPlan(
+                    business, token.address, "", 30, 100, 5, 0, { from: business }
+                )
             );
 
         });
@@ -111,7 +111,7 @@ contract('VolumeSubscription', function(accounts) {
 
             await assertRevert(
                 contract.createPlan(
-                    business, 0, web3.utils.fromAscii("plan.new.no_token"), 30, 100, 10, 0, {from: business}
+                    business, 0, web3.utils.fromAscii("plan.new.no_token"), 30, 100, 10, 0, { from: business }
                 )
             );
 
@@ -120,9 +120,9 @@ contract('VolumeSubscription', function(accounts) {
         it("should throw when creating a plan with an unauthorised token", async function() {
 
             await assertRevert(
-              contract.createPlan(
-                business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, 0, {from: business}
-              )
+                contract.createPlan(
+                    business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, 0, { from: business }
+                )
             );
 
         });
@@ -130,20 +130,20 @@ contract('VolumeSubscription', function(accounts) {
         it("should throw when creating a plan with the interval set to 0", async function() {
 
             await assertRevert(
-            contract.createPlan(
-              business, token.address, web3.utils.fromAscii("plan.new.incorrect"), 0, 100, 5, 0, {from: business}
-            )
-          );
+                contract.createPlan(
+                    business, token.address, web3.utils.fromAscii("plan.new.incorrect"), 0, 100, 5, 0, { from: business }
+                )
+            );
 
         });
 
         it("should throw when creating a plan with the amount set to 0", async function() {
 
-          await assertRevert(
-            contract.createPlan(
-              business, token.address, web3.utils.fromAscii("plan.new.incorrect"), 30, 0, 5, 0, {from: business}
-            )
-          );
+            await assertRevert(
+                contract.createPlan(
+                    business, token.address, web3.utils.fromAscii("plan.new.incorrect"), 30, 0, 5, 0, { from: business }
+                )
+            );
 
         });
 
@@ -151,9 +151,9 @@ contract('VolumeSubscription', function(accounts) {
         it("should throw when creating a plan with a fee set to 0", async function() {
 
             await assertRevert(
-              contract.createPlan(
-                business, token.address, web3.utils.fromAscii("plan.new.incorrect"), 30, 100, 0, 0, {from: business}
-              )
+                contract.createPlan(
+                    business, token.address, web3.utils.fromAscii("plan.new.incorrect"), 30, 100, 0, 0, { from: business }
+                )
             );
 
         });
@@ -161,20 +161,20 @@ contract('VolumeSubscription', function(accounts) {
         it("should throw when creating a plan with a fee greater than or equal to the amount", async function() {
 
             await assertRevert(
-              contract.createPlan(
-                business, token.address, web3.utils.fromAscii("plan.new.incorrect"), 30, 100, 100, 0, {from: business}
-              )
+                contract.createPlan(
+                    business, token.address, web3.utils.fromAscii("plan.new.incorrect"), 30, 100, 100, 0, { from: business }
+                )
             );
 
         });
 
         it("should be able to create a new plan correctly", async function() {
 
-            await approvedRegistryContract.addApprovedToken(token.address, false, {from: contractOwner});
+            await approvedRegistryContract.addApprovedToken(token.address, false, { from: contractOwner });
 
 
             let newPlan = await contract.createPlan(
-                business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, 0, {from: business}
+                business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, 0, { from: business }
             );
             console.log(JSON.stringify(newPlan.logs));
             let planHash = newPlan.logs[0].args.planIdentifier;
@@ -189,8 +189,7 @@ contract('VolumeSubscription', function(accounts) {
             assert.equal(plan[6], 0);
 
             let computedHash = keccak(
-              ["address", "address", "bytes32", "uint", "uint", "uint", "string"],
-              [business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, ""]
+                ["address", "address", "bytes32", "uint", "uint", "uint", "string"], [business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, ""]
             );
 
             assert.equal(computedHash, planHash);
@@ -200,9 +199,9 @@ contract('VolumeSubscription', function(accounts) {
         it("should be able to create a new plan with duplicate details", async function() {
 
             await assertRevert(
-              contract.createPlan(
-                business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, "", {from: business}
-              )
+                contract.createPlan(
+                    business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, "", { from: business }
+                )
             );
 
         });
@@ -211,13 +210,13 @@ contract('VolumeSubscription', function(accounts) {
 
     describe("when updating a plan", () => {
 
-      let newPlan;
-      let planHash;
+        let newPlan;
+        let planHash;
 
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, web3.utils.fromAscii("plan.update"), 30, 100, 10, "", {from: business}
+                business, token.address, web3.utils.fromAscii("plan.update"), 30, 100, 10, "", { from: business }
             );
 
             planHash = newPlan.logs[0].args.planIdentifier;
@@ -226,30 +225,30 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should throw when setting the owner from an unauthorized address", async function() {
 
-            await assertRevert(contract.setPlanOwner(planHash, accounts[5], {from: unauthorizedAddress}));
+            await assertRevert(contract.setPlanOwner(planHash, accounts[5], { from: unauthorizedAddress }));
 
         });
 
         it("should be able to update the owner", async function() {
 
-            await contract.setPlanOwner(planHash, accounts[5], {from: business});
+            await contract.setPlanOwner(planHash, accounts[5], { from: business });
 
             let returnedPlan = await contract.plans.call(planHash);
             assert(returnedPlan[0], accounts[5]);
 
-            await contract.setPlanOwner(planHash, business, {from: accounts[5]});
+            await contract.setPlanOwner(planHash, business, { from: accounts[5] });
 
         });
 
         it("should throw when setting the data from an unauthorized address", async function() {
 
-            await assertRevert(contract.setPlanData(planHash, "{foo: bar}", {from: unauthorizedAddress}));
+            await assertRevert(contract.setPlanData(planHash, "{foo: bar}", { from: unauthorizedAddress }));
 
         });
 
         it("should be able to update the data", async function() {
 
-            await contract.setPlanData(planHash, "{foo: bar}", {from: business});
+            await contract.setPlanData(planHash, "{foo: bar}", { from: business });
 
             let returnedPlan = await contract.plans.call(planHash);
             assert(returnedPlan[6], "{foo: bar}");
@@ -266,7 +265,7 @@ contract('VolumeSubscription', function(accounts) {
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, web3.utils.fromAscii("plan.terminate"), 30, 100, 10, 0, {from: business}
+                business, token.address, web3.utils.fromAscii("plan.terminate"), 30, 100, 10, 0, { from: business }
             );
 
             planHash = newPlan.logs[0].args.planIdentifier;
@@ -276,24 +275,24 @@ contract('VolumeSubscription', function(accounts) {
         it("should throw when terminating a plan from an unauthorized address", async function() {
 
             let terminationDate = Date.now();
-            terminationDate = parseInt(terminationDate/1000) + (60*60*24);
-            await assertRevert(contract.terminatePlan(planHash, terminationDate, {from: unauthorizedAddress}));
+            terminationDate = parseInt(terminationDate / 1000) + (60 * 60 * 24);
+            await assertRevert(contract.terminatePlan(planHash, terminationDate, { from: unauthorizedAddress }));
 
         });
 
         it("should throw when terminating a plan with the termination date in the past", async function() {
 
             let terminationDate = Date.now();
-            terminationDate = parseInt(terminationDate/1000) - (60*60*24);
-            await assertRevert(contract.terminatePlan(planHash, terminationDate, {from: business}));
+            terminationDate = parseInt(terminationDate / 1000) - (60 * 60 * 24);
+            await assertRevert(contract.terminatePlan(planHash, terminationDate, { from: business }));
 
         });
 
         it("should be able to terminate a plan", async function() {
 
             let terminationDate = Date.now();
-            terminationDate = parseInt(terminationDate/1000) + (60*60*24);
-            await contract.terminatePlan(planHash, terminationDate, {from: business});
+            terminationDate = parseInt(terminationDate / 1000) + (60 * 60 * 24);
+            await contract.terminatePlan(planHash, terminationDate, { from: business });
 
             let plan = await contract.plans.call(planHash);
             assert.equal(plan[7], terminationDate);
@@ -308,13 +307,13 @@ contract('VolumeSubscription', function(accounts) {
         let planHash;
         let subscriptionHash;
 
-        let now = parseInt(Date.now()/1000);
-        let futureDate = now + (60*60*24);
+        let now = parseInt(Date.now() / 1000);
+        let futureDate = now + (60 * 60 * 24);
 
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, web3.utils.fromAscii("subscription.new"), 30, 100, 10, 0, {from: business}
+                business, token.address, web3.utils.fromAscii("subscription.new"), 30, 100, 10, 0, { from: business }
             );
 
             planHash = newPlan.logs[0].args.planIdentifier;
@@ -324,11 +323,10 @@ contract('VolumeSubscription', function(accounts) {
         it("should not be able to create with an invalid plan hash", async function() {
 
             let incorrectHash = keccak(
-              ["string"],
-              ["test"]
+                ["string"], ["test"]
             );
 
-            await assertRevert(contract.createSubscription(incorrectHash, "{}", {from: subscriber}));
+            await assertRevert(contract.createSubscription(incorrectHash, "{}", { from: subscriber }));
 
         });
 
@@ -337,7 +335,7 @@ contract('VolumeSubscription', function(accounts) {
             await contract.setTime(now);
 
             let newSubscription = await contract.createSubscription(
-              planHash, "", {from: subscriber}
+                planHash, "", { from: subscriber }
             );
 
             subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
@@ -351,8 +349,33 @@ contract('VolumeSubscription', function(accounts) {
             assert.equal(subscription[5], 0);
 
             let computedHash = keccak(
-              ["address", "bytes32", "uint"],
-              [subscriber, planHash, now]
+                ["address", "bytes32", "uint"], [subscriber, planHash, now]
+            );
+
+            assert.equal(computedHash, subscriptionHash);
+
+        });
+
+        it("should be able to create a subscription from an authorized address and a supplied salt", async function() {
+
+            await contract.setTime(now);
+
+            let newSubscription = await contract.createSubscriptionWithSalt(
+                planHash, "", 5, { from: subscriber }
+            );
+
+            subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
+            let subscription = await contract.subscriptions.call(subscriptionHash);
+
+            assert.equal(subscription[0], subscriber);
+            assert.equal(subscription[1], token.address);
+            assert.equal(subscription[2], planHash);
+            assert.equal(subscription[3], 0);
+            assert.equal(subscription[4], 0);
+            assert.equal(subscription[5], 0);
+
+            let computedHash = keccak(
+                ["address", "bytes32", "uint"], [subscriber, planHash, 5]
             );
 
             assert.equal(computedHash, subscriptionHash);
@@ -362,26 +385,26 @@ contract('VolumeSubscription', function(accounts) {
         it("should throw when trying to resubscribe with an existing active subscription", async function() {
 
             await assertRevert(contract.createSubscription(
-                planHash, 0, {from: subscriber}
+                planHash, 0, { from: subscriber }
             ));
 
         });
 
         it("should not be able to set the last payment date as the subscriber", async function() {
 
-            await assertRevert(contract.setLastPaymentDate(futureDate, subscriptionHash, {from: subscriber}));
+            await assertRevert(contract.setLastPaymentDate(futureDate, subscriptionHash, { from: subscriber }));
 
         });
 
         it("should not be able to set the last payment date as the business", async function() {
 
-            await assertRevert(contract.setLastPaymentDate(futureDate, subscriptionHash, {from: business}));
+            await assertRevert(contract.setLastPaymentDate(futureDate, subscriptionHash, { from: business }));
 
         });
 
         it("should be able to set the last payment date from the executor", async function() {
 
-            await contract.setLastPaymentDate(futureDate, subscriptionHash, {from: executorContract});
+            await contract.setLastPaymentDate(futureDate, subscriptionHash, { from: executorContract });
 
             let subscription = await contract.subscriptions.call(subscriptionHash)
             assert.equal(subscription[3].toNumber(), futureDate);
@@ -390,7 +413,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update the last payment date to a date in the future", async function() {
 
-            await contract.setLastPaymentDate(futureDate + 100, subscriptionHash, {from: executorContract});
+            await contract.setLastPaymentDate(futureDate + 100, subscriptionHash, { from: executorContract });
             let subscription = await contract.subscriptions.call(subscriptionHash)
             assert.equal(subscription[3].toNumber(), futureDate + 100);
 
@@ -405,18 +428,18 @@ contract('VolumeSubscription', function(accounts) {
         let subscriptionHash;
 
         let futureDate = Date.now();
-        futureDate = parseInt(futureDate/1000) + (60*60*24);
+        futureDate = parseInt(futureDate / 1000) + (60 * 60 * 24);
 
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, web3.utils.fromAscii("subscription.update"), 30, 100, 10, "", {from: business}
+                business, token.address, web3.utils.fromAscii("subscription.update"), 30, 100, 10, "", { from: business }
             );
 
             planHash = newPlan.logs[0].args.planIdentifier;
 
             let newSubscription = await contract.createSubscription(
-              planHash, 0, {from: subscriber}
+                planHash, 0, { from: subscriber }
             );
 
             subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
@@ -425,13 +448,13 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should throw when upadating the data from an unauthorized address", async function() {
 
-            await assertRevert(contract.setSubscriptionData(subscriptionHash, "{foo: bar}", {from: unauthorizedAddress}));
+            await assertRevert(contract.setSubscriptionData(subscriptionHash, "{foo: bar}", { from: unauthorizedAddress }));
 
         });
 
         it("should be able to update the data of a subscription", async function() {
 
-            await contract.setSubscriptionData(subscriptionHash, "{foo: bar}", {from: subscriber});
+            await contract.setSubscriptionData(subscriptionHash, "{foo: bar}", { from: subscriber });
 
             let subscription = await contract.subscriptions.call(subscriptionHash);
             assert.equal(subscription[5], "{foo: bar}");
@@ -447,18 +470,18 @@ contract('VolumeSubscription', function(accounts) {
         let subscriptionHash;
 
         let futureDate = Date.now();
-        futureDate = parseInt(futureDate/1000) + (60*60*24);
+        futureDate = parseInt(futureDate / 1000) + (60 * 60 * 24);
 
         before(async function() {
 
             newPlan = await contract.createPlan(
-              business, token.address, web3.utils.fromAscii("subscription.cancel"), 30, 100, 10, "", {from: business}
+                business, token.address, web3.utils.fromAscii("subscription.cancel"), 30, 100, 10, "", { from: business }
             );
 
             planHash = newPlan.logs[0].args.planIdentifier;
 
             let newSubscription = await contract.createSubscription(
-              planHash, 0, {from: subscriber}
+                planHash, 0, { from: subscriber }
             );
 
             subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
@@ -467,7 +490,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should not be able to cancel from an unauthorized address", async function() {
 
-            await assertRevert(contract.cancelSubscription(subscriptionHash, {from: unauthorizedAddress}));
+            await assertRevert(contract.cancelSubscription(subscriptionHash, { from: unauthorizedAddress }));
 
         });
 
@@ -476,13 +499,13 @@ contract('VolumeSubscription', function(accounts) {
             await contract.setTime(futureDate - 90);
 
             let newSubscription2 = await contract.createSubscription(
-                planHash, "", {from: subscriber}
+                planHash, "", { from: subscriber }
             );
 
             let subscriptionHash2 = newSubscription2.logs[0].args.subscriptionIdentifier;
 
-            await contract.setLastPaymentDate(futureDate, subscriptionHash2, {from: executorContract});
-            await contract.cancelSubscription(subscriptionHash2, {from: executorContract});
+            await contract.setLastPaymentDate(futureDate, subscriptionHash2, { from: executorContract });
+            await contract.cancelSubscription(subscriptionHash2, { from: executorContract });
 
             let subscription = await contract.subscriptions.call(subscriptionHash2);
             assert.isAbove(subscription[4].toNumber(), 0);
@@ -491,20 +514,20 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should not be able to cancel before the start date is set", async function() {
 
-            await assertRevert(contract.cancelSubscription(subscriptionHash, {from: subscriber}));
+            await assertRevert(contract.cancelSubscription(subscriptionHash, { from: subscriber }));
 
         });
 
         it("should not be able to cancel before the start date is set", async function() {
 
-            await assertRevert(contract.cancelSubscription(subscriptionHash, {from: executorContract}));
+            await assertRevert(contract.cancelSubscription(subscriptionHash, { from: executorContract }));
 
         });
 
         it("should be able to cancel from the owner", async function() {
 
-            await contract.setLastPaymentDate(futureDate, subscriptionHash, {from: executorContract});
-            await contract.cancelSubscription(subscriptionHash, {from: subscriber});
+            await contract.setLastPaymentDate(futureDate, subscriptionHash, { from: executorContract });
+            await contract.cancelSubscription(subscriptionHash, { from: subscriber });
 
             let subscription = await contract.subscriptions.call(subscriptionHash);
             assert.isAbove(subscription[4].toNumber(), 0);
@@ -513,7 +536,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should not be able cancel without throwing", async function() {
 
-            await contract.cancelSubscription(subscriptionHash, {from: subscriber});
+            await contract.cancelSubscription(subscriptionHash, { from: subscriber });
 
             let subscription = await contract.subscriptions.call(subscriptionHash)
             assert.isAbove(subscription[4].toNumber(), 0);
