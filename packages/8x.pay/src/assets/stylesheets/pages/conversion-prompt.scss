@@ -105,7 +105,7 @@
     display: flex;
     justify-content: center;
     text-align: center;
-    padding-bottom: 2em;
+    padding-bottom: 0.5em;
 
     .convert {
         background-color: #5944EE;
@@ -122,4 +122,17 @@
     }
    
 
+}
+
+.skip-text {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 1em;
+
+    .skip {
+        color: #958DB7;
+        font-weight: 400;
+        font-size: 1em;
+    }
+    
 }
