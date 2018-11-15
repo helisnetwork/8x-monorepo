@@ -11,26 +11,78 @@ class ConversionPrompt extends React.Component {
     super(props);
     
     this.state = {
-      conversionPeriod: ''
+      conversionPeriod: '',
+      rate: ''
     };
+
+    
 
     this.handleSelectedConversionPeriod = this.handleSelectedConversionPeriod.bind(this);
     this.handleKyberConversion = this.handleKyberConversion.bind(this);
+    this.getExchangeRate = this.getExchangeRate.bind(this);
+    this.returnMonthToSeconds = this.returnMonthToSeconds.bind(this);
 
   }
 
+  componentDidMount() {
+    this.getExchangeRate();
+    bus.trigger('request:exchange:rate');
+  }
+  
+  componentWillUnmount() {
+    bus.off('exchange:rate:sent');
+    bus.off('conversion:complete');
+  }
+
   handleSelectedConversionPeriod(period) {
+    bus.trigger('request:exchange:rate');
     this.setState({
       conversionPeriod: period
     });
   }
 
+  getExchangeRate() {
+    bus.on('exchange:rate:sent', (rate) => {
+      this.setState({
+        rate: rate
+      })
+    })
+  }
+
+  showExpectedConversionAmount() {
+    bus.on('exchange:rate:sent', (rate) => {
+      if(this.state.rate === '' || this.state.rate != rate) {
+
+      }
+    });
+    
+  
+
+  }
+
+  returnMonthToSeconds() {
+    switch(this.state.conversionPeriod) {
+      case '1 month':
+      return 30 * 24 * 60 * 60; 
+      break; 
+      case '3 months':
+      return 3 * 30 * 24 * 60 * 60; 
+      break;
+      case '6 months':
+      return 6 * 30 * 24 * 60 * 60;
+      break;
+      case '9 months':
+      return 9 * 30 * 24 * 60 * 60;
+      break;
+    }
+  }
+
   handleKyberConversion() {
     bus.on('conversion:complete', () => {
-      console.log('done');
+      
     });
 
-    bus.trigger('conversion:requested');
+    bus.trigger('conversion:requested', this.returnMonthToSeconds());
 
   }
 
@@ -79,13 +131,17 @@ class ConversionPrompt extends React.Component {
             </div>
           </div>
           <div className="secondary-text">
-            <p className="title">1 ETH = 203.00 DAI</p>
+            <p className="title">1 ETH = {this.state.rate} DAI</p>
           </div>
         </div>
         {/* <Link to='/begin-subscription'> */}
           <div className="button" onClick={() => {this.handleKyberConversion();}}>
             <p className="convert">Convert</p>
           </div>
+          <div className="skip-text">
+            <u className="skip">Skip this step</u>
+          </div>
+          
         {/* </Link> */}
       </div>
     );
