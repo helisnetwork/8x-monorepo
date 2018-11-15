@@ -73,7 +73,7 @@ class SubscriptionInfo extends React.Component {
   checkUserActivity() {
     this.unlockInterval = setInterval(() => {   
       bus.trigger('user:get:account:status', web3)
-    }, 500);
+    }, 2000);
   }
 
   initializeDropdownItems() {
