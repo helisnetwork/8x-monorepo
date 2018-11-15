@@ -237,4 +237,8 @@ describe('SubscriptionAPI', () => {
 
   });
 
+  test('should be able to create a subscription hash using salt', async ()=> {
+
+  });
+
 });

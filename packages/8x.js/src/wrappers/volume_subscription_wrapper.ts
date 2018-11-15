@@ -4,10 +4,10 @@ import * as _ from 'lodash';
 import Contracts from '../services/contracts';
 import BigNumber from 'bignumber.js';
 
-import { Web3Utils, VolumeSubscriptionAbi } from '@8xprotocol/artifacts';
+import { Web3Utils, VolumeSubscriptionAbi, ExecutorContract } from '@8xprotocol/artifacts';
 import { generateTxOpts } from '../utils/transaction_utils';
 import { Address, Bytes32, TxData, TxHash, Plan, Subscription } from '@8xprotocol/types';
-import { SECONDS_IN_DAY } from '../constants';
+import { SECONDS_IN_DAY, EXECUTOR_CACHE_KEY } from '../constants';
 
 import { getFormattedLogsFromTxHash, getFormattedLogsFromReceipt, formatLogEntry, getPastLogs } from '../utils/logs';
 
@@ -188,10 +188,30 @@ export default class VolumeSubscriptionWrapper {
 
   }
 
-  public async getPlanState(
-    identifier: Bytes32
-  ) {
+  public async subscribeAndActivate( 
+    planHash: Bytes32,
+    metaData: JSON | null,
+    txData?: TxData 
+  ): Promise<Bytes32> {
 
+    const txSettings = await generateTxOpts(this.web3, txData);
+    const volumeSubscription = await this.contracts.loadVolumeSubscription();
+    const salt = Date.now()/1000; 
+    const callbackAddress = '';
+    const callbackData = this.web3.sha3("activateSubscription(_subscriptionContract,_subscriptionIdentifier)").substr(0,10);
+
+    // const subscriptionHash = keccak()
+
+    let txHash = await volumeSubscription.createSubscriptionAndCall.sendTransactionAsync(
+      planHash,
+      metaData ? JSON.stringify(metaData) : '',
+      new BigNumber(salt),
+      callbackData,
+      callbackAddress, 
+      txSettings
+    );
+
+    return Promise.resolve('0');
   }
   public async createSubscription(
     planHash: Bytes32,
