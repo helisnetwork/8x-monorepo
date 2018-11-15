@@ -120,7 +120,6 @@ export default class SubscriptionStore {
 
   startSubscribeListener() {
     bus.on('user:subscribe:requested', async () => {
-      console.log('how many');
       bus.trigger('loading:state');
       const txData = null;
       const metaData = null;
