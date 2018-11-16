@@ -59,6 +59,10 @@ class EightExPay extends React.Component {
     bus.trigger('planHash:sent', this.props.planHash);
   }
 
+  componentWillUnmount() {
+    bus.off('user:activate:completed');
+  }
+
   render() {
     return (
       <div className='eight-ex-pay'>
