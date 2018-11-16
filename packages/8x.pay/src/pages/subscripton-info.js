@@ -29,7 +29,6 @@ class SubscriptionInfo extends React.Component {
       subscribe: false,
       paymentStatus: '',
       address: '',
-      ethBalance: '',
       daiBalance: '',
 
     };
@@ -48,9 +47,8 @@ class SubscriptionInfo extends React.Component {
     this.initializeDropdownItems();
     this.loadingStateListener();
     this.checkUserActivity();
-    
     bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
-    bus.trigger('subscription:plan:requested');
+    bus.trigger('subscription:plan:requested', 'subscription-plan-render');
     bus.on('loading:state', this.loadingStateListener());
   }
 
@@ -98,15 +96,8 @@ class SubscriptionInfo extends React.Component {
       })
     });
 
+    //@TODO: investigate if causing loop
     bus.trigger('ERC20:balance:requested');
-     
-    bus.on('ETH:balance:sent', (bal) => {
-      this.setState({
-        ethBalance: bal
-      })
-    });
-
-    bus.trigger('ETH:balance:requested');
   }
 
   subscriptionPlanHandler(object) {

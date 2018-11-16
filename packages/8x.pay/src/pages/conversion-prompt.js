@@ -153,8 +153,7 @@ class ConversionPrompt extends React.Component {
       });
       alert(confirmationReceipt);
     });
-
-    console.log('trigger');
+    
     bus.trigger('conversion:requested', this.returnMonthToSeconds());
   }
 
