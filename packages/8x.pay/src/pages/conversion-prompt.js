@@ -11,35 +11,51 @@ class ConversionPrompt extends React.Component {
     super(props);
     
     this.state = {
-      conversionPeriod: '',
-      rate: ''
+      conversionPeriod: '1 month',
+      rate: '',
+      ethRate: '',
+      daiRate: ''
     };
-
-    
 
     this.handleSelectedConversionPeriod = this.handleSelectedConversionPeriod.bind(this);
     this.handleKyberConversion = this.handleKyberConversion.bind(this);
     this.getExchangeRate = this.getExchangeRate.bind(this);
     this.returnMonthToSeconds = this.returnMonthToSeconds.bind(this);
+    this.showEthAmount = this.showEthAmount.bind(this);
+    this.showDaiAmount = this.showDaiAmount.bind(this);
+    this.initializeDropdownItems = this.initializeDropdownItems.bind(this);
+    this.handleCorrectDaiRate = this.handleCorrectDaiRate.bind(this);
+    this.handleCorrectEthRate = this.handleCorrectEthRate.bind(this);
 
   }
 
   componentDidMount() {
     this.getExchangeRate();
+    this.initializeDropdownItems();
     bus.trigger('request:exchange:rate');
+    this.showEthAmount();
+    this.showDaiAmount();
+    bus.trigger('display:rates:requested',this.returnMonthToSeconds());
   }
   
   componentWillUnmount() {
     bus.off('exchange:rate:sent');
     bus.off('conversion:complete');
+    bus.off('display:rate:eth:sent');
+    bus.off('display:rate:dai:sent');
+  }
+
+  initializeDropdownItems() {
+    const periodItem = this.conversionPeriod();
+    this.handleSelectedConversionPeriod(periodItem[0].name);
   }
 
   handleSelectedConversionPeriod(period) {
-    bus.trigger('request:exchange:rate');
     this.setState({
       conversionPeriod: period
     });
   }
+
 
   getExchangeRate() {
     bus.on('exchange:rate:sent', (rate) => {
@@ -49,37 +65,83 @@ class ConversionPrompt extends React.Component {
     })
   }
 
-  showExpectedConversionAmount() {
-    bus.on('exchange:rate:sent', (rate) => {
-      if(this.state.rate === '' || this.state.rate != rate) {
-
-      }
+  showDaiAmount() {
+    bus.on('display:rates:dai:sent', (dai) => {
+      this.setState({
+        daiRate: dai
+      });
     });
-    
-  
+  }
 
+  showEthAmount() {
+    bus.on('display:rates:eth:sent', (eth) => {
+      this.setState({
+        ethRate: eth
+      });
+    });
+  }
+
+  handleCorrectDaiRate() {
+    const daiRate = this.state.daiRate;
+    const dai = parseFloat(daiRate)
+    let result = dai;
+    switch(this.state.conversionPeriod) {
+      case '1 month':
+      result = dai;
+      break;
+      case '3 months':
+      result = dai * 3;
+      break;
+      case '6 months':
+      result =  dai * 6;
+      break;
+      case '9 months':
+      result = dai * 9;
+    } 
+    return (result).toFixed(2);
+  }
+
+  handleCorrectEthRate() {
+    const ethRate = this.state.ethRate;
+    const eth = parseFloat(ethRate);
+    let result = eth;
+    switch(this.state.conversionPeriod) {
+      case '1 month':
+      result = eth;
+      break;
+      case '3 months':
+      result = eth * 3;
+      break;
+      case '6 months':
+      result = eth * 6;
+      break;
+      case '9 months':
+      result = eth * 9;
+    } 
+    return result.toFixed(4);
   }
 
   returnMonthToSeconds() {
+    const monthToSeconds = 30 * 24 * 60 * 60; 
     switch(this.state.conversionPeriod) {
       case '1 month':
-      return 30 * 24 * 60 * 60; 
+      return monthToSeconds;
       break; 
       case '3 months':
-      return 3 * 30 * 24 * 60 * 60; 
+      return 3 * monthToSeconds;
       break;
       case '6 months':
-      return 6 * 30 * 24 * 60 * 60;
+      return 6 * monthToSeconds;
       break;
       case '9 months':
-      return 9 * 30 * 24 * 60 * 60;
+      return 9 * monthToSeconds;
       break;
     }
   }
 
   handleKyberConversion() {
     bus.on('conversion:complete', () => {
-      
+      //@TODO: change state to redirect to subscription info
     });
 
     bus.trigger('conversion:requested', this.returnMonthToSeconds());
@@ -89,7 +151,7 @@ class ConversionPrompt extends React.Component {
   conversionPeriod() {
     return [
       {
-        name: "1 month"
+        name: "1 month",
       },
       {
         name: "3 months"
@@ -119,7 +181,7 @@ class ConversionPrompt extends React.Component {
             <div className="ethereum">
               <img className="logo" src={Images.ethLogo}/>
               <p>Send</p>
-              <h2>0.014 ETH</h2>
+              <h2>{this.handleCorrectEthRate()} ETH</h2>
             </div>
             <div className="arrow">
               <img className="arrow" src={Images.arrow}/>
@@ -127,7 +189,7 @@ class ConversionPrompt extends React.Component {
             <div className="dai">
               <img className="logo" src={Images.daiLogo}/>
               <p>Receive</p>
-              <h2>240 DAI</h2>
+              <h2>{this.handleCorrectDaiRate()} DAI</h2>
             </div>
           </div>
           <div className="secondary-text">
