@@ -170,32 +170,13 @@ class SubscriptionInfo extends React.Component {
     });
   }
 
-  // Uses Kyber API to get conversion rates
-  getKyberInformation() {
-    fetch('https://tracker.kyber.network/api/tokens/pairs')
-      .then(results => {
-        return results.json();
-      }).then(data => {
-
-        // Added a factor of 1% to account for slippage
-        var currencyConversion = data.ETH_DAI.currentPrice * 1.01;
-        let roundedNumber = currencyConversion.toFixed(6);
-
-        this.setState({
-          kyberConversion: roundedNumber
-        });
-      });
-  };
-
   calculateSendAmount () {
-    //this.getKyberInformation();
     if (this.state.selectedCurrency === 'Dai') {
       return (parseFloat(this.state.selectedPeriod) * parseFloat(this.state.subscriptionAmount)).toFixed(4);
     }
-    else if (this.state.selectedCurrency === 'Ethereum') {
-      return (this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionAmount).toFixed(4);
-    }
-
+    // else if (this.state.selectedCurrency === 'Ethereum') {
+    //   return (this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionAmount).toFixed(4);
+    // }
   }
 
   checkDaiSelected () {
