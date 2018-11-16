@@ -21,7 +21,6 @@ class SubscriptionInfo extends React.Component {
       copied: false,
       selectedCurrency: '',
       selectedPeriod: '',
-      kyberConversion: '',
       logo: [],
       subscriptionName: '',
       subscriptionDetails: '',
@@ -61,7 +60,6 @@ class SubscriptionInfo extends React.Component {
     bus.off('loading:state', this.loadingStateListener());
     bus.off('user:address:sent'); 
     bus.off('ERC20:balance:sent');
-    bus.off('ETH:balance:sent');
     bus.off('subscription:process:failed');
     bus.off('user:subscribe:completed');
     bus.off('activation:process:failed');
@@ -109,7 +107,6 @@ class SubscriptionInfo extends React.Component {
     });
 
     bus.trigger('ETH:balance:requested');
-  
   }
 
   subscriptionPlanHandler(object) {
@@ -174,13 +171,6 @@ class SubscriptionInfo extends React.Component {
     if (this.state.selectedCurrency === 'Dai') {
       return (parseFloat(this.state.selectedPeriod) * parseFloat(this.state.subscriptionAmount)).toFixed(4);
     }
-    // else if (this.state.selectedCurrency === 'Ethereum') {
-    //   return (this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionAmount).toFixed(4);
-    // }
-  }
-
-  checkDaiSelected () {
-    return this.state.selectedCurrency === 'Dai' ? true : false;
   }
 
   dropdownItems() {
@@ -189,13 +179,7 @@ class SubscriptionInfo extends React.Component {
         image: Images.daiLogo,
         name: 'Dai',
         ticker: 'DAI'
-      },
-      //@TODO: Implement Kyber 
-      // {
-      //   image: Images.ethLogo,
-      //   name: 'Ethereum',
-      //   ticker: 'ETH'
-      // }
+      }
     ];
   }
 
@@ -287,17 +271,6 @@ class SubscriptionInfo extends React.Component {
         />
       </div>
     );
-
-    //@TODOO: This will be the button that leads into Kyber Conversion process
-    if (!this.checkDaiSelected()) {
-      return (
-        <Link to='/conversion'>
-          <div className='conversion'>
-            <p>Convert</p>
-          </div>
-        </Link>
-      );
-    }
 
     if (!this.state.subscribe && this.state.paymentStatus !== 'loading') {
       return subscribe;
@@ -394,7 +367,7 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className='balance'>
               <p>Current Balance</p>
-              <p className='currency'>{this.checkDaiSelected() ? this.state.daiBalance : this.state.ethBalance} {this.state.selectedCurrency}</p>
+              <p className='currency'>{this.state.daiBalance} {this.state.selectedCurrency}</p>
             </div>
             { this.returnPayButtonState() }
           </div>
