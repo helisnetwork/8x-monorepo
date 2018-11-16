@@ -9,6 +9,7 @@ class SimpleModalLauncher extends Component {
     super(props);
 
     this.state = {
+      //@TODO: Change to false after testing
       showModal: true,
     };
 

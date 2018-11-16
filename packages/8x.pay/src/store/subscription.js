@@ -51,8 +51,6 @@ export default class SubscriptionStore {
           bus.trigger('user:authorization', false);
         }
     });
-
-    // bus.trigger('authorization:status');
   }
 
   listenPlanHash() {
@@ -62,7 +60,7 @@ export default class SubscriptionStore {
   }
 
   listenPlanRequested() {
-    bus.on('subscription:plan:requested', async () => {
+    bus.on('subscription:plan:requested', async (elem) => {
       
       // Show dummy data if there's no plan hash
       if (!this.planHash) {
@@ -81,6 +79,7 @@ export default class SubscriptionStore {
         this.planHash
       );
       
+      console.log(elem);
       if(planData) {
         const currencyBase = new BigNumber(10).pow(18);
         const planObj = (({ image, name, description, amount, interval }) => ({
@@ -90,7 +89,13 @@ export default class SubscriptionStore {
           subscriptionAmount: amount.div(currencyBase).toNumber(),
           subscriptionPeriod: interval
         }))(planData);
-        bus.trigger('subscription:plan:sent', planObj);
+        if(elem === 'subscription-plan-render') {
+          bus.trigger('subscription:plan:sent', planObj);
+        } else if(elem === 'rates') {
+          bus.trigger('subscription:plan:for:exchange:rates', planObj);
+        } else if(elem === 'conversion') {
+          bus.trigger('subscription:plan:for:conversion', planObj);
+        }
       }
     });
   };

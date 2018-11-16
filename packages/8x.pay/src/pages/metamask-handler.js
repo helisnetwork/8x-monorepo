@@ -111,7 +111,7 @@ class MetamaskHandler extends React.Component {
         if(this.state.conversion === false) {
           return (
             <SubscriptionInfo
-              status={this.state.status}
+              status='unlocked'
             />
           ); 
         } else if(this.state.conversion === true) {
