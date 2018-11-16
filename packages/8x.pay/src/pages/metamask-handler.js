@@ -114,10 +114,12 @@ class MetamaskHandler extends React.Component {
               status={this.state.status}
             />
           ); 
-        } else {
+        } else if(this.state.conversion === true) {
           return (
             <ConversionPrompt/>
           );
+        } else {
+          return null;
         }
       } else if(this.state.authorized === false) {
         return (
