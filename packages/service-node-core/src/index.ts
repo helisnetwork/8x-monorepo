@@ -2,10 +2,8 @@ import Web3 = require("web3");
 
 import { ExecutorAbi, ExecutorContract, StakeContract, MockTokenContract, Web3Utils, ApprovedRegistryContract, VolumeSubscriptionContract } from '@8xprotocol/artifacts'
 import EightEx from '8x.js';
-import { AddressBook, Address } from '@8xprotocol/types';
+import { AddressBook, Address, SubscriptionEvent } from '@8xprotocol/types';
 import { BigNumber } from 'bignumber.js';
-
-import SubscriptionEvent from "./types";
 
 import EventStore from './store/events';
 import ProcessorStore from "./store/processor";
