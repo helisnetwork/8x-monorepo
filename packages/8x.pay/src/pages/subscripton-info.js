@@ -68,7 +68,7 @@ class SubscriptionInfo extends React.Component {
 
   checkUserActivity() {
     this.unlockInterval = setInterval(() => {   
-      bus.trigger('user:get:account:status', web3)
+      bus.trigger('user:get:account:info', ('requestedUpdate'));
     }, 2000);
   }
 
