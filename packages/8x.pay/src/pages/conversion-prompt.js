@@ -157,6 +157,7 @@ class ConversionPrompt extends React.Component {
     bus.trigger('conversion:requested', this.returnMonthToSeconds());
   }
 
+
   conversionPeriod() {
     return [
       {
