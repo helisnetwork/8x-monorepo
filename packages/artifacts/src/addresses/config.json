@@ -47,5 +47,58 @@
       }
     ],
     "maximumIntervalDivisor": 5
+  },
+  "develop": {
+    "addresses": [
+      {
+        "name": "Executor",
+        "address": "0xc8d0479b41822b53099a7e5bd8a06dc11a94b120"
+      },
+      {
+        "name": "VolumeSubscription",
+        "address": "0x6ffd9b5a0941e804c904f3402ef16f1a996baf6b"
+      },
+      {
+        "name": "ApprovedRegistry",
+        "address": "0x1e26e3a92f6c0d66c35d6ec413752067cc8ebfc6"
+      },
+      {
+        "name": "TransferProxy",
+        "address": "0xaca7b195c9930ba8add6159455b58ed1c5f03dcc"
+      },
+      {
+        "name": "PaymentRegistry",
+        "address": "0xf594501e9baee013f60fdea03904602eecd30ffc"
+      },
+      {
+        "name": "EightExToken",
+        "address": "0x5fd36296e55952a3dcd50edb030564deb23a850e"
+      },
+      {
+        "name": "StakeContract",
+        "address": "0xafb55be60122ef8f675afc098bcec46b78deb50a"
+      },
+      {
+        "name": "KyberNetwork",
+        "address": "0x1b45eb8719237de880f5dea0a456189b02b1662a"
+      },
+      {
+        "name": "MultSig",
+        "address": "0x33c5098d111e308ffa721b04b781c657e440b08c"
+      }
+    ],
+    "approvedTokens": [
+      {
+        "ticker": "DAI",
+        "address": "0x6cc96c13daac5360facf886fd9e2705ea0b578a4"
+      }
+    ],
+    "approvedContracts": [
+      {
+        "name": "VolumeSubscription",
+        "address": "0x6ffd9b5a0941e804c904f3402ef16f1a996baf6b"
+      }
+    ],
+    "maximumIntervalDivisor": 5
   }
 }
