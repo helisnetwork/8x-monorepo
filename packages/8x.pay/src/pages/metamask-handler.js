@@ -61,7 +61,7 @@ class MetamaskHandler extends React.Component {
           bus.trigger('web3:initialised', web3);
 
         } catch (error) {
-          console.log('Error is ' + error);
+          console.log('Metamask Approval has failed' + ' ' + error);
           // User denied account access...
         }
       }
