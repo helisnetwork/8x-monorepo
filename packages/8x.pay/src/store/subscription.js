@@ -115,7 +115,7 @@ export default class SubscriptionStore {
         
       } catch (error) {
         bus.trigger('authorization:process:failed', error);
-        console.log(error);
+        console.log('Authorization process has failed' + ' ' + error);
       }
     });
   };
@@ -135,7 +135,7 @@ export default class SubscriptionStore {
         
       } catch (error) {
         bus.trigger('subscription:process:failed');
-        console.log(error);
+        console.log('Subscription process has failed' + ' ' + error);
       }
     });
   }
@@ -159,7 +159,7 @@ export default class SubscriptionStore {
           
         } catch (error) {
           bus.trigger('activation:process:failed'); 
-          console.log(error);
+          console.log('Activation process has failed' + ' ' + error);
         }
       };
     });

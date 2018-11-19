@@ -147,7 +147,7 @@ class ConversionPrompt extends React.Component {
 
   handleKyberConversion() {
     bus.on('conversion:complete', (confirmationReceipt) => {
-      console.log('coversion:complete');
+
       this.setState({
         conversionCompleted: true
       });

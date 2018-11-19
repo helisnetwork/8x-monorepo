@@ -96,7 +96,6 @@ class SubscriptionInfo extends React.Component {
       })
     });
 
-    //@TODO: investigate if causing loop
     bus.trigger('ERC20:balance:requested');
   }
 
