@@ -9,11 +9,11 @@ module.exports = function(deployer, network, accounts) {
 
     console.log(`Using network: ${network}`);
 
-    if (!Constants.isActualDeployment(network)) {
+    if (Constants.isActualDeployment(network)) {
         return;
     }
 
-    const MultiSigWalletWithTimeLock = artifacts.require("./test/MultiSigWalletWithTimeLock.sol");
+    const MultiSigWalletWithTimeLock = artifacts.require("./MultiSigWalletWithTimeLock.sol");
 
     const TransferProxy = artifacts.require("./TransferProxy.sol");
     const ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
@@ -44,7 +44,7 @@ module.exports = function(deployer, network, accounts) {
 
         // Deploy MultiSig with one owner, one confirmation and zero seconds to make a change
         // This will be changed to something else once we move past an alpha stage
-        multiSig = await deployer.deploy(MultiSigWalletWithTimeLock, accounts[0], 1, 0);
+        multiSig = await deployer.deploy(MultiSigWalletWithTimeLock, [accounts[0]], 1, 0);
 
         // Deploy the Approved Registry with Kyber Network
         approvedRegistry = await deployer.deploy(ApprovedRegistry, kyberNetworkAddress);

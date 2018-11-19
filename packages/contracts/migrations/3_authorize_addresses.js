@@ -2,11 +2,11 @@ const Constants = require("./migration_constants");
 
 module.exports = function(deployer, network, accounts) {
 
-    if (!Constants.isActualDeployment(network)) {
+    if (Constants.isActualDeployment(network)) {
         return;
     }
 
-    const MultiSigWalletWithTimeLock = artifacts.require("./test/MultiSigWalletWithTimeLock.sol");
+    const MultiSigWalletWithTimeLock = artifacts.require("./MultiSigWalletWithTimeLock.sol");
 
     const ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
     const TransferProxy = artifacts.require("./TransferProxy.sol");
@@ -45,7 +45,7 @@ module.exports = function(deployer, network, accounts) {
         await volumeSubscription.transferOwnership(multiSig.address);
 
         // Leave one token to the person who deployed
-        await eightExToken.transfer(multiSig, 2 ** 256 - 2);
+        //await eightExToken.transfer(multiSig, 2 ** 256 - 2);
         await eightExToken.transferOwnership(multiSig.address);
 
     });
