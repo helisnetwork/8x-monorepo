@@ -22,7 +22,7 @@ export default class EventStore {
     this.executorContract = executorContract;
   }
 
-  public async startContractListener() {
+  public async startListening() {
     const contract = this.web3.eth.contract(ExecutorAbi.abi as AbiDefinition[]).at(this.executorContract.address);
     //Start finding events from 12 hours ago to most recent block
     const eventsWatcher = contract.allEvents({

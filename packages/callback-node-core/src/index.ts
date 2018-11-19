@@ -1,11 +1,11 @@
 import Web3 = require("web3");
 
-import { ExecutorAbi, ExecutorContract, StakeContract, MockTokenContract, Web3Utils, ApprovedRegistryContract, VolumeSubscriptionContract } from '@8xprotocol/artifacts'
+import { ExecutorAbi, ExecutorContract, Web3Utils } from '@8xprotocol/artifacts'
 import EightEx from '8x.js';
 import { AddressBook, Address } from '@8xprotocol/types';
 import { BigNumber } from 'bignumber.js';
 
-import EventManagementStore from './event-listener/event';
+import EventStore from './store/events';
 
 export default class Repeater {
 
@@ -15,15 +15,17 @@ export default class Repeater {
   private executorContract: ExecutorContract;
 
   private executorAddress: Address;
+  private serviceNodeAccount: Address;
 
-  public eventStore: EventManagementStore;
+  public eventStore: EventStore;
 
   public repeaterUpdated: () => (void) | null;
 
-  constructor(web3: Web3, executorAddress: Address) {
+  constructor(web3: Web3, executorAddress: Address, serviceNodeAccount: Address) {
     this.web3 = web3;
     this.web3Utils = new Web3Utils(web3);
     this.executorAddress = executorAddress;
+    this.serviceNodeAccount = serviceNodeAccount;
     this.eightEx = new EightEx(web3, {});
   }
 
@@ -65,7 +67,6 @@ export default class Repeater {
   }
 
   public storeUpdated() {
-    this.processorStore.setEvents(Object.values(this.eventStore.events));
     this.repeaterUpdated();
   }
 
