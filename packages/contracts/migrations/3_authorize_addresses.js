@@ -2,7 +2,7 @@ const Constants = require("./migration_constants");
 
 module.exports = function(deployer, network, accounts) {
 
-    if (Constants.isActualDeployment(network)) {
+    if (!Constants.isActualDeployment(network)) {
         return;
     }
 
