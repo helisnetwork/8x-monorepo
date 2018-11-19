@@ -1,5 +1,6 @@
 import * as Web3 from 'web3';
 import * as _ from 'lodash';
+import * as abi from 'ethereumjs-abi';
 
 import Contracts from '../services/contracts';
 import BigNumber from 'bignumber.js';
@@ -193,26 +194,35 @@ export default class VolumeSubscriptionWrapper {
     metaData: JSON | null,
     txData?: TxData 
   ): Promise<Bytes32> {
-
+    
     const txSettings = await generateTxOpts(this.web3, txData);
     const volumeSubscription = await this.contracts.loadVolumeSubscription();
-    const salt = Date.now()/1000; 
-    const callbackAddress = '';
-    const callbackData = this.web3.sha3("activateSubscription(_subscriptionContract,_subscriptionIdentifier)").substr(0,10);
+    const executor = await this.contracts.loadExecutor();
+    const salt = ((Date.now()/1000) + (Math.random() * 10000)).toFixed(); 
 
-    // const subscriptionHash = keccak()
+    const computedSubscriptionHash = "0x" + abi.soliditySHA3(
+      ["address", "bytes32", "uint"],
+      [txSettings.from, planHash, salt]
+    ).toString('hex');
 
     let txHash = await volumeSubscription.createSubscriptionAndCall.sendTransactionAsync(
       planHash,
       metaData ? JSON.stringify(metaData) : '',
       new BigNumber(salt),
-      callbackData,
-      callbackAddress, 
+      executor.address,
+      'activateSubscription(address,bytes32)',
       txSettings
     );
 
-    return Promise.resolve('0');
+
+    let logs = await getFormattedLogsFromTxHash(this.web3, VolumeSubscriptionAbi.abi, txHash);
+
+    // @TODO: Throw error if doesn't exist
+    let subscriptionHash = _.get(logs[0].args, "subscriptionIdentifier") || '';
+
+    return subscriptionHash;
   }
+
   public async createSubscription(
     planHash: Bytes32,
     metaData: JSON | null,

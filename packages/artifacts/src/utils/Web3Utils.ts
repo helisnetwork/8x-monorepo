@@ -20,7 +20,7 @@ export class Web3Utils {
   public static soliditySHA3(...payload: any[]): string {
     return Web3BetaUtils.soliditySha3(...payload);
   }
-
+  
   public static asciiToHex(ascii: string): string {
     return Web3BetaUtils.asciiToHex(ascii);
   }

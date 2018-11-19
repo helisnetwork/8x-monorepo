@@ -349,17 +349,23 @@ contract VolumeSubscription is Collectable {
       * @param _planHash a reference to the subscribed plan
       * @param _data extra data store.
       * @param _callbackAddress the address to call afterwards
-      * @param _callbackData the data you'd like to pass to the external function
+      * @param _callbackFunction string of the callback function (eg. 'activate(address,bytes32)')
     */
     function createSubscriptionAndCall(
         bytes32 _planHash, 
         string _data, 
         uint _salt,
-        address _callbackAddress, 
-        bytes32 _callbackData
+        address _callbackAddress,
+        string _callbackFunction
     ) public {
-        createSubscriptionWithSalt(_planHash, _data, _salt);
-        _callbackAddress.call(_callbackData);
+        bytes32 subscriptionHash = createSubscriptionWithSalt(_planHash, _data, _salt);
+        _callbackAddress.call(
+            bytes4(
+                keccak256(_callbackFunction)
+            ),
+            address(this),
+            subscriptionHash
+        );
     }
 
      /** @dev This is the function for creating a new subscription with supplied entropy.
