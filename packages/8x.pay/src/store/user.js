@@ -11,7 +11,7 @@ export default class UserStore {
     this.startListening();
     this.getAccountAndGetNetwork();
 
-    //@TODO: Change token to DAI 
+    //@TODO: Change token to DAI after main-net
     this.kyberNetworkProxyInterface = '0x7e6b8b9510D71BF8EF0f893902EbB9C865eEF4Df';
     this.token = '0xB2f3dD487708ca7794f633D9Df57Fdb9347a7afF' //KNC
     this.eth = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
@@ -57,6 +57,7 @@ export default class UserStore {
                 this.address = accounts[0];
                 bus.trigger('user:address:sent', this.address);
                 bus.trigger('ERC20:balance:requested');
+                bus.trigger('authorization:status');
                 bus.trigger('status', 'unlocked');
               } else if (elem === 'initialUpdate') {
                 this.address = accounts[0];
@@ -145,7 +146,7 @@ export default class UserStore {
 
           const DAItoETH = (priceInDAI/rate);
           const minConversionRate = new BigNumber(1);
-          //@TODO: Change after testing
+          //@TODO: Change back when launched on main-net 
           const srcAmount = web3.toWei( '0.0002' , "ether");
 
           //KyberNetworkProxy ABI from etherscan 

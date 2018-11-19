@@ -42,7 +42,7 @@ class EightExPay extends React.Component {
     let userStore = new UserStore();
     let subscriptionStore = new SubscriptionStore();
 
-    console.log(`New plan hash passed: ${this.props.planHash}`);
+    // console.log(`New plan hash passed: ${this.props.planHash}`);
     bus.trigger('planHash:sent', props.planHash);
 
     bus.on('user:activate:completed', (subscriptionHash, status) => {
@@ -55,7 +55,7 @@ class EightExPay extends React.Component {
   }
 
   componentDidUpdate() {
-    console.log(`New plan hash passed: ${this.props.planHash}`);
+    // console.log(`New plan hash passed: ${this.props.planHash}`);
     bus.trigger('planHash:sent', this.props.planHash);
   }
 

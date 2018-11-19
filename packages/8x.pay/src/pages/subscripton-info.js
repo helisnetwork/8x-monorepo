@@ -37,6 +37,7 @@ class SubscriptionInfo extends React.Component {
     this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
     this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
     this.loadingStateListener = this.loadingStateListener.bind(this);
+    this.subscribeComplete = this.subscribeComplete.bind(this);
     this.userInfoListener = this.userInfoListener.bind(this);
     this.checkUserActivity = this.checkUserActivity.bind(this);
 
@@ -60,8 +61,6 @@ class SubscriptionInfo extends React.Component {
     bus.off('ERC20:balance:sent');
     bus.off('subscription:process:failed');
     bus.off('user:subscribe:completed');
-    bus.off('activation:process:failed');
-    bus.off('user:activate:completed');
     bus.off('loading:state');
   }
 
@@ -127,21 +126,9 @@ class SubscriptionInfo extends React.Component {
     bus.trigger('user:subscribe:requested');
   }
 
-  // handleActivateSubscription() {
-  //   bus.on('activation:process:failed', () => {
-  //     this.setState({
-  //       paymentStatus: 'subscribed'
-  //     });
-  //   });
-
-  //   bus.on('user:activate:completed', () => {
-  //     this.setState({
-  //       paymentStatus: 'activated'
-  //     });
-  //   });
-
-  //   bus.trigger('user:activate:requested');
-  // }
+  subscribeComplete() {
+    bus.trigger('modal:show', false);
+  }
 
   // Gets data from selected currency of user
   handleSelectedCurrency(currency) {
@@ -244,14 +231,14 @@ class SubscriptionInfo extends React.Component {
       </div>
     );
 
-    // const activate = (
-    //   <div className='activate' 
-    //     onClick={() => {
-    //     this.handleActivateSubscription();
-    //   }}>
-    //     <p>Activate Subscription</p>
-    //   </div>
-    // );
+    const subscribeComplete = (
+      <div className='activate' 
+        onClick={() => {
+        this.subscribeComplete();
+      }}>
+        <p>Successfully subscribed</p>
+      </div>
+    );
 
     const loading = (
       <div className='loading'>
@@ -268,7 +255,7 @@ class SubscriptionInfo extends React.Component {
 
     switch (this.state.paymentStatus) {
       case 'subscribed':
-        return activate;
+        return subscribeComplete;
       case 'loading':
         return loading;
       case 'authorized':

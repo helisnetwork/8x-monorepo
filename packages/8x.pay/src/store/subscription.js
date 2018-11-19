@@ -34,15 +34,14 @@ export default class SubscriptionStore {
           // Start listeners for subscription process
           this.authorizationRequestListener();
           this.startSubscribeAndActivate();
-          // this.activateSubscriptionListener();
         }
       });
     });
   }
 
   checkAlreadyAuthorized() {
-    
     bus.on('authorization:status', async () => {
+      
       let authorizedStatus = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
         if (authorizedStatus == true) {
           bus.trigger('user:authorization', true);
@@ -141,49 +140,4 @@ export default class SubscriptionStore {
 
     })
   }
-
-  // startSubscribeListener() {
-  //   bus.on('user:subscribe:requested', async () => {
-  //     bus.trigger('loading:state');
-  //     const txData = null;
-  //     const metaData = null;
-
-  //     try {
-  //       this.subscriptionHash = await this.eightEx.subscriptions.subscribe(this.planHash, metaData, txData);
-        
-  //       if(this.subscriptionHash) {
-  //         bus.trigger('user:subscribe:completed', this.subscriptionHash);
-  //       }
-        
-  //     } catch (error) {
-  //       bus.trigger('subscription:process:failed');
-  //       console.log('Subscription process has failed' + ' ' + error);
-  //     }
-  //   });
-  // }
-
-  // activateSubscriptionListener() {
-  //   bus.on('user:activate:requested', async () => {
-  //     bus.trigger('loading:state');
-  //     const txData = null;
-  //     if (this.subscriptionHash) {
-  //       try {
-  //         let activationTxHash = await this.eightEx.subscriptions.activate(this.subscriptionHash, txData);
-
-  //         let activationStatus = await this.eightEx.blockchain.awaitTransactionMinedAsync(
-  //           activationTxHash
-  //         ); 
-
-  //         if(activationStatus) {
-  //           bus.trigger('user:activate:completed', this.subscriptionHash);
-  //           console.log('Subscription receipt is' + ' ' + activationTxHash);
-  //         }
-          
-  //       } catch (error) {
-  //         bus.trigger('activation:process:failed'); 
-  //         console.log('Activation process has failed' + ' ' + error);
-  //       }
-  //     };
-  //   });
-  // }
 };
