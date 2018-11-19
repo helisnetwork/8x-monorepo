@@ -1,6 +1,6 @@
 {
     "name": "@8xprotocol/service-node-core",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "description": "",
     "main": "dist/index.js",
     "typings": "dist/types/index.d.ts",
@@ -14,10 +14,10 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "8x.js": "^0.5.0",
-        "@8xprotocol/artifacts": "^0.5.0",
+        "8x.js": "^0.5.1",
+        "@8xprotocol/artifacts": "^0.5.1",
         "@8xprotocol/base-contract": "^0.5.0",
-        "@8xprotocol/dev-utils": "^0.5.0",
+        "@8xprotocol/dev-utils": "^0.5.1",
         "@8xprotocol/types": "^0.5.0",
         "@types/jest": "^23.3.2",
         "abi-decoder": "^1.2.0",
