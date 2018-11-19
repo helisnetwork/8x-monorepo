@@ -17,14 +17,17 @@ class MetaMaskLocked extends React.Component {
   }
 
   componentDidMount() {
-
     this.checkUnlock();
   }
 
+  componentWillUnmount() {
+    clearInterval(this.unlockInterval);
+  }
+
   checkUnlock() {
-    var unlockInterval = setInterval(() => {   
-      bus.trigger('user:get:account:status', web3)
-    }, 500);
+    this.unlockInterval = setInterval(() => {   
+      bus.trigger('user:get:account:info', ('requestedUpdate'));
+    }, 1000);
   }
 
 

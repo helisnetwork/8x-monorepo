@@ -26,17 +26,16 @@ export default class SubscriptionStore {
 
       //Start subscription listener after this.address is avaliable and web3 set. 
       bus.on('user:address:sent', (address) => {
-
-        this.address = address; 
-        this.web3 = web3; 
-        // Check if user has already authorized 
-        this.checkAlreadyAuthorized();
-
-        // Start listeners for subscription process
-        this.authorizationRequestListener();
-        this.startSubscribeListener();
-        this.activateSubscriptionListener();
-
+        if(!this.address) {
+          this.address = address; 
+          this.web3 = web3; 
+          // Check if user has already authorized 
+          this.checkAlreadyAuthorized();
+          // Start listeners for subscription process
+          this.authorizationRequestListener();
+          this.startSubscribeListener();
+          this.activateSubscriptionListener();
+        }
       });
     });
   }
@@ -60,8 +59,7 @@ export default class SubscriptionStore {
   }
 
   listenPlanRequested() {
-    bus.on('subscription:plan:requested', async (elem) => {
-      
+    bus.on('subscription:plan:requested', async (elem) => {      
       // Show dummy data if there's no plan hash
       if (!this.planHash) {
         bus.trigger('subscription:plan:sent', {
@@ -79,7 +77,6 @@ export default class SubscriptionStore {
         this.planHash
       );
       
-      console.log(elem);
       if(planData) {
         const currencyBase = new BigNumber(10).pow(18);
         const planObj = (({ image, name, description, amount, interval }) => ({
