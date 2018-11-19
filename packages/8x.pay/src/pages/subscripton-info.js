@@ -127,21 +127,21 @@ class SubscriptionInfo extends React.Component {
     bus.trigger('user:subscribe:requested');
   }
 
-  handleActivateSubscription() {
-    bus.on('activation:process:failed', () => {
-      this.setState({
-        paymentStatus: 'subscribed'
-      });
-    });
+  // handleActivateSubscription() {
+  //   bus.on('activation:process:failed', () => {
+  //     this.setState({
+  //       paymentStatus: 'subscribed'
+  //     });
+  //   });
 
-    bus.on('user:activate:completed', () => {
-      this.setState({
-        paymentStatus: 'activated'
-      });
-    });
+  //   bus.on('user:activate:completed', () => {
+  //     this.setState({
+  //       paymentStatus: 'activated'
+  //     });
+  //   });
 
-    bus.trigger('user:activate:requested');
-  }
+  //   bus.trigger('user:activate:requested');
+  // }
 
   // Gets data from selected currency of user
   handleSelectedCurrency(currency) {
@@ -244,14 +244,14 @@ class SubscriptionInfo extends React.Component {
       </div>
     );
 
-    const activate = (
-      <div className='activate' 
-        onClick={() => {
-        this.handleActivateSubscription();
-      }}>
-        <p>Activate Subscription</p>
-      </div>
-    );
+    // const activate = (
+    //   <div className='activate' 
+    //     onClick={() => {
+    //     this.handleActivateSubscription();
+    //   }}>
+    //     <p>Activate Subscription</p>
+    //   </div>
+    // );
 
     const loading = (
       <div className='loading'>

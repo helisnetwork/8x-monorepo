@@ -84,8 +84,8 @@ export default class UserStore {
   getERC20Balance() {
     bus.on('ERC20:balance:requested', () => {
       //@TODO: Change this back to DAI
-      // var token = this.web3.eth.contract(MockTokenAbi.abi).at(getToken('DAI'));
-      var token = this.web3.eth.contract(MockTokenAbi.abi).at('0xB2f3dD487708ca7794f633D9Df57Fdb9347a7afF');
+      var token = this.web3.eth.contract(MockTokenAbi.abi).at(getToken('DAI'));
+      // var token = this.web3.eth.contract(MockTokenAbi.abi).at('0xB2f3dD487708ca7794f633D9Df57Fdb9347a7afF');
 
       token.balanceOf.call(this.address,  (err, bal) => {
         if (err) {
