@@ -44,7 +44,6 @@ let executor: ExecutorContract;
 
 let planHash: string;
 let anotherPlanHash: string;
-let subscriptionHash: string;
 
 describe('SubscriptionAPI', () => {
 
@@ -123,43 +122,58 @@ describe('SubscriptionAPI', () => {
 
   })
 
-  test('should be able to create a subscription', async () => {
+  test('should be able to create a subscription and activate it', async () => {
 
     await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
-    subscriptionHash = await eightEx.subscriptions.subscribe(
+
+    let subscriptionHash = await eightEx.subscriptions.subscribe(
       planHash,
       null,
       {from: consumer}
     );
 
-    expect(subscriptionHash).to.not.be.null;
-
-  });
-
-  test('should be able to get details about the subscription', async () => {
+    expect(subscriptionHash).to.not.be.empty;
 
     let subscription = await eightEx.subscriptions.get(subscriptionHash);
+
     expect(subscription.planHash).to.equal(planHash);
     expect(subscription.lastPaymentDate).to.equal(0);
     expect(subscription.terminationDate).to.equal(0);
 
-  });
-
-  test('should be able to activate a subscription', async () => {
-
-    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
     await eightEx.subscriptions.activate(
       subscriptionHash
     );
 
-    let subscription = await eightEx.subscriptions.get(subscriptionHash);
+    subscription = await eightEx.subscriptions.get(subscriptionHash);
     expect(subscription.planHash).to.equal(planHash);
     expect(subscription.lastPaymentDate).to.be.greaterThan(0);
+
+  });
+  
+  test('should be able to create and subscribe to a subscription in one transaction', async ()=> {
+
+    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
+    
+    let subscriptionHash = await eightEx.subscriptions.subscribeAndActivate(
+      planHash,
+      null,
+      {from: consumer}
+    );
+
+    expect(subscriptionHash).to.not.be.empty;
 
   });
 
   test('it should be able to cancel a subscription', async () => {
 
+    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
+    
+    let subscriptionHash = await eightEx.subscriptions.subscribeAndActivate(
+      planHash,
+      null,
+      {from: consumer}
+    );
+    
     await eightEx.subscriptions.cancel(subscriptionHash, {from: consumer});
 
     let subscription = await eightEx.subscriptions.get(subscriptionHash);
@@ -169,36 +183,30 @@ describe('SubscriptionAPI', () => {
 
   test('it should be able to get all subscriptions by subscriber', async () => {
 
-    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
-    let anotherSubscriptionHash = await eightEx.subscriptions.subscribe(anotherPlanHash, null, {from: consumer});
-    await eightEx.subscriptions.activate(anotherSubscriptionHash, {from: consumer});
-
     let subscriptions = await eightEx.subscriptions.getSubscribed(consumer);
-    expect(subscriptions.length).to.equal(2);
+    expect(subscriptions.length).to.equal(3);
 
   });
 
   test('it should be able to get all subscriptions by plan', async ()=> {
 
     let subscriptionsOne = await eightEx.plans.getSubscribers(planHash);
-    expect(subscriptionsOne.length).to.equal(1);
+    expect(subscriptionsOne.length).to.equal(3);
 
     let subscriptionsTwo = await eightEx.plans.getSubscribers(anotherPlanHash);
-    expect(subscriptionsTwo.length).to.equal(1);
+    expect(subscriptionsTwo.length).to.equal(0);
 
   });
 
   test('should show active on an activated subscription', async ()=> {
 
     await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
-    await eightEx.subscriptions.giveAuthorisation({from: consumer});
-    let allowance = await eightEx.subscriptions.hasGivenAuthorisation(consumer);
-    expect(allowance).to.be.true;
 
-    let subscriptionHash = await eightEx.subscriptions.subscribe(planHash, null, {from: consumer});
-    let activation = await eightEx.subscriptions.activate(subscriptionHash, {from: consumer});
-    expect(subscriptionHash).to.not.equal(null);
-    expect(activation).to.not.equal(null);
+    let subscriptionHash = await eightEx.subscriptions.subscribeAndActivate(
+      planHash,
+      null,
+      {from: consumer}
+    );
 
     let subscriptionPaymentTest = await eightEx.subscriptions.getStatus(subscriptionHash);
     expect(subscriptionPaymentTest[0]).to.equal('active');
@@ -206,38 +214,31 @@ describe('SubscriptionAPI', () => {
   });
 
   test('should show inactive on a subscription that has not been activated', async ()=> {
+    
     await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
-    await eightEx.subscriptions.giveAuthorisation({from: consumer});
-    let allowance = await eightEx.subscriptions.hasGivenAuthorisation(consumer);
-    expect(allowance).to.be.true;
 
-    let subscriptionHash = await eightEx.subscriptions.subscribe(planHash, null, {from: consumer});
-    expect(subscriptionHash).to.not.equal(null);
+    let localSubscriptionHash = await eightEx.subscriptions.subscribe(planHash, null, {from: consumer});
+    expect(localSubscriptionHash).to.not.be.empty;
 
-    let subscriptionNotActivatedTest = await eightEx.subscriptions.getStatus(subscriptionHash);
+    let subscriptionNotActivatedTest = await eightEx.subscriptions.getStatus(localSubscriptionHash);
     expect(subscriptionNotActivatedTest[0]).to.equal('inactive');
 
   });
 
   test('should show inactive on a cancelled subscription', async ()=> {
+    
     await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
-    await eightEx.subscriptions.giveAuthorisation({from: consumer});
-    let allowance = await eightEx.subscriptions.hasGivenAuthorisation(consumer);
-    expect(allowance).to.be.true;
 
-    let subscriptionHash = await eightEx.subscriptions.subscribe(planHash, null, {from: consumer});
-    let activation = await eightEx.subscriptions.activate(subscriptionHash, {from: consumer});
-    expect(subscriptionHash).to.not.equal(null);
-    expect(activation).to.not.equal(null);
+    let subscriptionHash = await eightEx.subscriptions.subscribeAndActivate(
+      planHash,
+      null,
+      {from: consumer}
+    );
 
     await eightEx.subscriptions.cancel(subscriptionHash, {from: consumer});
 
     let subscriptionCancelledTest = await eightEx.subscriptions.getStatus(subscriptionHash);
     expect(subscriptionCancelledTest[0]).to.equal('inactive');
-
-  });
-
-  test('should be able to create a subscription hash using salt', async ()=> {
 
   });
 

@@ -5,7 +5,7 @@
     "main": "dist/index.js",
     "typings": "dist/types/index.d.ts",
     "scripts": {
-        "test": "jest --runInBand",
+        "test": "jest --runInBand ",
         "test:watch": "jest --watch --runInBand",
         "clean": "rimraf -rf ./dist",
         "lint": "tslint --project tsconfig.json -c tslint.json",

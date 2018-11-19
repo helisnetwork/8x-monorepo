@@ -96,6 +96,33 @@ export default class SubscriptionsAPI {
   }
 
   /**
+   * Subscribe and Activate
+   * 
+   * This function allows you to subscribe and activate a subscription via a single Ethereum transaction. In case you're
+   * unfamiliar with the difference between subscribing and activating, subscribing is simply an agreement to pay and
+   * activating is making the first payment and starting the flow of money.
+   * 
+   * @param planHash      Unique identifying hash of the plan.
+   * @param metaData      Any extra JSON data you'd like to pass/store on-chain (optional).
+   * @param txData        Provide signer, gas and gasPrice information (optional).
+   * 
+   * @returns             Unique subscription hash.
+   * @priority            3
+  */
+
+ public async subscribeAndActivate(
+  planHash: Bytes32,
+  metaData: JSON | null,
+  txData?: TxData
+): Promise<Bytes32> {
+  return await this.volumeSubscriptionWrapper.subscribeAndActivate(
+    planHash,
+    metaData,
+    txData
+  );
+}
+
+  /**
    * Subscribe
    *
    * Subscribing links the user to the subscription plan. It does not take payment from the user.
@@ -107,7 +134,7 @@ export default class SubscriptionsAPI {
    * @param txData        Provide signer, gas and gasPrice information (optional).
    *
    * @returns             Unique subscription hash.
-   * @priority            3
+   * @priority            4
    *
   */
   public async subscribe(
@@ -152,7 +179,7 @@ export default class SubscriptionsAPI {
    * @param txData              Provide signer, gas and gasPrice information (optional).
    *
    * @returns                   Hash of the transaction upon completion.
-   * @priority                  4
+   * @priority                  5
    *
   */
   public async activate(
@@ -188,7 +215,7 @@ export default class SubscriptionsAPI {
    * ```
    *
    * @returns                 A subscription object.
-   * @priority                5
+   * @priority                6
    *
   */
   public async get(
@@ -226,7 +253,7 @@ export default class SubscriptionsAPI {
    *
    * @param subscriptionHash        Unique subscription hash returned upon subscribing.
    * @returns                       Current status, does user has enough tokens, does 8x got authorisation.
-   * @priority                      6
+   * @priority                      7
    *
    */
   public async getStatus(
@@ -276,7 +303,7 @@ export default class SubscriptionsAPI {
    * @param user       The user you'd like to get subscriptions for.
    *
    * @returns          An array of subscription objects.
-   * @priority         7
+   * @priority         8
    *
   */
   public async getSubscribed(
@@ -297,7 +324,7 @@ export default class SubscriptionsAPI {
    * @param txData              Provide signer, gas and gasPrice information (optional).
    *
    * @returns                   Hash of the transaction upon completion.
-   * @priority                  8
+   * @priority                  9
    *
    */
   public async cancel(
