@@ -9,7 +9,7 @@ module.exports = function(deployer, network, accounts) {
 
     console.log(`Using network: ${network}`);
 
-    if (Constants.isActualDeployment(network)) {
+    if (!Constants.isActualDeployment(network)) {
         return;
     }
 
