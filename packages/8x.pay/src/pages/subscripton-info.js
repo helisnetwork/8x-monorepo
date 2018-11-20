@@ -76,7 +76,7 @@ class SubscriptionInfo extends React.Component {
     const timeItems = this.timeItems(); 
 
     this.handleSelectedCurrency(currencyItems[0].name);
-    this.handleSelectedPeriod(timeItems[0]);
+    this.handleSelectedPeriod(timeItems[0].name);
 
   }
 

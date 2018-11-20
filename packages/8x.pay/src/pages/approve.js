@@ -43,6 +43,7 @@ class Approve extends React.Component {
         conversion: status
       });
     });
+    bus.trigger('conversion:status:requested');
   }
 
   catchAuthFailed() {
