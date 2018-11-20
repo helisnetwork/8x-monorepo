@@ -62,7 +62,7 @@ class SelectWallet extends React.Component {
               </div>
             </div>
             <div className="disclaimer">
-              <p>Disclaimer: These contracts have not yet been audited please use it at your own risk.</p>
+              <p>Disclaimer: These contracts have not yet been audited, please use it at your own risk.</p>
             </div>
           </div>
         </div>

@@ -4,8 +4,6 @@ import BigNumber from 'bignumber.js';
 import EightEx from '8x.js';
 import { getContract, getToken } from '../constants';
 
-// const monitorTx = require('monitor-tx');
-
 export default class UserStore {
   constructor(){
 

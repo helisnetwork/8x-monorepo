@@ -1,6 +1,6 @@
 {
     "name": "8x.pay",
-    "version": "0.5.3",
+    "version": "0.5.4",
     "description": "",
     "main": "dist/index.js",
     "scripts": {
@@ -26,9 +26,11 @@
         "@ledgerhq/hw-transport-u2f": "^4.24.0",
         "@ledgerhq/web3-subprovider": "^4.24.0",
         "bignumber.js": "^4.1.0",
+        "child_process": "^1.0.2",
         "dotenv": "^6.0.0",
         "history": "^4.7.2",
         "monitor-tx": "^1.0.11",
+        "net": "^1.0.2",
         "prop-types": "^15.6.2",
         "react-copy-to-clipboard": "^5.0.1",
         "react-onclickoutside": "^6.7.1",
@@ -39,6 +41,7 @@
         "reactjs-popup": "^1.1.1",
         "riot-observable": "^3.0.0",
         "styled-components": "^3.4.5",
+        "tls": "0.0.1",
         "typescript": "^2.6.2",
         "web3": "^0.2.0",
         "web3-provider-engine": "^14.0.6"
