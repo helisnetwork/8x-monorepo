@@ -22,7 +22,7 @@ class Dropdown extends React.Component {
   }
 
   initializeDropdown() {
-    this.props.onSelectedItem(this.state.selectedItem.name);
+    this.props.onSelectedItem(this.state.selectedItem);
   };
 
   // Handles change in selected item on dropdown menu and passes data to subscription info

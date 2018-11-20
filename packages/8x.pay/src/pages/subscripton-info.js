@@ -76,7 +76,7 @@ class SubscriptionInfo extends React.Component {
     const timeItems = this.timeItems(); 
 
     this.handleSelectedCurrency(currencyItems[0].name);
-    this.handleSelectedPeriod(timeItems[0].name);
+    this.handleSelectedPeriod(timeItems[0]);
 
   }
 
@@ -305,7 +305,7 @@ class SubscriptionInfo extends React.Component {
                 <span>${this.state.subscriptionAmount}USD billed every {this.humanizeDuration(this.state.subscriptionPeriod)}</span>
               </div>
             </div>
-            <div className='option'>
+            <div className='option' style={{display:'none'}}>
               <div className='currency'>
                 <div className='text'>
                   <p>I want to pay using</p>
@@ -320,9 +320,9 @@ class SubscriptionInfo extends React.Component {
               </div>
             </div>
             <div className='action'>
-              <p className='text'>To start your subscription, please send</p>
-              <h2>{this.calculateSendAmount()} {this.state.selectedCurrency}</h2>
-              <p className='text'>to your personal wallet</p>
+              <p className='text'>Your subscription will now begin, each {this.humanizeDuration(this.state.subscriptionPeriod)}</p>
+              <h2>{this.state.subscriptionAmount} {this.state.selectedCurrency}</h2>
+              <p className='text'>will be deducted from your authorized wallet.</p>
             </div>
             <div className='item-address'>
               <p className='text-address'>{this.state.address}</p>

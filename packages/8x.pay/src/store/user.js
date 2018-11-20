@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js';
 import EightEx from '8x.js';
 import { getContract, getToken } from '../constants';
 
+// const monitorTx = require('monitor-tx');
 
 export default class UserStore {
   constructor(){
@@ -140,6 +141,7 @@ export default class UserStore {
 
   listenUserConversion() {
     bus.on('conversion:requested', async (selectedPeriodInMonths) => {
+      this.kyberConversionConfirmationTrigger();
       bus.one('subscription:plan:for:exchange:rates', (planData) => {
         const priceInDAI = ((selectedPeriodInMonths)/planData.subscriptionPeriod)*(planData.subscriptionAmount);
         bus.one('exchange:rate:sent', async (rate) => {
@@ -155,13 +157,7 @@ export default class UserStore {
           var kyberNetworkProxy = kyberNetworkProxyABI.at(this.kyberNetworkProxyInterface);
           kyberNetworkProxy.swapEtherToToken(this.token, minConversionRate, { value: srcAmount }, (err,results) =>{
             if(!err) { 
-              let txConfirm = this.eightEx.blockchain.awaitTransactionMinedAsync(results).then((confirm) => {
-                console.log(confirm);
-              });
-              if(txConfirm){
-                bus.trigger('conversion:complete', results);
-              }
-              
+              bus.trigger('conversion:txhash:sent', results);
             } else {
               console.log('Conversion failed' + ' ' + err);
             } 
@@ -170,6 +166,12 @@ export default class UserStore {
         bus.trigger('request:exchange:rate');
       });
       bus.trigger('subscription:plan:requested', 'rates');
+    });
+  }
+
+  kyberConversionConfirmationTrigger() {
+    bus.on('conversion:txhash:sent', async (hash) => {
+      bus.trigger('conversion:complete', hash);
     });
   }
 
