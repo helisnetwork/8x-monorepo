@@ -114,6 +114,7 @@ contract('Executor', function(accounts) {
         return await newActiveSubscription(
             executorContract,
             subscriptionContract,
+            tokenSubscriber,
             subscriptionHash,
             subscriptionInterval,
             node || serviceNode,
