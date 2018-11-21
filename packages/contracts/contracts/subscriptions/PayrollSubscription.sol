@@ -20,6 +20,7 @@ contract PayrollSubscription is Collectable {
         uint interval;
         address tokenAddress;
         uint startDate;
+        uint terminationDate;
         bool oneOff;
         address owner;
     }
@@ -32,6 +33,54 @@ contract PayrollSubscription is Collectable {
     uint public gasPrice = 2*10**9;
     uint public gasCost = 200000;
 
+    event CreatedSchedule (
+        bytes32 indexed scheduleIdentifier,
+        bytes32 indexed owner,
+        bytes32 indexed oneOff
+    );
+
+    event UpdatedSchedule (
+        bytes32 indexed scheduleIdentifier,
+        bytes32 indexed owner,
+        uint interval,
+        address tokenAddress,
+        uint startDate
+    );
+
+    event TerminatedSchedule (
+        bytes32 indexed scheduleIdentifier,
+        bytes32 indexed owner,
+        bytes32 indexed terminationDate
+    );
+
+    event CreatedPayment (
+        bytes32 indexed employeeIdentifier,
+        bytes32 indexed scheduleIdentifier,
+        uint indexed startDate,
+        uint interval,
+        address tokenAddress,
+        bool oneOff
+    );
+
+    event UpdatedPayment (
+        bytes32 indexed employeeIdentifier,
+        bytes32 indexed scheduleIdentifier,
+        uint indexed startDate,
+        address destination
+    );
+
+    event LastUpdatedPaymentDate(
+        bytes32 indexed employeeIdentifier,
+        bytes32 indexed scheduleIdentifier,
+        uint indexed lastPaymentDate
+    );
+
+    event TerminatedPayment (
+        bytes32 indexed employeeIdentifier,
+        bytes32 indexed scheduleIdentifier,
+        uint indexed terminationDate
+    );
+ 
     /**
       * COLLECTABLE INTERFACE FUNCTIONS
     */
