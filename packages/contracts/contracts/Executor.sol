@@ -59,6 +59,12 @@ contract Executor is Ownable {
         bytes32 indexed subscriptionIdentifier
     );
 
+    event SubscriptionCompleted(
+        bytes32 indexed subscriptionIdentifier,
+        address indexed claimant,
+        uint indexed amount
+    );
+
     event Paused(address account);
     event Unpaused(address account);
 
@@ -166,15 +172,44 @@ contract Executor is Ownable {
         require(approvedRegistry.isContractAuthorised(_subscriptionContract), "Unauthorised contract");
         require(subscription.isValidSubscription(_subscriptionIdentifier) == false, "Invalid subscription");
 
-        // Get the detauls of the subscription
+        // Get the defaults of the subscription
         ERC20 transactingToken = ERC20(subscription.getSubscriptionTokenAddress(_subscriptionIdentifier));
         uint subscriptionInterval = subscription.getSubscriptionInterval(_subscriptionIdentifier);
         uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
         uint fee = subscription.getSubscriptionFee(_subscriptionIdentifier);
         (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
-        // Make the payment safely
-        makePayment(transactingToken, consumer, business, amountDue);
+        // Charge fee if the person who is calling this function is not the one being charged
+        if (msg.sender != consumer) {
+            (
+                bool paymentSuccess, 
+                bool finalPayment
+            ) = attemptProcessingWithSuccessAndLastPaymentCallback(
+                _subscriptionContract, 
+                _subscriptionIdentifier, 
+                address(transactingToken), 
+                msg.sender, 
+                currentTimestamp() + subscriptionInterval, 
+                amountDue, 
+                fee,
+                true
+            );
+
+            require(paymentSuccess);
+
+            // If it was the final payment, mark it as completed and finish execution
+            if (finalPayment) {
+                emit SubscriptionCompleted(
+                    _subscriptionIdentifier,
+                    msg.sender,
+                    amountDue
+                );
+
+                return;
+            }
+        } else {
+            makePayment(transactingToken, consumer, business, amountDue);
+        }
 
         // Create a new record in the payments registry
         paymentRegistry.createNewPayment(
@@ -211,6 +246,9 @@ contract Executor is Ownable {
         public
         whenNotPaused
     {
+
+        Collectable subscription = Collectable(_subscriptionContract);
+
         // Get the current payment registry object (if it doesn't exist execution will eventually fail)
         (
             address tokenAddress,
@@ -221,7 +259,11 @@ contract Executor is Ownable {
             address claimant,
             ,
             uint staked
-        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+        ) = paymentRegistry.updatePaymentInformation(
+            _subscriptionIdentifier, 
+            subscription.getAmountDueFromSubscription(_subscriptionIdentifier), 
+            subscription.getSubscriptionFee(_subscriptionIdentifier)
+        );
 
         // Ensure it's a fresh subscription or only the claimant
         require(claimant == 0 || claimant == msg.sender, "There's already a claimant for this subscription");
@@ -233,10 +275,8 @@ contract Executor is Ownable {
         uint interval = (dueDate - lastPaymentDate);
         require(currentTimestamp() < (dueDate + (interval / maximumIntervalDivisor)), "The subscription has already passed the processing period");
 
-        require(stakeContract.getAvailableStake(msg.sender, tokenAddress) > 1, "At least one token is required to process subscriptions");
-
-        if (attemptProcessingWithCallback(
-            _subscriptionContract, _subscriptionIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, staked
+        if (attemptProcessingWithSuccessCallback(
+            _subscriptionContract, _subscriptionIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, false
         ) == false) {
             processingFailed(_subscriptionContract, _subscriptionIdentifier, tokenAddress, msg.sender, staked);
             return;
@@ -288,8 +328,8 @@ contract Executor is Ownable {
         require(msg.sender != claimant, "The claimant cannot call catch late on himself");
 
         // Make the payment
-        bool didProcess = attemptProcessingWithCallback(
-            _subscriptionContract, _subscriptionIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, staked
+        bool didProcess = attemptProcessingWithSuccessCallback(
+            _subscriptionContract, _subscriptionIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, false
         );
 
         // Slash the tokens and give them to this caller = $$$
@@ -413,7 +453,7 @@ contract Executor is Ownable {
       * PRIVATE FUNCTION
     */
 
-    function attemptProcessingWithCallback(
+    function attemptProcessingWithSuccessCallback(
         address _subscriptionContract,
         bytes32 _subscriptionIdentifier,
         address _tokenAddress,
@@ -421,15 +461,48 @@ contract Executor is Ownable {
         uint _newLastPaymentDate,
         uint _amount,
         uint _fee,
-        uint _staked
+        bool _firstPayment
     )
         private
-        returns (bool)
+        returns (bool success)
     {
-        return address(this).call(
+        (bool result, ) = attemptProcessingWithSuccessAndLastPaymentCallback(
+            _subscriptionContract,
+            _subscriptionIdentifier,
+            _tokenAddress,
+            _serviceNode,
+            _newLastPaymentDate,
+            _amount,
+            _fee,
+            _firstPayment
+        );
+
+        return (result);
+        
+    }
+
+    function attemptProcessingWithSuccessAndLastPaymentCallback(
+        address _subscriptionContract,
+        bytes32 _subscriptionIdentifier,
+        address _tokenAddress,
+        address _serviceNode,
+        uint _newLastPaymentDate,
+        uint _amount,
+        uint _fee,
+        bool _firstPayment
+    )
+        private
+        returns (bool success, bool finalPayment)
+    {
+       
+        // Anyone who's processing a subscription should meet these guidelines
+        require(stakeContract.getAvailableStake(msg.sender, _tokenAddress) > 1, "At least one token is required to process subscriptions");
+
+        // Execute the actual payment
+        bool result1 = address(this).call(
             bytes4(
                 keccak256(
-                    "attemptProcessing(address,bytes32,address,address,uint256,uint256,uint256,uint256)"
+                    "attemptProcessing(address,bytes32,address,address,uint256,uint256,uint256)"
                 )
             ), _subscriptionContract,
                 _subscriptionIdentifier,
@@ -437,9 +510,21 @@ contract Executor is Ownable {
                 _serviceNode,
                 _newLastPaymentDate,
                 _amount,
-                _fee,
-                _staked
+                _fee
         );
+
+        // Update the last payment date in the volume subscription contract
+        // If this reverts, that means the payment isn't ready
+        Collectable subscription = Collectable(_subscriptionContract);
+        bool result2 = subscription.setLastPaymentDate(_newLastPaymentDate, _subscriptionIdentifier);
+
+        // @TODO: Add tests for this down the line
+        if (_firstPayment == false) {
+            require(result2 == false, "An existing payment should never be marked as the final payment. Only reserved for scheduled/first time payments.");
+        }
+
+        return (result1, result2);
+        
     }
 
     function attemptProcessing(
@@ -449,8 +534,7 @@ contract Executor is Ownable {
         address _serviceNode,
         uint256 _newLastPaymentDate,
         uint256 _amount,
-        uint256 _fee,
-        uint256 _staked
+        uint256 _fee
     )
         external
     {
@@ -471,9 +555,28 @@ contract Executor is Ownable {
         uint pricedGas = getPricedGas(_subscriptionContract, _subscriptionIdentifier, _tokenAddress);
         makePayment(ERC20(_tokenAddress), consumer, business, _amount - _fee - pricedGas);
         makePayment(ERC20(_tokenAddress), consumer, _serviceNode, _fee + pricedGas);
+    }
 
-        // Update the last payment date in the volume subscription contract
-        subscription.setLastPaymentDate(_newLastPaymentDate, _subscriptionIdentifier);
+    function makePayment(
+        ERC20 _transactingToken,
+        address _from,
+        address _to,
+        uint _amount
+    )
+        private
+        returns (bool)
+    {
+        // Get the businesses balance before the transaction
+        uint balanceOfBusinessBeforeTransfer = _transactingToken.balanceOf(_to);
+
+        // Check if the user has enough funds
+        require(_transactingToken.balanceOf(_from) >= _amount, "The user doesn't have enough tokens");
+
+        // Send currency to the destination business
+        transferProxy.transferFrom(address(_transactingToken), _from, _to, _amount);
+
+        // Check the business actually received the funds by checking the difference
+        require((_transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount, "Before and after balances don't match up");
     }
 
     function processingFailed(
@@ -499,28 +602,6 @@ contract Executor is Ownable {
         );
 
         emit SubscriptionCancelled(_subscriptionContract, _subscriptionIdentifier);
-    }
-
-    function makePayment(
-        ERC20 _transactingToken,
-        address _from,
-        address _to,
-        uint _amount
-    )
-        private
-        returns (bool)
-    {
-        // Get the businesses balance before the transaction
-        uint balanceOfBusinessBeforeTransfer = _transactingToken.balanceOf(_to);
-
-        // Check if the user has enough funds
-        require(_transactingToken.balanceOf(_from) >= _amount, "The user doesn't have enough tokens");
-
-        // Send currency to the destination business
-        transferProxy.transferFrom(address(_transactingToken), _from, _to, _amount);
-
-        // Check the business actually received the funds by checking the difference
-        require((_transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount, "Before and after balances don't match up");
     }
 
 }

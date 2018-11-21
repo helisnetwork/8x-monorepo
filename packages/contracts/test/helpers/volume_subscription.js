@@ -2,7 +2,7 @@ const web3 = require('web3');
 
 const newPlan = async function(contract, token, account, identifier, interval, cost, fee) {
 
-    let now = parseInt(Date.now()/1000);
+    let now = parseInt(Date.now() / 1000);
 
     await contract.setTime(now);
 
@@ -13,8 +13,7 @@ const newPlan = async function(contract, token, account, identifier, interval, c
         interval || 30,
         cost || 30,
         fee || 1,
-        0,
-        {from: account}
+        0, { from: account }
     );
 
     let planHash = newPlan.logs[0].args.planIdentifier;
@@ -26,7 +25,7 @@ const newSubscription = async function(contract, token, account, identifier, bus
 
     let planHash = await newPlan(contract, token, business || account, identifier, interval, cost, fee);
 
-    let newSubscription = await contract.createSubscription(planHash, 0, {from: account});
+    let newSubscription = await contract.createSubscription(planHash, 0, { from: account });
     let subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
 
     return subscriptionHash;
@@ -36,22 +35,22 @@ const newSubscriptionFull = async function(contract, token, account, identifier,
 
     let planHash = await newPlan(contract, token, business || account, identifier, interval, cost, fee);
 
-    let newSubscription = await contract.createSubscription(planHash, 0, {from: account});
+    let newSubscription = await contract.createSubscription(planHash, 0, { from: account });
     let subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
 
     return [planHash, subscriptionHash];
 };
 
-const newActiveSubscription = async function(executor, contract, subscriptionHash, interval, account, cycles, contractsToAdvance, processLast) {
+const newActiveSubscription = async function(executor, contract, account, subscriptionHash, interval, serviceNode, cycles, contractsToAdvance, processLast) {
 
-    let now = parseInt(Date.now()/1000);
+    let now = parseInt(Date.now() / 1000);
     await setTimes(contractsToAdvance, now);
 
-    await executor.activateSubscription(contract.address, subscriptionHash, {from: account});
+    await executor.activateSubscription(contract.address, subscriptionHash, { from: account });
 
     let globalTime = now;
     for (var i = 1; i <= cycles; i++) {
-      globalTime = now + (i * interval);
+        globalTime = now + (i * interval);
 
         await setTimes(contractsToAdvance, globalTime);
 
@@ -59,7 +58,7 @@ const newActiveSubscription = async function(executor, contract, subscriptionHas
             break;
         }
 
-        await executor.processSubscription(contract.address, subscriptionHash, {from: account});
+        await executor.processSubscription(contract.address, subscriptionHash, { from: serviceNode });
     }
 
     return [subscriptionHash, globalTime];

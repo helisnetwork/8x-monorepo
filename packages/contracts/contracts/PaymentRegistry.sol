@@ -58,7 +58,7 @@ contract PaymentRegistry is Authorizable {
         returns (bool success)
     {
 
-        require(_subscriptionIdentifier[0] != 0);
+        require(_subscriptionIdentifier != 0);
         require(_tokenAddress != 0);
         require(_dueDate >= currentTimestamp());
         require(_amount > 0);
@@ -101,7 +101,6 @@ contract PaymentRegistry is Authorizable {
         returns (bool success)
     {
         Payment storage currentPayment = payments[_subscriptionIdentifier];
-        emit Debug(currentTimestamp(), _nextPayment);
 
         require(currentTimestamp() >= currentPayment.dueDate);
         require(_nextPayment >= currentTimestamp());
@@ -157,14 +156,23 @@ contract PaymentRegistry is Authorizable {
       * subscription with it's relevant details.
       * @param _newAmount is how much the amount is for.
     */
-    function updateAmount(
+    function updatePaymentInformation(
         bytes32 _subscriptionIdentifier,
         uint _newAmount,
         uint _newFee
     )
         public
         onlyAuthorized
-        returns (uint newStake)
+        returns (
+            address tokenAddress,           // 0
+            uint dueDate,                   // 1
+            uint amount,                    // 2
+            uint fee,                       // 3
+            uint lastPaymentDate,           // 4
+            address claimant,               // 5
+            uint executionPeriod,           // 6
+            uint staked                     // 7
+        )
     { 
         
         Payment storage currentPayment = payments[_subscriptionIdentifier];
@@ -182,7 +190,16 @@ contract PaymentRegistry is Authorizable {
 
         emit PaymentAmountUpdated(_subscriptionIdentifier, _newAmount, _newFee, currentPayment.staked);
 
-        return currentPayment.staked;
+        return(
+            currentPayment.tokenAddress,
+            currentPayment.dueDate,
+            currentPayment.amount,
+            currentPayment.fee,
+            currentPayment.lastPaymentDate,
+            currentPayment.claimant,
+            currentPayment.executionPeriod,
+            currentPayment.staked
+        );
     }
 
     /** @dev Allows a claimant to transfer their responsibility to process a
