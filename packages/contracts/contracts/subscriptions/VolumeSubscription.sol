@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 
-import "./Collectable.sol";
-import "./interfaces/ApprovedRegistryInterface.sol";
+import "../Collectable.sol";
+import "../interfaces/ApprovedRegistryInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -42,7 +42,7 @@ contract VolumeSubscription is Collectable {
     mapping (bytes32 => Plan) public plans;
     mapping (bytes32 => Subscription) public subscriptions;
 
-    uint public gasPrice = 2*10**9;
+    uint public gasPrice = 3*10**9;
     uint public gasCost = 200000;
 
     event CreatedPlan(
@@ -136,7 +136,7 @@ contract VolumeSubscription is Collectable {
     }
 
     /**
-      * COLLECTIBLE INTERFACE FUNCTIONS
+      * COLLECTABLE INTERFACE FUNCTIONS
     */
     function isValidSubscription(bytes32 _subscription)
         public

@@ -8,11 +8,12 @@ module.exports = function(deployer, network, accounts) {
 
     const MultiSigWalletWithTimeLock = artifacts.require("./MultiSigWalletWithTimeLock.sol");
 
+    const VolumeSubscription = artifacts.require("./subscriptions/VolumeSubscription.sol");
+
     const ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
     const TransferProxy = artifacts.require("./TransferProxy.sol");
     const PaymentRegistry = artifacts.require("./PaymentRegistry.sol");
     const StakeContract = artifacts.require("./StakeContract.sol");
-    const VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
     const Executor = artifacts.require("./Executor.sol");
     const EightExToken = artifacts.require("./EightExToken.sol");
 
