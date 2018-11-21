@@ -19,9 +19,10 @@ module.exports = function(deployer, network, accounts) {
     const ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
     const PaymentRegistry = artifacts.require("./PaymentRegistry.sol");
     const StakeContract = artifacts.require("./StakeContract.sol");
-    const VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
     const Executor = artifacts.require("./Executor.sol");
     const EightExToken = artifacts.require("./EightExToken.sol");
+
+    const VolumeSubscription = artifacts.require("./subscriptions/VolumeSubscription.sol");
 
     const MockToken = artifacts.require("./test/MockToken.sol");
     const MockKyberNetwork = artifacts.require("./test/MockKyberNetwork.sol");
