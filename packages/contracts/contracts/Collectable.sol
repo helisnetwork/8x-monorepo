@@ -90,9 +90,11 @@ contract Collectable is Authorizable {
     /** @dev Set the last payment date for the subscription.
       * @param _date is the date to set.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
+      * @param isFinalPayment is an indicator if this is the final payment.
     */
     function setLastPaymentDate(uint _date, bytes32 _subscription)
-        public;
+        public
+        returns (bool isFinalPayment);
 
     /** @dev Cancel the subscription. User or service node iniated.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
