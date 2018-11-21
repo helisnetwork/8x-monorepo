@@ -9,20 +9,20 @@ import "../interfaces/ApprovedRegistryInterface.sol";
 contract PayrollSubscription is Collectable {
 
     struct Payment {
-        uint amount;
-        address destination;
-        uint lastPaymentDate;
-        uint terminationDate;
-        bytes32 scheduleIdentifier;
+        uint amount;                    // Editable
+        address destination;            // Editable
+        uint lastPaymentDate;           // Editable (authorised)
+        uint terminationDate;           // Can only be set once
+        bytes32 scheduleIdentifier;     // Can only be set on creation
     }
     
     struct Schedule {
-        uint interval;
-        address tokenAddress;
-        uint startDate;
-        uint terminationDate;
-        bool oneOff;
-        address owner;
+        uint interval;                  // Not editable
+        address tokenAddress;           // Not editable
+        uint startDate;                 // Editable
+        uint terminationDate;           // Can only be set once
+        bool oneOff;                    // Can only be set on creation
+        address owner;                  // Editable
     }
 
     ApprovedRegistryInterface public approvedRegistry;
@@ -42,9 +42,9 @@ contract PayrollSubscription is Collectable {
     event UpdatedSchedule (
         bytes32 indexed scheduleIdentifier,
         bytes32 indexed owner,
+        uint indexed startDate,
         uint interval,
-        address tokenAddress,
-        uint startDate
+        address tokenAddress
     );
 
     event TerminatedSchedule (
@@ -64,8 +64,9 @@ contract PayrollSubscription is Collectable {
 
     event UpdatedPayment (
         bytes32 indexed employeeIdentifier,
-        bytes32 indexed scheduleIdentifier,
+        bytes32 indexed amount,
         uint indexed startDate,
+        bytes32 scheduleIdentifier,
         address destination
     );
 
@@ -169,28 +170,87 @@ contract PayrollSubscription is Collectable {
     }
 
     function createScheduleWithPayments(
-        bytes32[] ids,
-        uint[] amounts,
-        address[] destinations,
-        address tokenAddress,
-        uint startDate,
-        uint interval,
-        bool oneOff,
-        uint elements
+        bytes32[] _ids,
+        uint[] _amounts,
+        address[] _destinations,
+        address _tokenAddress,
+        uint _startDate,
+        uint _interval,
+        bool _oneOff,
+        uint _elements
     ) 
         public
     {
     
     }
 
-    function updatePayments(
-        bytes32[] ids,
-        uint[] amounts,
-        uint[] terminationDates
+    function updateScheduleOwner(
+        bytes32 _scheduleIdentifier,
+        address _owner
     ) 
         public
     {
 
     }
 
+    function updateStartDate(
+        bytes32 _scheduleIdentifier,
+        uint _startDate
+    ) 
+        public
+    {
+
+    }
+
+    function terminateSchedule(
+        bytes32 _scheduleIdentifier,
+        uint _terminationDate
+    )
+        public
+    {
+
+    }
+
+    function updatePayments(
+        bytes32[] _ids,
+        uint[] _amounts,
+        address[] _destinations
+    ) 
+        public
+    {
+
+    }
+
+    function updatePayment(
+        bytes32 _id,
+        uint _amount,
+        address[] _destinations
+    ) 
+        public
+    {
+
+    }
+
+    function terminatePayments(
+        bytes32[] _ids,
+        uint[] _terminationDates
+    )
+        public
+    {
+
+    }
+
+    /**
+      * INTERNAL FUNCTIONS
+    */
+    /** @dev Current timestamp returned via a function in order for mocks in tests
+    */
+    function currentTimestamp()
+        internal
+        view
+        returns (uint timetstamp)
+    {
+        // solhint-disable-next-line
+        return block.timestamp;
+    }
 }
