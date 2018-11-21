@@ -25,10 +25,15 @@ contract PaymentRegistry is Authorizable {
 
     event PaymentCreated(bytes32 subscriptionIdentifer);
     event PaymentClaimed(bytes32 subscriptionIdentifer, address claimant);
+
     event PaymentClaimantRemoved(bytes32 subscriptionIdentifer, address claimant);
     event PaymentClaimantTransferred(bytes32 subscriptionIdentifer, address claimant);
+
+    event PaymentAmountUpdated(bytes32 subscriptionIdentifier, uint newAmount, uint newFee, uint newStake);
+
     event PaymentCancelled(bytes32 subscriptionIdentifer);
     event PaymentDeleted(bytes32 subscriptionIdentifier);
+
 
     /**
       * PUBLIC FUNCTIONS
@@ -130,7 +135,8 @@ contract PaymentRegistry is Authorizable {
     */
     function removeClaimant(
         bytes32 _subscriptionIdentifier,
-        address _claimant)
+        address _claimant
+    )
         public
         onlyAuthorized
         returns (bool success)
@@ -144,6 +150,39 @@ contract PaymentRegistry is Authorizable {
         emit PaymentClaimantRemoved(_subscriptionIdentifier, _claimant);
 
         return true;
+    }
+    
+    /** @dev Update the payment amount in the registry 
+      * @param _subscriptionIdentifier is the identifier of that customer's
+      * subscription with it's relevant details.
+      * @param _newAmount is how much the amount is for.
+    */
+    function updateAmount(
+        bytes32 _subscriptionIdentifier,
+        uint _newAmount,
+        uint _newFee
+    )
+        public
+        onlyAuthorized
+        returns (uint newStake)
+    { 
+        
+        Payment storage currentPayment = payments[_subscriptionIdentifier];
+
+        if (_newAmount < currentPayment.amount) {
+            uint divisor = currentPayment.amount / _newAmount;
+            currentPayment.staked = currentPayment.staked / divisor;
+        } else {
+            uint multiplier = _newAmount / currentPayment.amount;
+            currentPayment.staked = currentPayment.staked * multiplier;
+        }
+
+        currentPayment.amount = _newAmount;
+        currentPayment.fee = _newFee;
+
+        emit PaymentAmountUpdated(_subscriptionIdentifier, _newAmount, _newFee, currentPayment.staked);
+
+        return currentPayment.staked;
     }
 
     /** @dev Allows a claimant to transfer their responsibility to process a
