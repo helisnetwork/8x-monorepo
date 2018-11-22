@@ -18,6 +18,7 @@ contract PayrollSubscription is Collectable {
     
     struct Schedule {
         uint interval;                  // Not editable
+        uint fee;                       // Editable, expressed as a divisor to 2 decimals. 10000 = 0.01%.
         address tokenAddress;           // Not editable
         uint startDate;                 // Editable
         uint terminationDate;           // Can only be set once
@@ -36,7 +37,8 @@ contract PayrollSubscription is Collectable {
     event CreatedSchedule (
         bytes32 indexed scheduleIdentifier,
         address indexed owner,
-        bool indexed oneOff
+        bool indexed oneOff,
+        uint fee
     );
 
     event UpdatedSchedule (
@@ -44,7 +46,8 @@ contract PayrollSubscription is Collectable {
         address indexed owner,
         uint indexed startDate,
         uint interval,
-        address tokenAddress
+        address tokenAddress,
+        uint fee
     );
 
     event TerminatedSchedule (
@@ -176,20 +179,23 @@ contract PayrollSubscription is Collectable {
         address _tokenAddress,
         uint _startDate,
         uint _interval,
+        uint _fee,
         bool _oneOff
     ) 
         public
         returns (bytes32)
     {
 
-        require(_startDate > 0);
-        require((_oneOff == false && _interval > 0) || (_oneOff == true));
+        require(_startDate > 0, "You need to set a starting date");
+        require(_fee > 0, "Cannot create payment with no fee");
+        require((_oneOff == false && _interval > 0) || (_oneOff == true), "If the payment is not one off, it requires an interval");
 
         // Add tests for this
-        require(_ids.length > 0);
+        require(_ids.length > 0, "You need to pass in at least one identifier");
     
         Schedule memory newSchedule = Schedule(
             _interval,
+            _fee,
             _tokenAddress,
             _startDate,
             0,
@@ -197,24 +203,25 @@ contract PayrollSubscription is Collectable {
             msg.sender
         );
         
-        bytes32 scheduleHash = keccak256(msg.sender, _startDate);
+        bytes32 scheduleHash = keccak256(msg.sender, _tokenAddress, _oneOff);
+        require(schedules[scheduleHash].owner == 0);
+
         schedules[scheduleHash] = newSchedule;
 
         emit CreatedSchedule(
             scheduleHash,
             msg.sender,
-            _oneOff
+            _oneOff,
+            _fee
         );
         
         for (uint i = 0; i < _ids.length; i++)  {
             
             bytes32 id = _ids[i];
-            uint amount = _amounts[i];
-            address destination = _destinations[i];
 
             Payment memory newPayment = Payment(
-                amount,
-                destination,
+                _amounts[i],
+                _destinations[i],
                 0,
                 0,
                 scheduleHash
@@ -234,6 +241,21 @@ contract PayrollSubscription is Collectable {
     ) 
         public
     {
+
+        Schedule storage schedule = schedules[_scheduleIdentifier];
+
+        require(schedule.owner == msg.sender, "Must be the original owner to set a new owner");
+
+        schedule.owner = _owner;
+        
+        emit UpdatedSchedule(
+            _scheduleIdentifier,
+            _owner,
+            schedule.startDate,
+            schedule.interval,
+            schedule.tokenAddress,
+            schedule.fee
+        );
 
     }
 
@@ -258,17 +280,8 @@ contract PayrollSubscription is Collectable {
     function updatePayments(
         bytes32[] _ids,
         uint[] _amounts,
-        address[] _destinations
-    ) 
-        public
-    {
-
-    }
-
-    function updatePayment(
-        bytes32 _id,
-        uint _amount,
-        address[] _destinations
+        address[] _destinations,
+        bytes32 _scheduleIdentifier
     ) 
         public
     {
@@ -283,7 +296,7 @@ contract PayrollSubscription is Collectable {
     {
 
     }
-
+    
     /**
       * INTERNAL FUNCTIONS
     */
