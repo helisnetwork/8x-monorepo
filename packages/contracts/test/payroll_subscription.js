@@ -76,21 +76,47 @@ contract('PayrollSubscription', function(accounts) {
         return amountArray;
     }
 
+    async function resetState() {
+        console.log("Deploying a new contract");
+        contract = await MockPayrollSubscription.new(approvedRegistryContract.address, { from: contractOwner });
+        await contract.addAuthorizedAddress(executorContract);
+        await contract.setTime(100);
+    }
+
+    async function createNewPayment() {
+        let newSchedule = await contract.createScheduleWithPayments(
+            identifiers(), 
+            amounts(), 
+            destinations(),
+            token.address,
+            100,
+            0,
+            1000,
+            true, 
+            { from: business }
+        );
+
+        return newSchedule.logs[0].args.scheduleIdentifier;
+    }
+
     before(async function() {
 
         kyberNetwork = await MockKyberNetwork.new({ from: contractOwner });
         approvedRegistryContract = await ApprovedRegistry.new(kyberNetwork.address, { from: contractOwner });
 
-        contract = await MockPayrollSubscription.new(approvedRegistryContract.address, { from: contractOwner });
         token = await MockToken.new({ from: contractOwner });
-
-        await contract.addAuthorizedAddress(executorContract);
 
     });
 
     describe("when creating a schedule with payments", () => {
 
-        it("should not be able to create without a start date", async function() {
+        before(async function() {
+
+            await resetState();
+    
+        });
+
+        it("should not be able to create with a start date less than now", async function() {
 
             await assertRevert(contract.createScheduleWithPayments(
                 [], 
@@ -98,7 +124,8 @@ contract('PayrollSubscription', function(accounts) {
                 [],
                 token.address,
                 0,
-                100,
+                99,
+                1000,
                 true, 
                 { from: business }
             ));
@@ -113,6 +140,7 @@ contract('PayrollSubscription', function(accounts) {
                 [],
                 token.address,
                 100,
+                1000,
                 0,
                 false, 
                 { from: business }
@@ -129,6 +157,7 @@ contract('PayrollSubscription', function(accounts) {
                 destinations(receiver),
                 token.address,
                 100,
+                1000,
                 0,
                 true, 
                 { from: business }
@@ -145,10 +174,27 @@ contract('PayrollSubscription', function(accounts) {
             //     [],
             //     token.address,
             //     100,
+            //     1000,
             //     10,
             //     false, 
             //     { from: business }
             // ));
+
+        });
+
+        it("should not be able to create a schedule without a fee", async function() {
+
+            await assertRevert(contract.createScheduleWithPayments(
+                identifiers(), 
+                amounts(), 
+                destinations(),
+                token.address,
+                100,
+                0,
+                0,
+                true, 
+                { from: business }
+            ));
 
         });
 
@@ -162,20 +208,21 @@ contract('PayrollSubscription', function(accounts) {
                 token.address,
                 100,
                 0,
+                1000,
                 true, 
                 { from: business }
             );
 
             let scheduleIdentifier = newSchedule.logs[0].args.scheduleIdentifier;
-            console.log(scheduleIdentifier);
 
             let scheduleInformation = await contract.schedules.call(scheduleIdentifier);
             assert.equal(scheduleInformation[0], 0);
-            assert.equal(scheduleInformation[1], token.address);
-            assert.equal(scheduleInformation[2], 100);
-            assert.equal(scheduleInformation[3], 0);
-            assert.equal(scheduleInformation[4], true);
-            assert.equal(scheduleInformation[5], business);
+            assert.equal(scheduleInformation[1], 1000);
+            assert.equal(scheduleInformation[2], token.address);
+            assert.equal(scheduleInformation[3], 100);
+            assert.equal(scheduleInformation[4], 0);
+            assert.equal(scheduleInformation[5], true);
+            assert.equal(scheduleInformation[6], business);
 
             let checkOne = await contract.payments.call(identifiers()[0]);
             assert.equal(checkOne[0], amount);
@@ -193,17 +240,55 @@ contract('PayrollSubscription', function(accounts) {
 
         });
 
+        it("should not be able to create a schedule with the same token type and oneOff parameter", async function() {
+
+            await assertRevert(contract.createScheduleWithPayments(
+                identifiers(), 
+                amounts(), 
+                destinations(),
+                token.address,
+                100,
+                1000,
+                0,
+                true, 
+                { from: business }
+            ));
+
+        });
+
     });
 
     describe("when updating the schedule owner", () => {
 
+        let scheduleIdentifier;
+        
+        before(async function() {
+
+            await resetState();
+            scheduleIdentifier = await createNewPayment();
+
+        });
+
         it("should not be able to update as an unauthorised user", async function() {
 
+            await assertRevert(contract.updateScheduleOwner(
+                scheduleIdentifier,
+                unauthorizedAddress,
+                { from: unauthorizedAddress }
+            ));
 
         });
 
         it("should be able to update as the owner", async function() {
 
+            await contract.updateScheduleOwner(
+                scheduleIdentifier,
+                unauthorizedAddress,
+                { from: business }
+            );
+
+            let scheduleInformation = await contract.schedules.call(scheduleIdentifier);
+            assert.equal(scheduleInformation[6], unauthorizedAddress); 
 
         });
 
@@ -211,18 +296,42 @@ contract('PayrollSubscription', function(accounts) {
 
     describe("when updating the schedule start date", () => {
 
+        let scheduleIdentifier;
+
+        before(async function() {
+
+            await resetState();
+            scheduleIdentifier = await createNewPayment();
+    
+        });
+
         it("should not be able to update as an unauthorised user", async function() {
 
+            await assertRevert(contract.updateStartDate(
+                scheduleIdentifier,
+                101,
+                { from: unauthorizedAddress }
+            ));
 
         });
 
-        it("should not be able to set a date in the past", () => {
+        it("should not be able to set a date in the past", async function() {
 
+            await assertRevert(contract.updateStartDate(
+                scheduleIdentifier,
+                99,
+                { from: business }
+            ));
 
         });
 
         it("should be able to update as the owner", async function() {
 
+            await contract.updateStartDate(
+                scheduleIdentifier,
+                101,
+                { from: business }
+            );
 
         });
 
@@ -230,7 +339,144 @@ contract('PayrollSubscription', function(accounts) {
 
     describe("when terminating the schedule", () => {
 
-        it("should")
+        let scheduleIdentifier;
+
+        before(async function() {
+
+            await resetState();
+            scheduleIdentifier = await createNewPayment();
+    
+        });
+
+        it("should not be able to terminate as an unauthorised user", async function() {
+
+            await assertRevert(contract.terminateSchedule(
+                scheduleIdentifier,
+                101,
+                { from: unauthorizedAddress }
+            ));
+
+        });
+
+        it("should not be able to terminate as a date in the past", async function() {
+
+            await assertRevert(contract.terminateSchedule(
+                scheduleIdentifier,
+                99,
+                { from: business }
+            ));
+
+        });
+
+        it("should be able to terminate as the owner", async function() {
+
+            await contract.updateStartDate(
+                scheduleIdentifier,
+                101,
+                { from: business }
+            );
+
+        });
+
+    });
+
+    describe("when updating multiple payments", () => {
+
+        let scheduleIdentifier;
+        let firstId = identifiers()[0];
+        let secondId = identifiers()[1];
+
+        before(async function() {
+
+            await resetState();
+            scheduleIdentifier = await createNewPayment();
+    
+        });
+
+        it("should not be able to update as an unauthorised user", async function() {
+
+            await assertRevert(contract.updatePayments(
+                [firstId, secondId],
+                [1, 1],
+                [destinations()[0], destinations()[1]],
+                scheduleIdentifier,
+                { from: unauthorizedAddress }
+            ));
+
+        });
+
+        it("should be able to update multiple payments", async function() {
+
+            await contract.updatePayments(
+                [firstId, secondId],
+                [1, 1],
+                [destinations()[0], destinations()[1]],
+                scheduleIdentifier,
+                { from: business }
+            );
+            
+            let checkOne = await contract.payments.call(identifiers()[0]);
+            assert.equal(checkOne[0], 1);
+            assert.equal(checkOne[1], receiver);
+
+            let checkTwo = await contract.payments.call(identifiers()[2]);
+            assert.equal(checkTwo[0], 1);
+            assert.equal(checkTwo[1], receiver);
+            
+        });
+
+    });
+
+    describe("when terminating payments", async function() {
+
+        let scheduleIdentifier;
+        let firstId = identifiers()[0];
+        let secondId = identifiers()[1];
+
+        before(async function() {
+
+            await resetState();
+            scheduleIdentifier = await createNewPayment();
+    
+        });
+
+        it("should not be able to terminate as an unauthorised user", async function() {
+
+            await assertRevert(contract.terminatePayments(
+                [firstId, secondId],
+                [101, 101],
+                { from: unauthorizedAddress }
+            ));
+
+        });
+
+        it("should not be able to terminate as a date in the past", async function() {
+
+            await assertRevert(contract.terminatePayments(
+                [firstId, secondId],
+                [99, 99],
+                { from: business }
+            ));
+
+        });
+
+        it("should be able to terminate multiple payments", async function() {
+
+            await contract.terminatePayments(
+                [firstId, secondId],
+                [101, 101],
+                { from: business }
+            );
+
+            let checkOne = await contract.payments.call(identifiers()[0]);
+            assert.equal(checkOne[0], 1);
+            assert.equal(checkOne[3], 101);
+
+            let checkTwo = await contract.payments.call(identifiers()[2]);
+            assert.equal(checkTwo[0], 1);
+            assert.equal(checkTwo[3], 101);
+
+        });
 
     });
 
