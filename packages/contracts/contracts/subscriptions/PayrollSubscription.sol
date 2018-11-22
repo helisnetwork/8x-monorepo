@@ -37,7 +37,8 @@ contract PayrollSubscription is Collectable {
     event CreatedSchedule (
         bytes32 indexed scheduleIdentifier,
         address indexed owner,
-        bool indexed oneOff,
+        uint indexed startDate,
+        bool oneOff,
         uint fee
     );
 
@@ -58,19 +59,14 @@ contract PayrollSubscription is Collectable {
 
     event CreatedPayment (
         bytes32 indexed employeeIdentifier,
-        bytes32 indexed scheduleIdentifier,
-        uint indexed startDate,
-        uint interval,
-        address tokenAddress,
-        bool oneOff
+        bytes32 indexed scheduleIdentifier
     );
 
     event UpdatedPayment (
         bytes32 indexed employeeIdentifier,
-        bytes32 indexed amount,
-        uint indexed startDate,
-        bytes32 scheduleIdentifier,
-        address destination
+        uint indexed amount,
+        address indexed destination,
+        bytes32 scheduleIdentifier
     );
 
     event LastUpdatedPaymentDate(
@@ -211,6 +207,7 @@ contract PayrollSubscription is Collectable {
         emit CreatedSchedule(
             scheduleHash,
             msg.sender,
+            _startDate,
             _oneOff,
             _fee
         );
@@ -229,6 +226,11 @@ contract PayrollSubscription is Collectable {
             
             require(payments[id].scheduleIdentifier == 0);
             payments[id] = newPayment;
+
+            emit CreatedPayment (
+                id,
+                scheduleHash
+            );
         }
         
         return scheduleHash;
@@ -265,7 +267,22 @@ contract PayrollSubscription is Collectable {
     ) 
         public
     {
+        
+        Schedule storage schedule = schedules[_scheduleIdentifier];
 
+        require(schedule.owner == msg.sender, "Must be the original owner to set a new owner");
+        require(_startDate > currentTimestamp(), "Must be a date in the future");
+
+        schedule.startDate = _startDate;
+
+        emit UpdatedSchedule(
+            _scheduleIdentifier,
+            schedule.owner,
+            _startDate,
+            schedule.interval,
+            schedule.tokenAddress,
+            schedule.fee
+        );
     }
 
     function terminateSchedule(
@@ -275,18 +292,48 @@ contract PayrollSubscription is Collectable {
         public
     {
 
+        Schedule storage schedule = schedules[_scheduleIdentifier];
+
+        require(schedule.owner == msg.sender, "Must be the original owner to set a new owner");
+        require(_terminationDate > currentTimestamp(), "The termination date must be greater than the timestamp");
+
+        schedule.terminationDate = _terminationDate;
+
+        emit TerminatedSchedule (
+            _scheduleIdentifier,
+            schedule.owner,
+            _terminationDate
+        );
+
     }
 
     function updatePayments(
         bytes32[] _ids,
         uint[] _amounts,
-        address[] _destinations,
-        bytes32 _scheduleIdentifier
+        address[] _destinations
     ) 
         public
     {
+        
+        for (uint i = 0; i < _ids.length; i++)  {
+            
+            bytes32 id = _ids[i];
+            Payment storage payment = payments[id];
+            payment.amount = _amounts[i];
+            payment.destination = _destinations[i];
 
-    }
+            require(schedules[payment.scheduleIdentifier].owner == msg.sender, "You cannot update someone else's schedule");
+
+            emit UpdatedPayment(
+                id,
+                payment.amount,
+                payment.destination,
+                payment.scheduleIdentifier
+            );
+
+        }
+
+    }   
 
     function terminatePayments(
         bytes32[] _ids,
@@ -294,9 +341,27 @@ contract PayrollSubscription is Collectable {
     )
         public
     {
+        
+        for (uint i = 0; i < _ids.length; i++)  {
+
+            require(_terminationDates[i] > currentTimestamp(), "The termination date must be greater than the current timestamp");
+            
+            bytes32 id = _ids[i];
+            Payment storage payment = payments[id];
+            payment.terminationDate = _terminationDates[i];
+
+            require(schedules[payment.scheduleIdentifier].owner == msg.sender, "You cannot update someone else's payment");
+
+            emit TerminatedPayment (
+                id,
+                payment.scheduleIdentifier,
+                _terminationDates[i]
+            );
+
+        }
 
     }
-    
+
     /**
       * INTERNAL FUNCTIONS
     */

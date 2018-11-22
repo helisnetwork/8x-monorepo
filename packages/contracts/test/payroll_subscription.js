@@ -399,8 +399,33 @@ contract('PayrollSubscription', function(accounts) {
                 [firstId, secondId],
                 [1, 1],
                 [destinations()[0], destinations()[1]],
-                scheduleIdentifier,
                 { from: unauthorizedAddress }
+            ));
+
+        });
+
+        it("should not be able to update the payment of another user", async function() {
+
+            let id = '0xacbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d3aaaa';
+            let newSchedule = await contract.createScheduleWithPayments(
+                [id], 
+                [5], 
+                [receiver],
+                token.address,
+                100,
+                0,
+                1000,
+                true, 
+                { from: unauthorizedAddress }
+            );
+    
+            let otherScheduleIdentifier = newSchedule.logs[0].args.scheduleIdentifier;
+
+            await assertRevert(contract.updatePayments(
+                [otherScheduleIdentifier],
+                [10],
+                [receiver],
+                { from: business }
             ));
 
         });
@@ -411,16 +436,15 @@ contract('PayrollSubscription', function(accounts) {
                 [firstId, secondId],
                 [1, 1],
                 [destinations()[0], destinations()[1]],
-                scheduleIdentifier,
                 { from: business }
             );
             
             let checkOne = await contract.payments.call(identifiers()[0]);
-            assert.equal(checkOne[0], 1);
+            assert.equal(checkOne[0].toNumber(), 1);
             assert.equal(checkOne[1], receiver);
 
-            let checkTwo = await contract.payments.call(identifiers()[2]);
-            assert.equal(checkTwo[0], 1);
+            let checkTwo = await contract.payments.call(identifiers()[1]);
+            assert.equal(checkTwo[0].toNumber(), 1);
             assert.equal(checkTwo[1], receiver);
             
         });
@@ -460,6 +484,31 @@ contract('PayrollSubscription', function(accounts) {
 
         });
 
+        it("should not be able to terminate another user's payment", async function() {
+
+            let id = '0xacbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d3aaaa';
+            let newSchedule = await contract.createScheduleWithPayments(
+                [id], 
+                [5], 
+                [receiver],
+                token.address,
+                100,
+                0,
+                1000,
+                true, 
+                { from: unauthorizedAddress }
+            );
+    
+            let otherScheduleIdentifier = newSchedule.logs[0].args.scheduleIdentifier;
+
+            await assertRevert(contract.terminatePayments(
+                [otherScheduleIdentifier],
+                [101],
+                { from: business }
+            ));
+
+        });
+
         it("should be able to terminate multiple payments", async function() {
 
             await contract.terminatePayments(
@@ -469,11 +518,9 @@ contract('PayrollSubscription', function(accounts) {
             );
 
             let checkOne = await contract.payments.call(identifiers()[0]);
-            assert.equal(checkOne[0], 1);
             assert.equal(checkOne[3], 101);
 
-            let checkTwo = await contract.payments.call(identifiers()[2]);
-            assert.equal(checkTwo[0], 1);
+            let checkTwo = await contract.payments.call(identifiers()[1]);
             assert.equal(checkTwo[3], 101);
 
         });
