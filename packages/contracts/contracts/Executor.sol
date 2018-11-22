@@ -181,6 +181,7 @@ contract Executor is Ownable {
 
         // Charge fee if the person who is calling this function is not the one being charged
         if (msg.sender != consumer) {
+            // @TODO: Add tests for this whole pathway
             (
                 bool paymentSuccess, 
                 bool finalPayment
