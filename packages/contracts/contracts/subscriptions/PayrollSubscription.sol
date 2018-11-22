@@ -35,13 +35,13 @@ contract PayrollSubscription is Collectable {
 
     event CreatedSchedule (
         bytes32 indexed scheduleIdentifier,
-        bytes32 indexed owner,
-        bytes32 indexed oneOff
+        address indexed owner,
+        bool indexed oneOff
     );
 
     event UpdatedSchedule (
         bytes32 indexed scheduleIdentifier,
-        bytes32 indexed owner,
+        address indexed owner,
         uint indexed startDate,
         uint interval,
         address tokenAddress
@@ -49,8 +49,8 @@ contract PayrollSubscription is Collectable {
 
     event TerminatedSchedule (
         bytes32 indexed scheduleIdentifier,
-        bytes32 indexed owner,
-        bytes32 indexed terminationDate
+        address indexed owner,
+        uint indexed terminationDate
     );
 
     event CreatedPayment (
@@ -176,12 +176,56 @@ contract PayrollSubscription is Collectable {
         address _tokenAddress,
         uint _startDate,
         uint _interval,
-        bool _oneOff,
-        uint _elements
+        bool _oneOff
     ) 
         public
+        returns (bytes32)
     {
+
+        require(_startDate > 0);
+        require((_oneOff == false && _interval > 0) || (_oneOff == true));
+
+        // Add tests for this
+        require(_ids.length > 0);
     
+        Schedule memory newSchedule = Schedule(
+            _interval,
+            _tokenAddress,
+            _startDate,
+            0,
+            _oneOff,
+            msg.sender
+        );
+        
+        bytes32 scheduleHash = keccak256(msg.sender, _startDate);
+        schedules[scheduleHash] = newSchedule;
+
+        emit CreatedSchedule(
+            scheduleHash,
+            msg.sender,
+            _oneOff
+        );
+        
+        for (uint i = 0; i < _ids.length; i++)  {
+            
+            bytes32 id = _ids[i];
+            uint amount = _amounts[i];
+            address destination = _destinations[i];
+
+            Payment memory newPayment = Payment(
+                amount,
+                destination,
+                0,
+                0,
+                scheduleHash
+            );
+            
+            require(payments[id].scheduleIdentifier == 0);
+            payments[id] = newPayment;
+        }
+        
+        return scheduleHash;
+
     }
 
     function updateScheduleOwner(
