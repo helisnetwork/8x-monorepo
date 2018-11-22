@@ -201,7 +201,7 @@ contract('Executor', function(accounts) {
             let etherSubscription = await subscriptionContract.subscriptions.call(subscriptionHash);
             assert.isAbove(etherSubscription[3].toNumber(), 0);
 
-            let isActive = await subscriptionContract.isValidSubscription(subscriptionHash);
+            let isActive = await subscriptionContract.hasSubscriptionStarted(subscriptionHash);
             assert.equal(isActive, true);
 
             // Check to ensure the user has a token wallet with only the service node fee remaining (since it wasn't processed)
@@ -275,7 +275,7 @@ contract('Executor', function(accounts) {
             let etherSubscription = await newTokenSubscription("process.not_enough_funds");;
             await fastForwardSubscription(etherSubscription, 1, true);
 
-            let subscriptionDetails = await subscriptionContract.isValidSubscription(etherSubscription);
+            let subscriptionDetails = await subscriptionContract.hasSubscriptionStarted(etherSubscription);
             assert.equal(subscriptionDetails, false);
 
         });
@@ -546,8 +546,8 @@ contract('Executor', function(accounts) {
             assert.equal(etherPaymentInfo[0], 0);
 
             // Check the subscription was cancelled
-            let isValidSubscription = await subscriptionContract.isValidSubscription(subscriptionHash);
-            assert.equal(isValidSubscription, false);
+            let hasSubscriptionStarted = await subscriptionContract.hasSubscriptionStarted(subscriptionHash);
+            assert.equal(hasSubscriptionStarted, false);
 
         });
 

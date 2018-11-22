@@ -170,7 +170,7 @@ contract Executor is Ownable {
 
         // Check if the subscription is valid
         require(approvedRegistry.isContractAuthorised(_subscriptionContract), "Unauthorised contract");
-        require(subscription.isValidSubscription(_subscriptionIdentifier) == false, "Invalid subscription");
+        require(subscription.hasSubscriptionStarted(_subscriptionIdentifier) == false, "Invalid subscription");
 
         // Get the defaults of the subscription
         ERC20 transactingToken = ERC20(subscription.getSubscriptionTokenAddress(_subscriptionIdentifier));
@@ -391,7 +391,7 @@ contract Executor is Ownable {
         require(claimant == msg.sender, "Must be the original claimant");
 
         // Ensure it's a valid subscription
-        require(Collectable(_subscriptionContract).isValidSubscription(_subscriptionIdentifier) == true, "The subscription must be valid");
+        require(Collectable(_subscriptionContract).hasSubscriptionStarted(_subscriptionIdentifier) == true, "The subscription must be valid");
 
         // Make sure we're within the cancellation window
         uint minimumDate = lastPaymentDate + executionPeriod;
@@ -548,7 +548,7 @@ contract Executor is Ownable {
 
         (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
-        bool validSubscription = subscription.isValidSubscription(_subscriptionIdentifier);
+        bool validSubscription = subscription.hasSubscriptionStarted(_subscriptionIdentifier);
 
         require(validSubscription == true, "Subscription must be valid");
 
