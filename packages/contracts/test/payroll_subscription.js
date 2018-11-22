@@ -193,6 +193,45 @@ contract('PayrollSubscription', function(accounts) {
 
         });
 
-    })
+    });
+
+    describe("when updating the schedule owner", () => {
+
+        it("should not be able to update as an unauthorised user", async function() {
+
+
+        });
+
+        it("should be able to update as the owner", async function() {
+
+
+        });
+
+    });
+
+    describe("when updating the schedule start date", () => {
+
+        it("should not be able to update as an unauthorised user", async function() {
+
+
+        });
+
+        it("should not be able to set a date in the past", () => {
+
+
+        });
+
+        it("should be able to update as the owner", async function() {
+
+
+        });
+
+    });
+
+    describe("when terminating the schedule", () => {
+
+        it("should")
+
+    });
 
 });

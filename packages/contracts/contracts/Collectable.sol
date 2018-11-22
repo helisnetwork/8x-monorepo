@@ -15,7 +15,7 @@ contract Collectable is Authorizable {
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
       * @return success is the result of whether the subscription is valid or not.
     */
-    function isValidSubscription(bytes32 _subscription)
+    function hasSubscriptionStarted(bytes32 _subscription)
         public
         view
         returns (bool success);

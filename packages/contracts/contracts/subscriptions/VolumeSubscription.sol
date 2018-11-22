@@ -138,7 +138,7 @@ contract VolumeSubscription is Collectable {
     /**
       * COLLECTABLE INTERFACE FUNCTIONS
     */
-    function isValidSubscription(bytes32 _subscription)
+    function hasSubscriptionStarted(bytes32 _subscription)
         public
         view
         returns (bool success)
