@@ -24,6 +24,7 @@ contract PayrollSubscription is Collectable {
         uint terminationDate;           // Can only be set once
         bool oneOff;                    // Can only be set on creation
         address owner;                  // Editable
+        string data;                    // Editable
     }
 
     ApprovedRegistryInterface public approvedRegistry;
@@ -97,7 +98,8 @@ contract PayrollSubscription is Collectable {
         view
         returns (address subscriptionTokenAddress)
     {
-        return 0;
+        Payment memory payment = payments[_subscription];
+        return schedules[payment.scheduleIdentifier].tokenAddress;
     }
 
     function getSubscriptionFromToAddresses(bytes32 _subscription)
@@ -105,7 +107,8 @@ contract PayrollSubscription is Collectable {
         view
         returns (address from, address to)
     {
-        return (0, 0);
+        Payment memory payment = payments[_subscription];
+        return (schedules[payment.scheduleIdentifier].owner, payment.destination);
     }
 
     function getSubscriptionInterval(bytes32 _subscription)
@@ -113,7 +116,8 @@ contract PayrollSubscription is Collectable {
         view
         returns (uint interval)
     {
-        return 0;
+        Payment memory payment = payments[_subscription];
+        return schedules[payment.scheduleIdentifier].interval;
     }
 
     function getAmountDueFromSubscription(bytes32 _subscription)
@@ -121,7 +125,7 @@ contract PayrollSubscription is Collectable {
         view
         returns (uint amount)
     {
-        return 0;
+        return payments[_subscription].amount;
     }
 
     function getSubscriptionFee(bytes32 _subscription)
@@ -129,7 +133,8 @@ contract PayrollSubscription is Collectable {
         view
         returns (uint fee)
     {
-        return 0;
+        Payment memory payment = payments[_subscription];
+        return (payment.amount / schedules[payment.scheduleIdentifier].fee);
     }
 
     function getLastSubscriptionPaymentDate(bytes32 _subscription)
@@ -137,7 +142,7 @@ contract PayrollSubscription is Collectable {
         view
         returns (uint date)
     {
-        return 0;
+        return payments[_subscription].lastPaymentDate;
     }
 
     function getGasForExecution(bytes32 _subscription, uint _type)
@@ -150,15 +155,46 @@ contract PayrollSubscription is Collectable {
 
     function setLastPaymentDate(uint _date, bytes32 _subscription)
         public
-        returns (bool isFinalPayment)
+        onlyAuthorized
+        returns (bool success, bool isFinalPayment)
     {
+
+        Payment storage payment = payments[_subscription];
+
+        require(payment.lastPaymentDate <= _date);
+
+        payment.lastPaymentDate = _date;
+
+        emit LastUpdatedPaymentDate(
+            _subscription,
+            payment.scheduleIdentifier,
+            payment.lastPaymentDate
+        );
+
+        return (true, schedules[payment.scheduleIdentifier].oneOff);
 
     }
 
     function cancelSubscription(bytes32 _subscription)
         public
+        onlyAuthorized
     {
-        
+
+        Payment storage payment = payments[_subscription];
+        require(payment.lastPaymentDate > 0);
+
+        // If it hasn't been terminated, do it. Doesn't throw in case the executor calls it without knowing the status.
+        if (payment.terminationDate == 0) {
+            uint cancellationTimestamp = currentTimestamp();
+            payment.terminationDate = cancellationTimestamp;
+
+            emit TerminatedPayment (
+                _subscription,
+                payment.scheduleIdentifier,
+                payment.terminationDate
+            );
+        }
+
     }
 
     /**
@@ -176,7 +212,8 @@ contract PayrollSubscription is Collectable {
         uint _startDate,
         uint _interval,
         uint _fee,
-        bool _oneOff
+        bool _oneOff,
+        string _data
     ) 
         public
         returns (bytes32)
@@ -196,7 +233,8 @@ contract PayrollSubscription is Collectable {
             _startDate,
             0,
             _oneOff,
-            msg.sender
+            msg.sender,
+            _data
         );
         
         bytes32 scheduleHash = keccak256(msg.sender, _tokenAddress, _oneOff);
@@ -283,6 +321,29 @@ contract PayrollSubscription is Collectable {
             schedule.tokenAddress,
             schedule.fee
         );
+    }
+
+    function updateScheduleData(
+        bytes32 _scheduleIdentifier,
+        string _data
+    )
+        public
+    {
+
+        Schedule storage schedule = schedules[_scheduleIdentifier];
+        require(schedule.owner == msg.sender, "Must be the original owner to set the data");
+
+        schedule.data = _data;
+
+        emit UpdatedSchedule(
+            _scheduleIdentifier,
+            schedule.owner,
+            schedule.startDate,
+            schedule.interval,
+            schedule.tokenAddress,
+            schedule.fee
+        );
+
     }
 
     function terminateSchedule(

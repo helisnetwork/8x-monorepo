@@ -93,6 +93,7 @@ contract('PayrollSubscription', function(accounts) {
             0,
             1000,
             true, 
+            '',
             { from: business }
         );
 
@@ -127,6 +128,7 @@ contract('PayrollSubscription', function(accounts) {
                 99,
                 1000,
                 true, 
+                '',
                 { from: business }
             ));
 
@@ -143,6 +145,7 @@ contract('PayrollSubscription', function(accounts) {
                 1000,
                 0,
                 false, 
+                '',
                 { from: business }
             ));
 
@@ -160,6 +163,7 @@ contract('PayrollSubscription', function(accounts) {
                 1000,
                 0,
                 true, 
+                '',
                 { from: business }
             ));
 
@@ -193,6 +197,7 @@ contract('PayrollSubscription', function(accounts) {
                 0,
                 0,
                 true, 
+                '',
                 { from: business }
             ));
 
@@ -210,6 +215,7 @@ contract('PayrollSubscription', function(accounts) {
                 0,
                 1000,
                 true, 
+                '',
                 { from: business }
             );
 
@@ -251,6 +257,7 @@ contract('PayrollSubscription', function(accounts) {
                 1000,
                 0,
                 true, 
+                '',
                 { from: business }
             ));
 
@@ -289,6 +296,42 @@ contract('PayrollSubscription', function(accounts) {
 
             let scheduleInformation = await contract.schedules.call(scheduleIdentifier);
             assert.equal(scheduleInformation[6], unauthorizedAddress); 
+
+        });
+
+    });
+
+    describe("when updating the schedule data", () => {
+
+        let scheduleIdentifier;
+        
+        before(async function() {
+
+            await resetState();
+            scheduleIdentifier = await createNewPayment();
+
+        });
+
+        it("should not be able to update as an unauthorised user", async function() {
+
+            await assertRevert(contract.updateScheduleData(
+                scheduleIdentifier,
+                '{}',
+                { from: unauthorizedAddress }
+            ));
+
+        });
+
+        it("should be able to update as the owner", async function() {
+
+            await contract.updateScheduleData(
+                scheduleIdentifier,
+                '{}',
+                { from: business }
+            );
+
+            let scheduleInformation = await contract.schedules.call(scheduleIdentifier);
+            assert.equal(scheduleInformation[7], '{}'); 
 
         });
 
@@ -416,6 +459,7 @@ contract('PayrollSubscription', function(accounts) {
                 0,
                 1000,
                 true, 
+                '',
                 { from: unauthorizedAddress }
             );
     
@@ -496,6 +540,7 @@ contract('PayrollSubscription', function(accounts) {
                 0,
                 1000,
                 true, 
+                '',
                 { from: unauthorizedAddress }
             );
     
@@ -522,6 +567,93 @@ contract('PayrollSubscription', function(accounts) {
 
             let checkTwo = await contract.payments.call(identifiers()[1]);
             assert.equal(checkTwo[3], 101);
+
+        });
+
+    });
+
+    describe("when setting the last payment date from the executor", () => {
+
+        let scheduleIdentifier;
+
+        before(async function() {
+
+            await resetState();
+            scheduleIdentifier = await createNewPayment();
+    
+        });
+
+        it("should not be able to set it as an unauthorised user", async function() {
+
+            await assertRevert(contract.setLastPaymentDate(
+                1,
+                identifiers()[0],
+                { from: contractOwner }
+            ));
+
+        });
+
+        it("should be able to set it and return whether it's the last payment date or not correctly", async function() {
+
+            let params = await contract.setLastPaymentDate(
+                3,
+                identifiers()[0],
+                { from: executorContract }
+            );
+
+            let checkOne = await contract.payments.call(identifiers()[0]);
+            assert.equal(checkOne[2], 3);
+
+        });
+
+        it("should not be able to set as a date before the last payment date", async function() {
+
+            await assertRevert(contract.setLastPaymentDate(
+                2,
+                identifiers()[0],
+                { from: executorContract }
+            ));
+
+        });
+
+    });
+
+    describe("when cancelling a payment from the executor", () => {
+
+        let scheduleIdentifier;
+
+        before(async function() {
+
+            await resetState();
+            scheduleIdentifier = await createNewPayment();
+    
+        });
+        
+        it("should not be able to set it as an unauthorised user", async function() {
+
+            await assertRevert(contract.cancelSubscription(
+                identifiers()[0],
+                { from: contractOwner }
+            ));
+
+        });
+
+        it("should be able to cancel it from the executor", async function() {
+
+            await contract.setLastPaymentDate(
+                3,
+                identifiers()[0],
+                { from: executorContract }
+            );
+
+            await contract.cancelSubscription(
+                identifiers()[0],
+                { from: executorContract }
+            );
+
+            let checkOne = await contract.payments.call(identifiers()[0]);
+            assert.equal(checkOne[2].toNumber(), 3);
+            assert.equal(checkOne[3], 100);
 
         });
 
