@@ -354,6 +354,9 @@ contract('VolumeSubscription', function(accounts) {
 
             assert.equal(computedHash, subscriptionHash);
 
+            let status = await contract.getSubscriptionStatus(subscriptionHash);
+            assert.equal(status, 0);
+
         });
 
         it("should be able to create a subscription from an authorized address and a supplied salt", async function() {
@@ -505,10 +508,17 @@ contract('VolumeSubscription', function(accounts) {
             let subscriptionHash2 = newSubscription2.logs[0].args.subscriptionIdentifier;
 
             await contract.setLastPaymentDate(futureDate, subscriptionHash2, { from: executorContract });
+
+            let status = await contract.getSubscriptionStatus(subscriptionHash2);
+            assert.equal(status, 1);
+
             await contract.cancelSubscription(subscriptionHash2, { from: executorContract });
 
             let subscription = await contract.subscriptions.call(subscriptionHash2);
             assert.isAbove(subscription[4].toNumber(), 0);
+
+            let status2 = await contract.getSubscriptionStatus(subscriptionHash2);
+            assert.equal(status2, 2);
 
         });
 

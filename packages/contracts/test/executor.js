@@ -201,8 +201,8 @@ contract('Executor', function(accounts) {
             let etherSubscription = await subscriptionContract.subscriptions.call(subscriptionHash);
             assert.isAbove(etherSubscription[3].toNumber(), 0);
 
-            let isActive = await subscriptionContract.hasSubscriptionStarted(subscriptionHash);
-            assert.equal(isActive, true);
+            let isActive = await subscriptionContract.getSubscriptionStatus(subscriptionHash);
+            assert.equal(isActive, 1);
 
             // Check to ensure the user has a token wallet with only the service node fee remaining (since it wasn't processed)
             let userTokensBalance = await tokenContract.balanceOf(tokenSubscriber);
@@ -275,8 +275,8 @@ contract('Executor', function(accounts) {
             let etherSubscription = await newTokenSubscription("process.not_enough_funds");;
             await fastForwardSubscription(etherSubscription, 1, true);
 
-            let subscriptionDetails = await subscriptionContract.hasSubscriptionStarted(etherSubscription);
-            assert.equal(subscriptionDetails, false);
+            let subscriptionDetails = await subscriptionContract.getSubscriptionStatus(etherSubscription);
+            assert.equal(subscriptionDetails, 2);
 
         });
 
@@ -546,8 +546,13 @@ contract('Executor', function(accounts) {
             assert.equal(etherPaymentInfo[0], 0);
 
             // Check the subscription was cancelled
-            let hasSubscriptionStarted = await subscriptionContract.hasSubscriptionStarted(subscriptionHash);
-            assert.equal(hasSubscriptionStarted, false);
+            let isSubscriptionRunning = await subscriptionContract.getSubscriptionStatus(subscriptionHash);
+            assert.equal(isSubscriptionRunning, 2);
+
+            // Should not be able to reactivate the subscription
+            await tokenContract.transfer(tokenSubscriber, subscriptionCost, { from: contractOwner });
+            await assertRevert(executorContract.processSubscription(subscriptionContract.address, subscriptionHash));
+            await tokenContract.transfer(contractOwner, subscriptionCost, { from: tokenSubscriber });
 
         });
 

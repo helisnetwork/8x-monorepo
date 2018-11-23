@@ -85,12 +85,22 @@ contract PayrollSubscription is Collectable {
     /**
       * COLLECTABLE INTERFACE FUNCTIONS
     */
-    function hasSubscriptionStarted(bytes32 _subscription)
+    function getSubscriptionStatus(bytes32 _subscription)
         public
         view
-        returns (bool success)
+        returns (uint status)
     {
-        return false;
+        Payment memory payment = payments[_subscription];
+
+        if (schedules[payment.scheduleIdentifier].terminationDate > 0 || payment.terminationDate > 0) {
+            return 2;
+        }
+
+        if (payment.lastPaymentDate > 0) {
+            return 1;
+        }
+
+        return 0;
     }
 
     function getSubscriptionTokenAddress(bytes32 _subscription)
@@ -237,7 +247,7 @@ contract PayrollSubscription is Collectable {
             _data
         );
         
-        bytes32 scheduleHash = keccak256(msg.sender, _tokenAddress, _oneOff);
+        bytes32 scheduleHash = keccak256(msg.sender, _tokenAddress, _oneOff, currentTimestamp());
         require(schedules[scheduleHash].owner == 0);
 
         schedules[scheduleHash] = newSchedule;
@@ -346,6 +356,7 @@ contract PayrollSubscription is Collectable {
 
     }
 
+    /** @dev Terminate a payment schedule */
     function terminateSchedule(
         bytes32 _scheduleIdentifier,
         uint _terminationDate
@@ -368,6 +379,12 @@ contract PayrollSubscription is Collectable {
 
     }
 
+
+    /** @dev Update multiple payments at once
+      * @param _ids all the identifiers you wish to update.
+      * @param _amounts all the corresponding amount dates.
+      * @param _destinations all the corresponding destination addresses to pay out.
+    */
     function updatePayments(
         bytes32[] _ids,
         uint[] _amounts,
@@ -396,6 +413,10 @@ contract PayrollSubscription is Collectable {
 
     }   
 
+    /** @dev Terminate multiple payments at once
+      * @param _ids all the identifiers you wish to terminate.
+      * @param _terminationDates all the corresponding termination dates.
+    */
     function terminatePayments(
         bytes32[] _ids,
         uint[] _terminationDates

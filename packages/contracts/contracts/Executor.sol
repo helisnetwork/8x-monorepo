@@ -170,7 +170,7 @@ contract Executor is Ownable {
 
         // Check if the subscription is valid
         require(approvedRegistry.isContractAuthorised(_subscriptionContract), "Unauthorised contract");
-        require(subscription.hasSubscriptionStarted(_subscriptionIdentifier) == false, "Invalid subscription");
+        require(subscription.getSubscriptionStatus(_subscriptionIdentifier) == 0, "Invalid subscription");
 
         // Get the defaults of the subscription
         ERC20 transactingToken = ERC20(subscription.getSubscriptionTokenAddress(_subscriptionIdentifier));
@@ -373,6 +373,7 @@ contract Executor is Ownable {
         public
         whenNotPaused
     {
+        require(_subscriptionIdentifier > 0);
 
         // Get the payment registry information
         (
@@ -390,8 +391,8 @@ contract Executor is Ownable {
         // This also means we're not talking about a first time payment
         require(claimant == msg.sender, "Must be the original claimant");
 
-        // Ensure it's a valid subscription
-        require(Collectable(_subscriptionContract).hasSubscriptionStarted(_subscriptionIdentifier) == true, "The subscription must be valid");
+        // Ensure it is still active
+        require(Collectable(_subscriptionContract).getSubscriptionStatus(_subscriptionIdentifier) == 1, "The subscription must be valid");
 
         // Make sure we're within the cancellation window
         uint minimumDate = lastPaymentDate + executionPeriod;
@@ -551,9 +552,9 @@ contract Executor is Ownable {
 
         (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
 
-        bool validSubscription = subscription.hasSubscriptionStarted(_subscriptionIdentifier);
+        uint validSubscription = subscription.getSubscriptionStatus(_subscriptionIdentifier);
 
-        require(validSubscription == true, "Subscription must be valid");
+        require(validSubscription == 1, "Subscription must be valid");
 
         // @TODO: Make tests for gas cost subtraction
         uint pricedGas = getPricedGas(_subscriptionContract, _subscriptionIdentifier, _tokenAddress);

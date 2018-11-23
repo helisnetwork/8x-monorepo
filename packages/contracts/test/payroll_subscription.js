@@ -244,6 +244,9 @@ contract('PayrollSubscription', function(accounts) {
             assert.equal(checkOne[3], 0);
             assert.equal(checkOne[4], scheduleIdentifier);
 
+            let status = await contract.getSubscriptionStatus(identifiers()[0]);
+            assert.equal(status, 0);
+
         });
 
         it("should not be able to create a schedule with the same token type and oneOff parameter", async function() {
@@ -601,6 +604,9 @@ contract('PayrollSubscription', function(accounts) {
                 { from: executorContract }
             );
 
+            let status = await contract.getSubscriptionStatus(identifiers()[0]);
+            assert.equal(status, 1);
+
             let checkOne = await contract.payments.call(identifiers()[0]);
             assert.equal(checkOne[2], 3);
 
@@ -654,6 +660,9 @@ contract('PayrollSubscription', function(accounts) {
             let checkOne = await contract.payments.call(identifiers()[0]);
             assert.equal(checkOne[2].toNumber(), 3);
             assert.equal(checkOne[3], 100);
+
+            let status = await contract.getSubscriptionStatus(identifiers()[0]);
+            assert.equal(status, 2);
 
         });
 

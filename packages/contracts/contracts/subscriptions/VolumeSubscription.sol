@@ -138,18 +138,22 @@ contract VolumeSubscription is Collectable {
     /**
       * COLLECTABLE INTERFACE FUNCTIONS
     */
-    function hasSubscriptionStarted(bytes32 _subscription)
+    function getSubscriptionStatus(bytes32 _subscription)
         public
         view
-        returns (bool success)
+        returns (uint status)
     {
-        // @TODO: Add tests for this.
+        Subscription memory subscription = subscriptions[_subscription];
 
-        return (
-            plans[subscriptions[_subscription].planHash].terminationDate == 0 &&
-            subscriptions[_subscription].terminationDate == 0 &&
-            subscriptions[_subscription].lastPaymentDate > 0
-        );
+        if (plans[subscription.planHash].terminationDate > 0 || subscription.terminationDate > 0) {
+            return 2;
+        }
+
+        if (subscription.lastPaymentDate > 0) {
+            return 1;
+        }
+
+        return 0;
     }
 
     function getSubscriptionTokenAddress(bytes32 _subscription)

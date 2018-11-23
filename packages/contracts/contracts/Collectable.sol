@@ -13,12 +13,12 @@ contract Collectable is Authorizable {
 
     /** @dev Checks if the subscription is valid.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
-      * @return success is the result of whether the subscription is valid or not.
+      * @return status returns what state the subscription is in. 0 = not started. 1 = active. 2 = terminated.
     */
-    function hasSubscriptionStarted(bytes32 _subscription)
+    function getSubscriptionStatus(bytes32 _subscription)
         public
         view
-        returns (bool success);
+        returns (uint status);
 
     /** @dev Gets the token contract address within the subscription.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
