@@ -90,7 +90,7 @@ contract MultiSigWalletWithTimeLock is
     {
         Transaction storage txn = transactions[transactionId];
         txn.executed = true;
-        if (external_call(txn.destination, txn.value, txn.data.length, txn.data)) {
+        if (txn.destination.call.value(txn.value)(txn.data)) {
             emit Execution(transactionId);
         } else {
             emit ExecutionFailure(transactionId);

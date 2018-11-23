@@ -95,7 +95,7 @@ contract PayrollSubscription is BillableInterface {
         if (
             schedules[payment.scheduleIdentifier].terminationDate > 0 || 
             payment.terminationDate > 0 ||
-            (schedules[payment.oneOff] == true && payment.lastPaymentDate > 0)
+            (schedules[payment.scheduleIdentifier].oneOff == true && payment.lastPaymentDate > 0)
         ) {
             return 2;
         }
