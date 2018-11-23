@@ -605,7 +605,7 @@ contract('PayrollSubscription', function(accounts) {
             );
 
             let status = await contract.getPaymentStatus(identifiers()[0]);
-            assert.equal(status, 1);
+            assert.equal(status, 2);
 
             let checkOne = await contract.payments.call(identifiers()[0]);
             assert.equal(checkOne[2], 3);

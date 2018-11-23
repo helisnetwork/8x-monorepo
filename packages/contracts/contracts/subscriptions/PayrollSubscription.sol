@@ -92,7 +92,11 @@ contract PayrollSubscription is BillableInterface {
     {
         Payment memory payment = payments[_subscription];
 
-        if (schedules[payment.scheduleIdentifier].terminationDate > 0 || payment.terminationDate > 0) {
+        if (
+            schedules[payment.scheduleIdentifier].terminationDate > 0 || 
+            payment.terminationDate > 0 ||
+            (schedules[payment.oneOff] == true && payment.lastPaymentDate > 0)
+        ) {
             return 2;
         }
 
