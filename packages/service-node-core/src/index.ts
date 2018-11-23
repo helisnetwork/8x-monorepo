@@ -5,7 +5,7 @@ import EightEx from '8x.js';
 import { AddressBook, Address } from '@8xprotocol/types';
 import { BigNumber } from 'bignumber.js';
 
-import SubscriptionEvent from "./types";
+import { SubscriptionEvent } from "./types";
 
 import EventStore from './store/events';
 import ProcessorStore from "./store/processor";
@@ -17,7 +17,7 @@ export default class Repeater {
   private web3Utils: Web3Utils;
   private executorContract: ExecutorContract;
 
-  private executorAddress: Address;
+  private addressBook: AddressBook;
   private serviceNodeAccount: Address;
 
   public eventStore: EventStore
@@ -25,16 +25,16 @@ export default class Repeater {
 
   public repeaterUpdated: () => (void) | null;
 
-  constructor(web3: Web3, executorAddress: Address, serviceNodeAccount: Address) {
+  constructor(web3: Web3, addressBook: AddressBook, serviceNodeAccount: Address) {
     this.web3 = web3;
     this.web3Utils = new Web3Utils(web3);
-    this.executorAddress = executorAddress;
+    this.addressBook = addressBook;
     this.serviceNodeAccount = serviceNodeAccount;
     this.eightEx = new EightEx(web3, {});
   }
 
   public async start() {
-    this.executorContract = await ExecutorContract.at(this.executorAddress, this.web3, {});
+    this.executorContract = await ExecutorContract.at(this.addressBook.executorAddress, this.web3, {});
 
     this.eventStore = new EventStore(this.web3, this.executorContract, () => this.storeUpdated());
     this.processorStore = new ProcessorStore(this.web3, this.eightEx, this.serviceNodeAccount, this.executorContract);
