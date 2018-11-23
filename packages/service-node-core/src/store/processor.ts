@@ -1,5 +1,5 @@
 import * as Web3 from 'web3';
-import SubscriptionEvent from '../types';
+import { SubscriptionEvent, BasicEvent } from '../types';
 
 import { ExecutorContract } from '@8xprotocol/artifacts';
 import { Address } from '@8xprotocol/types';
@@ -16,7 +16,7 @@ export default class ProcessorStore {
   private TX_DEFAULTS: any;
 
   public executedTransactionHashes: string[];
-  public events: SubscriptionEvent[];
+  public events: BasicEvent[];
 
   constructor(web3: Web3, eightEx: EightEx, serviceNodeAccount: Address, executorContract: ExecutorContract) {
     this.web3 = web3;
@@ -42,7 +42,7 @@ export default class ProcessorStore {
     await this.checkEvents();
   }
 
-  public setEvents(events: SubscriptionEvent[]) {
+  public setEvents(events: BasicEvent[]) {
     this.events = events.filter((event) => event.cancelled == false);
 
     console.log(`Current events are: ${JSON.stringify(this.events, null, 2)}`);
@@ -108,7 +108,7 @@ export default class ProcessorStore {
     await this.checkEvents();
   }
 
-  public async handleProcessing(events: SubscriptionEvent[]) {
+  public async handleProcessing(events: BasicEvent[]) {
 
     this.asyncForEach(events, async (event) => {
       console.log(`Sending process tx ${JSON.stringify(event)}`);
@@ -128,7 +128,7 @@ export default class ProcessorStore {
 
   }
 
-  public async handleCatchLate(events: SubscriptionEvent[]) {
+  public async handleCatchLate(events: BasicEvent[]) {
 
     this.asyncForEach(events, async (event) => {
       console.log(`Sending catch late tx ${JSON.stringify(event)}`);
