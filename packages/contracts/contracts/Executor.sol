@@ -179,37 +179,32 @@ contract Executor is Ownable {
         uint fee = subscription.getPaymentFee(_subscriptionIdentifier);
         (address consumer, address business) = subscription.getPaymentFromToAddresses(_subscriptionIdentifier);
 
-        // Charge fee if the person who is calling this function is not the one being charged
-        if (msg.sender != consumer) {
-            // @TODO: Add tests for this whole pathway
-            (
-                bool paymentSuccess, 
-                bool finalPayment
-            ) = attemptProcessingWithSuccessAndLastPaymentCallback(
-                _subscriptionContract, 
-                _subscriptionIdentifier, 
-                address(transactingToken), 
-                msg.sender, 
-                currentTimestamp() + subscriptionInterval, 
-                amountDue, 
-                fee,
-                true
+        // @TODO: Add tests for this whole pathway
+        (
+            bool paymentSuccess, 
+            bool finalPayment
+        ) = attemptProcessingWithSuccessAndLastPaymentCallback(
+            _subscriptionContract, 
+            _subscriptionIdentifier, 
+            address(transactingToken), 
+            msg.sender, 
+            currentTimestamp() + subscriptionInterval, 
+            amountDue, 
+            fee,
+            true
+        );
+
+        require(paymentSuccess);
+
+        // If it was the final payment, mark it as completed and finish execution
+        if (finalPayment) {
+            emit SubscriptionCompleted(
+                _subscriptionIdentifier,
+                msg.sender,
+                amountDue
             );
 
-            require(paymentSuccess);
-
-            // If it was the final payment, mark it as completed and finish execution
-            if (finalPayment) {
-                emit SubscriptionCompleted(
-                    _subscriptionIdentifier,
-                    msg.sender,
-                    amountDue
-                );
-
-                return;
-            }
-        } else {
-            makePayment(transactingToken, consumer, business, amountDue);
+            return;
         }
 
         // Create a new record in the payments registry
@@ -220,9 +215,6 @@ contract Executor is Ownable {
             amountDue, // Amount due
             fee // Fee
         );
-
-        // Update the last payment date
-        subscription.setLastestPaymentDate(currentTimestamp(), _subscriptionIdentifier);
 
         // Emit the appropriate event to show subscription has been activated
         emit SubscriptionActivated(
@@ -555,6 +547,11 @@ contract Executor is Ownable {
         uint validSubscription = subscription.getPaymentStatus(_subscriptionIdentifier);
 
         require(validSubscription == 1, "Subscription must be valid");
+
+        if (_serviceNode == consumer) {
+            makePayment(ERC20(_tokenAddress), consumer, business, _amount);
+            return;
+        }
 
         // @TODO: Make tests for gas cost subtraction
         uint pricedGas = getPricedGas(_subscriptionContract, _subscriptionIdentifier, _tokenAddress);
