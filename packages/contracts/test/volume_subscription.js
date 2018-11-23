@@ -176,7 +176,7 @@ contract('VolumeSubscription', function(accounts) {
             let newPlan = await contract.createPlan(
                 business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, 0, { from: business }
             );
-            console.log(JSON.stringify(newPlan.logs));
+
             let planHash = newPlan.logs[0].args.planIdentifier;
             let plan = await contract.plans.call(planHash);
 
@@ -354,7 +354,7 @@ contract('VolumeSubscription', function(accounts) {
 
             assert.equal(computedHash, subscriptionHash);
 
-            let status = await contract.getSubscriptionStatus(subscriptionHash);
+            let status = await contract.getPaymentStatus(subscriptionHash);
             assert.equal(status, 0);
 
         });
@@ -395,19 +395,19 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should not be able to set the last payment date as the subscriber", async function() {
 
-            await assertRevert(contract.setLastPaymentDate(futureDate, subscriptionHash, { from: subscriber }));
+            await assertRevert(contract.setLastestPaymentDate(futureDate, subscriptionHash, { from: subscriber }));
 
         });
 
         it("should not be able to set the last payment date as the business", async function() {
 
-            await assertRevert(contract.setLastPaymentDate(futureDate, subscriptionHash, { from: business }));
+            await assertRevert(contract.setLastestPaymentDate(futureDate, subscriptionHash, { from: business }));
 
         });
 
         it("should be able to set the last payment date from the executor", async function() {
 
-            await contract.setLastPaymentDate(futureDate, subscriptionHash, { from: executorContract });
+            await contract.setLastestPaymentDate(futureDate, subscriptionHash, { from: executorContract });
 
             let subscription = await contract.subscriptions.call(subscriptionHash)
             assert.equal(subscription[3].toNumber(), futureDate);
@@ -416,7 +416,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should be able to update the last payment date to a date in the future", async function() {
 
-            await contract.setLastPaymentDate(futureDate + 100, subscriptionHash, { from: executorContract });
+            await contract.setLastestPaymentDate(futureDate + 100, subscriptionHash, { from: executorContract });
             let subscription = await contract.subscriptions.call(subscriptionHash)
             assert.equal(subscription[3].toNumber(), futureDate + 100);
 
@@ -493,7 +493,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should not be able to cancel from an unauthorized address", async function() {
 
-            await assertRevert(contract.cancelSubscription(subscriptionHash, { from: unauthorizedAddress }));
+            await assertRevert(contract.cancelPayment(subscriptionHash, { from: unauthorizedAddress }));
 
         });
 
@@ -507,37 +507,37 @@ contract('VolumeSubscription', function(accounts) {
 
             let subscriptionHash2 = newSubscription2.logs[0].args.subscriptionIdentifier;
 
-            await contract.setLastPaymentDate(futureDate, subscriptionHash2, { from: executorContract });
+            await contract.setLastestPaymentDate(futureDate, subscriptionHash2, { from: executorContract });
 
-            let status = await contract.getSubscriptionStatus(subscriptionHash2);
+            let status = await contract.getPaymentStatus(subscriptionHash2);
             assert.equal(status, 1);
 
-            await contract.cancelSubscription(subscriptionHash2, { from: executorContract });
+            await contract.cancelPayment(subscriptionHash2, { from: executorContract });
 
             let subscription = await contract.subscriptions.call(subscriptionHash2);
             assert.isAbove(subscription[4].toNumber(), 0);
 
-            let status2 = await contract.getSubscriptionStatus(subscriptionHash2);
+            let status2 = await contract.getPaymentStatus(subscriptionHash2);
             assert.equal(status2, 2);
 
         });
 
         it("should not be able to cancel before the start date is set", async function() {
 
-            await assertRevert(contract.cancelSubscription(subscriptionHash, { from: subscriber }));
+            await assertRevert(contract.cancelPayment(subscriptionHash, { from: subscriber }));
 
         });
 
         it("should not be able to cancel before the start date is set", async function() {
 
-            await assertRevert(contract.cancelSubscription(subscriptionHash, { from: executorContract }));
+            await assertRevert(contract.cancelPayment(subscriptionHash, { from: executorContract }));
 
         });
 
         it("should be able to cancel from the owner", async function() {
 
-            await contract.setLastPaymentDate(futureDate, subscriptionHash, { from: executorContract });
-            await contract.cancelSubscription(subscriptionHash, { from: subscriber });
+            await contract.setLastestPaymentDate(futureDate, subscriptionHash, { from: executorContract });
+            await contract.cancelPayment(subscriptionHash, { from: subscriber });
 
             let subscription = await contract.subscriptions.call(subscriptionHash);
             assert.isAbove(subscription[4].toNumber(), 0);
@@ -546,7 +546,7 @@ contract('VolumeSubscription', function(accounts) {
 
         it("should not be able cancel without throwing", async function() {
 
-            await contract.cancelSubscription(subscriptionHash, { from: subscriber });
+            await contract.cancelPayment(subscriptionHash, { from: subscriber });
 
             let subscription = await contract.subscriptions.call(subscriptionHash)
             assert.isAbove(subscription[4].toNumber(), 0);

@@ -1,12 +1,12 @@
 pragma solidity 0.4.24;
 
-import "../Collectable.sol";
+import "../interfaces/BillableInterface.sol";
 import "../interfaces/ApprovedRegistryInterface.sol";
 
 /** @title Contains all the data required for payroll subscriptions. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract PayrollSubscription is Collectable {
+contract PayrollSubscription is BillableInterface {
 
     struct Payment {
         uint amount;                    // Editable
@@ -83,9 +83,9 @@ contract PayrollSubscription is Collectable {
     );
  
     /**
-      * COLLECTABLE INTERFACE FUNCTIONS
+      * BILLABLE INTERFACE FUNCTIONS
     */
-    function getSubscriptionStatus(bytes32 _subscription)
+    function getPaymentStatus(bytes32 _subscription)
         public
         view
         returns (uint status)
@@ -103,7 +103,7 @@ contract PayrollSubscription is Collectable {
         return 0;
     }
 
-    function getSubscriptionTokenAddress(bytes32 _subscription)
+    function getPaymentTokenAddress(bytes32 _subscription)
         public
         view
         returns (address subscriptionTokenAddress)
@@ -112,7 +112,7 @@ contract PayrollSubscription is Collectable {
         return schedules[payment.scheduleIdentifier].tokenAddress;
     }
 
-    function getSubscriptionFromToAddresses(bytes32 _subscription)
+    function getPaymentFromToAddresses(bytes32 _subscription)
         public
         view
         returns (address from, address to)
@@ -121,7 +121,7 @@ contract PayrollSubscription is Collectable {
         return (schedules[payment.scheduleIdentifier].owner, payment.destination);
     }
 
-    function getSubscriptionInterval(bytes32 _subscription)
+    function getPaymentInterval(bytes32 _subscription)
         public
         view
         returns (uint interval)
@@ -130,7 +130,7 @@ contract PayrollSubscription is Collectable {
         return schedules[payment.scheduleIdentifier].interval;
     }
 
-    function getAmountDueFromSubscription(bytes32 _subscription)
+    function getAmountDueFromPayment(bytes32 _subscription)
         public
         view
         returns (uint amount)
@@ -138,7 +138,7 @@ contract PayrollSubscription is Collectable {
         return payments[_subscription].amount;
     }
 
-    function getSubscriptionFee(bytes32 _subscription)
+    function getPaymentFee(bytes32 _subscription)
         public
         view
         returns (uint fee)
@@ -163,7 +163,7 @@ contract PayrollSubscription is Collectable {
         return (gasCost, gasPrice);
     }
 
-    function setLastPaymentDate(uint _date, bytes32 _subscription)
+    function setLastestPaymentDate(uint _date, bytes32 _subscription)
         public
         onlyAuthorized
         returns (bool success, bool isFinalPayment)
@@ -185,7 +185,7 @@ contract PayrollSubscription is Collectable {
 
     }
 
-    function cancelSubscription(bytes32 _subscription)
+    function cancelPayment(bytes32 _subscription)
         public
         onlyAuthorized
     {

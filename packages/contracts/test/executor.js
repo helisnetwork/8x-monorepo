@@ -79,7 +79,6 @@ contract('Executor', function(accounts) {
             7, { from: contractOwner }
         );
 
-        console.log(`The executor contract adddress is: ${executorContract.address}`)
 
         // Add the executor contract as an authorised address for all the different components
         await subscriptionContract.addAuthorizedAddress(executorContract.address, { from: contractOwner });
@@ -201,7 +200,7 @@ contract('Executor', function(accounts) {
             let etherSubscription = await subscriptionContract.subscriptions.call(subscriptionHash);
             assert.isAbove(etherSubscription[3].toNumber(), 0);
 
-            let isActive = await subscriptionContract.getSubscriptionStatus(subscriptionHash);
+            let isActive = await subscriptionContract.getPaymentStatus(subscriptionHash);
             assert.equal(isActive, 1);
 
             // Check to ensure the user has a token wallet with only the service node fee remaining (since it wasn't processed)
@@ -275,7 +274,7 @@ contract('Executor', function(accounts) {
             let etherSubscription = await newTokenSubscription("process.not_enough_funds");;
             await fastForwardSubscription(etherSubscription, 1, true);
 
-            let subscriptionDetails = await subscriptionContract.getSubscriptionStatus(etherSubscription);
+            let subscriptionDetails = await subscriptionContract.getPaymentStatus(etherSubscription);
             assert.equal(subscriptionDetails, 2);
 
         });
@@ -546,7 +545,7 @@ contract('Executor', function(accounts) {
             assert.equal(etherPaymentInfo[0], 0);
 
             // Check the subscription was cancelled
-            let isSubscriptionRunning = await subscriptionContract.getSubscriptionStatus(subscriptionHash);
+            let isSubscriptionRunning = await subscriptionContract.getPaymentStatus(subscriptionHash);
             assert.equal(isSubscriptionRunning, 2);
 
             // Should not be able to reactivate the subscription
@@ -566,7 +565,7 @@ contract('Executor', function(accounts) {
 
             let details = await fastForwardSubscription(subscriptionHash, 2, false);
 
-            await subscriptionContract.cancelSubscription(subscriptionHash, { from: tokenSubscriber });
+            await subscriptionContract.cancelPayment(subscriptionHash, { from: tokenSubscriber });
 
             // Should be able to catch out
             await setTimes(modifyTimeContracts, details[1] + 1);

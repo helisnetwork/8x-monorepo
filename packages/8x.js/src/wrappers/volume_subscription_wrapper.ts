@@ -247,7 +247,7 @@ export default class VolumeSubscriptionWrapper {
 
   }
 
-  public async cancelSubscription(
+  public async cancelPayment(
     subscriptionHash: Bytes32,
     txData?: TxData
   ): Promise<TxHash> {
@@ -255,7 +255,7 @@ export default class VolumeSubscriptionWrapper {
     const txSettings = await generateTxOpts(this.web3, txData);
     const volumeSubscription = await this.contracts.loadVolumeSubscription();
 
-    return await volumeSubscription.cancelSubscription.sendTransactionAsync(
+    return await volumeSubscription.cancelPayment.sendTransactionAsync(
       subscriptionHash,
       txSettings
     );

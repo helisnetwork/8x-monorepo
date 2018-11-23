@@ -332,7 +332,7 @@ export default class SubscriptionsAPI {
     txData?: TxData
   ): Promise<TxHash> {
 
-    return this.volumeSubscriptionWrapper.cancelSubscription(
+    return this.volumeSubscriptionWrapper.cancelPayment(
       subscriptionHash,
       txData
     );
