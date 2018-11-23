@@ -9,8 +9,8 @@ contract('TransferProxy', function(accounts) {
     let tokenContract;
 
     beforeEach(async function() {
-        transferProxyContract = await TransferProxy.deployed();
-        tokenContract = await EightExToken.deployed();
+        transferProxyContract = await TransferProxy.new();
+        tokenContract = await EightExToken.new();
     });
 
     describe("basic tests", () => {

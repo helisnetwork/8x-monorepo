@@ -4,11 +4,11 @@ import "./base/ownership/Ownable.sol";
 import "./base/token/ERC20.sol";
 import "./base/token/WETH.sol";
 
-import "./Collectable.sol";
 import "./TransferProxy.sol";
 import "./StakeContract.sol";
 import "./PaymentRegistry.sol";
 
+import "./interfaces/BillableInterface.sol";
 import "./interfaces/ApprovedRegistryInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
@@ -165,19 +165,19 @@ contract Executor is Ownable {
         returns (bool success)
     {
 
-        // Initiate an instance of the collectable subscription
-        Collectable subscription = Collectable(_subscriptionContract);
+        // Initiate an instance of the BillableInterface subscription
+        BillableInterface subscription = BillableInterface(_subscriptionContract);
 
         // Check if the subscription is valid
         require(approvedRegistry.isContractAuthorised(_subscriptionContract), "Unauthorised contract");
-        require(subscription.getSubscriptionStatus(_subscriptionIdentifier) == 0, "Invalid subscription");
+        require(subscription.getPaymentStatus(_subscriptionIdentifier) == 0, "Invalid subscription");
 
         // Get the defaults of the subscription
-        ERC20 transactingToken = ERC20(subscription.getSubscriptionTokenAddress(_subscriptionIdentifier));
-        uint subscriptionInterval = subscription.getSubscriptionInterval(_subscriptionIdentifier);
-        uint amountDue = subscription.getAmountDueFromSubscription(_subscriptionIdentifier);
-        uint fee = subscription.getSubscriptionFee(_subscriptionIdentifier);
-        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+        ERC20 transactingToken = ERC20(subscription.getPaymentTokenAddress(_subscriptionIdentifier));
+        uint subscriptionInterval = subscription.getPaymentInterval(_subscriptionIdentifier);
+        uint amountDue = subscription.getAmountDueFromPayment(_subscriptionIdentifier);
+        uint fee = subscription.getPaymentFee(_subscriptionIdentifier);
+        (address consumer, address business) = subscription.getPaymentFromToAddresses(_subscriptionIdentifier);
 
         // Charge fee if the person who is calling this function is not the one being charged
         if (msg.sender != consumer) {
@@ -222,7 +222,7 @@ contract Executor is Ownable {
         );
 
         // Update the last payment date
-        subscription.setLastPaymentDate(currentTimestamp(), _subscriptionIdentifier);
+        subscription.setLastestPaymentDate(currentTimestamp(), _subscriptionIdentifier);
 
         // Emit the appropriate event to show subscription has been activated
         emit SubscriptionActivated(
@@ -248,7 +248,7 @@ contract Executor is Ownable {
         whenNotPaused
     {
 
-        Collectable subscription = Collectable(_subscriptionContract);
+        BillableInterface subscription = BillableInterface(_subscriptionContract);
 
         // Get the current payment registry object (if it doesn't exist execution will eventually fail)
         (
@@ -262,8 +262,8 @@ contract Executor is Ownable {
             uint staked
         ) = paymentRegistry.updatePaymentInformation(
             _subscriptionIdentifier, 
-            subscription.getAmountDueFromSubscription(_subscriptionIdentifier), 
-            subscription.getSubscriptionFee(_subscriptionIdentifier)
+            subscription.getAmountDueFromPayment(_subscriptionIdentifier), 
+            subscription.getPaymentFee(_subscriptionIdentifier)
         );
 
         // Ensure it's a fresh subscription or only the claimant
@@ -392,7 +392,7 @@ contract Executor is Ownable {
         require(claimant == msg.sender, "Must be the original claimant");
 
         // Ensure it is still active
-        require(Collectable(_subscriptionContract).getSubscriptionStatus(_subscriptionIdentifier) == 1, "The subscription must be valid");
+        require(BillableInterface(_subscriptionContract).getPaymentStatus(_subscriptionIdentifier) == 1, "The subscription must be valid");
 
         // Make sure we're within the cancellation window
         uint minimumDate = lastPaymentDate + executionPeriod;
@@ -432,7 +432,7 @@ contract Executor is Ownable {
         view
         returns (uint)
     {
-        (uint gasCost, uint gasPrice) = Collectable(_contractAddress).getGasForExecution(_subscriptionIdentifier, 0);
+        (uint gasCost, uint gasPrice) = BillableInterface(_contractAddress).getGasForExecution(_subscriptionIdentifier, 0);
         uint rate = approvedRegistry.getRateFor(_tokenAddress);
         uint standardCost = ((10**18) / rate) * (10**9) * (gasCost * (gasPrice / (10**9)));
         return standardCost;
@@ -517,8 +517,8 @@ contract Executor is Ownable {
 
         // Update the last payment date in the volume subscription contract
         // If this reverts, that means the payment isn't ready
-        Collectable subscription = Collectable(_subscriptionContract);
-        (bool settingLastPaymentResult, bool finalPaymentResult) = subscription.setLastPaymentDate(_newLastPaymentDate, _subscriptionIdentifier);
+        BillableInterface subscription = BillableInterface(_subscriptionContract);
+        (bool settingLastPaymentResult, bool finalPaymentResult) = subscription.setLastestPaymentDate(_newLastPaymentDate, _subscriptionIdentifier);
 
         // @TODO: Add tests for this down the line
         if (_firstPayment == false) {
@@ -526,7 +526,7 @@ contract Executor is Ownable {
         }
 
         // The set last payment result and last payment result both have to be true.
-        // The reason why we don't put a require is because setLastPaymentDate might call an external contract
+        // The reason why we don't put a require is because setLastestPaymentDate might call an external contract
         // and we don't want a failure to stop a node from processing a payment.
         return (paymentResult && settingLastPaymentResult, finalPaymentResult);
         
@@ -548,11 +548,11 @@ contract Executor is Ownable {
 
         require(msg.sender == address(this), "Function can only be called by this contract");
 
-        Collectable subscription = Collectable(_subscriptionContract);
+        BillableInterface subscription = BillableInterface(_subscriptionContract);
 
-        (address consumer, address business) = subscription.getSubscriptionFromToAddresses(_subscriptionIdentifier);
+        (address consumer, address business) = subscription.getPaymentFromToAddresses(_subscriptionIdentifier);
 
-        uint validSubscription = subscription.getSubscriptionStatus(_subscriptionIdentifier);
+        uint validSubscription = subscription.getPaymentStatus(_subscriptionIdentifier);
 
         require(validSubscription == 1, "Subscription must be valid");
 
@@ -594,7 +594,7 @@ contract Executor is Ownable {
         private
     {
         // Cancel if it hasn't already
-        Collectable(_subscriptionContract).cancelSubscription(_subscriptionIdentifier);
+        BillableInterface(_subscriptionContract).cancelPayment(_subscriptionIdentifier);
 
         // Refund the gas to the service node by freeing up storage
         paymentRegistry.deletePayment(_subscriptionIdentifier);

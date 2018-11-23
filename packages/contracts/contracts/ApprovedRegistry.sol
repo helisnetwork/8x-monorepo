@@ -2,8 +2,7 @@ pragma solidity 0.4.24;
 
 import "./interfaces/ApprovedRegistryInterface.sol";
 import "./interfaces/KyberNetworkInterface.sol";
-
-import "./Collectable.sol";
+import "./interfaces/BillableInterface.sol";
 
 import "./base/token/WETH.sol";
 

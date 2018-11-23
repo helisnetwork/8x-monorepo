@@ -244,7 +244,7 @@ contract('PayrollSubscription', function(accounts) {
             assert.equal(checkOne[3], 0);
             assert.equal(checkOne[4], scheduleIdentifier);
 
-            let status = await contract.getSubscriptionStatus(identifiers()[0]);
+            let status = await contract.getPaymentStatus(identifiers()[0]);
             assert.equal(status, 0);
 
         });
@@ -588,7 +588,7 @@ contract('PayrollSubscription', function(accounts) {
 
         it("should not be able to set it as an unauthorised user", async function() {
 
-            await assertRevert(contract.setLastPaymentDate(
+            await assertRevert(contract.setLastestPaymentDate(
                 1,
                 identifiers()[0],
                 { from: contractOwner }
@@ -598,13 +598,13 @@ contract('PayrollSubscription', function(accounts) {
 
         it("should be able to set it and return whether it's the last payment date or not correctly", async function() {
 
-            let params = await contract.setLastPaymentDate(
+            let params = await contract.setLastestPaymentDate(
                 3,
                 identifiers()[0],
                 { from: executorContract }
             );
 
-            let status = await contract.getSubscriptionStatus(identifiers()[0]);
+            let status = await contract.getPaymentStatus(identifiers()[0]);
             assert.equal(status, 1);
 
             let checkOne = await contract.payments.call(identifiers()[0]);
@@ -614,7 +614,7 @@ contract('PayrollSubscription', function(accounts) {
 
         it("should not be able to set as a date before the last payment date", async function() {
 
-            await assertRevert(contract.setLastPaymentDate(
+            await assertRevert(contract.setLastestPaymentDate(
                 2,
                 identifiers()[0],
                 { from: executorContract }
@@ -637,7 +637,7 @@ contract('PayrollSubscription', function(accounts) {
         
         it("should not be able to set it as an unauthorised user", async function() {
 
-            await assertRevert(contract.cancelSubscription(
+            await assertRevert(contract.cancelPayment(
                 identifiers()[0],
                 { from: contractOwner }
             ));
@@ -646,13 +646,13 @@ contract('PayrollSubscription', function(accounts) {
 
         it("should be able to cancel it from the executor", async function() {
 
-            await contract.setLastPaymentDate(
+            await contract.setLastestPaymentDate(
                 3,
                 identifiers()[0],
                 { from: executorContract }
             );
 
-            await contract.cancelSubscription(
+            await contract.cancelPayment(
                 identifiers()[0],
                 { from: executorContract }
             );
@@ -661,7 +661,7 @@ contract('PayrollSubscription', function(accounts) {
             assert.equal(checkOne[2].toNumber(), 3);
             assert.equal(checkOne[3], 100);
 
-            let status = await contract.getSubscriptionStatus(identifiers()[0]);
+            let status = await contract.getPaymentStatus(identifiers()[0]);
             assert.equal(status, 2);
 
         });

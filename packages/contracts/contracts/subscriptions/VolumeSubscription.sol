@@ -1,12 +1,12 @@
 pragma solidity 0.4.24;
 
-import "../Collectable.sol";
+import "../interfaces/BillableInterface.sol";
 import "../interfaces/ApprovedRegistryInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract VolumeSubscription is Collectable {
+contract VolumeSubscription is BillableInterface {
 
     struct Plan {
 
@@ -136,9 +136,9 @@ contract VolumeSubscription is Collectable {
     }
 
     /**
-      * COLLECTABLE INTERFACE FUNCTIONS
+      * BILLABLE INTERFACE FUNCTIONS
     */
-    function getSubscriptionStatus(bytes32 _subscription)
+    function getPaymentStatus(bytes32 _subscription)
         public
         view
         returns (uint status)
@@ -156,7 +156,7 @@ contract VolumeSubscription is Collectable {
         return 0;
     }
 
-    function getSubscriptionTokenAddress(bytes32 _subscription)
+    function getPaymentTokenAddress(bytes32 _subscription)
         public
         view
         returns (address subscriptionTokenAddress)
@@ -164,7 +164,7 @@ contract VolumeSubscription is Collectable {
         return subscriptions[_subscription].tokenAddress;
     }
 
-    function getSubscriptionFromToAddresses(bytes32 _subscription)
+    function getPaymentFromToAddresses(bytes32 _subscription)
         public
         view
         returns (address from, address to)
@@ -173,7 +173,7 @@ contract VolumeSubscription is Collectable {
         return (subscriptions[_subscription].owner, plans[planHash].owner);
     }
 
-    function getSubscriptionInterval(bytes32 _subscription)
+    function getPaymentInterval(bytes32 _subscription)
         public
         view
         returns (uint interval)
@@ -182,7 +182,7 @@ contract VolumeSubscription is Collectable {
         return plans[planHash].interval;
     }
 
-    function getAmountDueFromSubscription(bytes32 _subscription)
+    function getAmountDueFromPayment(bytes32 _subscription)
         public
         view
         returns (uint amount)
@@ -191,7 +191,7 @@ contract VolumeSubscription is Collectable {
         return plans[planHash].amount;
     }
 
-    function getSubscriptionFee(bytes32 _subscription)
+    function getPaymentFee(bytes32 _subscription)
         public
         view
         returns (uint fee)
@@ -216,7 +216,7 @@ contract VolumeSubscription is Collectable {
         return (gasCost, gasPrice);
     }
 
-    function setLastPaymentDate(uint _date, bytes32 _subscription)
+    function setLastestPaymentDate(uint _date, bytes32 _subscription)
         public
         onlyAuthorized
         returns (bool success, bool isFinalPayment)
@@ -230,7 +230,7 @@ contract VolumeSubscription is Collectable {
         return (true, false);
     }
 
-    function cancelSubscription(bytes32 _subscription)
+    function cancelPayment(bytes32 _subscription)
         public
     {
         // Either the original subscription owner can cancel or an authorized address.
