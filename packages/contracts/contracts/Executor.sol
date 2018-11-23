@@ -500,7 +500,7 @@ contract Executor is Ownable {
         require(stakeContract.getAvailableStake(msg.sender, _tokenAddress) > 1, "At least one token is required to process subscriptions");
 
         // Execute the actual payment
-        bool result1 = address(this).call(
+        bool paymentResult = address(this).call(
             bytes4(
                 keccak256(
                     "attemptProcessing(address,bytes32,address,address,uint256,uint256,uint256)"
@@ -517,14 +517,17 @@ contract Executor is Ownable {
         // Update the last payment date in the volume subscription contract
         // If this reverts, that means the payment isn't ready
         Collectable subscription = Collectable(_subscriptionContract);
-        bool result2 = subscription.setLastPaymentDate(_newLastPaymentDate, _subscriptionIdentifier);
+        (bool settingLastPaymentResult, bool finalPaymentResult) = subscription.setLastPaymentDate(_newLastPaymentDate, _subscriptionIdentifier);
 
         // @TODO: Add tests for this down the line
         if (_firstPayment == false) {
-            require(result2 == false, "An existing payment should never be marked as the final payment. Only reserved for scheduled/first time payments.");
+            require(finalPaymentResult == false, "An existing payment should never be marked as the final payment. Only reserved for scheduled/first time payments.");
         }
 
-        return (result1, result2);
+        // The set last payment result and last payment result both have to be true.
+        // The reason why we don't put a require is because setLastPaymentDate might call an external contract
+        // and we don't want a failure to stop a node from processing a payment.
+        return (paymentResult && settingLastPaymentResult, finalPaymentResult);
         
     }
 

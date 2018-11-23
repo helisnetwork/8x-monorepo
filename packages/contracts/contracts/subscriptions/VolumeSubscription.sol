@@ -215,7 +215,7 @@ contract VolumeSubscription is Collectable {
     function setLastPaymentDate(uint _date, bytes32 _subscription)
         public
         onlyAuthorized
-        returns (bool isFinalPayment)
+        returns (bool success, bool isFinalPayment)
     {
         require(subscriptions[_subscription].lastPaymentDate <= _date);
 
@@ -223,7 +223,7 @@ contract VolumeSubscription is Collectable {
 
         emit LastSubscriptionPaymentDate(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner, _date);
 
-        return false;
+        return (true, false);
     }
 
     function cancelSubscription(bytes32 _subscription)

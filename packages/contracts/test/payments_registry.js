@@ -166,20 +166,20 @@ contract('MockPaymentRegistry', function(accounts) {
 
         it('should throw if being called from an unauthorized address', async function() {
 
-            await assertRevert(paymentRegistry.updateAmount(subscriptionHash, 200, 2, { from: accounts[1] }));
+            await assertRevert(paymentRegistry.updatePaymentInformation(subscriptionHash, 200, 2, { from: accounts[1] }));
 
         });
 
         it('should update the stake amount proportionally', async function() {
 
-            await paymentRegistry.updateAmount(subscriptionHash, 200, 2, { from: accounts[0] });
+            await paymentRegistry.updatePaymentInformation(subscriptionHash, 200, 2, { from: accounts[0] });
             let paymentInformation = await paymentRegistry.payments.call(subscriptionHash);
 
             assert.equal(paymentInformation[2].toNumber(), 200);
             assert.equal(paymentInformation[3].toNumber(), 2);
             assert.equal(paymentInformation[7].toNumber(), 5);
 
-            await paymentRegistry.updateAmount(subscriptionHash, 800, 8, { from: accounts[0] });
+            await paymentRegistry.updatePaymentInformation(subscriptionHash, 800, 8, { from: accounts[0] });
             let paymentInformation2 = await paymentRegistry.payments.call(subscriptionHash);
 
             assert.equal(paymentInformation2[2].toNumber(), 800);
@@ -195,13 +195,13 @@ contract('MockPaymentRegistry', function(accounts) {
             await paymentRegistry.createNewPayment(newSubscriptionHash, tokenContract.address, twoMonthsLater, 400, 4, { from: accounts[0] });
             await paymentRegistry.claimPayment(newSubscriptionHash, accounts[2], twoMonthsLater, 0, { from: accounts[0] });
 
-            await paymentRegistry.updateAmount(newSubscriptionHash, 200, 0, { from: accounts[0] });
+            await paymentRegistry.updatePaymentInformation(newSubscriptionHash, 200, 0, { from: accounts[0] });
             let paymentInformation = await paymentRegistry.payments.call(newSubscriptionHash);
 
             assert.equal(paymentInformation[2].toNumber(), 200);
             assert.equal(paymentInformation[7].toNumber(), 0);
 
-            await paymentRegistry.updateAmount(newSubscriptionHash, 400, 0, { from: accounts[0] });
+            await paymentRegistry.updatePaymentInformation(newSubscriptionHash, 400, 0, { from: accounts[0] });
             paymentInformation = await paymentRegistry.payments.call(newSubscriptionHash);
 
             assert.equal(paymentInformation[2].toNumber(), 400);

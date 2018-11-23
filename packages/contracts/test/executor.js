@@ -127,7 +127,7 @@ contract('Executor', function(accounts) {
     it("should be able to calculate the correct price for gas", async function() {
 
         let returnedPrice = await executorContract.getPricedGas(subscriptionContract.address, "", tokenContract.address);
-        assert.equal(returnedPrice.toNumber(), subscriptionFee);
+        assert.equal(returnedPrice.toNumber(), 3 * 10 ** 17);
 
     });
 
