@@ -5,7 +5,7 @@ import EightEx from '8x.js';
 import { AddressBook, Address } from '@8xprotocol/types';
 import { BigNumber } from 'bignumber.js';
 
-import { SubscriptionEvent, Store } from "./types";
+import { SubscriptionEvent, Store, DelayPeriod } from "./types";
 
 import ExecutorStore from './store/executor_events';
 import PayrollStore from './store/payroll_events';
@@ -16,6 +16,7 @@ export default class Repeater {
   private web3: Web3;
   private eightEx: EightEx;
   private web3Utils: Web3Utils;
+  private delayPeriods: DelayPeriod;
 
   private executorContract: ExecutorContract;
   private payrollContract: PayrollSubscriptionContract;
@@ -30,12 +31,13 @@ export default class Repeater {
 
   public repeaterUpdated: () => (void) | null;
 
-  constructor(web3: Web3, addressBook: AddressBook, serviceNodeAccount: Address) {
+  constructor(web3: Web3, addressBook: AddressBook, serviceNodeAccount: Address, delayPeriods: DelayPeriod) {
     this.web3 = web3;
     this.web3Utils = new Web3Utils(web3);
     this.addressBook = addressBook;
     this.serviceNodeAccount = serviceNodeAccount;
     this.eightEx = new EightEx(web3, {});
+    this.delayPeriods = delayPeriods;
   }
 
   public async start() {
@@ -45,7 +47,7 @@ export default class Repeater {
     this.executorStore = new ExecutorStore(this.web3, this.executorContract, () => this.storeUpdated(this.executorStore));
     this.payrollStore = new PayrollStore(this.web3, this.payrollContract, () => this.storeUpdated(this.payrollStore));
 
-    this.processorStore = new ProcessorStore(this.web3, this.serviceNodeAccount, this.executorContract);
+    this.processorStore = new ProcessorStore(this.web3, this.serviceNodeAccount, this.executorContract, this.delayPeriods);
 
     await this.executorStore.startListening();
   }

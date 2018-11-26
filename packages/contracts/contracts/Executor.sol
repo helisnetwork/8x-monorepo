@@ -26,8 +26,8 @@ contract Executor is Ownable {
     bool private paused;
 
     event SubscriptionActivated(
-        address indexed subscriptionAddress,
-        bytes32 indexed subscriptionIdentifier,
+        address indexed contractAddress,
+        bytes32 indexed paymentIdentifier,
         address indexed tokenAddress,
         uint dueDate,
         uint amount,
@@ -35,32 +35,32 @@ contract Executor is Ownable {
     );
 
     event SubscriptionProcessed(
-        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed paymentIdentifier,
         address indexed claimant,
         uint indexed dueDate,
         uint staked
     );
 
     event SubscriptionReleased(
-        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed paymentIdentifier,
         address indexed releasedBy,
         uint indexed dueDate
     );
 
     event SubscriptionLatePaymentCaught(
-        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed paymentIdentifier,
         address indexed originalClaimant,
         address indexed newClaimant,
         uint amountLost
     );
 
     event SubscriptionCancelled(
-        address indexed subscriptionAddress,
-        bytes32 indexed subscriptionIdentifier
+        address indexed contractAddress,
+        bytes32 indexed paymentIdentifier
     );
 
     event SubscriptionCompleted(
-        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed paymentIdentifier,
         address indexed claimant,
         uint indexed amount
     );
@@ -153,12 +153,12 @@ contract Executor is Ownable {
     }
 
     /** @dev Active a subscription once it's been created (make the first payment) paid from wrapped Ether.
-      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
-      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+      * @param _paymentContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function activateSubscription(
-        address _subscriptionContract,
-        bytes32 _subscriptionIdentifier
+        address _paymentContract,
+        bytes32 _paymentIdentifier
     )
         public
         whenNotPaused
@@ -166,26 +166,26 @@ contract Executor is Ownable {
     {
 
         // Initiate an instance of the BillableInterface subscription
-        BillableInterface subscription = BillableInterface(_subscriptionContract);
+        BillableInterface subscription = BillableInterface(_paymentContract);
 
         // Check if the subscription is valid
-        require(approvedRegistry.isContractAuthorised(_subscriptionContract), "Unauthorised contract");
-        require(subscription.getPaymentStatus(_subscriptionIdentifier) == 0, "Invalid subscription");
+        require(approvedRegistry.isContractAuthorised(_paymentContract), "Unauthorised contract");
+        require(subscription.getPaymentStatus(_paymentIdentifier) == 0, "Invalid subscription");
 
         // Get the defaults of the subscription
-        ERC20 transactingToken = ERC20(subscription.getPaymentTokenAddress(_subscriptionIdentifier));
-        uint subscriptionInterval = subscription.getPaymentInterval(_subscriptionIdentifier);
-        uint amountDue = subscription.getAmountDueFromPayment(_subscriptionIdentifier);
-        uint fee = subscription.getPaymentFee(_subscriptionIdentifier);
-        (address consumer, address business) = subscription.getPaymentFromToAddresses(_subscriptionIdentifier);
+        ERC20 transactingToken = ERC20(subscription.getPaymentTokenAddress(_paymentIdentifier));
+        uint subscriptionInterval = subscription.getPaymentInterval(_paymentIdentifier);
+        uint amountDue = subscription.getAmountDueFromPayment(_paymentIdentifier);
+        uint fee = subscription.getPaymentFee(_paymentIdentifier);
+        (address consumer, address business) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
 
         // @TODO: Add tests for this whole pathway
         (
             bool paymentSuccess, 
             bool finalPayment
         ) = attemptProcessingWithSuccessAndLastPaymentCallback(
-            _subscriptionContract, 
-            _subscriptionIdentifier, 
+            _paymentContract, 
+            _paymentIdentifier, 
             address(transactingToken), 
             msg.sender, 
             currentTimestamp() + subscriptionInterval, 
@@ -194,12 +194,12 @@ contract Executor is Ownable {
             true
         );
 
-        require(paymentSuccess);
+        require(paymentSuccess, "The payment should be successfully executed");
 
         // If it was the final payment, mark it as completed and finish execution
         if (finalPayment) {
             emit SubscriptionCompleted(
-                _subscriptionIdentifier,
+                _paymentIdentifier,
                 msg.sender,
                 amountDue
             );
@@ -209,7 +209,7 @@ contract Executor is Ownable {
 
         // Create a new record in the payments registry
         paymentRegistry.createNewPayment(
-            _subscriptionIdentifier, // Subscription identifier
+            _paymentIdentifier, // Subscription identifier
             address(transactingToken), // Token address
             currentTimestamp() + subscriptionInterval, // Next due date
             amountDue, // Amount due
@@ -218,8 +218,8 @@ contract Executor is Ownable {
 
         // Emit the appropriate event to show subscription has been activated
         emit SubscriptionActivated(
-            _subscriptionContract,
-            _subscriptionIdentifier,
+            _paymentContract,
+            _paymentIdentifier,
             address(transactingToken),
             currentTimestamp() + subscriptionInterval,
             amountDue,
@@ -229,18 +229,18 @@ contract Executor is Ownable {
     }
 
     /** @dev Collect the payment due from the subscriber.
-      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
-      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+      * @param _paymentContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function processSubscription(
-        address _subscriptionContract,
-        bytes32 _subscriptionIdentifier
+        address _paymentContract,
+        bytes32 _paymentIdentifier
     )
         public
         whenNotPaused
     {
 
-        BillableInterface subscription = BillableInterface(_subscriptionContract);
+        BillableInterface subscription = BillableInterface(_paymentContract);
 
         // Get the current payment registry object (if it doesn't exist execution will eventually fail)
         (
@@ -253,9 +253,9 @@ contract Executor is Ownable {
             ,
             uint staked
         ) = paymentRegistry.updatePaymentInformation(
-            _subscriptionIdentifier, 
-            subscription.getAmountDueFromPayment(_subscriptionIdentifier), 
-            subscription.getPaymentFee(_subscriptionIdentifier)
+            _paymentIdentifier, 
+            subscription.getAmountDueFromPayment(_paymentIdentifier), 
+            subscription.getPaymentFee(_paymentIdentifier)
         );
 
         // Ensure it's a fresh subscription or only the claimant
@@ -269,21 +269,21 @@ contract Executor is Ownable {
         require(currentTimestamp() < (dueDate + (interval / maximumIntervalDivisor)), "The subscription has already passed the processing period");
 
         if (attemptProcessingWithSuccessCallback(
-            _subscriptionContract, _subscriptionIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, false
+            _paymentContract, _paymentIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, false
         ) == false) {
-            processingFailed(_subscriptionContract, _subscriptionIdentifier, tokenAddress, msg.sender, staked);
+            processingFailed(_paymentContract, _paymentIdentifier, tokenAddress, msg.sender, staked);
             return;
         }
 
         paymentRegistry.claimPayment(
-            _subscriptionIdentifier, // Identifier of subscription
+            _paymentIdentifier, // Identifier of subscription
             msg.sender, // The claimant
             dueDate + interval, // Next payment due date
             0
         );
 
         emit SubscriptionProcessed(
-            _subscriptionIdentifier,
+            _paymentIdentifier,
             msg.sender,
             dueDate + interval,
             0
@@ -291,12 +291,12 @@ contract Executor is Ownable {
     }
 
      /** @dev Catch another service node who didn't process their payment on time.
-      * @param _subscriptionContract is the contract where the details exist (adheres to Collectible contract interface).
-      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+      * @param _paymentContract is the contract where the details exist (adheres to Collectible contract interface).
+      * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function catchLateSubscription(
-        address _subscriptionContract,
-        bytes32 _subscriptionIdentifier
+        address _paymentContract,
+        bytes32 _paymentIdentifier
     )
         public
         whenNotPaused
@@ -311,7 +311,7 @@ contract Executor is Ownable {
             address claimant,
             uint executionPeriod,
             uint staked
-        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+        ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
 
         // First make sure it's past the due date and execution period
         require(currentTimestamp() > (dueDate + executionPeriod), "The execution period has not passed");
@@ -322,7 +322,7 @@ contract Executor is Ownable {
 
         // Make the payment
         bool didProcess = attemptProcessingWithSuccessCallback(
-            _subscriptionContract, _subscriptionIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, false
+            _paymentContract, _paymentIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, false
         );
 
         // Slash the tokens and give them to this caller = $$$
@@ -335,11 +335,11 @@ contract Executor is Ownable {
 
         if (didProcess == false) {
             // Cancel the subscription
-            processingFailed(_subscriptionContract, _subscriptionIdentifier, tokenAddress, msg.sender, staked);
+            processingFailed(_paymentContract, _paymentIdentifier, tokenAddress, msg.sender, staked);
         } else {
             // Transfer claimant
             paymentRegistry.transferClaimant(
-                _subscriptionIdentifier,
+                _paymentIdentifier,
                 msg.sender,
                 dueDate + (dueDate - lastPaymentDate)
             );
@@ -347,7 +347,7 @@ contract Executor is Ownable {
 
         // Emit an event to say a late payment was caught and processed
         emit SubscriptionLatePaymentCaught(
-            _subscriptionIdentifier,
+            _paymentIdentifier,
             claimant,
             msg.sender,
             staked
@@ -355,17 +355,17 @@ contract Executor is Ownable {
     }
 
         /** @dev Release the payment/responsibility of a service node
-      * @param _subscriptionContract is the contract where the details exist(adheres to Collectible contract interface).
-      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+      * @param _paymentContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function releaseSubscription(
-        address _subscriptionContract,
-        bytes32 _subscriptionIdentifier
+        address _paymentContract,
+        bytes32 _paymentIdentifier
     )
         public
         whenNotPaused
     {
-        require(_subscriptionIdentifier > 0);
+        require(_paymentIdentifier > 0, "There must be a valid subscription identifier");
 
         // Get the payment registry information
         (
@@ -377,14 +377,14 @@ contract Executor is Ownable {
             address claimant,
             uint executionPeriod,
             uint staked
-        ) = paymentRegistry.getPaymentInformation(_subscriptionIdentifier);
+        ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
 
         // Check that it belongs to the rightful claimant/service node
         // This also means we're not talking about a first time payment
         require(claimant == msg.sender, "Must be the original claimant");
 
         // Ensure it is still active
-        require(BillableInterface(_subscriptionContract).getPaymentStatus(_subscriptionIdentifier) == 1, "The subscription must be valid");
+        require(BillableInterface(_paymentContract).getPaymentStatus(_paymentIdentifier) == 1, "The subscription must be valid");
 
         // Make sure we're within the cancellation window
         uint minimumDate = lastPaymentDate + executionPeriod;
@@ -399,7 +399,7 @@ contract Executor is Ownable {
 
         // Call the remove claim on payments registry
         paymentRegistry.removeClaimant(
-            _subscriptionIdentifier,
+            _paymentIdentifier,
             msg.sender
         );
 
@@ -411,20 +411,20 @@ contract Executor is Ownable {
         );
 
         // Emit the correct event
-        emit SubscriptionReleased(_subscriptionIdentifier, msg.sender, dueDate);
+        emit SubscriptionReleased(_paymentIdentifier, msg.sender, dueDate);
 
     }
 
     function getPricedGas(
         address _contractAddress,
-        bytes32 _subscriptionIdentifier,
+        bytes32 _paymentIdentifier,
         address _tokenAddress
     )
         public
         view
         returns (uint)
     {
-        (uint gasCost, uint gasPrice) = BillableInterface(_contractAddress).getGasForExecution(_subscriptionIdentifier, 0);
+        (uint gasCost, uint gasPrice) = BillableInterface(_contractAddress).getGasForExecution(_paymentIdentifier, 0);
         uint rate = approvedRegistry.getRateFor(_tokenAddress);
         uint standardCost = ((10**18) / rate) * (10**9) * (gasCost * (gasPrice / (10**9)));
         return standardCost;
@@ -448,8 +448,8 @@ contract Executor is Ownable {
     */
 
     function attemptProcessingWithSuccessCallback(
-        address _subscriptionContract,
-        bytes32 _subscriptionIdentifier,
+        address _paymentContract,
+        bytes32 _paymentIdentifier,
         address _tokenAddress,
         address _serviceNode,
         uint _newLastPaymentDate,
@@ -461,8 +461,8 @@ contract Executor is Ownable {
         returns (bool success)
     {
         (bool result, ) = attemptProcessingWithSuccessAndLastPaymentCallback(
-            _subscriptionContract,
-            _subscriptionIdentifier,
+            _paymentContract,
+            _paymentIdentifier,
             _tokenAddress,
             _serviceNode,
             _newLastPaymentDate,
@@ -476,8 +476,8 @@ contract Executor is Ownable {
     }
 
     function attemptProcessingWithSuccessAndLastPaymentCallback(
-        address _subscriptionContract,
-        bytes32 _subscriptionIdentifier,
+        address _paymentContract,
+        bytes32 _paymentIdentifier,
         address _tokenAddress,
         address _serviceNode,
         uint _newLastPaymentDate,
@@ -490,7 +490,10 @@ contract Executor is Ownable {
     {
        
         // Anyone who's processing a subscription should meet these guidelines
-        require(stakeContract.getAvailableStake(msg.sender, _tokenAddress) > 1, "At least one token is required to process subscriptions");
+        require(
+            _firstPayment == true ||
+            stakeContract.getAvailableStake(msg.sender, _tokenAddress) >= 1, "At least one token is required to process subscriptions"
+        );
 
         // Execute the actual payment
         bool paymentResult = address(this).call(
@@ -498,8 +501,8 @@ contract Executor is Ownable {
                 keccak256(
                     "attemptProcessing(address,bytes32,address,address,uint256,uint256,uint256)"
                 )
-            ), _subscriptionContract,
-                _subscriptionIdentifier,
+            ), _paymentContract,
+                _paymentIdentifier,
                 _tokenAddress,
                 _serviceNode,
                 _newLastPaymentDate,
@@ -509,8 +512,8 @@ contract Executor is Ownable {
 
         // Update the last payment date in the volume subscription contract
         // If this reverts, that means the payment isn't ready
-        BillableInterface subscription = BillableInterface(_subscriptionContract);
-        (bool settingLastPaymentResult, bool finalPaymentResult) = subscription.setLastestPaymentDate(_newLastPaymentDate, _subscriptionIdentifier);
+        BillableInterface subscription = BillableInterface(_paymentContract);
+        (bool settingLastPaymentResult, bool finalPaymentResult) = subscription.setLastestPaymentDate(_newLastPaymentDate, _paymentIdentifier);
 
         // @TODO: Add tests for this down the line
         if (_firstPayment == false) {
@@ -525,8 +528,8 @@ contract Executor is Ownable {
     }
 
     function attemptProcessing(
-        address _subscriptionContract,
-        bytes32 _subscriptionIdentifier,
+        address _paymentContract,
+        bytes32 _paymentIdentifier,
         address _tokenAddress,
         address _serviceNode,
         uint256 _newLastPaymentDate,
@@ -540,13 +543,13 @@ contract Executor is Ownable {
 
         require(msg.sender == address(this), "Function can only be called by this contract");
 
-        BillableInterface subscription = BillableInterface(_subscriptionContract);
+        BillableInterface subscription = BillableInterface(_paymentContract);
 
-        (address consumer, address business) = subscription.getPaymentFromToAddresses(_subscriptionIdentifier);
+        (address consumer, address business) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
 
-        uint validSubscription = subscription.getPaymentStatus(_subscriptionIdentifier);
+        uint validSubscription = subscription.getPaymentStatus(_paymentIdentifier);
 
-        require(validSubscription == 1, "Subscription must be valid");
+        require(validSubscription != 2, "Subscription must be valid");
 
         if (_serviceNode == consumer) {
             makePayment(ERC20(_tokenAddress), consumer, business, _amount);
@@ -554,7 +557,7 @@ contract Executor is Ownable {
         }
 
         // @TODO: Make tests for gas cost subtraction
-        uint pricedGas = getPricedGas(_subscriptionContract, _subscriptionIdentifier, _tokenAddress);
+        uint pricedGas = getPricedGas(_paymentContract, _paymentIdentifier, _tokenAddress);
         makePayment(ERC20(_tokenAddress), consumer, business, _amount - _fee - pricedGas);
         makePayment(ERC20(_tokenAddress), consumer, _serviceNode, _fee + pricedGas);
     }
@@ -582,8 +585,8 @@ contract Executor is Ownable {
     }
 
     function processingFailed(
-        address _subscriptionContract,
-        bytes32 _subscriptionIdentifier,
+        address _paymentContract,
+        bytes32 _paymentIdentifier,
         address _tokenAddress,
         address _claimant,
         uint _staked
@@ -591,10 +594,10 @@ contract Executor is Ownable {
         private
     {
         // Cancel if it hasn't already
-        BillableInterface(_subscriptionContract).cancelPayment(_subscriptionIdentifier);
+        BillableInterface(_paymentContract).cancelPayment(_paymentIdentifier);
 
         // Refund the gas to the service node by freeing up storage
-        paymentRegistry.deletePayment(_subscriptionIdentifier);
+        paymentRegistry.deletePayment(_paymentIdentifier);
 
         // Unstake tokens
         stakeContract.unlockTokens(
@@ -603,7 +606,7 @@ contract Executor is Ownable {
             _staked
         );
 
-        emit SubscriptionCancelled(_subscriptionContract, _subscriptionIdentifier);
+        emit SubscriptionCancelled(_paymentContract, _paymentIdentifier);
     }
 
 }

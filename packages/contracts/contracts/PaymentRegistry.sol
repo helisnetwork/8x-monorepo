@@ -29,10 +29,10 @@ contract PaymentRegistry is Authorizable {
     event PaymentClaimantRemoved(bytes32 subscriptionIdentifer, address claimant);
     event PaymentClaimantTransferred(bytes32 subscriptionIdentifer, address claimant);
 
-    event PaymentAmountUpdated(bytes32 subscriptionIdentifier, uint newAmount, uint newFee, uint newStake);
+    event PaymentAmountUpdated(bytes32 paymentIdentifier, uint newAmount, uint newFee, uint newStake);
 
     event PaymentCancelled(bytes32 subscriptionIdentifer);
-    event PaymentDeleted(bytes32 subscriptionIdentifier);
+    event PaymentDeleted(bytes32 paymentIdentifier);
 
 
     /**
@@ -40,14 +40,14 @@ contract PaymentRegistry is Authorizable {
     */
 
     /** @dev Create a new payment object when a user initially subscribes to a plan.
-      * @param _subscriptionIdentifier is the identifier of that customer's subscription with its relevant details.
+      * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
       * @param _tokenAddress is the transacting token.
       * @param _dueDate is when the payment is meant to be paid by.
       * @param _amount is how much the processors has staked in order to have the right to process the transaction.
       * @param _fee is th service node's cut.
     */
     function createNewPayment(
-        bytes32 _subscriptionIdentifier,
+        bytes32 _paymentIdentifier,
         address _tokenAddress,
         uint _dueDate,
         uint _amount,
@@ -58,11 +58,11 @@ contract PaymentRegistry is Authorizable {
         returns (bool success)
     {
 
-        require(_subscriptionIdentifier != 0);
-        require(_tokenAddress != 0);
-        require(_dueDate >= currentTimestamp());
-        require(_amount > 0);
-        require(_fee > 0);
+        require(_paymentIdentifier != 0, "The subscription identifier cannot be empty");
+        require(_tokenAddress != 0, "The token address cannot be empty");
+        require(_dueDate >= currentTimestamp(), "The timestamp must be greater than now");
+        require(_amount > 0, "The amount must be greater than 0");
+        require(_fee > 0, "The fee must be greater than 0");
 
         Payment memory newPayment = Payment({
             tokenAddress: _tokenAddress,
@@ -75,9 +75,9 @@ contract PaymentRegistry is Authorizable {
             staked: 0
         });
 
-        payments[_subscriptionIdentifier] = newPayment;
+        payments[_paymentIdentifier] = newPayment;
 
-        emit PaymentCreated(_subscriptionIdentifier);
+        emit PaymentCreated(_paymentIdentifier);
 
         return true;
 
@@ -86,13 +86,13 @@ contract PaymentRegistry is Authorizable {
     event Debug(uint one, uint two);
 
     /** @dev Claim the payment
-      * @param _subscriptionIdentifier is the identifier of that customer's
+      * @param _paymentIdentifier is the identifier of that customer's
       * subscription with it's relevant details.
       * @param _claimant is the address of the account behind a service node.
       * @param _nextPayment is the date for the next payment.
     */
     function claimPayment(
-        bytes32 _subscriptionIdentifier,
+        bytes32 _paymentIdentifier,
         address _claimant,
         uint _nextPayment,
         uint _staked)
@@ -100,14 +100,14 @@ contract PaymentRegistry is Authorizable {
         onlyAuthorized
         returns (bool success)
     {
-        Payment storage currentPayment = payments[_subscriptionIdentifier];
+        Payment storage currentPayment = payments[_paymentIdentifier];
 
-        require(currentTimestamp() >= currentPayment.dueDate);
-        require(_nextPayment >= currentTimestamp());
+        require(currentTimestamp() >= currentPayment.dueDate, "The current timestamp must be greater than the due date");
+        require(_nextPayment >= currentTimestamp(), "The next payment must date be greater than the current timestamp");
 
         if (currentPayment.claimant != 0) {
-            require(currentTimestamp() <= currentPayment.dueDate + currentPayment.executionPeriod);
-            require(currentPayment.claimant == _claimant);
+            require(currentTimestamp() <= currentPayment.dueDate + currentPayment.executionPeriod, "The timestamp is past the execution period");
+            require(currentPayment.claimant == _claimant, "A different claimant is trying to claim a payment");
         }
 
         if (currentPayment.executionPeriod == 0 && currentPayment.claimant == 0) {
@@ -121,43 +121,43 @@ contract PaymentRegistry is Authorizable {
         currentPayment.dueDate = _nextPayment;
         currentPayment.staked = _staked;
 
-        emit PaymentClaimed(_subscriptionIdentifier, _claimant);
+        emit PaymentClaimed(_paymentIdentifier, _claimant);
 
         return true;
     }
 
     /** @dev Allows a claimant to cancel their responsibility to process a
       * transaction
-      * @param _subscriptionIdentifier is the identifier of that customer's
+      * @param _paymentIdentifier is the identifier of that customer's
       * subscription with it's relevant details.
       * @param _claimant is the service node.
     */
     function removeClaimant(
-        bytes32 _subscriptionIdentifier,
+        bytes32 _paymentIdentifier,
         address _claimant
     )
         public
         onlyAuthorized
         returns (bool success)
     {
-        Payment storage currentPayment = payments[_subscriptionIdentifier];
+        Payment storage currentPayment = payments[_paymentIdentifier];
 
         currentPayment.claimant = 0;
         currentPayment.executionPeriod = 0;
         currentPayment.staked = 0;
 
-        emit PaymentClaimantRemoved(_subscriptionIdentifier, _claimant);
+        emit PaymentClaimantRemoved(_paymentIdentifier, _claimant);
 
         return true;
     }
     
     /** @dev Update the payment amount in the registry 
-      * @param _subscriptionIdentifier is the identifier of that customer's
+      * @param _paymentIdentifier is the identifier of that customer's
       * subscription with it's relevant details.
       * @param _newAmount is how much the amount is for.
     */
     function updatePaymentInformation(
-        bytes32 _subscriptionIdentifier,
+        bytes32 _paymentIdentifier,
         uint _newAmount,
         uint _newFee
     )
@@ -175,7 +175,7 @@ contract PaymentRegistry is Authorizable {
         )
     { 
         
-        Payment storage currentPayment = payments[_subscriptionIdentifier];
+        Payment storage currentPayment = payments[_paymentIdentifier];
 
         if (_newAmount < currentPayment.amount) {
             uint divisor = currentPayment.amount / _newAmount;
@@ -188,7 +188,7 @@ contract PaymentRegistry is Authorizable {
         currentPayment.amount = _newAmount;
         currentPayment.fee = _newFee;
 
-        emit PaymentAmountUpdated(_subscriptionIdentifier, _newAmount, _newFee, currentPayment.staked);
+        emit PaymentAmountUpdated(_paymentIdentifier, _newAmount, _newFee, currentPayment.staked);
 
         return(
             currentPayment.tokenAddress,
@@ -204,12 +204,12 @@ contract PaymentRegistry is Authorizable {
 
     /** @dev Allows a claimant to transfer their responsibility to process a
       * transaction
-      * @param _subscriptionIdentifier is the identifier of that customer's
+      * @param _paymentIdentifier is the identifier of that customer's
       * subscription with it's relevant details.
       * @param _claimant is the service node.
     */
     function transferClaimant(
-        bytes32 _subscriptionIdentifier,
+        bytes32 _paymentIdentifier,
         address _claimant,
         uint _nextPayment
     )
@@ -218,9 +218,9 @@ contract PaymentRegistry is Authorizable {
         returns (bool success)
     {
         // @TODO: Write tests
-        require(_nextPayment >= currentTimestamp());
+        require(_nextPayment >= currentTimestamp(), "The next payment date must be a date in the future");
 
-        Payment storage currentPayment = payments[_subscriptionIdentifier];
+        Payment storage currentPayment = payments[_paymentIdentifier];
 
         uint oldDueDate = currentPayment.dueDate;
 
@@ -229,37 +229,37 @@ contract PaymentRegistry is Authorizable {
         currentPayment.lastPaymentDate = oldDueDate;
         currentPayment.dueDate = _nextPayment;
 
-        emit PaymentClaimantTransferred(_subscriptionIdentifier, _claimant);
+        emit PaymentClaimantTransferred(_paymentIdentifier, _claimant);
 
         return true;
     }
 
     /** @dev A payment was cancelled by the business or user
-      * @param _subscriptionIdentifier is the identifier of that customer's
+      * @param _paymentIdentifier is the identifier of that customer's
       * subscription with it's relevant details.
     */
-    function cancelPayment(bytes32 _subscriptionIdentifier)
+    function cancelPayment(bytes32 _paymentIdentifier)
         public
         onlyAuthorized
         returns (bool sucess)
     {
-        delete payments[_subscriptionIdentifier];
+        delete payments[_paymentIdentifier];
 
-        emit PaymentCancelled(_subscriptionIdentifier);
+        emit PaymentCancelled(_paymentIdentifier);
 
         return true;
     }
 
     /** @dev Delete the payments registry object and refund gas
-      * @param _subscriptionIdentifier is the identifier of that customer's
+      * @param _paymentIdentifier is the identifier of that customer's
     */
-    function deletePayment(bytes32 _subscriptionIdentifier)
+    function deletePayment(bytes32 _paymentIdentifier)
         public
         onlyAuthorized
     {
 
-        delete payments[_subscriptionIdentifier];
-        emit PaymentDeleted(_subscriptionIdentifier);
+        delete payments[_paymentIdentifier];
+        emit PaymentDeleted(_paymentIdentifier);
     }
 
     /** @dev Get the infromation about a payment

@@ -11,12 +11,16 @@ import {
   ApprovedRegistryContract,
   VolumeSubscriptionAbi,
   VolumeSubscriptionContract,
+  PayrollSubscriptionAbi,
+  PayrollSubscriptionContract,
   MockTokenContract,
   MockTokenAbi,
   MockKyberNetworkAbi,
   MockKyberNetworkContract,
   MockVolumeSubscriptionContract,
   MockVolumeSubscriptionAbi,
+  MockPayrollSubscriptionAbi,
+  MockPayrollSubscriptionContract,
   TransferProxyAbi,
   TransferProxyContract,
   PaymentRegistryAbi,
@@ -75,6 +79,58 @@ export const deployMockVolumeSubscription = async (
 
   const contractInstance = await MockVolumeSubscriptionContract.at(
     deployedVolumeSubscription.address,
+    web3,
+    defaults
+  );
+
+  return contractInstance;
+
+};
+
+export const deployPayrollSubscription = async (
+  provider: Provider,
+  owner: Address,
+  approvedRegistry: Address
+): Promise<PayrollSubscriptionContract> => {
+
+  const web3 = new Web3(provider);
+  const defaults = TX_DEFAULTS(owner);
+
+  let payrollSubscriptionContract = contract(PayrollSubscriptionAbi);
+  payrollSubscriptionContract.setProvider(provider);
+  payrollSubscriptionContract.setNetwork(50);
+  payrollSubscriptionContract.defaults(defaults);
+
+  const deployedPayrollSubscription = await payrollSubscriptionContract.new(approvedRegistry);
+
+  const contractInstance = await PayrollSubscriptionContract.at(
+    deployedPayrollSubscription.address,
+    web3,
+    defaults
+  );
+
+  return contractInstance;
+
+};
+
+export const deployMockPayrollSubscription = async (
+  provider: Provider,
+  owner: Address,
+  approvedRegistry: Address
+): Promise<MockPayrollSubscriptionContract> => {
+
+  const web3 = new Web3(provider);
+  const defaults = TX_DEFAULTS(owner);
+
+  let payrollSubscriptionContract = contract(PayrollSubscriptionAbi);
+  payrollSubscriptionContract.setProvider(provider);
+  payrollSubscriptionContract.setNetwork(50);
+  payrollSubscriptionContract.defaults(defaults);
+
+  const deployedPayrollSubscription = await payrollSubscriptionContract.new(approvedRegistry);
+
+  const contractInstance = await MockPayrollSubscriptionContract.at(
+    deployedPayrollSubscription.address,
     web3,
     defaults
   );

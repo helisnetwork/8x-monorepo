@@ -58,8 +58,8 @@ export default class ExecutorStore implements Store {
     console.log(`Received Activated: ${JSON.stringify(log, null, 2)}`);
 
     let newEvent = {
-      contractAddress: log.args.subscriptionAddress,
-      paymentIdentifier: log.args.subscriptionIdentifier,
+      contractAddress: log.args.contractAddress,
+      paymentIdentifier: log.args.paymentIdentifier,
       tokenAddress: log.args.tokenAddress,
       dueDate: log.args.dueDate.toNumber(),
       amount: log.args.amount.toNumber(),

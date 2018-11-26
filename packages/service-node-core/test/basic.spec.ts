@@ -11,18 +11,14 @@ import {
   VolumeSubscriptionContract,
   ApprovedRegistryContract,
   ExecutorContract,
-  VolumeSubscriptionAbi,
-  ExecutorAbi,
   StakeContract,
   PaymentRegistryContract,
-  MockVolumeSubscriptionContract,
   MockTokenContract,
   TransferProxyContract
 } from '@8xprotocol/artifacts';
 
 import {
   deployVolumeSubscription,
-  deployMockVolumeSubscription,
   deployKyber,
   deployApprovedRegistry,
   deployMockToken,
@@ -37,6 +33,8 @@ import EightEx from '8x.js';
 import Repeater from '../src/';
 
 import { AddressBook } from '@8xprotocol/types';
+import { PayrollSubscriptionContract } from '@8xprotocol/artifacts/src';
+import { deployPayrollSubscription } from '@8xprotocol/dev-utils/src';
 
 const exepect = chai.expect;
 
@@ -50,7 +48,7 @@ let business: string;
 let consumer: string;
 let serviceNode: string;
 
-let topUpAmount = new BigNumber(100*10**18);
+let topUpAmount = new BigNumber(100);
 
 let eightEx: EightEx;
 let repeater: Repeater;
@@ -63,6 +61,7 @@ let stakeToken: MockTokenContract;
 let transferProxy: TransferProxyContract;
 let executor: ExecutorContract;
 let stakeContract: StakeContract;
+let payrollSubscription: PayrollSubscriptionContract;
 let paymentRegistry: PaymentRegistryContract;
 
 let planHash: string;
@@ -91,6 +90,7 @@ describe('Basic', () => {
     transferProxy = await deployTransferProxy(provider, contractOwner);
     stakeContract = await deployStakeContract(provider, contractOwner, stakeToken.address);
     paymentRegistry = await deployPaymentRegistry(provider, contractOwner);
+    payrollSubscription = await deployPayrollSubscription(provider, contractOwner, approvedRegistry.address);
 
     executor = await deployExecutor(
       provider,
@@ -109,12 +109,16 @@ describe('Basic', () => {
       approvedRegistryAddress: approvedRegistry.address,
       executorAddress: executor.address,
       transferProxyAddress: transferProxy.address,
+      payrollSubscriptionAddress: payrollSubscription.address
     };
 
     eightEx = new EightEx(web3, addressBook);
-    repeater = new Repeater(web3, executor.address, serviceNode);
 
-    await repeater.start();
+    repeater = new Repeater(web3, addressBook, serviceNode, {
+      processing: 0,
+      catchLate: 5,
+      stopChecking: 10
+    });
 
     await approvedRegistry.addApprovedContract.sendTransactionAsync(volumeSubscription.address, {from: contractOwner});
 
@@ -123,6 +127,8 @@ describe('Basic', () => {
 
     await repeater.attemptTopUp(topUpAmount, mockToken.address, stakeToken.address, stakeContract.address);
     await repeater.attemptTopUp(topUpAmount, mockToken.address, stakeToken.address, stakeContract.address);
+
+    await repeater.start();
 
     planHash = await eightEx.plans.create(
       business,
@@ -147,7 +153,7 @@ describe('Basic', () => {
 
     await new Promise((resolve, reject) => {
       repeater.repeaterUpdated = () => {
-        expect(repeater.eventStore.events[subscriptionHash].subscriptionIdentifier).toEqual(subscriptionHash);
+        expect(repeater.executorStore.events[subscriptionHash].paymentIdentifier).toEqual(subscriptionHash);
         resolve();
       };
 
@@ -163,12 +169,10 @@ describe('Basic', () => {
 
     let delay = Math.floor(paymentInformation["1"].toNumber() - (now) + 1);
 
-    setTimeout(null, delay);
-
     await new Promise((resolve, reject) => {
       repeater.repeaterUpdated = () => {
-        expect(repeater.eventStore.events[subscriptionHash].subscriptionIdentifier).toEqual(subscriptionHash);
-        expect(repeater.eventStore.events[subscriptionHash].claimant).toEqual(serviceNode);
+        expect(repeater.executorStore.events[subscriptionHash].paymentIdentifier).toEqual(subscriptionHash);
+        expect(repeater.executorStore.events[subscriptionHash].claimant).toEqual(serviceNode);
         resolve();
       };
     });
@@ -182,12 +186,10 @@ describe('Basic', () => {
 
     let delay = Math.floor(paymentInformation["1"].toNumber() - (now) + 1);
 
-    setTimeout(null, delay);
-
     await new Promise((resolve, reject) => {
       repeater.repeaterUpdated = () => {
-        expect(repeater.eventStore.events[subscriptionHash].subscriptionIdentifier).toEqual(subscriptionHash);
-        expect(repeater.eventStore.events[subscriptionHash].claimant).toEqual(serviceNode);
+        expect(repeater.executorStore.events[subscriptionHash].paymentIdentifier).toEqual(subscriptionHash);
+        expect(repeater.executorStore.events[subscriptionHash].claimant).toEqual(serviceNode);
         resolve();
       };
     });

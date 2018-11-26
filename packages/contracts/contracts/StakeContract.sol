@@ -52,7 +52,7 @@ contract StakeContract is Authorizable {
         public
         onlyAuthorized
     {
-        require(getAvailableStake(_staker, _tokenAddress) >= _amount);
+        require(getAvailableStake(_staker, _tokenAddress) >= _amount, "You cannot lock more tokens than you have available");
         userStakes[_staker][_tokenAddress].lockedUp += _amount;
         tokenStakes[_tokenAddress].lockedUp += _amount;
 
@@ -69,7 +69,7 @@ contract StakeContract is Authorizable {
         onlyAuthorized
     {
         // Ensure that they can't unstake more than they actually have
-        require(userStakes[_staker][_tokenAddress].lockedUp >= _amount);
+        require(userStakes[_staker][_tokenAddress].lockedUp >= _amount, "You cannot unstake more tokens than you actually have");
         userStakes[_staker][_tokenAddress].lockedUp -= _amount;
         tokenStakes[_tokenAddress].lockedUp -= _amount;
 
@@ -88,7 +88,7 @@ contract StakeContract is Authorizable {
     {
         // Make sure that an authorized address can't slash more tokens than
         // they actually have locked up.
-        require(userStakes[_staker][_tokenAddress].lockedUp >= _amount);
+        require(userStakes[_staker][_tokenAddress].lockedUp >= _amount, "You cannot slash more tokens than they actually have");
 
         // Reduce the total amount first
         userStakes[_staker][_tokenAddress].total -= _amount;
@@ -112,7 +112,7 @@ contract StakeContract is Authorizable {
     {
         // Make sure that an authorized address can't slash more tokens than
         // they actually have locked up.
-        require(userStakes[_staker][_tokenAddress].lockedUp >= _amount);
+        require(userStakes[_staker][_tokenAddress].lockedUp >= _amount, "You can't transfer more tokens than they have locked up");
 
         // Reduce the total amount first
         userStakes[_staker][_tokenAddress].total -= _amount;
@@ -243,7 +243,7 @@ contract StakeContract is Authorizable {
         public
     {
         // Check that they're not taking out more than they actually have.
-        require(getAvailableStake(msg.sender, _tokenAddress) >= _amount);
+        require(getAvailableStake(msg.sender, _tokenAddress) >= _amount, "You cannot withdrwa more than you have available");
 
         userStakes[msg.sender][_tokenAddress].total -= _amount;
         tokenStakes[_tokenAddress].total -= _amount;

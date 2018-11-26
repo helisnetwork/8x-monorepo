@@ -43,6 +43,12 @@ export interface PayrollPaymentEvent extends BasicEvent {
   terminationDate: number,
 }
 
+export interface DelayPeriod {
+  processing: number,
+  catchLate: number,
+  stopChecking: number
+}
+
 export interface Store {
   getEventsArray(): BasicEvent[];
 }

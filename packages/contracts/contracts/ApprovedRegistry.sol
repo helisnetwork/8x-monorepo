@@ -34,12 +34,12 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     */
 
     modifier hasContractBeenApproved(address _contractAddress, bool _expectedResult) {
-        require(isContractAuthorised(_contractAddress) == _expectedResult);
+        require(isContractAuthorised(_contractAddress) == _expectedResult, "The contract should be authorised");
         _;
     }
 
     modifier hasTokenBeenApproved(address _tokenAddress, bool _expectedResult) {
-        require(isTokenAuthorised(_tokenAddress) == _expectedResult);
+        require(isTokenAuthorised(_tokenAddress) == _expectedResult, "The token should be authorised");
         _;
     }
 
@@ -179,7 +179,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
       * @param _contractAddress is the address of the contract.
     */
     function isContractAuthorised(address _contractAddress) public returns (bool) {
-        require(_contractAddress != 0);
+        require(_contractAddress != 0, "A valid contract was not passed");
 
         bool contractFoundInRegistry = false;
 
@@ -197,7 +197,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
       * @param _tokenAddress is the address of the token.
     */
     function isTokenAuthorised(address _tokenAddress) public returns (bool) {
-        require(_tokenAddress != 0);
+        require(_tokenAddress != 0, "An empty token address was passed");
 
         bool tokenFoundInRegistry = false;
 
