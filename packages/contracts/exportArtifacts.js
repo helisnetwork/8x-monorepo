@@ -2,12 +2,14 @@
 const artifacts = [
     'Executor',
     'VolumeSubscription',
+    'PayrollSubscription',
     'ApprovedRegistry',
     'PaymentRegistry',
     'StakeContract',
     'MockKyberNetwork',
     'MockToken',
     'MockVolumeSubscription',
+    'MockPayrollSubscription',
     'TransferProxy'
 ];
 

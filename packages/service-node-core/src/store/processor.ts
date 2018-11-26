@@ -12,15 +12,13 @@ export default class ProcessorStore {
   private web3: Web3;
   private executorContract: ExecutorContract;
   private serviceNodeAccount: Address;
-  private eightEx: EightEx;
   private TX_DEFAULTS: any;
 
   public executedTransactionHashes: string[];
   public events: BasicEvent[];
 
-  constructor(web3: Web3, eightEx: EightEx, serviceNodeAccount: Address, executorContract: ExecutorContract) {
+  constructor(web3: Web3, serviceNodeAccount: Address, executorContract: ExecutorContract) {
     this.web3 = web3;
-    this.eightEx = eightEx;
     this.events = [];
     this.executedTransactionHashes = [];
     this.executorContract = executorContract;

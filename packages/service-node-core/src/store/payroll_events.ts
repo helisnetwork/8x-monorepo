@@ -1,146 +1,168 @@
 import Web3 = require("web3");
 import * as ABIDecoder from 'abi-decoder';
 
-import {
-  ExecutorAbi,
-  ExecutorContract,
-  VolumeSubscriptionAbi,
-} from '@8xprotocol/artifacts';
+import { PayrollSubscriptionAbi, PayrollSubscriptionContract } from '@8xprotocol/artifacts'
 
-import SubscriptionEvent from '../types/';
-
+import { Store, SubscriptionEvent, PayrollScheduleEvent, PayrollPaymentEvent, BasicEvent } from '../types';
 import { Address } from '@8xprotocol/types';
 import { AbiDefinition } from "ethereum-types";
 
-export default class EventStore {
+export default class EventStore implements Store {
 
   private web3: Web3;
-  private executorContract: ExecutorContract;
+  private payrollContract: PayrollSubscriptionContract;
 
   public eventsUpdated: () => (void);
-  public events: { [id: string] : SubscriptionEvent } = {};
+  public payments: { [id: string] : PayrollPaymentEvent  } = {};
+  public schedules: { [id: string] : PayrollScheduleEvent } = {};
 
-  constructor(web3: Web3, executorContract: ExecutorContract, callback: () => (void)) {
+  constructor(web3: Web3, payrollContract: PayrollSubscriptionContract, callback: () => (void)) {
     this.web3 = web3;
     this.eventsUpdated = callback;
-    this.executorContract = executorContract;
+    this.payrollContract = payrollContract;
   }
 
   public async startListening() {
-    const contract = this.web3.eth.contract(ExecutorAbi.abi as AbiDefinition[]).at(this.executorContract.address);
+    const contract = this.web3.eth.contract(PayrollSubscriptionAbi.abi as AbiDefinition[]).at(this.payrollContract.address);
     const eventsWatcher = contract.allEvents({
       fromBlock: 0,
       toBlock: "latest",
     });
 
     eventsWatcher.watch((error, log) => {
-      if (log.event == 'SubscriptionActivated') {
-        this.handleActivation(log);
-      } else if (log.event == 'SubscriptionProcessed') {
-        this.handleProcessed(log);
-      } else if (log.event == 'SubscriptionReleased') {
-        this.handleReleased(log);
-      } else if (log.event == 'SubscriptionLatePaymentCaught') {
-        this.handlePaymentCaught(log);
-      } else if (log.event == 'SubscriptionCancelled') {
-        this.handleCancelled(log);
+      if (log.event == 'CreatedSchedule') {
+        this.handleCreatedSchedule(log);
+      } else if (log.event == 'UpdatedSchedule') {
+        this.handleUpdatedSchedule(log);
+      } else if (log.event == 'TerminatedSchedule') {
+        this.handleTerminatedSchedule(log);
+      } else if (log.event == 'CreatedPayment') {
+        this.handleCreatedPayment(log);
+      } else if (log.event == 'LastUpdatedPaymentDate') {
+        this.handleLastUpdatedPaymentDate(log);
+      } else if (log.event == 'TerminatedPayment') {
+        this.handleTerminatedPayment(log);
       }
 
       this.eventsUpdated();
     });
   }
 
-  private handleActivation(log) {
-    console.log(`Received Activated: ${JSON.stringify(log, null, 2)}`);
+  getEventsArray(): BasicEvent[] {
+    return [];
+  }
 
-    let newEvent = {
-      subscriptionAddress: log.args.subscriptionAddress,
-      subscriptionIdentifier: log.args.subscriptionIdentifier,
-      tokenAddress: log.args.tokenAddress,
-      dueDate: log.args.dueDate.toNumber(),
-      amount: log.args.amount.toNumber(),
+  private handleCreatedSchedule(log) {
+    console.log(`Received Created Schedule: ${JSON.stringify(log, null, 2)}`);
+
+    let newSchedule = {
+      identifier: log.args.scheduleIdentifier,
+      interval: log.args.interval.toNumber(),
       fee: log.args.fee.toNumber(),
-      blockNumber: log.blockNumber,
+      startDate: localStorage.args.startDate.toNumber(),
+      oneOff: log.args.oneOff,
       transactionIndex: log.transactionIndex,
       transactionHash: log.transactionHash,
-      cancelled: false
-    } as SubscriptionEvent
+      blockNumber: log.blockNumber,
+      terminationDate: 0,
+    } as PayrollScheduleEvent
 
-    this.events[newEvent.subscriptionIdentifier] = newEvent;
+    this.schedules[newSchedule.identifier] = newSchedule;
   }
 
-  private handleProcessed(log) {
-    console.log(`Received Processed: ${JSON.stringify(log, null, 2)}`);
+  private handleUpdatedSchedule(log) {
+    console.log(`Received Updated Schedule: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let existingSchedule = this.schedules[log.args.paymentIdentifier];
 
-    if (log.blockNumber <= existingEvent.blockNumber) {
-      if (log.transactionIndex < existingEvent.transactionIndex) {
+    if (log.blockNumber <= existingSchedule.blockNumber) {
+      if (log.transactionIndex < existingSchedule.transactionIndex) {
         return;
       }
     }
 
-    existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate.toNumber();
-    existingEvent.staked = log.args.staked;
-    existingEvent.blockNumber = log.blockNumber;
-    existingEvent.transactionIndex = log.blockNumber;
-    existingEvent.transactionHash = log.transactionHash;
+    existingSchedule.fee = log.args.fee.toNumber();
+    existingSchedule.startDate = log.args.startDate.toNumber();
+    existingSchedule.interval = log.args.interval.toNumber();
+    existingSchedule.blockNumber = log.blockNumber;
+    existingSchedule.transactionIndex = log.blockNumber;
+    existingSchedule.transactionHash = log.transactionHash;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
-
+    this.schedules[existingSchedule.identifier] = existingSchedule;
   }
 
-  private handleReleased(log) {
-    console.log(`Received Released: ${JSON.stringify(log, null, 2)}`);
+  private handleTerminatedSchedule(log) {
+    console.log(`Received Terminated Schedule: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let existingSchedule = this.schedules[log.args.paymentIdentifier];
 
-    if (log.blockNumber < existingEvent.blockNumber) {
-      if (log.transactionIndex < existingEvent.transactionIndex) {
+    if (log.blockNumber <= existingSchedule.blockNumber) {
+      if (log.transactionIndex < existingSchedule.transactionIndex) {
         return;
       }
     }
 
-    existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate.toNumber();
-    existingEvent.staked = log.args.staked;
-    existingEvent.transactionHash = log.transactionHash;
+    existingSchedule.terminationDate = log.args.terminationDate.toNumber();
+    existingSchedule.blockNumber = log.blockNumber;
+    existingSchedule.transactionIndex = log.blockNumber;
+    existingSchedule.transactionHash = log.transactionHash;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+    this.schedules[existingSchedule.identifier] = existingSchedule;
   }
 
-  private handlePaymentCaught(log) {
-    console.log(`Recieved Late: ${JSON.stringify(log, null, 2)}`);
+  private handleCreatedPayment(log) {
+    console.log(`Received Created Payment: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let newEvent = {
+      contractAddress: this.payrollContract.address,
+      paymentIdentifier: log.args.employeeIdentifier,
+      scheduleIdentifier: log.args.scheduleIdentifier,
+      amount: log.args.amount,
+      transactionIndex: log.transactionIndex,
+      transactionHash: log.transactionHash,
+      blockNumber: log.blockNumber,
+    } as PayrollPaymentEvent
 
-    if (log.blockNumber < existingEvent.blockNumber) {
-      if (log.transactionIndex < existingEvent.transactionIndex) {
+    this.payments[newEvent.scheduleIdentifier] = newEvent;
+  }
+
+  private handleLastUpdatedPaymentDate(log) {
+    console.log(`Received Last Update Payment Date: ${JSON.stringify(log, null, 2)}`);
+
+    let existingPayment = this.payments[log.args.paymentIdentifier];
+
+    if (log.blockNumber <= existingPayment.blockNumber) {
+      if (log.transactionIndex < existingPayment.transactionIndex) {
         return;
       }
     }
 
-    existingEvent.claimant = log.args.newClaimant;
-    existingEvent.transactionHash = log.transactionHash;
+    existingPayment.lastPaymentDate = log.args.lastPaymentDate.toNumber();
+    existingPayment.blockNumber = log.blockNumber;
+    existingPayment.transactionIndex = log.blockNumber;
+    existingPayment.transactionHash = log.transactionHash;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+    this.payments[existingPayment.paymentIdentifier] = existingPayment;
+
   }
 
-  private handleCancelled(log) {
-    console.log(`Recieved Cancelled: ${JSON.stringify(log, null, 2)}`);
+  private handleTerminatedPayment(log) {
+    console.log(`Received Terminated Payment: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let existingPayment = this.payments[log.args.paymentIdentifier];
 
-    if (log.blockNumber < existingEvent.blockNumber) {
-      if (log.transactionIndex < existingEvent.transactionIndex) {
+    if (log.blockNumber <= existingPayment.blockNumber) {
+      if (log.transactionIndex < existingPayment.transactionIndex) {
         return;
       }
     }
 
-    existingEvent.cancelled = true;
+    existingPayment.terminationDate = log.args.terminationDate.toNumber();
+    existingPayment.blockNumber = log.blockNumber;
+    existingPayment.transactionIndex = log.blockNumber;
+    existingPayment.transactionHash = log.transactionHash;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+    this.payments[existingPayment.paymentIdentifier] = existingPayment;
   }
 
 }

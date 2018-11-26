@@ -39,6 +39,7 @@ contract PayrollSubscription is BillableInterface {
         bytes32 indexed scheduleIdentifier,
         address indexed owner,
         uint indexed startDate,
+        uint interval,
         bool oneOff,
         uint fee
     );
@@ -60,7 +61,8 @@ contract PayrollSubscription is BillableInterface {
 
     event CreatedPayment (
         bytes32 indexed employeeIdentifier,
-        bytes32 indexed scheduleIdentifier
+        bytes32 indexed scheduleIdentifier,
+        uint indexed amount
     );
 
     event UpdatedPayment (
@@ -73,7 +75,8 @@ contract PayrollSubscription is BillableInterface {
     event LastUpdatedPaymentDate(
         bytes32 indexed employeeIdentifier,
         bytes32 indexed scheduleIdentifier,
-        uint indexed lastPaymentDate
+        uint indexed lastPaymentDate,
+        bool isLastPayment
     );
 
     event TerminatedPayment (
@@ -260,6 +263,7 @@ contract PayrollSubscription is BillableInterface {
             scheduleHash,
             msg.sender,
             _startDate,
+            _interval,
             _oneOff,
             _fee
         );
@@ -281,7 +285,8 @@ contract PayrollSubscription is BillableInterface {
 
             emit CreatedPayment (
                 id,
-                scheduleHash
+                scheduleHash,
+                _amounts[i]
             );
         }
         
