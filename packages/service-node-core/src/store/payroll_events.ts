@@ -49,7 +49,20 @@ export default class PayrollStore implements Store {
   }
 
   getEventsArray(): BasicEvent[] {
-    return [];
+    return Object.values(this.payments).filter((event) => {
+      // If it has a last payment date set then it's already been executed and the executor store can take care
+      return event.lastPaymentDate == 0
+    }).map((payment) => {
+      return {
+        contractAddress: payment.contractAddress,
+        paymentIdentifier: payment.paymentIdentifier,
+        dueDate: this.schedules[payment.scheduleIdentifier].startDate,
+        transactionHash: payment.transactionHash,
+        transactionIndex: payment.transactionIndex,
+        blockNumber: payment.blockNumber,
+        activated: false,
+      } as BasicEvent
+    });
   }
 
   private handleCreatedSchedule(log) {

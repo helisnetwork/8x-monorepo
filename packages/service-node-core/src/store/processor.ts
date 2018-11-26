@@ -66,7 +66,8 @@ export default class ProcessorStore {
       let result = (
         (now >= event.dueDate + this.delayPeriods.processing) &&
         (now <= (event.dueDate + (this.delayPeriods.catchLate))) &&
-        (!event.claimant || event.claimant == this.serviceNodeAccount)
+        (!event.claimant || event.claimant == this.serviceNodeAccount) &&
+        event.activated == true
       );
 
       if (result) {
@@ -81,7 +82,8 @@ export default class ProcessorStore {
       let result = (
         (now >= (event.dueDate + (this.delayPeriods.catchLate))) &&
         (now <= (event.dueDate + (this.delayPeriods.stopChecking))) &&
-        (event.claimant && event.claimant != this.serviceNodeAccount)
+        (event.claimant && event.claimant != this.serviceNodeAccount) &&
+        (event.activated == true)
       );
 
       if (result) {
@@ -92,11 +94,26 @@ export default class ProcessorStore {
 
     });
 
+    let toActivate = this.events.filter((event) => {
+      let result = (
+        (now >= event.dueDate) &&
+        (event.activated == false)
+      );
+
+      if (result) {
+        console.log(`Now: ${now}, Due Date ${event.dueDate}, Claimant: ${event.claimant}, Service Node: ${this.serviceNodeAccount}`);
+      }
+
+      return result;
+    })
+    
     console.log(`Processing queue ${JSON.stringify(toProcess)}`);
     console.log(`Catch queue ${JSON.stringify(toCatchLate)}`);
+    console.log(`Activate queue ${JSON.stringify(toActivate)}`);
 
     await this.handleProcessing(toProcess);
     await this.handleCatchLate(toCatchLate);
+    await this.handleActivations(toActivate);
 
     await this.retry();
   }
@@ -144,6 +161,25 @@ export default class ProcessorStore {
         console.log(error);
       }
     });
+  }
+
+  public async handleActivations(events: BasicEvent[]) {
+
+    this.asyncForEach(events, async (event) => {
+      console.log(`Sending activate tx ${JSON.stringify(event)}`);
+      this.executedTransactionHashes.push(event.transactionHash);
+
+      try {
+        await this.executorContract.activateSubscription.sendTransactionAsync(
+          event.contractAddress,
+          event.paymentIdentifier,
+          this.TX_DEFAULTS
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
   }
 
   private async asyncForEach(array, callback) {
