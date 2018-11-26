@@ -196,4 +196,10 @@ describe('Basic', () => {
 
   });
 
+  test('paying a scheduled transaction', async() => {
+
+    
+
+  });
+
 });
