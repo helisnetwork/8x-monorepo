@@ -11,7 +11,7 @@ contract ExtendedERC20 {
         address _from,
         address _to,
         address _original,
-        uint _value
+        uint256 _value
     )
         public
         returns (bool);
@@ -20,7 +20,7 @@ contract ExtendedERC20 {
         address indexed _from,
         address indexed _to,
         address indexed original,
-        uint _value
+        uint256 _value
     );
 
 }

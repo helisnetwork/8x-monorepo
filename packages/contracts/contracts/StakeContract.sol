@@ -9,16 +9,16 @@ import "./base/math/SafeMath.sol";
 
 contract StakeContract is Authorizable {
 
-    using SafeMath for uint;
+    using SafeMath for uint256;
 
     struct Stake {
-        uint lockedUp;
-        uint total;
+        uint256 lockedUp;
+        uint256 total;
     }
 
     struct TokenStake {
-        uint lockedUp;
-        uint total;
+        uint256 lockedUp;
+        uint256 total;
     }
 
     mapping (address => mapping (address => Stake)) public userStakes;
@@ -26,15 +26,15 @@ contract StakeContract is Authorizable {
 
     EightExToken public tokenContract;
 
-    event Locked(address indexed staker, address indexed tokenAddress, uint indexed amount);
-    event Unlocked(address indexed staker, address indexed tokenAddress, uint indexed amount);
-    event Slashed(address indexed staker, address indexed tokenAddress, uint indexed amount);
-    event Transferred(address indexed staker, address indexed tokenAddress, uint indexed amount, address destination);
-    event ToppedUp(address indexed staker, address indexed tokenAddress, uint indexed amount);
-    event Withdrew(address indexed staker, address indexed tokenAddress, uint indexed amount);
+    event Locked(address indexed staker, address indexed tokenAddress, uint256 indexed amount);
+    event Unlocked(address indexed staker, address indexed tokenAddress, uint256 indexed amount);
+    event Slashed(address indexed staker, address indexed tokenAddress, uint256 indexed amount);
+    event Transferred(address indexed staker, address indexed tokenAddress, uint256 indexed amount, address destination);
+    event ToppedUp(address indexed staker, address indexed tokenAddress, uint256 indexed amount);
+    event Withdrew(address indexed staker, address indexed tokenAddress, uint256 indexed amount);
 
-    event GiniCoefficientUpdated(address indexed tokenAddress, uint indexed gini);
-    event DivideTotalUpdated(address indexed tokenAddress, uint indexed divideBy);
+    event GiniCoefficientUpdated(address indexed tokenAddress, uint256 indexed gini);
+    event DivideTotalUpdated(address indexed tokenAddress, uint256 indexed divideBy);
 
     /**
       * PUBLIC FUNCTIONS
@@ -48,13 +48,13 @@ contract StakeContract is Authorizable {
       * @param _tokenAddress token for which to stake for.
       * @param _amount is how much they would like to stake;
     */
-    function lockTokens(address _staker, address _tokenAddress, uint _amount)
+    function lockTokens(address _staker, address _tokenAddress, uint256 _amount)
         public
         onlyAuthorized
     {
         require(getAvailableStake(_staker, _tokenAddress) >= _amount, "You cannot lock more tokens than you have available");
-        userStakes[_staker][_tokenAddress].lockedUp += _amount;
-        tokenStakes[_tokenAddress].lockedUp += _amount;
+        userStakes[_staker][_tokenAddress].lockedUp = userStakes[_staker][_tokenAddress].lockedUp.add(_amount);
+        tokenStakes[_tokenAddress].lockedUp = tokenStakes[_tokenAddress].lockedUp.add(_amount);
 
         emit Locked(_staker, _tokenAddress, _amount);
     }
@@ -64,14 +64,14 @@ contract StakeContract is Authorizable {
       * @param _tokenAddress token for which to unlock for.
       * @param _amount is how much they would like to unstake;
     */
-    function unlockTokens(address _staker, address _tokenAddress, uint _amount)
+    function unlockTokens(address _staker, address _tokenAddress, uint256 _amount)
         public
         onlyAuthorized
     {
         // Ensure that they can't unstake more than they actually have
         require(userStakes[_staker][_tokenAddress].lockedUp >= _amount, "You cannot unstake more tokens than you actually have");
-        userStakes[_staker][_tokenAddress].lockedUp -= _amount;
-        tokenStakes[_tokenAddress].lockedUp -= _amount;
+        userStakes[_staker][_tokenAddress].lockedUp = userStakes[_staker][_tokenAddress].lockedUp.sub(_amount);
+        tokenStakes[_tokenAddress].lockedUp = tokenStakes[_tokenAddress].lockedUp.sub(_amount);
 
         emit Unlocked(_staker, _tokenAddress, _amount);
     }
@@ -82,7 +82,7 @@ contract StakeContract is Authorizable {
       * @param _tokenAddress token for which to slash for.
       * @param _amount is how many tokens need to be slashed.
     */
-    function slashTokens(address _staker, address _tokenAddress, uint _amount)
+    function slashTokens(address _staker, address _tokenAddress, uint256 _amount)
         public
         onlyAuthorized
     {
@@ -91,10 +91,10 @@ contract StakeContract is Authorizable {
         require(userStakes[_staker][_tokenAddress].lockedUp >= _amount, "You cannot slash more tokens than they actually have");
 
         // Reduce the total amount first
-        userStakes[_staker][_tokenAddress].total -= _amount;
-        userStakes[_staker][_tokenAddress].lockedUp -= _amount;
-        tokenStakes[_tokenAddress].total -= _amount;
-        tokenStakes[_tokenAddress].lockedUp -= _amount;
+        userStakes[_staker][_tokenAddress].total = userStakes[_staker][_tokenAddress].total.sub(_amount);
+        userStakes[_staker][_tokenAddress].lockedUp = userStakes[_staker][_tokenAddress].lockedUp.sub(_amount);
+        tokenStakes[_tokenAddress].total = tokenStakes[_tokenAddress].total.sub(_amount);
+        tokenStakes[_tokenAddress].lockedUp = tokenStakes[_tokenAddress].lockedUp.sub(_amount);
 
         emit Slashed(_staker, _tokenAddress, _amount);
     }
@@ -106,7 +106,7 @@ contract StakeContract is Authorizable {
       * @param _amount is how many tokens need to be slashed.
       * @param _destination is the person to transfer the stake to.
     */
-    function transferStake(address _staker, address _tokenAddress, uint _amount, address _destination)
+    function transferStake(address _staker, address _tokenAddress, uint256 _amount, address _destination)
         public
         onlyAuthorized
     {
@@ -115,12 +115,12 @@ contract StakeContract is Authorizable {
         require(userStakes[_staker][_tokenAddress].lockedUp >= _amount, "You can't transfer more tokens than they have locked up");
 
         // Reduce the total amount first
-        userStakes[_staker][_tokenAddress].total -= _amount;
-        userStakes[_staker][_tokenAddress].lockedUp -= _amount;
+        userStakes[_staker][_tokenAddress].total = userStakes[_staker][_tokenAddress].total.sub(_amount);
+        userStakes[_staker][_tokenAddress].lockedUp = userStakes[_staker][_tokenAddress].lockedUp.sub(_amount);
 
         // Transfer the stake
-        userStakes[_destination][_tokenAddress].total += _amount;
-        userStakes[_destination][_tokenAddress].lockedUp += _amount;
+        userStakes[_destination][_tokenAddress].total = userStakes[_destination][_tokenAddress].total.add(_amount);
+        userStakes[_destination][_tokenAddress].lockedUp = userStakes[_destination][_tokenAddress].lockedUp.add(_amount);
 
         emit Transferred(_staker, _tokenAddress, _amount, _destination);
     }
@@ -132,7 +132,7 @@ contract StakeContract is Authorizable {
     function getTotalStake(address _staker, address _tokenAddress)
         public
         view
-        returns (uint total)
+        returns (uint256 total)
     {
         return userStakes[_staker][_tokenAddress].total;
     }
@@ -144,9 +144,9 @@ contract StakeContract is Authorizable {
     function getAvailableStake(address _staker, address _tokenAddress)
         public
         view
-        returns (uint available)
+        returns (uint256 available)
     {
-        return (userStakes[_staker][_tokenAddress].total - userStakes[_staker][_tokenAddress].lockedUp);
+        return (userStakes[_staker][_tokenAddress].total.sub(userStakes[_staker][_tokenAddress].lockedUp));
     }
 
     /** @dev Check how many tokens the processor has locked at this moment.
@@ -156,7 +156,7 @@ contract StakeContract is Authorizable {
     function getLockedStake(address _staker, address _tokenAddress)
         public
         view
-        returns (uint locked)
+        returns (uint256 locked)
     {
         return userStakes[_staker][_tokenAddress].lockedUp;
     }
@@ -167,7 +167,7 @@ contract StakeContract is Authorizable {
     function getTotalTokenStake(address _tokenAddress)
         public
         view
-        returns (uint total)
+        returns (uint256 total)
     {
         return tokenStakes[_tokenAddress].total;
     }
@@ -178,9 +178,9 @@ contract StakeContract is Authorizable {
     function getAvailableTokenStake(address _tokenAddress)
         public
         view
-        returns (uint available)
+        returns (uint256 available)
     {
-        return (tokenStakes[_tokenAddress].total - tokenStakes[_tokenAddress].lockedUp);
+        return (tokenStakes[_tokenAddress].total.sub(tokenStakes[_tokenAddress].lockedUp));
     }
 
     /** @dev Check how many tokens the currency has locked at this moment.
@@ -189,7 +189,7 @@ contract StakeContract is Authorizable {
     function getLockedTokenStake(address _tokenAddress)
         public
         view
-        returns (uint locked)
+        returns (uint256 locked)
     {
         return tokenStakes[_tokenAddress].lockedUp;
     }
@@ -203,8 +203,8 @@ contract StakeContract is Authorizable {
         public
         view
         returns (
-            uint total,
-            uint lockedUp
+            uint256 total,
+            uint256 lockedUp
         )
     {
         TokenStake memory tokenStake = tokenStakes[_tokenAddress];
@@ -220,13 +220,13 @@ contract StakeContract is Authorizable {
       * @param _amount is how much you would like to withdraw.
       * @param _tokenAddress token for which to stake for.
     */
-    function topUpStake(uint _amount, address _tokenAddress)
+    function topUpStake(uint256 _amount, address _tokenAddress)
         public
         returns (bool success)
     {
         if (tokenContract.transferFrom(msg.sender, address(this), _amount)) {
-            userStakes[msg.sender][_tokenAddress].total += _amount;
-            tokenStakes[_tokenAddress].total += _amount;
+            userStakes[msg.sender][_tokenAddress].total = userStakes[msg.sender][_tokenAddress].total.add(_amount);
+            tokenStakes[_tokenAddress].total = tokenStakes[_tokenAddress].total.add(_amount);
             return true;
         } else {
             return false;
@@ -239,14 +239,14 @@ contract StakeContract is Authorizable {
       * @param _amount is how much you would like to withdraw.
       * @param _tokenAddress token for which to withdraw for.
     */
-    function withdrawStake(uint _amount, address _tokenAddress)
+    function withdrawStake(uint256 _amount, address _tokenAddress)
         public
     {
         // Check that they're not taking out more than they actually have.
         require(getAvailableStake(msg.sender, _tokenAddress) >= _amount, "You cannot withdrwa more than you have available");
 
-        userStakes[msg.sender][_tokenAddress].total -= _amount;
-        tokenStakes[_tokenAddress].total -= _amount;
+        userStakes[msg.sender][_tokenAddress].total = userStakes[msg.sender][_tokenAddress].total.sub(_amount);
+        tokenStakes[_tokenAddress].total = tokenStakes[_tokenAddress].total.sub(_amount);
         tokenContract.transfer(msg.sender, _amount);
 
         emit Withdrew(msg.sender, _tokenAddress, _amount);

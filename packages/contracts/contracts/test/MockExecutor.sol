@@ -19,7 +19,7 @@ contract MockExecutor is Executor, MockTime {
             address _stakeContractAddress,
             address _paymentRegistryAddress,
             address _approvedRegistryAddress,
-            uint _divisor
+            uint256 _divisor
         )
         Executor(
           _transferProxyAddress,

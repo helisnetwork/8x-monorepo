@@ -9,22 +9,22 @@ import "../interfaces/ApprovedRegistryInterface.sol";
 contract PayrollSubscription is BillableInterface {
 
     struct Payment {
-        uint amount;                    // Editable
-        address destination;            // Editable
-        uint lastPaymentDate;           // Editable (authorised)
-        uint terminationDate;           // Can only be set once
-        bytes32 scheduleIdentifier;     // Can only be set on creation
+        uint256 amount;                     // Editable
+        address destination;                // Editable
+        uint256 lastPaymentDate;            // Editable (authorised)
+        uint256 terminationDate;            // Can only be set once
+        bytes32 scheduleIdentifier;         // Can only be set on creation
     }
     
     struct Schedule {
-        uint interval;                  // Not editable
-        uint fee;                       // Editable, expressed as a divisor to 2 decimals. 10000 = 0.01%.
-        address tokenAddress;           // Not editable
-        uint startDate;                 // Editable
-        uint terminationDate;           // Can only be set once
-        bool oneOff;                    // Can only be set on creation
-        address owner;                  // Editable
-        string data;                    // Editable
+        uint256 interval;                   // Not editable
+        uint256 fee;                        // Editable, expressed as a divisor to 2 decimals. 10000 = 0.01%.
+        address tokenAddress;               // Not editable
+        uint256 startDate;                  // Editable
+        uint256 terminationDate;            // Can only be set once
+        bool oneOff;                        // Can only be set on creation
+        address owner;                      // Editable
+        string data;                        // Editable
     }
 
     ApprovedRegistryInterface public approvedRegistry;
@@ -32,42 +32,42 @@ contract PayrollSubscription is BillableInterface {
     mapping (bytes32 => Payment) public payments;
     mapping (bytes32 => Schedule) public schedules;
 
-    uint public gasPrice = 2*10**9;
-    uint public gasCost = 200000;
+    uint256 public gasPrice = 2*10**9;
+    uint256 public gasCost = 200000;
 
     event CreatedSchedule (
         bytes32 indexed scheduleIdentifier,
         address indexed owner,
-        uint indexed startDate,
-        uint interval,
+        uint256 indexed startDate,
+        uint256 interval,
         bool oneOff,
-        uint fee
+        uint256 fee
     );
 
     event UpdatedSchedule (
         bytes32 indexed scheduleIdentifier,
         address indexed owner,
-        uint indexed startDate,
-        uint interval,
+        uint256 indexed startDate,
+        uint256 interval,
         address tokenAddress,
-        uint fee
+        uint256 fee
     );
 
     event TerminatedSchedule (
         bytes32 indexed scheduleIdentifier,
         address indexed owner,
-        uint indexed terminationDate
+        uint256 indexed terminationDate
     );
 
     event CreatedPayment (
         bytes32 indexed employeeIdentifier,
         bytes32 indexed scheduleIdentifier,
-        uint indexed amount
+        uint256 indexed amount
     );
 
     event UpdatedPayment (
         bytes32 indexed employeeIdentifier,
-        uint indexed amount,
+        uint256 indexed amount,
         address indexed destination,
         bytes32 scheduleIdentifier
     );
@@ -75,14 +75,14 @@ contract PayrollSubscription is BillableInterface {
     event LastUpdatedPaymentDate(
         bytes32 indexed employeeIdentifier,
         bytes32 indexed scheduleIdentifier,
-        uint indexed lastPaymentDate,
+        uint256 indexed lastPaymentDate,
         bool isLastPayment
     );
 
     event TerminatedPayment (
         bytes32 indexed employeeIdentifier,
         bytes32 indexed scheduleIdentifier,
-        uint indexed terminationDate
+        uint256 indexed terminationDate
     );
  
     /**
@@ -91,7 +91,7 @@ contract PayrollSubscription is BillableInterface {
     function getPaymentStatus(bytes32 _subscription)
         public
         view
-        returns (uint status)
+        returns (uint256 status)
     {
         Payment memory payment = payments[_subscription];
 
@@ -131,7 +131,7 @@ contract PayrollSubscription is BillableInterface {
     function getPaymentInterval(bytes32 _subscription)
         public
         view
-        returns (uint interval)
+        returns (uint256 interval)
     {
         Payment memory payment = payments[_subscription];
         return schedules[payment.scheduleIdentifier].interval;
@@ -140,7 +140,7 @@ contract PayrollSubscription is BillableInterface {
     function getAmountDueFromPayment(bytes32 _subscription)
         public
         view
-        returns (uint amount)
+        returns (uint256 amount)
     {
         return payments[_subscription].amount;
     }
@@ -148,7 +148,7 @@ contract PayrollSubscription is BillableInterface {
     function getPaymentFee(bytes32 _subscription)
         public
         view
-        returns (uint fee)
+        returns (uint256 fee)
     {
         Payment memory payment = payments[_subscription];
         return (payment.amount / schedules[payment.scheduleIdentifier].fee);
@@ -157,20 +157,20 @@ contract PayrollSubscription is BillableInterface {
     function getLastSubscriptionPaymentDate(bytes32 _subscription)
         public
         view
-        returns (uint date)
+        returns (uint256 date)
     {
         return payments[_subscription].lastPaymentDate;
     }
 
-    function getGasForExecution(bytes32 _subscription, uint _type)
+    function getGasForExecution(bytes32 _subscription, uint256 _type)
         public
         view
-        returns (uint returnedGasCost, uint returnedGasPrice)
+        returns (uint256 returnedGasCost, uint256 returnedGasPrice)
     {
         return (gasCost, gasPrice);
     }
 
-    function setLastestPaymentDate(uint _date, bytes32 _subscription)
+    function setLastestPaymentDate(uint256 _date, bytes32 _subscription)
         public
         onlyAuthorized
         returns (bool success, bool isFinalPayment)
@@ -203,7 +203,7 @@ contract PayrollSubscription is BillableInterface {
 
         // If it hasn't been terminated, do it. Doesn't throw in case the executor calls it without knowing the status.
         if (payment.terminationDate == 0) {
-            uint cancellationTimestamp = currentTimestamp();
+            uint256 cancellationTimestamp = currentTimestamp();
             payment.terminationDate = cancellationTimestamp;
 
             emit TerminatedPayment (
@@ -224,12 +224,12 @@ contract PayrollSubscription is BillableInterface {
 
     function createScheduleWithPayments(
         bytes32[] _ids,
-        uint[] _amounts,
+        uint256[] _amounts,
         address[] _destinations,
         address _tokenAddress,
-        uint _startDate,
-        uint _interval,
-        uint _fee,
+        uint256 _startDate,
+        uint256 _interval,
+        uint256 _fee,
         bool _oneOff,
         string _data
     ) 
@@ -269,7 +269,7 @@ contract PayrollSubscription is BillableInterface {
             _fee
         );
         
-        for (uint i = 0; i < _ids.length; i++)  {
+        for (uint256 i = 0; i < _ids.length; i++)  {
             
             bytes32 id = _ids[i];
 
@@ -321,7 +321,7 @@ contract PayrollSubscription is BillableInterface {
 
     function updateStartDate(
         bytes32 _scheduleIdentifier,
-        uint _startDate
+        uint256 _startDate
     ) 
         public
     {
@@ -369,7 +369,7 @@ contract PayrollSubscription is BillableInterface {
     /** @dev Terminate a payment schedule */
     function terminateSchedule(
         bytes32 _scheduleIdentifier,
-        uint _terminationDate
+        uint256 _terminationDate
     )
         public
     {
@@ -397,13 +397,13 @@ contract PayrollSubscription is BillableInterface {
     */
     function updatePayments(
         bytes32[] _ids,
-        uint[] _amounts,
+        uint256[] _amounts,
         address[] _destinations
     ) 
         public
     {
         
-        for (uint i = 0; i < _ids.length; i++)  {
+        for (uint256 i = 0; i < _ids.length; i++)  {
             
             bytes32 id = _ids[i];
             Payment storage payment = payments[id];
@@ -429,12 +429,12 @@ contract PayrollSubscription is BillableInterface {
     */
     function terminatePayments(
         bytes32[] _ids,
-        uint[] _terminationDates
+        uint256[] _terminationDates
     )
         public
     {
         
-        for (uint i = 0; i < _ids.length; i++)  {
+        for (uint256 i = 0; i < _ids.length; i++)  {
 
             require(_terminationDates[i] > currentTimestamp(), "The termination date must be greater than the current timestamp");
             
@@ -462,7 +462,7 @@ contract PayrollSubscription is BillableInterface {
     function currentTimestamp()
         internal
         view
-        returns (uint timetstamp)
+        returns (uint256 timetstamp)
     {
         // solhint-disable-next-line
         return block.timestamp;

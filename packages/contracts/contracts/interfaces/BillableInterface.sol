@@ -18,7 +18,7 @@ contract BillableInterface is Authorizable {
     function getPaymentStatus(bytes32 _subscription)
         public
         view
-        returns (uint status);
+        returns (uint256 status);
 
     /** @dev Gets the token contract address within the subscription.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
@@ -46,7 +46,7 @@ contract BillableInterface is Authorizable {
     function getPaymentInterval(bytes32 _subscription)
         public
         view
-        returns (uint interval);
+        returns (uint256 interval);
 
     /** @dev Gets the token amount due from the subscription.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
@@ -55,7 +55,7 @@ contract BillableInterface is Authorizable {
     function getAmountDueFromPayment(bytes32 _subscription)
         public
         view
-        returns (uint amount);
+        returns (uint256 amount);
 
     /** @dev Gets the subscription fee.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
@@ -64,7 +64,7 @@ contract BillableInterface is Authorizable {
     function getPaymentFee(bytes32 _subscription)
         public
         view
-        returns (uint fee);
+        returns (uint256 fee);
 
     /** @dev Get the last date a payment was made.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
@@ -72,16 +72,16 @@ contract BillableInterface is Authorizable {
     function getLastSubscriptionPaymentDate(bytes32 _subscription)
         public
         view
-        returns (uint date);
+        returns (uint256 date);
 
     /** @dev Get the cost for executing the transaction.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
       * @param _type in the case that the gas for another operation is wanted.
     */
-    function getGasForExecution(bytes32 _subscription, uint _type)
+    function getGasForExecution(bytes32 _subscription, uint256 _type)
         public
         view
-        returns (uint gasCost, uint gasPrice);
+        returns (uint256 gasCost, uint256 gasPrice);
 
     /**
       * PUBLIC FUNCTIONS
@@ -93,7 +93,7 @@ contract BillableInterface is Authorizable {
       * @return success mark whether the transaction was successful.
       * @return isFinalPayment is an indicator if this is the final payment.
     */
-    function setLastestPaymentDate(uint _date, bytes32 _subscription)
+    function setLastestPaymentDate(uint256 _date, bytes32 _subscription)
         public
         returns (bool success, bool isFinalPayment);
 

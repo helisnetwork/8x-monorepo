@@ -3,6 +3,7 @@ pragma solidity 0.4.24;
 import "./base/ownership/Ownable.sol";
 import "./base/token/ERC20.sol";
 import "./base/token/WETH.sol";
+import "./base/math/SafeMath.sol";
 
 import "./TransferProxy.sol";
 import "./StakeContract.sol";
@@ -16,12 +17,14 @@ import "./interfaces/ApprovedRegistryInterface.sol";
 
 contract Executor is Ownable {
 
+    using SafeMath for uint256;
+
     TransferProxy public transferProxy;
     StakeContract public stakeContract;
     PaymentRegistry public paymentRegistry;
     ApprovedRegistryInterface public approvedRegistry;
 
-    uint public maximumIntervalDivisor; // Latest to claim a payment or cancel.
+    uint256 public maximumIntervalDivisor; // Latest to claim a payment or cancel.
 
     bool private paused;
 
@@ -29,29 +32,29 @@ contract Executor is Ownable {
         address indexed contractAddress,
         bytes32 indexed paymentIdentifier,
         address indexed tokenAddress,
-        uint dueDate,
-        uint amount,
-        uint fee
+        uint256 dueDate,
+        uint256 amount,
+        uint256 fee
     );
 
     event SubscriptionProcessed(
         bytes32 indexed paymentIdentifier,
         address indexed claimant,
-        uint indexed dueDate,
-        uint staked
+        uint256 indexed dueDate,
+        uint256 staked
     );
 
     event SubscriptionReleased(
         bytes32 indexed paymentIdentifier,
         address indexed releasedBy,
-        uint indexed dueDate
+        uint256 indexed dueDate
     );
 
     event SubscriptionLatePaymentCaught(
         bytes32 indexed paymentIdentifier,
         address indexed originalClaimant,
         address indexed newClaimant,
-        uint amountLost
+        uint256 amountLost
     );
 
     event SubscriptionCancelled(
@@ -62,7 +65,7 @@ contract Executor is Ownable {
     event SubscriptionCompleted(
         bytes32 indexed paymentIdentifier,
         address indexed claimant,
-        uint indexed amount
+        uint256 indexed amount
     );
 
     event Paused(address account);
@@ -103,7 +106,7 @@ contract Executor is Ownable {
         address _stakeContractAddress,
         address _paymentRegistryAddress,
         address _approvedRegistryAddress,
-        uint _divisor
+        uint256 _divisor
     )
         public
     {
@@ -120,7 +123,7 @@ contract Executor is Ownable {
       *      Expressed as a divisor of the interval.
       * @param _divisor is the divisor (eg 30 days / 7 = ~4).
     */
-    function setMaximumIntervalDivisor(uint _divisor) public onlyOwner {
+    function setMaximumIntervalDivisor(uint256 _divisor) public onlyOwner {
         // @TODO: Add tests for this.
         maximumIntervalDivisor = _divisor;
     }
@@ -174,9 +177,9 @@ contract Executor is Ownable {
 
         // Get the defaults of the subscription
         ERC20 transactingToken = ERC20(subscription.getPaymentTokenAddress(_paymentIdentifier));
-        uint subscriptionInterval = subscription.getPaymentInterval(_paymentIdentifier);
-        uint amountDue = subscription.getAmountDueFromPayment(_paymentIdentifier);
-        uint fee = subscription.getPaymentFee(_paymentIdentifier);
+        uint256 subscriptionInterval = subscription.getPaymentInterval(_paymentIdentifier);
+        uint256 amountDue = subscription.getAmountDueFromPayment(_paymentIdentifier);
+        uint256 fee = subscription.getPaymentFee(_paymentIdentifier);
         (address consumer, address business) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
 
         // @TODO: Add tests for this whole pathway
@@ -188,7 +191,7 @@ contract Executor is Ownable {
             _paymentIdentifier, 
             address(transactingToken), 
             msg.sender, 
-            currentTimestamp() + subscriptionInterval, 
+            currentTimestamp().add(subscriptionInterval), 
             amountDue, 
             fee,
             true
@@ -211,7 +214,7 @@ contract Executor is Ownable {
         paymentRegistry.createNewPayment(
             _paymentIdentifier, // Subscription identifier
             address(transactingToken), // Token address
-            currentTimestamp() + subscriptionInterval, // Next due date
+            currentTimestamp().add(subscriptionInterval), // Next due date
             amountDue, // Amount due
             fee // Fee
         );
@@ -221,7 +224,7 @@ contract Executor is Ownable {
             _paymentContract,
             _paymentIdentifier,
             address(transactingToken),
-            currentTimestamp() + subscriptionInterval,
+            currentTimestamp().add(subscriptionInterval),
             amountDue,
             fee
         );
@@ -245,13 +248,13 @@ contract Executor is Ownable {
         // Get the current payment registry object (if it doesn't exist execution will eventually fail)
         (
             address tokenAddress,
-            uint dueDate,
-            uint amount,
-            uint fee,
-            uint lastPaymentDate,
+            uint256 dueDate,
+            uint256 amount,
+            uint256 fee,
+            uint256 lastPaymentDate,
             address claimant,
             ,
-            uint staked
+            uint256 staked
         ) = paymentRegistry.updatePaymentInformation(
             _paymentIdentifier, 
             subscription.getAmountDueFromPayment(_paymentIdentifier), 
@@ -265,8 +268,8 @@ contract Executor is Ownable {
         require(currentTimestamp() >= dueDate, "The due date has already passed");
 
         // Make sure it isn't too late to process
-        uint interval = (dueDate - lastPaymentDate);
-        require(currentTimestamp() < (dueDate + (interval / maximumIntervalDivisor)), "The subscription has already passed the processing period");
+        uint256 interval = (dueDate - lastPaymentDate);
+        require(currentTimestamp() < dueDate.add(interval.div(maximumIntervalDivisor)), "The subscription has already passed the processing period");
 
         if (attemptProcessingWithSuccessCallback(
             _paymentContract, _paymentIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, false
@@ -278,14 +281,14 @@ contract Executor is Ownable {
         paymentRegistry.claimPayment(
             _paymentIdentifier, // Identifier of subscription
             msg.sender, // The claimant
-            dueDate + interval, // Next payment due date
+            dueDate.add(interval), // Next payment due date
             0
         );
 
         emit SubscriptionProcessed(
             _paymentIdentifier,
             msg.sender,
-            dueDate + interval,
+            dueDate.add(interval),
             0
         );
     }
@@ -304,17 +307,17 @@ contract Executor is Ownable {
         // Get the payment object
         (
             address tokenAddress,
-            uint dueDate,
-            uint amount,
-            uint fee,
-            uint lastPaymentDate,
+            uint256 dueDate,
+            uint256 amount,
+            uint256 fee,
+            uint256 lastPaymentDate,
             address claimant,
-            uint executionPeriod,
-            uint staked
+            uint256 executionPeriod,
+            uint256 staked
         ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
 
         // First make sure it's past the due date and execution period
-        require(currentTimestamp() > (dueDate + executionPeriod), "The execution period has not passed");
+        require(currentTimestamp() > dueDate.add(executionPeriod), "The execution period has not passed");
 
         // Ensure the original claimant can't call this function
         require(claimant != 0, "There must be a claimant in the first place");
@@ -341,7 +344,7 @@ contract Executor is Ownable {
             paymentRegistry.transferClaimant(
                 _paymentIdentifier,
                 msg.sender,
-                dueDate + (dueDate - lastPaymentDate)
+                dueDate.add(dueDate).sub(lastPaymentDate)
             );
         }
 
@@ -370,13 +373,13 @@ contract Executor is Ownable {
         // Get the payment registry information
         (
             address tokenAddress,
-            uint dueDate,
+            uint256 dueDate,
             ,
             ,
-            uint lastPaymentDate,
+            uint256 lastPaymentDate,
             address claimant,
-            uint executionPeriod,
-            uint staked
+            uint256 executionPeriod,
+            uint256 staked
         ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
 
         // Check that it belongs to the rightful claimant/service node
@@ -387,9 +390,9 @@ contract Executor is Ownable {
         require(BillableInterface(_paymentContract).getPaymentStatus(_paymentIdentifier) == 1, "The subscription must be valid");
 
         // Make sure we're within the cancellation window
-        uint minimumDate = lastPaymentDate + executionPeriod;
-        uint interval = dueDate - lastPaymentDate;
-        uint maximumDate = minimumDate + (interval / maximumIntervalDivisor);
+        uint256 minimumDate = lastPaymentDate.add(executionPeriod);
+        uint256 interval = dueDate.sub(lastPaymentDate);
+        uint256 maximumDate = minimumDate.add(interval.div(maximumIntervalDivisor));
 
         require(
             currentTimestamp() >= minimumDate && // Must be past last payment date and the execution period
@@ -422,11 +425,14 @@ contract Executor is Ownable {
     )
         public
         view
-        returns (uint)
+        returns (uint256)
     {
-        (uint gasCost, uint gasPrice) = BillableInterface(_contractAddress).getGasForExecution(_paymentIdentifier, 0);
-        uint rate = approvedRegistry.getRateFor(_tokenAddress);
-        uint standardCost = ((10**18) / rate) * (10**9) * (gasCost * (gasPrice / (10**9)));
+        (uint256 gasCost, uint256 gasPrice) = BillableInterface(_contractAddress).getGasForExecution(_paymentIdentifier, 0);
+        uint256 rate = approvedRegistry.getRateFor(_tokenAddress);
+        
+        uint256 gasUsed = gasCost.mul(gasPrice.div(10**9));
+        uint256 standardCost = (uint256(10**18).div(rate)).mul(10**9).mul(gasUsed);
+
         return standardCost;
     }
 
@@ -438,7 +444,7 @@ contract Executor is Ownable {
     function currentTimestamp()
         internal
         view
-        returns (uint timetstamp)
+        returns (uint256 timetstamp)
     {
         return block.timestamp;
     }
@@ -452,9 +458,9 @@ contract Executor is Ownable {
         bytes32 _paymentIdentifier,
         address _tokenAddress,
         address _serviceNode,
-        uint _newLastPaymentDate,
-        uint _amount,
-        uint _fee,
+        uint256 _newLastPaymentDate,
+        uint256 _amount,
+        uint256 _fee,
         bool _firstPayment
     )
         private
@@ -480,9 +486,9 @@ contract Executor is Ownable {
         bytes32 _paymentIdentifier,
         address _tokenAddress,
         address _serviceNode,
-        uint _newLastPaymentDate,
-        uint _amount,
-        uint _fee,
+        uint256 _newLastPaymentDate,
+        uint256 _amount,
+        uint256 _fee,
         bool _firstPayment
     )
         private
@@ -547,7 +553,7 @@ contract Executor is Ownable {
 
         (address consumer, address business) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
 
-        uint validSubscription = subscription.getPaymentStatus(_paymentIdentifier);
+        uint256 validSubscription = subscription.getPaymentStatus(_paymentIdentifier);
 
         require(validSubscription != 2, "Subscription must be valid");
 
@@ -557,22 +563,22 @@ contract Executor is Ownable {
         }
 
         // @TODO: Make tests for gas cost subtraction
-        uint pricedGas = getPricedGas(_paymentContract, _paymentIdentifier, _tokenAddress);
-        makePayment(ERC20(_tokenAddress), consumer, business, _amount - _fee - pricedGas);
-        makePayment(ERC20(_tokenAddress), consumer, _serviceNode, _fee + pricedGas);
+        uint256 pricedGas = getPricedGas(_paymentContract, _paymentIdentifier, _tokenAddress);
+        makePayment(ERC20(_tokenAddress), consumer, business, _amount.sub(_fee).sub(pricedGas));
+        makePayment(ERC20(_tokenAddress), consumer, _serviceNode, _fee.add(pricedGas));
     }
 
     function makePayment(
         ERC20 _transactingToken,
         address _from,
         address _to,
-        uint _amount
+        uint256 _amount
     )
         private
         returns (bool)
     {
         // Get the businesses balance before the transaction
-        uint balanceOfBusinessBeforeTransfer = _transactingToken.balanceOf(_to);
+        uint256 balanceOfBusinessBeforeTransfer = _transactingToken.balanceOf(_to);
 
         // Check if the user has enough funds
         require(_transactingToken.balanceOf(_from) >= _amount, "The user doesn't have enough tokens");
@@ -589,7 +595,7 @@ contract Executor is Ownable {
         bytes32 _paymentIdentifier,
         address _tokenAddress,
         address _claimant,
-        uint _staked
+        uint256 _staked
     )
         private
     {

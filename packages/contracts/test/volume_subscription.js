@@ -189,7 +189,7 @@ contract('VolumeSubscription', function(accounts) {
             assert.equal(plan[6], 0);
 
             let computedHash = keccak(
-                ["address", "address", "bytes32", "uint", "uint", "uint", "string"], [business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, ""]
+                ["address", "address", "bytes32", "uint256", "uint256", "uint256", "string"], [business, token.address, web3.utils.fromAscii("plan.new"), 30, 100, 10, ""]
             );
 
             assert.equal(computedHash, planHash);
@@ -349,7 +349,7 @@ contract('VolumeSubscription', function(accounts) {
             assert.equal(subscription[5], 0);
 
             let computedHash = keccak(
-                ["address", "bytes32", "uint"], [subscriber, planHash, now]
+                ["address", "bytes32", "uint256"], [subscriber, planHash, now]
             );
 
             assert.equal(computedHash, subscriptionHash);
@@ -378,7 +378,7 @@ contract('VolumeSubscription', function(accounts) {
             assert.equal(subscription[5], 0);
 
             let computedHash = keccak(
-                ["address", "bytes32", "uint"], [subscriber, planHash, 5]
+                ["address", "bytes32", "uint256"], [subscriber, planHash, 5]
             );
 
             assert.equal(computedHash, subscriptionHash);

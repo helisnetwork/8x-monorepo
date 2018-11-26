@@ -3,10 +3,14 @@ pragma solidity 0.4.24;
 import "../interfaces/BillableInterface.sol";
 import "../interfaces/ApprovedRegistryInterface.sol";
 
+import "../base/math/SafeMath.sol";
+
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract VolumeSubscription is BillableInterface {
+
+    using SafeMath for uint256;
 
     struct Plan {
 
@@ -15,12 +19,12 @@ contract VolumeSubscription is BillableInterface {
 
         bytes32 identifier;
 
-        uint interval;
-        uint amount;
-        uint fee;
+        uint256 interval;
+        uint256 amount;
+        uint256 fee;
 
         string data;
-        uint terminationDate;
+        uint256 terminationDate;
 
     }
 
@@ -31,8 +35,8 @@ contract VolumeSubscription is BillableInterface {
 
         bytes32 planHash;
 
-        uint lastPaymentDate;
-        uint terminationDate;
+        uint256 lastPaymentDate;
+        uint256 terminationDate;
 
         string data;
     }
@@ -42,8 +46,8 @@ contract VolumeSubscription is BillableInterface {
     mapping (bytes32 => Plan) public plans;
     mapping (bytes32 => Subscription) public subscriptions;
 
-    uint public gasPrice = 3*10**9;
-    uint public gasCost = 200000;
+    uint256 public gasPrice = 3*10**9;
+    uint256 public gasCost = 200000;
 
     event CreatedPlan(
         bytes32 indexed planIdentifier,
@@ -61,7 +65,7 @@ contract VolumeSubscription is BillableInterface {
         bytes32 indexed planIdentifier,
         bytes32 indexed businessIdentifier,
         address indexed owner,
-        uint terminationDate
+        uint256 terminationDate
     );
 
     event CreatedSubscription(
@@ -74,7 +78,7 @@ contract VolumeSubscription is BillableInterface {
         bytes32 indexed paymentIdentifier,
         bytes32 indexed planIdentifier,
         address indexed owner,
-        uint date
+        uint256 date
     );
 
     event UpdatedSubscription(
@@ -87,7 +91,7 @@ contract VolumeSubscription is BillableInterface {
         bytes32 indexed paymentIdentifier,
         bytes32 indexed planIdentifier,
         address indexed owner,
-        uint terminationDate
+        uint256 terminationDate
     );
 
     /**
@@ -121,7 +125,7 @@ contract VolumeSubscription is BillableInterface {
       * @param _terminationDate is the date from which they would like to
       * terminate the service.
     */
-    function terminatePlan(bytes32 _plan, uint _terminationDate)
+    function terminatePlan(bytes32 _plan, uint256 _terminationDate)
         external
         isOwnerOfPlan(_plan)
     {
@@ -141,7 +145,7 @@ contract VolumeSubscription is BillableInterface {
     function getPaymentStatus(bytes32 _subscription)
         public
         view
-        returns (uint status)
+        returns (uint256 status)
     {
         Subscription memory subscription = subscriptions[_subscription];
 
@@ -176,7 +180,7 @@ contract VolumeSubscription is BillableInterface {
     function getPaymentInterval(bytes32 _subscription)
         public
         view
-        returns (uint interval)
+        returns (uint256 interval)
     {
         bytes32 planHash = subscriptions[_subscription].planHash;
         return plans[planHash].interval;
@@ -185,7 +189,7 @@ contract VolumeSubscription is BillableInterface {
     function getAmountDueFromPayment(bytes32 _subscription)
         public
         view
-        returns (uint amount)
+        returns (uint256 amount)
     {
         bytes32 planHash = subscriptions[_subscription].planHash;
         return plans[planHash].amount;
@@ -194,7 +198,7 @@ contract VolumeSubscription is BillableInterface {
     function getPaymentFee(bytes32 _subscription)
         public
         view
-        returns (uint fee)
+        returns (uint256 fee)
     {
         bytes32 planHash = subscriptions[_subscription].planHash;
         return plans[planHash].fee;
@@ -203,20 +207,20 @@ contract VolumeSubscription is BillableInterface {
     function getLastSubscriptionPaymentDate(bytes32 _subscription)
         public
         view
-        returns (uint date)
+        returns (uint256 date)
     {
         return subscriptions[_subscription].lastPaymentDate;
     }
 
-    function getGasForExecution(bytes32 _subscription, uint _type)
+    function getGasForExecution(bytes32 _subscription, uint256 _type)
         public
         view
-        returns (uint returnedGasCost, uint returnedGasPrice)
+        returns (uint256 returnedGasCost, uint256 returnedGasPrice)
     {
         return (gasCost, gasPrice);
     }
 
-    function setLastestPaymentDate(uint _date, bytes32 _subscription)
+    function setLastestPaymentDate(uint256 _date, bytes32 _subscription)
         public
         onlyAuthorized
         returns (bool success, bool isFinalPayment)
@@ -241,7 +245,7 @@ contract VolumeSubscription is BillableInterface {
 
         // If it hasn't been terminated, do it. Doesn't throw in case the executor calls it without knowing the status.
         if (subscriptions[_subscription].terminationDate == 0) {
-            uint cancellationTimestamp = currentTimestamp();
+            uint256 cancellationTimestamp = currentTimestamp();
             subscriptions[_subscription].terminationDate = cancellationTimestamp;
 
             emit TerminatedSubscription(
@@ -264,14 +268,14 @@ contract VolumeSubscription is BillableInterface {
     /** @dev Update the gas price for processing a subscription.
       * @param _gasPrice price to set.
     */
-    function setGasPrice(uint _gasPrice) public onlyOwner {
+    function setGasPrice(uint256 _gasPrice) public onlyOwner {
         gasPrice = _gasPrice;
     }
 
     /** @dev Update the gas cost for processing a subscription.
       * @param _gasCost cost to set.
     */
-    function setGasCost(uint _gasCost) public onlyOwner {
+    function setGasCost(uint256 _gasCost) public onlyOwner {
         gasCost = _gasCost;
     }
 
@@ -288,9 +292,9 @@ contract VolumeSubscription is BillableInterface {
         address _owner, // Required
         address _tokenAddress, // Required
         bytes32 _identifier, // Required
-        uint _interval, // Required
-        uint _amount, // Required
-        uint _fee, // Required
+        uint256 _interval, // Required
+        uint256 _amount, // Required
+        uint256 _fee, // Required
         string _data
     )
         public
@@ -361,7 +365,7 @@ contract VolumeSubscription is BillableInterface {
     function createSubscriptionAndCall(
         bytes32 _planHash, 
         string _data, 
-        uint _salt,
+        uint256 _salt,
         address _callbackAddress,
         string _callbackFunction
     ) public {
@@ -383,7 +387,7 @@ contract VolumeSubscription is BillableInterface {
     function createSubscriptionWithSalt(
         bytes32 _planHash,
         string _data,
-        uint _salt
+        uint256 _salt
     ) 
         public
         returns (bytes32 newSubscriptionHash)
@@ -462,7 +466,7 @@ contract VolumeSubscription is BillableInterface {
     function currentTimestamp()
         internal
         view
-        returns (uint timetstamp)
+        returns (uint256 timetstamp)
     {
         // solhint-disable-next-line
         return block.timestamp;
