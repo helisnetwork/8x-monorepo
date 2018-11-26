@@ -23,6 +23,7 @@ module.exports = function(deployer, network, accounts) {
     const EightExToken = artifacts.require("./EightExToken.sol");
 
     const VolumeSubscription = artifacts.require("./subscriptions/VolumeSubscription.sol");
+    const PayrollSubscription = artifacts.require("./subscriptions/PayrollSubscription.sol");
 
     const MockToken = artifacts.require("./test/MockToken.sol");
     const MockKyberNetwork = artifacts.require("./test/MockKyberNetwork.sol");
@@ -31,6 +32,7 @@ module.exports = function(deployer, network, accounts) {
 
         let executor;
         let volumeSubscription;
+        let payrollSubscription;
         let approvedRegistry;
         let multiSig;
 
@@ -53,11 +55,15 @@ module.exports = function(deployer, network, accounts) {
         // Deploy the Volume Subscription contract with the Approved Registry
         volumeSubscription = await deployer.deploy(VolumeSubscription, approvedRegistry.address);
 
+        // Deploy the Payroll Subscription contract with the Approved Registry
+        payrollSubscription = await deployer.deploy(PayrollSubscription, approvedRegistry.address);
+
         // Add Dai to the approved token token registry
         await approvedRegistry.addApprovedToken(daiAddress, false)
 
-        // Add Volume Subscription as an approved contract
+        // Add Volume + Payroll Subscription as an approved contract
         await approvedRegistry.addApprovedContract(volumeSubscription.address);
+        await approvedRegistry.addApprovedContract(payrollSubscription.address);
 
         // Deploy the executor contract
         executor = await deployer.deploy(
@@ -84,6 +90,10 @@ module.exports = function(deployer, network, accounts) {
                 {
                     'name': 'VolumeSubscription',
                     'address': volumeSubscription.address
+                },
+                {
+                    'name': 'PayrollSubscription',
+                    'address': payrollSubscription.address
                 },
                 {
                     'name': 'ApprovedRegistry',

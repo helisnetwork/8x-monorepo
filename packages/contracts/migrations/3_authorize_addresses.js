@@ -9,6 +9,7 @@ module.exports = function(deployer, network, accounts) {
     const MultiSigWalletWithTimeLock = artifacts.require("./MultiSigWalletWithTimeLock.sol");
 
     const VolumeSubscription = artifacts.require("./subscriptions/VolumeSubscription.sol");
+    const PayrollSubscription = artifacts.require("./subscriptions/PayrollSubscription.sol");
 
     const ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
     const TransferProxy = artifacts.require("./TransferProxy.sol");
@@ -29,12 +30,14 @@ module.exports = function(deployer, network, accounts) {
         let paymentRegistry = await PaymentRegistry.deployed();
         let executor = await Executor.deployed();
         let volumeSubscription = await VolumeSubscription.deployed();
+        let payrollSubscription = await PayrollSubscription.deployed();
         let eightExToken = await EightExToken.deployed();
 
         await transferProxy.addAuthorizedAddress(executor.address);
         await stakeContract.addAuthorizedAddress(executor.address);
         await paymentRegistry.addAuthorizedAddress(executor.address);
         await volumeSubscription.addAuthorizedAddress(executor.address);
+        await payrollSubscription.addAuthorizedAddress(executor.address);
 
         // Change ownership
 
@@ -44,6 +47,7 @@ module.exports = function(deployer, network, accounts) {
         await paymentRegistry.transferOwnership(multiSig.address);
         await executor.transferOwnership(multiSig.address);
         await volumeSubscription.transferOwnership(multiSig.address);
+        await payrollSubscription.transferOwnership(multiSig.address);
 
         // Leave one token to the person who deployed
         //await eightExToken.transfer(multiSig, 2 ** 256 - 2);
