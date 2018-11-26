@@ -7,14 +7,15 @@ import {
   VolumeSubscriptionAbi,
 } from '@8xprotocol/artifacts';
 
-import { SubscriptionEvent } from '../types';
+import { Store, SubscriptionEvent, BasicEvent } from '../types/';
+
 import { Address } from '@8xprotocol/types';
 import { AbiDefinition } from "ethereum-types";
 
-export default class EventStore {
+export default class EventStore implements Store {
 
   private web3: Web3;
-  private payrollContract: ExecutorContract;
+  private executorContract: ExecutorContract;
 
   public eventsUpdated: () => (void);
   public events: { [id: string] : SubscriptionEvent } = {};
@@ -49,12 +50,16 @@ export default class EventStore {
     });
   }
 
+  getEventsArray(): BasicEvent[] {
+    return Object.values(this.events);
+  }
+
   private handleActivation(log) {
     console.log(`Received Activated: ${JSON.stringify(log, null, 2)}`);
 
     let newEvent = {
-      subscriptionAddress: log.args.subscriptionAddress,
-      subscriptionIdentifier: log.args.subscriptionIdentifier,
+      contractAddress: log.args.subscriptionAddress,
+      paymentIdentifier: log.args.subscriptionIdentifier,
       tokenAddress: log.args.tokenAddress,
       dueDate: log.args.dueDate.toNumber(),
       amount: log.args.amount.toNumber(),
@@ -62,16 +67,17 @@ export default class EventStore {
       blockNumber: log.blockNumber,
       transactionIndex: log.transactionIndex,
       transactionHash: log.transactionHash,
-      cancelled: false
+      cancelled: false,
+      activated: true
     } as SubscriptionEvent
 
-    this.events[newEvent.subscriptionIdentifier] = newEvent;
+    this.events[newEvent.paymentIdentifier] = newEvent;
   }
 
   private handleProcessed(log) {
     console.log(`Received Processed: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let existingEvent = this.events[log.args.paymentIdentifier];
 
     if (log.blockNumber <= existingEvent.blockNumber) {
       if (log.transactionIndex < existingEvent.transactionIndex) {
@@ -86,14 +92,14 @@ export default class EventStore {
     existingEvent.transactionIndex = log.blockNumber;
     existingEvent.transactionHash = log.transactionHash;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+    this.events[existingEvent.paymentIdentifier] = existingEvent;
 
   }
 
   private handleReleased(log) {
     console.log(`Received Released: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let existingEvent = this.events[log.args.paymentIdentifier];
 
     if (log.blockNumber < existingEvent.blockNumber) {
       if (log.transactionIndex < existingEvent.transactionIndex) {
@@ -106,13 +112,13 @@ export default class EventStore {
     existingEvent.staked = log.args.staked;
     existingEvent.transactionHash = log.transactionHash;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+    this.events[existingEvent.paymentIdentifier] = existingEvent;
   }
 
   private handlePaymentCaught(log) {
     console.log(`Recieved Late: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let existingEvent = this.events[log.args.paymentIdentifier];
 
     if (log.blockNumber < existingEvent.blockNumber) {
       if (log.transactionIndex < existingEvent.transactionIndex) {
@@ -123,13 +129,13 @@ export default class EventStore {
     existingEvent.claimant = log.args.newClaimant;
     existingEvent.transactionHash = log.transactionHash;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+    this.events[existingEvent.paymentIdentifier] = existingEvent;
   }
 
   private handleCancelled(log) {
     console.log(`Recieved Cancelled: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let existingEvent = this.events[log.args.paymentIdentifier];
 
     if (log.blockNumber < existingEvent.blockNumber) {
       if (log.transactionIndex < existingEvent.transactionIndex) {
@@ -139,7 +145,7 @@ export default class EventStore {
 
     existingEvent.cancelled = true;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+    this.events[existingEvent.paymentIdentifier] = existingEvent;
   }
 
 }

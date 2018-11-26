@@ -7,7 +7,7 @@ import { BigNumber } from 'bignumber.js';
 
 import { SubscriptionEvent } from "./types";
 
-import EventStore from './store/events';
+import EventStore from './store/executor_events';
 import ProcessorStore from "./store/processor";
 
 export default class Repeater {
@@ -37,7 +37,7 @@ export default class Repeater {
     this.executorContract = await ExecutorContract.at(this.addressBook.executorAddress, this.web3, {});
 
     this.eventStore = new EventStore(this.web3, this.executorContract, () => this.storeUpdated());
-    this.processorStore = new ProcessorStore(this.web3, this.eightEx, this.serviceNodeAccount, this.executorContract);
+    this.processorStore = new ProcessorStore(this.web3, this.serviceNodeAccount, this.executorContract);
 
     await this.eventStore.startListening();
   }
@@ -72,7 +72,7 @@ export default class Repeater {
   }
 
   public storeUpdated() {
-    this.processorStore.setEvents(Object.values(this.eventStore.events));
+    this.processorStore.setEvents(this.eventStore.getEventsArray());
     this.repeaterUpdated();
   }
 

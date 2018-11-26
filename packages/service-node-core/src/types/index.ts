@@ -1,13 +1,22 @@
-import { Bytes32, Address } from "@8xprotocol/types";
-import { BigNumber } from 'bignumber.js';
+import Web3 = require("web3");
 
-export interface BasicEvent {
-  subscriptionAddress: Address,
-  subscriptionIdentifier: Bytes32,
-  dueDate: number,
+import { Bytes32, Address, AddressBook } from "@8xprotocol/types";
+import { BigNumber } from 'bignumber.js';
+import EightEx from "../../../8x.js/dist/types";
+
+export interface TransactionEvent {
   transactionHash: string,
+  transactionIndex: number,
+  blockNumber: number
+}
+
+export interface BasicEvent extends TransactionEvent {
+  contractAddress: Address,
+  paymentIdentifier: Bytes32,
+  dueDate: number,
   claimant: Address | null,
   cancelled: boolean,
+  activated: boolean
 }
 
 export interface SubscriptionEvent extends BasicEvent {
@@ -16,6 +25,24 @@ export interface SubscriptionEvent extends BasicEvent {
   fee: BigNumber,
   staked: BigNumber | null,
   executionPeriod: number | null,
-  blockNumber: number,
-  transactionIndex: number,
+}
+
+export interface PayrollScheduleEvent extends TransactionEvent {
+  identifier: Bytes32,
+  interval: number,
+  fee: number,
+  startDate: number,
+  terminationDate: number,
+  oneOff: boolean,
+}
+
+export interface PayrollPaymentEvent extends BasicEvent {
+  scheduleIdentifier: Bytes32,
+  amount: BigNumber,
+  lastPaymentDate: number,
+  terminationDate: number,
+}
+
+export interface Store {
+  getEventsArray(): BasicEvent[];
 }
