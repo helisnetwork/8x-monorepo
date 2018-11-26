@@ -178,7 +178,7 @@ export default class VolumeSubscriptionWrapper {
       return object['args'][key] == value;
     }).map((object) => {
       let filterKey = _.get(object, `args.${key}`);
-      return filterKey == value ? _.get(object, 'args.subscriptionIdentifier') : null;
+      return filterKey == value ? _.get(object, 'args.paymentIdentifier') : null;
     }).filter((object) => object);
 
     let subscriptions = ids.map(async(id) => {
@@ -218,7 +218,7 @@ export default class VolumeSubscriptionWrapper {
     let logs = await getFormattedLogsFromTxHash(this.web3, VolumeSubscriptionAbi.abi, txHash);
 
     // @TODO: Throw error if doesn't exist
-    let subscriptionHash = _.get(logs[0].args, "subscriptionIdentifier") || '';
+    let subscriptionHash = _.get(logs[0].args, "paymentIdentifier") || '';
 
     return subscriptionHash;
   }
@@ -241,7 +241,7 @@ export default class VolumeSubscriptionWrapper {
     let logs = await getFormattedLogsFromTxHash(this.web3, VolumeSubscriptionAbi.abi, txHash);
 
     // @TODO: Throw error if doesn't exist
-    let subscriptionHash = _.get(logs[0].args, "subscriptionIdentifier") || '';
+    let subscriptionHash = _.get(logs[0].args, "paymentIdentifier") || '';
 
     return subscriptionHash;
 

@@ -26,7 +26,7 @@ const newSubscription = async function(contract, token, account, identifier, bus
     let planHash = await newPlan(contract, token, business || account, identifier, interval, cost, fee);
 
     let newSubscription = await contract.createSubscription(planHash, 0, { from: account });
-    let subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
+    let subscriptionHash = newSubscription.logs[0].args.paymentIdentifier;
 
     return subscriptionHash;
 };
@@ -36,7 +36,7 @@ const newSubscriptionFull = async function(contract, token, account, identifier,
     let planHash = await newPlan(contract, token, business || account, identifier, interval, cost, fee);
 
     let newSubscription = await contract.createSubscription(planHash, 0, { from: account });
-    let subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
+    let subscriptionHash = newSubscription.logs[0].args.paymentIdentifier;
 
     return [planHash, subscriptionHash];
 };

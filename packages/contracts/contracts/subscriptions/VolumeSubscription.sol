@@ -65,26 +65,26 @@ contract VolumeSubscription is BillableInterface {
     );
 
     event CreatedSubscription(
-        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed paymentIdentifier,
         bytes32 indexed planIdentifier,
         address indexed owner
     );
 
     event LastSubscriptionPaymentDate(
-        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed paymentIdentifier,
         bytes32 indexed planIdentifier,
         address indexed owner,
         uint date
     );
 
     event UpdatedSubscription(
-        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed paymentIdentifier,
         bytes32 indexed planIdentifier,
         address indexed owner
     );
 
     event TerminatedSubscription(
-        bytes32 indexed subscriptionIdentifier,
+        bytes32 indexed paymentIdentifier,
         bytes32 indexed planIdentifier,
         address indexed owner,
         uint terminationDate

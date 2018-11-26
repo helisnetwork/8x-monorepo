@@ -17,17 +17,17 @@ contract Authorizable is Ownable {
      * MODIFIERS
     */
     modifier onlyAuthorized {
-        require(authorized[msg.sender]);
+        require(authorized[msg.sender], "An unauthorised user called the function");
         _;
     }
 
     modifier targetAuthorized(address _target) {
-        require(authorized[_target]);
+        require(authorized[_target], "An unauthorised user called the function");
         _;
     }
 
     modifier targetNotAuthorized(address _target) {
-        require(!authorized[_target]);
+        require(!authorized[_target], "An authorised user called the function");
         _;
     }
 

@@ -1,5 +1,5 @@
 import * as Web3 from 'web3';
-import { SubscriptionEvent, BasicEvent } from '../types';
+import { SubscriptionEvent, BasicEvent, DelayPeriod } from '../types';
 
 import { ExecutorContract } from '@8xprotocol/artifacts';
 import { Address } from '@8xprotocol/types';
@@ -13,16 +13,18 @@ export default class ProcessorStore {
   private executorContract: ExecutorContract;
   private serviceNodeAccount: Address;
   private TX_DEFAULTS: any;
+  private delayPeriods: DelayPeriod;
 
   public executedTransactionHashes: string[];
   public events: BasicEvent[];
 
-  constructor(web3: Web3, serviceNodeAccount: Address, executorContract: ExecutorContract) {
+  constructor(web3: Web3, serviceNodeAccount: Address, executorContract: ExecutorContract, delayPeriods: DelayPeriod) {
     this.web3 = web3;
     this.events = [];
     this.executedTransactionHashes = [];
     this.executorContract = executorContract;
     this.serviceNodeAccount = serviceNodeAccount;
+    this.delayPeriods = delayPeriods;
 
     const DEFAULT_GAS_LIMIT: BigNumber = new BigNumber(6712390); // Default of 6.7 million gas
     const DEFAULT_GAS_PRICE: BigNumber = new BigNumber(6000000000); // 6 gEei
@@ -62,8 +64,8 @@ export default class ProcessorStore {
 
     let toProcess = this.events.filter((event) => {
       let result = (
-        (now >= event.dueDate + 60) &&
-        (now <= (event.dueDate + 120)) &&
+        (now >= event.dueDate + this.delayPeriods.processing) &&
+        (now <= (event.dueDate + (this.delayPeriods.catchLate))) &&
         (!event.claimant || event.claimant == this.serviceNodeAccount)
       );
 
@@ -77,8 +79,8 @@ export default class ProcessorStore {
 
     let toCatchLate = this.events.filter((event) => {
       let result = (
-        (now >= (event.dueDate + 120)) &&
-        (now <= (event.dueDate + 240)) &&
+        (now >= (event.dueDate + (this.delayPeriods.catchLate))) &&
+        (now <= (event.dueDate + (this.delayPeriods.stopChecking))) &&
         (event.claimant && event.claimant != this.serviceNodeAccount)
       );
 
@@ -100,7 +102,7 @@ export default class ProcessorStore {
   }
 
   public async retry() {
-    console.log('Retrying');
+    console.log(`Retrying - ${Date.now()/1000}`);
 
     await this.timeout(2000);
     await this.checkEvents();
@@ -114,8 +116,8 @@ export default class ProcessorStore {
 
       try {
         await this.executorContract.processSubscription.sendTransactionAsync(
-          event.subscriptionAddress,
-          event.subscriptionIdentifier,
+          event.contractAddress,
+          event.paymentIdentifier,
           this.TX_DEFAULTS
         );
       } catch (error) {
@@ -134,8 +136,8 @@ export default class ProcessorStore {
 
       try {
         await this.executorContract.catchLateSubscription.sendTransactionAsync(
-          event.subscriptionAddress,
-          event.subscriptionIdentifier,
+          event.contractAddress,
+          event.paymentIdentifier,
           this.TX_DEFAULTS
         );
       } catch (error) {

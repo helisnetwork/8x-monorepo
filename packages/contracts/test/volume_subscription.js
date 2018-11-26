@@ -338,7 +338,7 @@ contract('VolumeSubscription', function(accounts) {
                 planHash, "", { from: subscriber }
             );
 
-            subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
+            subscriptionHash = newSubscription.logs[0].args.paymentIdentifier;
             let subscription = await contract.subscriptions.call(subscriptionHash);
 
             assert.equal(subscription[0], subscriber);
@@ -367,7 +367,7 @@ contract('VolumeSubscription', function(accounts) {
                 planHash, "", 5, { from: subscriber }
             );
 
-            subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
+            subscriptionHash = newSubscription.logs[0].args.paymentIdentifier;
             let subscription = await contract.subscriptions.call(subscriptionHash);
 
             assert.equal(subscription[0], subscriber);
@@ -445,7 +445,7 @@ contract('VolumeSubscription', function(accounts) {
                 planHash, 0, { from: subscriber }
             );
 
-            subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
+            subscriptionHash = newSubscription.logs[0].args.paymentIdentifier;
 
         });
 
@@ -487,7 +487,7 @@ contract('VolumeSubscription', function(accounts) {
                 planHash, 0, { from: subscriber }
             );
 
-            subscriptionHash = newSubscription.logs[0].args.subscriptionIdentifier;
+            subscriptionHash = newSubscription.logs[0].args.paymentIdentifier;
 
         });
 
@@ -505,7 +505,7 @@ contract('VolumeSubscription', function(accounts) {
                 planHash, "", { from: subscriber }
             );
 
-            let subscriptionHash2 = newSubscription2.logs[0].args.subscriptionIdentifier;
+            let subscriptionHash2 = newSubscription2.logs[0].args.paymentIdentifier;
 
             await contract.setLastestPaymentDate(futureDate, subscriptionHash2, { from: executorContract });
 
