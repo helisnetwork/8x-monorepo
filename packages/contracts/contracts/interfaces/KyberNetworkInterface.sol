@@ -18,26 +18,26 @@ contract KyberNetworkInterface {
     function getExpectedRate(
         ERC20 src,
         ERC20 dest,
-        uint srcQty
+        uint256 srcQty
     )
         public
         view
-        returns (uint expectedRate, uint slippageRate);
+        returns (uint256 expectedRate, uint256 slippageRate);
 
     function maxGasPrice()
         public
         view
-        returns(uint);
+        returns(uint256);
 
     function getUserCapInWei(address user)
         public
         view
-        returns(uint);
+        returns(uint256);
 
     function getUserCapInTokenWei(address user, ERC20 token)
         public
         view
-        returns(uint);
+        returns(uint256);
 
     function enabled()
         public
@@ -47,7 +47,7 @@ contract KyberNetworkInterface {
     function info(bytes32 id)
         public
         view
-        returns(uint);
+        returns(uint256);
 
     /**
       * PUBLIC FUNCTIONS
@@ -60,7 +60,7 @@ contract KyberNetworkInterface {
     */
     function swapEtherToToken(
         ERC20 token,
-        uint minConversionRate
+        uint256 minConversionRate
     ) public payable;
 
     /**
@@ -75,12 +75,12 @@ contract KyberNetworkInterface {
     */
     function swapTokenToTokenWithChange (
         ERC20 srcToken,
-        uint srcQty,
+        uint256 srcQty,
         ERC20 destToken,
         address destAddress,
         address user,
-        uint maxDestQty,
-        uint minRate
+        uint256 maxDestQty,
+        uint256 minRate
     )
         public;
 

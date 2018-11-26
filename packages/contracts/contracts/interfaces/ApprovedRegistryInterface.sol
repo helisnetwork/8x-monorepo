@@ -12,7 +12,7 @@ contract ApprovedRegistryInterface is Ownable {
       * @param _tokenAddress is the address for the token in question.
       * @return the exchange rate.
     */
-    function getRateFor(address _tokenAddress) public returns (uint);
+    function getRateFor(address _tokenAddress) public returns (uint256);
 
     /** @dev Add an approved contract.
       * @param _contractAddress is the address of the contract.

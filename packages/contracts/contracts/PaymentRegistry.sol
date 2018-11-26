@@ -1,23 +1,26 @@
 pragma solidity 0.4.24;
 
 import "./Authorizable.sol";
+import "./base/math/SafeMath.sol";
 
 /** @title Transaction Registry - Stores a list of pending transactions */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract PaymentRegistry is Authorizable {
 
+    using SafeMath for uint256;
+
     struct Payment {
-        address tokenAddress;           // 0
+        address tokenAddress;              // 0
 
-        uint dueDate;                   // 1
-        uint amount;                    // 2
-        uint fee;                       // 3
-        uint lastPaymentDate;           // 4
+        uint256 dueDate;                   // 1
+        uint256 amount;                    // 2
+        uint256 fee;                       // 3
+        uint256 lastPaymentDate;           // 4
 
-        address claimant;               // 5
-        uint executionPeriod;           // 6
-        uint staked;                    // 7
+        address claimant;                  // 5
+        uint256 executionPeriod;           // 6
+        uint256 staked;                    // 7
     }
 
     // The bytes32 key is the subscription identifier
@@ -29,7 +32,7 @@ contract PaymentRegistry is Authorizable {
     event PaymentClaimantRemoved(bytes32 subscriptionIdentifer, address claimant);
     event PaymentClaimantTransferred(bytes32 subscriptionIdentifer, address claimant);
 
-    event PaymentAmountUpdated(bytes32 paymentIdentifier, uint newAmount, uint newFee, uint newStake);
+    event PaymentAmountUpdated(bytes32 paymentIdentifier, uint256 newAmount, uint256 newFee, uint256 newStake);
 
     event PaymentCancelled(bytes32 subscriptionIdentifer);
     event PaymentDeleted(bytes32 paymentIdentifier);
@@ -49,9 +52,9 @@ contract PaymentRegistry is Authorizable {
     function createNewPayment(
         bytes32 _paymentIdentifier,
         address _tokenAddress,
-        uint _dueDate,
-        uint _amount,
-        uint _fee
+        uint256 _dueDate,
+        uint256 _amount,
+        uint256 _fee
     )
         public
         onlyAuthorized
@@ -83,7 +86,6 @@ contract PaymentRegistry is Authorizable {
 
     }
 
-    event Debug(uint one, uint two);
 
     /** @dev Claim the payment
       * @param _paymentIdentifier is the identifier of that customer's
@@ -94,8 +96,8 @@ contract PaymentRegistry is Authorizable {
     function claimPayment(
         bytes32 _paymentIdentifier,
         address _claimant,
-        uint _nextPayment,
-        uint _staked)
+        uint256 _nextPayment,
+        uint256 _staked)
         public
         onlyAuthorized
         returns (bool success)
@@ -106,15 +108,15 @@ contract PaymentRegistry is Authorizable {
         require(_nextPayment >= currentTimestamp(), "The next payment must date be greater than the current timestamp");
 
         if (currentPayment.claimant != 0) {
-            require(currentTimestamp() <= currentPayment.dueDate + currentPayment.executionPeriod, "The timestamp is past the execution period");
+            require(currentTimestamp() <= currentPayment.dueDate.add(currentPayment.executionPeriod), "The timestamp is past the execution period");
             require(currentPayment.claimant == _claimant, "A different claimant is trying to claim a payment");
         }
 
         if (currentPayment.executionPeriod == 0 && currentPayment.claimant == 0) {
-            currentPayment.executionPeriod = currentTimestamp() - currentPayment.dueDate;
+            currentPayment.executionPeriod = currentTimestamp().sub(currentPayment.dueDate);
         }
 
-        uint oldDueDate = currentPayment.dueDate;
+        uint256 oldDueDate = currentPayment.dueDate;
 
         currentPayment.claimant = _claimant;
         currentPayment.lastPaymentDate = oldDueDate;
@@ -158,31 +160,31 @@ contract PaymentRegistry is Authorizable {
     */
     function updatePaymentInformation(
         bytes32 _paymentIdentifier,
-        uint _newAmount,
-        uint _newFee
+        uint256 _newAmount,
+        uint256 _newFee
     )
         public
         onlyAuthorized
         returns (
-            address tokenAddress,           // 0
-            uint dueDate,                   // 1
-            uint amount,                    // 2
-            uint fee,                       // 3
-            uint lastPaymentDate,           // 4
-            address claimant,               // 5
-            uint executionPeriod,           // 6
-            uint staked                     // 7
+            address tokenAddress,              // 0
+            uint256 dueDate,                   // 1
+            uint256 amount,                    // 2
+            uint256 fee,                       // 3
+            uint256 lastPaymentDate,           // 4
+            address claimant,                  // 5
+            uint256 executionPeriod,           // 6
+            uint256 staked                     // 7
         )
     { 
         
         Payment storage currentPayment = payments[_paymentIdentifier];
 
         if (_newAmount < currentPayment.amount) {
-            uint divisor = currentPayment.amount / _newAmount;
-            currentPayment.staked = currentPayment.staked / divisor;
+            uint256 divisor = currentPayment.amount.div(_newAmount);
+            currentPayment.staked = currentPayment.staked.div(divisor);
         } else {
-            uint multiplier = _newAmount / currentPayment.amount;
-            currentPayment.staked = currentPayment.staked * multiplier;
+            uint256 multiplier = _newAmount.div(currentPayment.amount);
+            currentPayment.staked = currentPayment.staked.mul(multiplier);
         }
 
         currentPayment.amount = _newAmount;
@@ -211,7 +213,7 @@ contract PaymentRegistry is Authorizable {
     function transferClaimant(
         bytes32 _paymentIdentifier,
         address _claimant,
-        uint _nextPayment
+        uint256 _nextPayment
     )
         public
         onlyAuthorized
@@ -222,9 +224,9 @@ contract PaymentRegistry is Authorizable {
 
         Payment storage currentPayment = payments[_paymentIdentifier];
 
-        uint oldDueDate = currentPayment.dueDate;
+        uint256 oldDueDate = currentPayment.dueDate;
 
-        currentPayment.executionPeriod = currentTimestamp() - oldDueDate;
+        currentPayment.executionPeriod = currentTimestamp().sub(oldDueDate);
         currentPayment.claimant = _claimant;
         currentPayment.lastPaymentDate = oldDueDate;
         currentPayment.dueDate = _nextPayment;
@@ -270,14 +272,14 @@ contract PaymentRegistry is Authorizable {
         public
         view
         returns (
-            address tokenAddress,           // 0
-            uint dueDate,                   // 1
-            uint amount,                    // 2
-            uint fee,                       // 3
-            uint lastPaymentDate,           // 4
-            address claimant,               // 5
-            uint executionPeriod,           // 6
-            uint staked                     // 7
+            address tokenAddress,              // 0
+            uint256 dueDate,                   // 1
+            uint256 amount,                    // 2
+            uint256 fee,                       // 3
+            uint256 lastPaymentDate,           // 4
+            address claimant,                  // 5
+            uint256 executionPeriod,           // 6
+            uint256 staked                     // 7
         )
     {
         Payment memory payment = payments[_subscriptionIdenitifer];
@@ -301,7 +303,7 @@ contract PaymentRegistry is Authorizable {
     function currentTimestamp()
         internal
         view
-        returns (uint timetstamp)
+        returns (uint256 timetstamp)
     {
         // solhint-disable-next-line
         return block.timestamp;

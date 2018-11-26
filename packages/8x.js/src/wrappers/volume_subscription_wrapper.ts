@@ -201,7 +201,7 @@ export default class VolumeSubscriptionWrapper {
     const salt = ((Date.now()/1000) + (Math.random() * 10000)).toFixed(); 
 
     const computedSubscriptionHash = "0x" + abi.soliditySHA3(
-      ["address", "bytes32", "uint"],
+      ["address", "bytes32", "uint256"],
       [txSettings.from, planHash, salt]
     ).toString('hex');
 

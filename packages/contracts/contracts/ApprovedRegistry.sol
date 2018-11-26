@@ -5,14 +5,16 @@ import "./interfaces/KyberNetworkInterface.sol";
 import "./interfaces/BillableInterface.sol";
 
 import "./base/token/WETH.sol";
+import "./base/math/SafeMath.sol";
 
 /** @title Approved contract, tokens and gas prices. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
 contract ApprovedRegistry is ApprovedRegistryInterface {
 
+    using SafeMath for uint256;
 
-    mapping (address => uint) public approvedTokenMapping; // Exchange rate cache (in case Kyber is down).
+    mapping (address => uint256) public approvedTokenMapping; // Exchange rate cache (in case Kyber is down).
     mapping (address => bool) public approvedContractMapping;
 
     KyberNetworkInterface public kyberProxy;
@@ -27,7 +29,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     event TokenAdded(address indexed target);
     event TokenRemoved(address indexed target);
 
-    event CachedPriceOverwritten(address indexed token, uint indexed price);
+    event CachedPriceOverwritten(address indexed token, uint256 indexed price);
 
     /**
       * MODIFIERS
@@ -58,8 +60,8 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     /** @dev Get exchange rate for token.
       * @param _tokenAddress is the address for the token.
     */
-    function getRateFor(address _tokenAddress) public returns (uint) {
-        (, uint rate) = kyberProxy.getExpectedRate(
+    function getRateFor(address _tokenAddress) public returns (uint256) {
+        (, uint256 rate) = kyberProxy.getExpectedRate(
             ERC20(_tokenAddress),
             ERC20(0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee),
             10**18
@@ -71,7 +73,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         }
 
         // Gas spike hence return cached value
-        uint cachedRate = approvedTokenMapping[_tokenAddress];
+        uint256 cachedRate = approvedTokenMapping[_tokenAddress];
 
         if (cachedRate == 0) {
             // Fail safe in case Kyber gives 0
@@ -118,7 +120,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         public
         onlyOwner
     {
-        for (uint i = 0; i < approvedContractArray.length; i++) {
+        for (uint256 i = 0; i < approvedContractArray.length; i++) {
             if (approvedContractArray[i] == _contractAddress) {
                 approvedContractArray[i] = approvedContractArray[approvedContractArray.length - 1];
                 approvedContractArray.length--;
@@ -138,7 +140,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         public
         onlyOwner
     {
-        for (uint i = 0; i < approvedTokenArray.length; i++) {
+        for (uint256 i = 0; i < approvedTokenArray.length; i++) {
             if (approvedTokenArray[i] == _tokenAddress) {
                 approvedTokenArray[i] = approvedTokenArray[approvedTokenArray.length - 1];
                 approvedTokenArray.length--;
@@ -159,7 +161,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     */
     function getApprovedContracts()
         public
-        constant
+        view
         returns (address[])
     {
         return approvedContractArray;
@@ -169,7 +171,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     */
     function getApprovedTokens()
         public
-        constant
+        view
         returns (address[])
     {
         return approvedTokenArray;
@@ -183,7 +185,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
 
         bool contractFoundInRegistry = false;
 
-        for (uint i = 0; i < approvedContractArray.length; i++) {
+        for (uint256 i = 0; i < approvedContractArray.length; i++) {
             if (approvedContractArray[i] == _contractAddress) {
                 contractFoundInRegistry = true;
                 break;
@@ -201,7 +203,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
 
         bool tokenFoundInRegistry = false;
 
-        for (uint i = 0; i < approvedTokenArray.length; i++) {
+        for (uint256 i = 0; i < approvedTokenArray.length; i++) {
             if (approvedTokenArray[i] == _tokenAddress) {
                 tokenFoundInRegistry = true;
                 break;
@@ -215,7 +217,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
       * @param _tokenAddress to set for
       * @param _price to set for
     */
-    function forceUpdateCachedPrice(address _tokenAddress, uint _price) 
+    function forceUpdateCachedPrice(address _tokenAddress, uint256 _price) 
         public
         onlyOwner
     {

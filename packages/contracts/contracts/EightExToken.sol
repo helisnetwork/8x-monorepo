@@ -2,15 +2,17 @@ pragma solidity 0.4.24;
 
 import "./base/token/StandardToken.sol";
 import "./base/ownership/Ownable.sol";
-
+import "./base/math/SafeMath.sol";
 
 contract EightExToken is StandardToken, Ownable {
 
+    using SafeMath for uint256;
+
     uint8 constant public DECIMALS = 18;
-    uint public totalSupply = 10**27; // 1 billion tokens, 18 decimal places
+    uint256 public totalSupply = 10**27; // 1 billion tokens, 18 decimal places
     string constant public NAME = "8x Protocol Token";
     string constant public SYMBOL = "8X";
-    uint constant public MAX_UINT = 2**256 - 1;
+    uint256 constant public MAX_UINT = 2**256 - 1;
 
     constructor() public {
         balances[msg.sender] = totalSupply;
@@ -25,20 +27,20 @@ contract EightExToken is StandardToken, Ownable {
       *
       * @return Success of transfer.
     */
-    function transferFrom(address _from, address _to, uint _value)
+    function transferFrom(address _from, address _to, uint256 _value)
         public
         returns (bool success)
     {
-        uint allowance = allowed[_from][msg.sender];
+        uint256 allowance = allowed[_from][msg.sender];
 
         if (balances[_from] >= _value
             && allowance >= _value
-            && balances[_to] + _value >= balances[_to]
+            && balances[_to].add(_value) >= balances[_to]
         ) {
-            balances[_to] += _value;
-            balances[_from] -= _value;
+            balances[_to] = balances[_to].add(_value);
+            balances[_from] = balances[_from].sub(_value);
             if (allowance < MAX_UINT) {
-                allowed[_from][msg.sender] -= _value;
+                allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
             }
             emit TransferTokens(_from, _to, _value);
             return true;

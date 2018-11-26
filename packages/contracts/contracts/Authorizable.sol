@@ -57,7 +57,7 @@ contract Authorizable is Ownable {
         targetAuthorized(_target)
     {
         delete authorized[_target];
-        for (uint i = 0; i < authorities.length; i++) {
+        for (uint256 i = 0; i < authorities.length; i++) {
             if (authorities[i] == _target) {
                 authorities[i] = authorities[authorities.length - 1];
                 authorities.length -= 1;
@@ -76,7 +76,7 @@ contract Authorizable is Ownable {
     */
     function getAuthorizedAddresses()
         public
-        constant
+        view
         returns (address[])
     {
         return authorities;

@@ -5,13 +5,13 @@ pragma solidity 0.4.24;
 
 contract MockTime {
     // solhint-disable-next-line
-    uint public currentTime = block.timestamp;
+    uint256 public currentTime = block.timestamp;
 
     /** PUBLIC FUNCTIONS */
     /** @dev Set the time in the contract
       *
     */
-    function setTime(uint _time)
+    function setTime(uint256 _time)
         public
     {
         currentTime = _time;
@@ -20,7 +20,7 @@ contract MockTime {
     /** @dev Turn back the time in the contract
       *
     */
-    function turnBackTime(uint _seconds)
+    function turnBackTime(uint256 _seconds)
         public
     {
         currentTime -= _seconds;
@@ -33,7 +33,7 @@ contract MockTime {
     function currentTimestamp()
         internal
         view
-        returns (uint _timetstamp)
+        returns (uint256 _timetstamp)
     {
         return currentTime;
     }

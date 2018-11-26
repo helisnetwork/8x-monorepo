@@ -12,34 +12,34 @@ contract WETH is ERC20, ExtendedERC20 {
     string constant public NAME = "Wrapped Ether";
     string constant public SYMBOL = "WETH";
 
-    mapping (address => uint)                       public  balances;
-    mapping (address => mapping (address => uint))  public  allowed;
+    mapping (address => uint256)                       public  balances;
+    mapping (address => mapping (address => uint256))  public  allowed;
 
-    event Approval(address indexed _from, address indexed guy, uint _value);
-    event TransferApproval(address indexed _from, address indexed _to, address indexed original, uint _value);
-    event Transfer(address indexed _from, address indexed _to, uint _value);
+    event Approval(address indexed _from, address indexed guy, uint256 _value);
+    event TransferApproval(address indexed _from, address indexed _to, address indexed original, uint256 _value);
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
 
-    event Deposit(address indexed _to, uint _value);
-    event Withdrawal(address indexed _from, uint _value);
+    event Deposit(address indexed _to, uint256 _value);
+    event Withdrawal(address indexed _from, uint256 _value);
 
     function() public payable {
         deposit();
     }
 
     function deposit() public payable {
-        balances[msg.sender] += msg.value;
+        balances[msg.sender] = balances[msg.sender].add(msg.value);
         emit Deposit(msg.sender, msg.value);
     }
 
-    function withdraw(uint _value) public {
+    function withdraw(uint256 _value) public {
         require(balances[msg.sender] >= _value);
-        balances[msg.sender] -= _value;
+        balances[msg.sender] = balances[msg.sender].sub(_value);
         msg.sender.transfer(_value);
         emit Withdrawal(msg.sender, _value);
     }
 
     function totalSupply() public view returns (uint256 tokenSupply) {
-        return this.balance;
+        return address(this).balance;
     }
 
     function balanceOf(address _account) public view returns (uint256 balance) {
@@ -56,9 +56,9 @@ contract WETH is ERC20, ExtendedERC20 {
         return allowed[_owner][_spender];
     }
 
-    function transferApproval(address _from, address _to, address _original, uint _value) public returns (bool) {
-        allowed[_original][_from] -= _value;
-        allowed[_original][_to] += _value;
+    function transferApproval(address _from, address _to, address _original, uint256 _value) public returns (bool) {
+        allowed[_original][_from] = allowed[_original][_from].sub(_value);
+        allowed[_original][_to] = allowed[_original][_to].add(_value);
 
         emit TransferApproval(_from, _to, _original, _value);
     }
