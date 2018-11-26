@@ -12,7 +12,7 @@ import { Store, SubscriptionEvent, BasicEvent } from '../types/';
 import { Address } from '@8xprotocol/types';
 import { AbiDefinition } from "ethereum-types";
 
-export default class EventStore implements Store {
+export default class ExecutorStore implements Store {
 
   private web3: Web3;
   private executorContract: ExecutorContract;

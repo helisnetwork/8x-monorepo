@@ -7,7 +7,7 @@ import { Store, SubscriptionEvent, PayrollScheduleEvent, PayrollPaymentEvent, Ba
 import { Address } from '@8xprotocol/types';
 import { AbiDefinition } from "ethereum-types";
 
-export default class EventStore implements Store {
+export default class PayrollStore implements Store {
 
   private web3: Web3;
   private payrollContract: PayrollSubscriptionContract;
