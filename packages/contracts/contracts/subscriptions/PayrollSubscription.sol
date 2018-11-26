@@ -185,7 +185,8 @@ contract PayrollSubscription is BillableInterface {
         emit LastUpdatedPaymentDate(
             _subscription,
             payment.scheduleIdentifier,
-            payment.lastPaymentDate
+            payment.lastPaymentDate,
+            isFinalPayment
         );
 
         return (true, schedules[payment.scheduleIdentifier].oneOff);
