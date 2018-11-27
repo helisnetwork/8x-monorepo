@@ -49,7 +49,7 @@ export default class PayrollStore implements Store {
   }
 
   getEventsArray(): BasicEvent[] {
-    return Object.values(this.payments).filter((event) => {
+    let result = Object.values(this.payments).filter((event) => {
       // If it has a last payment date set then it's already been executed and the executor store can take care
       return event.lastPaymentDate == 0
     }).map((payment) => {
@@ -61,8 +61,13 @@ export default class PayrollStore implements Store {
         transactionIndex: payment.transactionIndex,
         blockNumber: payment.blockNumber,
         activated: false,
+        cancelled: false,
       } as BasicEvent
     });
+
+    console.log(`Passing events ${JSON.stringify(result, null, 2)}`)
+    return result;
+
   }
 
   private handleCreatedSchedule(log) {
@@ -72,7 +77,7 @@ export default class PayrollStore implements Store {
       identifier: log.args.scheduleIdentifier,
       interval: log.args.interval.toNumber(),
       fee: log.args.fee.toNumber(),
-      startDate: localStorage.args.startDate.toNumber(),
+      startDate: log.args.startDate.toNumber(),
       oneOff: log.args.oneOff,
       transactionIndex: log.transactionIndex,
       transactionHash: log.transactionHash,
@@ -130,13 +135,15 @@ export default class PayrollStore implements Store {
       contractAddress: this.payrollContract.address,
       paymentIdentifier: log.args.employeeIdentifier,
       scheduleIdentifier: log.args.scheduleIdentifier,
+      lastPaymentDate: 0,
       amount: log.args.amount,
       transactionIndex: log.transactionIndex,
       transactionHash: log.transactionHash,
       blockNumber: log.blockNumber,
+      cancelled: false
     } as PayrollPaymentEvent
 
-    this.payments[newEvent.scheduleIdentifier] = newEvent;
+    this.payments[newEvent.paymentIdentifier] = newEvent;
   }
 
   private handleLastUpdatedPaymentDate(log) {

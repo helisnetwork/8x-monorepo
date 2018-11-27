@@ -268,7 +268,7 @@ contract Executor is Ownable {
         require(currentTimestamp() >= dueDate, "The due date has already passed");
 
         // Make sure it isn't too late to process
-        uint256 interval = (dueDate - lastPaymentDate);
+        uint256 interval = dueDate.sub(lastPaymentDate);
         require(currentTimestamp() < dueDate.add(interval.div(maximumIntervalDivisor)), "The subscription has already passed the processing period");
 
         if (attemptProcessingWithSuccessCallback(
