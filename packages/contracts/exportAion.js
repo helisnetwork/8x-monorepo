@@ -51,10 +51,12 @@ result.forEach((file) => {
         files: file.path,
         from: [
             /constructor/gi,
+            /view/gi,
             `pragma solidity 0.4.24`
         ],
         to: [
             `function ${file.name.replace('.sol', '')}`,
+            ``,
             `pragma solidity 0.4.15`
         ],
     };
