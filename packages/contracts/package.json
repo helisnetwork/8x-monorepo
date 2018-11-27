@@ -22,12 +22,14 @@
     "dotenv": "^6.0.0",
     "ethereumjs-abi": "^0.6.5",
     "fs-extra": "^7.0.0",
+    "mime": "^2.4.0",
     "mustache": "^3.0.0",
+    "replace-in-file": "^3.4.2",
+    "solc": "^0.5.0",
     "truffle-hdwallet-provider": "0.0.6",
     "types-ethereumjs-util": "^0.0.5",
     "typescript": "^2.9.2",
-    "web3": "^1.0.0-beta.36",
-    "replace-in-file": "^3.4.2"
+    "web3": "^1.0.0-beta.36"
   },
   "scripts": {
     "test-contracts": "truffle test || true",
