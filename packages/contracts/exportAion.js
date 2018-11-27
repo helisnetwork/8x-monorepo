@@ -52,10 +52,14 @@ result.forEach((file) => {
         from: [
             /constructor/gi,
             /view/gi,
+            /pure/gi,
+            /emit /gi,
             `pragma solidity 0.4.24`
         ],
         to: [
             `function ${file.name.replace('.sol', '')}`,
+            ``,
+            ``,
             ``,
             `pragma solidity 0.4.15`
         ],
@@ -63,10 +67,10 @@ result.forEach((file) => {
     
     const changes = replace.sync(options);
 
-    const newFile = fs.readFileSync(file.path, "utf8");
-    web3.eth.compileSolidity(newFile).then((res) => {
-        console.log(res);
-    }); 
+    // const newFile = fs.readFileSync(file.path, "utf8");
+    // web3.eth.compileSolidity(newFile).then((res) => {
+    //     console.log(res);
+    // }); 
 
     console.log(file);
 });
