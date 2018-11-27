@@ -3,14 +3,10 @@ const rimraf = require('rimraf');
 const replace = require('replace-in-file');
 const path = require('path');
 
-const Web3 = require('aion-web3')
-const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-
 // Output of truffle compile
 const PARENTS_DIR = './aion';
 const CONTRACTS_DIR = './contracts';
 const AION_DIR = './aion/contracts';
-const FLAT_DIR = './aion/flattened';
 
 fs.emptyDirSync(AION_DIR);
 fs.copySync(CONTRACTS_DIR, AION_DIR)
@@ -57,7 +53,8 @@ result.forEach((file) => {
             /pure/gi,
             /emit /gi,
             /(, ".*"\);)/gi,
-            `pragma solidity 0.4.24`
+            `pragma solidity 0.4.24`,
+            `2**256`
         ],
         to: [
             `function ${file.name.replace('.sol', '')}`,
@@ -65,10 +62,12 @@ result.forEach((file) => {
             ``,
             ``,
             `);`,
-            `pragma solidity 0.4.15`
+            `pragma solidity 0.4.15`,
+            `2**128`
         ],
     };
     
     const changes = replace.sync(options);
+
     console.log(file);
 });
