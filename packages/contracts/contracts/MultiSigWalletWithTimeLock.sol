@@ -16,26 +16,17 @@ contract MultiSigWalletWithTimeLock is
     mapping (uint256 => uint256) public confirmationTimes;
 
     modifier notFullyConfirmed(uint256 transactionId) {
-        require(
-            !isConfirmed(transactionId),
-            "TX_FULLY_CONFIRMED"
-        );
+        require(!isConfirmed(transactionId), "TX_FULLY_CONFIRMED");
         _;
     }
 
     modifier fullyConfirmed(uint256 transactionId) {
-        require(
-            isConfirmed(transactionId),
-            "TX_NOT_FULLY_CONFIRMED"
-        );
+        require(isConfirmed(transactionId), "TX_NOT_FULLY_CONFIRMED");
         _;
     }
 
     modifier pastTimeLock(uint256 transactionId) {
-        require(
-            block.timestamp >= confirmationTimes[transactionId] + secondsTimeLocked,
-            "TIME_LOCK_INCOMPLETE"
-        );
+        require(block.timestamp >= confirmationTimes[transactionId] + secondsTimeLocked, "TIME_LOCK_INCOMPLETE");
         _;
     }
 
@@ -43,11 +34,7 @@ contract MultiSigWalletWithTimeLock is
     /// @param _owners List of initial owners.
     /// @param _required Number of required confirmations.
     /// @param _secondsTimeLocked Duration needed after a transaction is confirmed and before it becomes executable, in seconds.
-    constructor (
-        address[] _owners,
-        uint256 _required,
-        uint256 _secondsTimeLocked
-    )
+    constructor (address[] _owners, uint256 _required, uint256 _secondsTimeLocked)
         public
         MultiSigWallet(_owners, _required)
     {
