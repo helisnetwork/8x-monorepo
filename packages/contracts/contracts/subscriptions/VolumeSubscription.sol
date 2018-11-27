@@ -150,14 +150,17 @@ contract VolumeSubscription is BillableInterface {
         Subscription memory subscription = subscriptions[_subscription];
 
         if (plans[subscription.planHash].terminationDate > 0 || subscription.terminationDate > 0) {
-            return 2;
+            // Payment terminated
+            return 3;
         }
 
         if (subscription.lastPaymentDate > 0) {
-            return 1;
+            // Payment active
+            return 2;
         }
 
-        return 0;
+        // Payment ready to be started
+        return 1;
     }
 
     function getPaymentTokenAddress(bytes32 _subscription)

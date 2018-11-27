@@ -133,7 +133,7 @@ export default class PayrollStore implements Store {
 
     let newEvent = {
       contractAddress: this.payrollContract.address,
-      paymentIdentifier: log.args.employeeIdentifier,
+      paymentIdentifier: log.args.paymentIdentifier,
       scheduleIdentifier: log.args.scheduleIdentifier,
       lastPaymentDate: 0,
       amount: log.args.amount,
@@ -150,6 +150,9 @@ export default class PayrollStore implements Store {
     console.log(`Received Last Update Payment Date: ${JSON.stringify(log, null, 2)}`);
 
     let existingPayment = this.payments[log.args.paymentIdentifier];
+
+    console.log(log);
+    console.log(existingPayment);
 
     if (log.blockNumber <= existingPayment.blockNumber) {
       if (log.transactionIndex < existingPayment.transactionIndex) {

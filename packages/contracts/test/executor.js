@@ -2,8 +2,10 @@ import web3 from 'web3';
 
 import assertRevert from './helpers/assert_revert.js';
 import { newPlan, newSubscription, newActiveSubscription, setTimes } from './helpers/volume_subscription.js';
+import * as Payroll from './helpers/payroll.js';
 
 var MockVolumeSubscription = artifacts.require("./tests/MockVolumeSubscription.sol");
+var MockPayrollSubscription = artifacts.require("./tests/MockPayrollSubscription.sol");
 var MockExecutor = artifacts.require("./test/MockExecutor.sol");
 var KyberContract = artifacts.require("./test/MockKyberNetwork.sol");
 var MockToken = artifacts.require("./test/MockToken.sol");
@@ -17,6 +19,7 @@ var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
 contract('Executor', function(accounts) {
 
     let subscriptionContract;
+    let payrollContract;
     let proxyContract;
     let stakeContract;
     let kyberContract;
@@ -64,6 +67,7 @@ contract('Executor', function(accounts) {
 
         // Initialise all the other contracts the executor needs in order to function
         subscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, { from: contractOwner });
+        payrollContract = await MockPayrollSubscription.new(approvedRegistryContract.address, { from: contractOwner });
         proxyContract = await TransferProxy.new({ from: contractOwner });
         paymentRegistryContract = await MockPaymentRegistryContract.new({ from: contractOwner });
 
@@ -79,9 +83,9 @@ contract('Executor', function(accounts) {
             7, { from: contractOwner }
         );
 
-
         // Add the executor contract as an authorised address for all the different components
         await subscriptionContract.addAuthorizedAddress(executorContract.address, { from: contractOwner });
+        await payrollContract.addAuthorizedAddress(executorContract.address, { from: contractOwner });
         await proxyContract.addAuthorizedAddress(executorContract.address, { from: contractOwner });
         await stakeContract.addAuthorizedAddress(executorContract.address, { from: contractOwner });
         await paymentRegistryContract.addAuthorizedAddress(executorContract.address, { from: contractOwner });
@@ -91,8 +95,9 @@ contract('Executor', function(accounts) {
 
         // Make sure the relevant contracts and tokens have been authorised
         await approvedRegistryContract.addApprovedContract(subscriptionContract.address, { from: contractOwner });
+        await approvedRegistryContract.addApprovedContract(payrollContract.address, { from: contractOwner });
 
-        modifyTimeContracts = [executorContract, subscriptionContract, paymentRegistryContract];
+        modifyTimeContracts = [executorContract, subscriptionContract, paymentRegistryContract, payrollContract];
 
     });
 
@@ -127,6 +132,75 @@ contract('Executor', function(accounts) {
 
         let returnedPrice = await executorContract.getPricedGas(subscriptionContract.address, "", tokenContract.address);
         assert.equal(returnedPrice.toNumber(), 3 * 10 ** 17);
+
+    });
+
+    describe("when users create a scheduled payroll transaction", () => {
+
+        let paymentIdentifier = Payroll.identifiers()[0];
+        let activationTime = parseInt(Date.now() / 1000);
+        let scheduleIdentifier;
+
+        before(async function() {
+
+            // Ensure time is correct
+            await setTimes(modifyTimeContracts, activationTime);
+
+            // Transfer Tokens to the business
+            await tokenContract.transfer(business, subscriptionCost, { from: contractOwner });
+            let approvalAmount = 1000000 * 10 ** 18;
+
+            await tokenContract.approve(proxyContract.address, approvalAmount, { from: business });
+
+            await nativeTokenContract.transfer(serviceNode, 1, { from: contractOwner });
+            await nativeTokenContract.approve(stakeContract.address, 1, { from: serviceNode });
+            await stakeContract.topUpStake(1, tokenContract.address, { from: serviceNode });
+
+            scheduleIdentifier = await Payroll.createNewPayment(
+                payrollContract,
+                tokenContract,
+                tokenSubscriber,
+                business,
+                activationTime + 10
+            );
+
+        });
+
+        it("should not allow someone to activate before the start date", async function() {
+
+            await assertRevert(executorContract.activateSubscription(
+                payrollContract.address,
+                paymentIdentifier
+            ));
+
+            let status = await payrollContract.getPaymentStatus(paymentIdentifier);
+            assert.equal(status, 0);
+
+        });
+
+        it("should allow a service node to activate a subscription at the right time", async function() {
+
+            await setTimes(modifyTimeContracts, activationTime + 10);
+
+            await executorContract.activateSubscription(
+                payrollContract.address,
+                paymentIdentifier,
+                { from: serviceNode }
+            );
+
+            let payrollInformation = await payrollContract.payments.call(paymentIdentifier);
+            assert.equal(payrollInformation[2].toNumber(), activationTime + 10);
+
+            let status = await payrollContract.getPaymentStatus(paymentIdentifier);
+            assert.equal(status, 3);
+
+            await stakeContract.withdrawStake(1, tokenContract.address, { from: serviceNode });
+
+            // Reset balances
+            let balanceTokenHolder = await tokenContract.balanceOf(tokenSubscriber);            
+            await tokenContract.transfer(contractOwner, balanceTokenHolder, { from: tokenSubscriber });
+
+        });
 
     });
 
@@ -201,7 +275,7 @@ contract('Executor', function(accounts) {
             assert.isAbove(etherSubscription[3].toNumber(), 0);
 
             let isActive = await subscriptionContract.getPaymentStatus(subscriptionHash);
-            assert.equal(isActive, 1);
+            assert.equal(isActive, 2);
 
             // Check to ensure the user has a token wallet with only the service node fee remaining (since it wasn't processed)
             let userTokensBalance = await tokenContract.balanceOf(tokenSubscriber);
@@ -275,7 +349,7 @@ contract('Executor', function(accounts) {
             await fastForwardSubscription(etherSubscription, 1, true);
 
             let subscriptionDetails = await subscriptionContract.getPaymentStatus(etherSubscription);
-            assert.equal(subscriptionDetails, 2);
+            assert.equal(subscriptionDetails, 3);
 
         });
 
@@ -546,7 +620,7 @@ contract('Executor', function(accounts) {
 
             // Check the subscription was cancelled
             let isSubscriptionRunning = await subscriptionContract.getPaymentStatus(subscriptionHash);
-            assert.equal(isSubscriptionRunning, 2);
+            assert.equal(isSubscriptionRunning, 3);
 
             // Should not be able to reactivate the subscription
             await tokenContract.transfer(tokenSubscriber, subscriptionCost, { from: contractOwner });

@@ -7,6 +7,7 @@ var MockToken = artifacts.require("./test/MockToken.sol");
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
 var MockKyberNetwork = artifacts.require("./test/MockKyberNetwork.sol");
 
+import { identifiers, amounts, createNewPayment, destinations } from './helpers/payroll.js';
 
 contract('PayrollSubscription', function(accounts) {
 
@@ -24,80 +25,11 @@ contract('PayrollSubscription', function(accounts) {
 
     let amount = 10;
 
-    const identifiers = (obj) => {
-        let array = [
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c10",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c21",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c32",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c43",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c53",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c63",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c73",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c83",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c93",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37103",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37113",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37123",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37133",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37143",
-            "0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37154"
-        ];  
-
-        if (obj) {
-            array.push(obj);
-        }
-        
-        return array;
-    }
-
-    const destinations = (obj) => {
-        let addressArray = [];
-        for (var i = 0; i < 15; i++) {
-            addressArray.push(receiver);
-        }
-
-        if (obj) {
-            addressArray.push(obj);
-        }
-
-        return addressArray;
-    }
-
-    const amounts = (obj) => {
-        let amountArray = [];
-        for (var i = 0; i < 15; i++) {
-            amountArray.push(amount);
-        }
-
-        if (obj) {
-            amountArray.push(obj);
-        }
-
-        return amountArray;
-    }
-
     async function resetState() {
         console.log("Deploying a new contract");
         contract = await MockPayrollSubscription.new(approvedRegistryContract.address, { from: contractOwner });
         await contract.addAuthorizedAddress(executorContract);
         await contract.setTime(100);
-    }
-
-    async function createNewPayment() {
-        let newSchedule = await contract.createScheduleWithPayments(
-            identifiers(), 
-            amounts(), 
-            destinations(),
-            token.address,
-            100,
-            0,
-            1000,
-            true, 
-            '',
-            { from: business }
-        );
-
-        return newSchedule.logs[0].args.scheduleIdentifier;
     }
 
     before(async function() {
@@ -155,9 +87,9 @@ contract('PayrollSubscription', function(accounts) {
 
             // Add a duplicate of the first entry with a different amount
             await assertRevert(contract.createScheduleWithPayments(
-                identifiers('0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c10'), 
-                amounts(5), 
-                destinations(receiver),
+                identifiers(), 
+                amounts(5, 1), 
+                destinations(receiver, 1),
                 token.address,
                 100,
                 1000,
@@ -190,8 +122,8 @@ contract('PayrollSubscription', function(accounts) {
 
             await assertRevert(contract.createScheduleWithPayments(
                 identifiers(), 
-                amounts(), 
-                destinations(),
+                amounts(10, 15), 
+                destinations(receiver, 15),
                 token.address,
                 100,
                 0,
@@ -208,8 +140,8 @@ contract('PayrollSubscription', function(accounts) {
 
             let newSchedule = await contract.createScheduleWithPayments(
                 identifiers(), 
-                amounts(), 
-                destinations(),
+                amounts(10, 15), 
+                destinations(receiver, 15),
                 token.address,
                 100,
                 0,
@@ -245,7 +177,7 @@ contract('PayrollSubscription', function(accounts) {
             assert.equal(checkOne[4], scheduleIdentifier);
 
             let status = await contract.getPaymentStatus(identifiers()[0]);
-            assert.equal(status, 0);
+            assert.equal(status, 1);
 
         });
 
@@ -253,8 +185,8 @@ contract('PayrollSubscription', function(accounts) {
 
             await assertRevert(contract.createScheduleWithPayments(
                 identifiers(), 
-                amounts(), 
-                destinations(),
+                amounts(10, 15), 
+                destinations(receiver, 15),
                 token.address,
                 100,
                 1000,
@@ -275,7 +207,7 @@ contract('PayrollSubscription', function(accounts) {
         before(async function() {
 
             await resetState();
-            scheduleIdentifier = await createNewPayment();
+            scheduleIdentifier = await createNewPayment(contract, token, receiver, business);
 
         });
 
@@ -311,7 +243,7 @@ contract('PayrollSubscription', function(accounts) {
         before(async function() {
 
             await resetState();
-            scheduleIdentifier = await createNewPayment();
+            scheduleIdentifier = await createNewPayment(contract, token, receiver, business);
 
         });
 
@@ -347,7 +279,7 @@ contract('PayrollSubscription', function(accounts) {
         before(async function() {
 
             await resetState();
-            scheduleIdentifier = await createNewPayment();
+            scheduleIdentifier = await createNewPayment(contract, token, receiver, business);
     
         });
 
@@ -390,7 +322,7 @@ contract('PayrollSubscription', function(accounts) {
         before(async function() {
 
             await resetState();
-            scheduleIdentifier = await createNewPayment();
+            scheduleIdentifier = await createNewPayment(contract, token, receiver, business);
     
         });
 
@@ -435,7 +367,7 @@ contract('PayrollSubscription', function(accounts) {
         before(async function() {
 
             await resetState();
-            scheduleIdentifier = await createNewPayment();
+            scheduleIdentifier = await createNewPayment(contract, token, receiver, business);
     
         });
 
@@ -482,15 +414,15 @@ contract('PayrollSubscription', function(accounts) {
             await contract.updatePayments(
                 [firstId, secondId],
                 [1, 1],
-                [destinations()[0], destinations()[1]],
+                [receiver, receiver],
                 { from: business }
             );
             
-            let checkOne = await contract.payments.call(identifiers()[0]);
+            let checkOne = await contract.payments.call(firstId);
             assert.equal(checkOne[0].toNumber(), 1);
             assert.equal(checkOne[1], receiver);
 
-            let checkTwo = await contract.payments.call(identifiers()[1]);
+            let checkTwo = await contract.payments.call(secondId);
             assert.equal(checkTwo[0].toNumber(), 1);
             assert.equal(checkTwo[1], receiver);
             
@@ -507,7 +439,7 @@ contract('PayrollSubscription', function(accounts) {
         before(async function() {
 
             await resetState();
-            scheduleIdentifier = await createNewPayment();
+            scheduleIdentifier = await createNewPayment(contract, token, receiver, business);
     
         });
 
@@ -582,7 +514,7 @@ contract('PayrollSubscription', function(accounts) {
         before(async function() {
 
             await resetState();
-            scheduleIdentifier = await createNewPayment();
+            scheduleIdentifier = await createNewPayment(contract, token, receiver, business);
     
         });
 
@@ -605,7 +537,7 @@ contract('PayrollSubscription', function(accounts) {
             );
 
             let status = await contract.getPaymentStatus(identifiers()[0]);
-            assert.equal(status, 2);
+            assert.equal(status, 3);
 
             let checkOne = await contract.payments.call(identifiers()[0]);
             assert.equal(checkOne[2], 3);
@@ -631,7 +563,7 @@ contract('PayrollSubscription', function(accounts) {
         before(async function() {
 
             await resetState();
-            scheduleIdentifier = await createNewPayment();
+            scheduleIdentifier = await createNewPayment(contract, token, receiver, business);
     
         });
         
@@ -662,7 +594,7 @@ contract('PayrollSubscription', function(accounts) {
             assert.equal(checkOne[3], 100);
 
             let status = await contract.getPaymentStatus(identifiers()[0]);
-            assert.equal(status, 2);
+            assert.equal(status, 3);
 
         });
 
