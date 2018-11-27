@@ -54,6 +54,7 @@ result.forEach((file) => {
             /view/gi,
             /pure/gi,
             /emit /gi,
+            /(, ".*"\);)/gi,
             `pragma solidity 0.4.24`
         ],
         to: [
@@ -61,6 +62,7 @@ result.forEach((file) => {
             ``,
             ``,
             ``,
+            `);`,
             `pragma solidity 0.4.15`
         ],
     };
