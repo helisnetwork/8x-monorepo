@@ -1,4 +1,4 @@
-# Run git clone https://github.com/poanetwork/solidity-flattener first
+# Run git clone https://github.com/poanetwork/solidity-flattener
 # #!/bin/bash
 
 cd solidity-flattener
