@@ -100,7 +100,8 @@ describe('Basic', () => {
       paymentRegistry,
       volumeSubscription,
       approvedRegistry.address,
-      1
+      1,
+      payrollSubscription
     );
 
     addressBook = {
@@ -121,6 +122,7 @@ describe('Basic', () => {
     });
 
     await approvedRegistry.addApprovedContract.sendTransactionAsync(volumeSubscription.address, {from: contractOwner});
+    await approvedRegistry.addApprovedContract.sendTransactionAsync(payrollSubscription.address, {from: contractOwner});
 
     await mockToken.transfer.sendTransactionAsync(consumer, new BigNumber(50*10**18), {from: contractOwner});
     await stakeToken.transfer.sendTransactionAsync(serviceNode, topUpAmount, {from: contractOwner});
@@ -143,11 +145,46 @@ describe('Basic', () => {
       {from: business},
     );
 
+    await eightEx.subscriptions.giveAuthorisation({from: consumer});
+
   });
 
-  test('activate subscription', async () => {
+  test('scheduled payroll', async () => {
 
-    await eightEx.subscriptions.giveAuthorisation({from: consumer});
+    let now = await web3Utils.getCurrentBlockTime();
+    let paymentHash = '0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c10';
+    
+    await new Promise((resolve, reject) => {
+      repeater.repeaterUpdated = () => {
+        if (!repeater.payrollStore.payments[paymentHash]) {
+          return;
+        }
+
+        if (repeater.payrollStore.payments[paymentHash].lastPaymentDate == 0) {
+          return;
+        }
+          
+        expect(repeater.payrollStore.payments[paymentHash].paymentIdentifier).toEqual(paymentHash);
+        resolve();
+      };
+
+      payrollSubscription.createScheduleWithPayments.sendTransactionAsync(
+        [paymentHash],
+        [new BigNumber(10*10**18)],
+        [consumer],
+        mockToken.address,
+        new BigNumber(now + 1),
+        new BigNumber(10),
+          new BigNumber(100),
+        true,
+        '',
+        null
+      );
+    });
+
+  })
+
+  test('activate subscription', async () => {
 
     subscriptionHash = await eightEx.subscriptions.subscribe(planHash, null, {from: consumer});
 
@@ -168,6 +205,8 @@ describe('Basic', () => {
     let now = await web3Utils.getCurrentBlockTime();
 
     let delay = Math.floor(paymentInformation["1"].toNumber() - (now) + 1);
+    
+    setTimeout(null, delay);
 
     await new Promise((resolve, reject) => {
       repeater.repeaterUpdated = () => {
@@ -185,6 +224,7 @@ describe('Basic', () => {
     let now = await web3Utils.getCurrentBlockTime();
 
     let delay = Math.floor(paymentInformation["1"].toNumber() - (now) + 1);
+    setTimeout(null, delay);
 
     await new Promise((resolve, reject) => {
       repeater.repeaterUpdated = () => {
@@ -193,12 +233,6 @@ describe('Basic', () => {
         resolve();
       };
     });
-
-  });
-
-  test('paying a scheduled transaction', async() => {
-
-    
 
   });
 
