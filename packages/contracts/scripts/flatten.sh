@@ -1,7 +1,7 @@
 # Run git clone https://github.com/poanetwork/solidity-flattener
 # #!/bin/bash
 
-cd solidity-flattener
+cd aion/solidity-flattener
 
 npm start "../contracts/ApprovedRegistry.sol" "../flat"
 npm start "../contracts/EightExToken.sol" "../flat"
