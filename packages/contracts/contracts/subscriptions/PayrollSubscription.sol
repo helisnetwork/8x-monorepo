@@ -60,27 +60,27 @@ contract PayrollSubscription is BillableInterface {
     );
 
     event CreatedPayment (
-        bytes32 indexed employeeIdentifier,
+        bytes32 indexed paymentIdentifier,
         bytes32 indexed scheduleIdentifier,
         uint256 indexed amount
     );
 
     event UpdatedPayment (
-        bytes32 indexed employeeIdentifier,
+        bytes32 indexed paymentIdentifier,
         uint256 indexed amount,
         address indexed destination,
         bytes32 scheduleIdentifier
     );
 
     event LastUpdatedPaymentDate(
-        bytes32 indexed employeeIdentifier,
+        bytes32 indexed paymentIdentifier,
         bytes32 indexed scheduleIdentifier,
         uint256 indexed lastPaymentDate,
         bool isLastPayment
     );
 
     event TerminatedPayment (
-        bytes32 indexed employeeIdentifier,
+        bytes32 indexed paymentIdentifier,
         bytes32 indexed scheduleIdentifier,
         uint256 indexed terminationDate
     );
@@ -100,13 +100,21 @@ contract PayrollSubscription is BillableInterface {
             payment.terminationDate > 0 ||
             (schedules[payment.scheduleIdentifier].oneOff == true && payment.lastPaymentDate > 0)
         ) {
-            return 2;
+            // Terminated payment
+            return 3;
         }
 
         if (payment.lastPaymentDate > 0) {
+            // Active payment
+            return 2;
+        }
+
+        if (currentTimestamp() >= schedules[payment.scheduleIdentifier].startDate) {
+            // Ready to be executed
             return 1;
         }
 
+        // Not ready to be started
         return 0;
     }
 
@@ -178,15 +186,15 @@ contract PayrollSubscription is BillableInterface {
 
         Payment storage payment = payments[_subscription];
 
-        require(payment.lastPaymentDate <= _date);
+        require(payment.lastPaymentDate <= _date, "Latest payment date is less than older date");
 
         payment.lastPaymentDate = _date;
 
         emit LastUpdatedPaymentDate(
             _subscription,
             payment.scheduleIdentifier,
-            payment.lastPaymentDate,
-            isFinalPayment
+            _date,
+            schedules[payment.scheduleIdentifier].oneOff
         );
 
         return (true, schedules[payment.scheduleIdentifier].oneOff);

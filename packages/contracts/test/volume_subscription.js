@@ -355,7 +355,7 @@ contract('VolumeSubscription', function(accounts) {
             assert.equal(computedHash, subscriptionHash);
 
             let status = await contract.getPaymentStatus(subscriptionHash);
-            assert.equal(status, 0);
+            assert.equal(status, 1);
 
         });
 
@@ -510,7 +510,7 @@ contract('VolumeSubscription', function(accounts) {
             await contract.setLastestPaymentDate(futureDate, subscriptionHash2, { from: executorContract });
 
             let status = await contract.getPaymentStatus(subscriptionHash2);
-            assert.equal(status, 1);
+            assert.equal(status, 2);
 
             await contract.cancelPayment(subscriptionHash2, { from: executorContract });
 
@@ -518,7 +518,7 @@ contract('VolumeSubscription', function(accounts) {
             assert.isAbove(subscription[4].toNumber(), 0);
 
             let status2 = await contract.getPaymentStatus(subscriptionHash2);
-            assert.equal(status2, 2);
+            assert.equal(status2, 3);
 
         });
 

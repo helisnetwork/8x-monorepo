@@ -13,7 +13,7 @@ contract BillableInterface is Authorizable {
 
     /** @dev Checks if the subscription is valid.
       * @param _subscription is the identifier of the customer's subscription with its relevant details.
-      * @return status returns what state the subscription is in. 0 = not started. 1 = active. 2 = terminated.
+      * @return status returns what state the subscription is in. 0 = not ready. 1 = ready. 2 = active. 3 = terminated.
     */
     function getPaymentStatus(bytes32 _subscription)
         public

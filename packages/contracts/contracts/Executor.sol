@@ -173,16 +173,14 @@ contract Executor is Ownable {
 
         // Check if the subscription is valid
         require(approvedRegistry.isContractAuthorised(_paymentContract), "Unauthorised contract");
-        require(subscription.getPaymentStatus(_paymentIdentifier) == 0, "Invalid subscription");
+        require(subscription.getPaymentStatus(_paymentIdentifier) == 1, "Invalid subscription");
 
         // Get the defaults of the subscription
         ERC20 transactingToken = ERC20(subscription.getPaymentTokenAddress(_paymentIdentifier));
         uint256 subscriptionInterval = subscription.getPaymentInterval(_paymentIdentifier);
         uint256 amountDue = subscription.getAmountDueFromPayment(_paymentIdentifier);
         uint256 fee = subscription.getPaymentFee(_paymentIdentifier);
-        (address consumer, address business) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
 
-        // @TODO: Add tests for this whole pathway
         (
             bool paymentSuccess, 
             bool finalPayment
@@ -191,13 +189,13 @@ contract Executor is Ownable {
             _paymentIdentifier, 
             address(transactingToken), 
             msg.sender, 
-            currentTimestamp().add(subscriptionInterval), 
+            currentTimestamp(), 
             amountDue, 
             fee,
             true
         );
 
-        require(paymentSuccess, "The payment should be successfully executed");
+        require(paymentSuccess == true, "The payment should be successfully executed");
 
         // If it was the final payment, mark it as completed and finish execution
         if (finalPayment) {
@@ -387,7 +385,7 @@ contract Executor is Ownable {
         require(claimant == msg.sender, "Must be the original claimant");
 
         // Ensure it is still active
-        require(BillableInterface(_paymentContract).getPaymentStatus(_paymentIdentifier) == 1, "The subscription must be valid");
+        require(BillableInterface(_paymentContract).getPaymentStatus(_paymentIdentifier) == 2, "The subscription must be valid");
 
         // Make sure we're within the cancellation window
         uint256 minimumDate = lastPaymentDate.add(executionPeriod);
@@ -521,9 +519,10 @@ contract Executor is Ownable {
         BillableInterface subscription = BillableInterface(_paymentContract);
         (bool settingLastPaymentResult, bool finalPaymentResult) = subscription.setLastestPaymentDate(_newLastPaymentDate, _paymentIdentifier);
 
+
         // @TODO: Add tests for this down the line
         if (_firstPayment == false) {
-            require(finalPaymentResult == false, "An existing payment should never be marked as the final payment. Only reserved for scheduled/first time payments.");
+            require(_firstPayment == false || finalPaymentResult == false, "An existing payment should never be marked as the final payment. Only reserved for scheduled/first time payments.");
         }
 
         // The set last payment result and last payment result both have to be true.
@@ -551,21 +550,20 @@ contract Executor is Ownable {
 
         BillableInterface subscription = BillableInterface(_paymentContract);
 
-        (address consumer, address business) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
+        (address from, address to) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
 
         uint256 validSubscription = subscription.getPaymentStatus(_paymentIdentifier);
 
-        require(validSubscription != 2, "Subscription must be valid");
+        require(validSubscription == 1 || validSubscription == 2, "Subscription must be ready or active");
 
-        if (_serviceNode == consumer) {
-            makePayment(ERC20(_tokenAddress), consumer, business, _amount);
+        if (_serviceNode == from || _serviceNode == to) {
+            makePayment(ERC20(_tokenAddress), from, to, _amount);
             return;
         }
 
-        // @TODO: Make tests for gas cost subtraction
         uint256 pricedGas = getPricedGas(_paymentContract, _paymentIdentifier, _tokenAddress);
-        makePayment(ERC20(_tokenAddress), consumer, business, _amount.sub(_fee).sub(pricedGas));
-        makePayment(ERC20(_tokenAddress), consumer, _serviceNode, _fee.add(pricedGas));
+        makePayment(ERC20(_tokenAddress), from, to, _amount.sub(_fee).sub(pricedGas));
+        makePayment(ERC20(_tokenAddress), from, _serviceNode, _fee.add(pricedGas));
     }
 
     function makePayment(

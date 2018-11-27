@@ -85,7 +85,10 @@ export default class Repeater {
   public storeUpdated() {
     let combinedArray = this.payrollStore.getEventsArray().concat(this.executorStore.getEventsArray());
     this.processorStore.setEvents(combinedArray);
-    this.repeaterUpdated();
+
+    if (this.repeaterUpdated) {
+      this.repeaterUpdated();
+    }
   }
 
 }

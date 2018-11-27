@@ -125,6 +125,7 @@ describe('Basic', () => {
     await approvedRegistry.addApprovedContract.sendTransactionAsync(payrollSubscription.address, {from: contractOwner});
 
     await mockToken.transfer.sendTransactionAsync(consumer, new BigNumber(50*10**18), {from: contractOwner});
+    await mockToken.transfer.sendTransactionAsync(business, new BigNumber(50*10**18), {from: contractOwner});
     await stakeToken.transfer.sendTransactionAsync(serviceNode, topUpAmount, {from: contractOwner});
 
     await repeater.attemptTopUp(topUpAmount, mockToken.address, stakeToken.address, stakeContract.address);
@@ -146,6 +147,7 @@ describe('Basic', () => {
     );
 
     await eightEx.subscriptions.giveAuthorisation({from: consumer});
+    await eightEx.subscriptions.giveAuthorisation({from: business});
 
   });
 
@@ -175,7 +177,7 @@ describe('Basic', () => {
         mockToken.address,
         new BigNumber(now + 1),
         new BigNumber(10),
-          new BigNumber(100),
+        new BigNumber(100),
         true,
         '',
         null
