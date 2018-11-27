@@ -205,7 +205,8 @@ export const deployExecutor = async(
   paymentRegistryInstance: PaymentRegistryContract,
   volumeSubscriptionInstance: VolumeSubscriptionContract,
   approvedRegistry: Address,
-  divisor: number
+  divisor: number,
+  payrollSubscriptionInstance?: PayrollSubscriptionContract
 ) => {
 
   const web3 = new Web3(provider);
@@ -246,6 +247,11 @@ export const deployExecutor = async(
   );
 
   await volumeSubscriptionInstance.addAuthorizedAddress.sendTransactionAsync(
+    executorInstance.address,
+    defaults
+  );
+
+  await payrollSubscriptionInstance.addAuthorizedAddress.sendTransactionAsync(
     executorInstance.address,
     defaults
   );

@@ -44,12 +44,13 @@ export default class Repeater {
     this.executorContract = await ExecutorContract.at(this.addressBook.executorAddress, this.web3, {});
     this.payrollContract = await PayrollSubscriptionContract.at(this.addressBook.payrollSubscriptionAddress, this.web3, {});
 
-    this.executorStore = new ExecutorStore(this.web3, this.executorContract, () => this.storeUpdated(this.executorStore));
-    this.payrollStore = new PayrollStore(this.web3, this.payrollContract, () => this.storeUpdated(this.payrollStore));
+    this.executorStore = new ExecutorStore(this.web3, this.executorContract, () => this.storeUpdated());
+    this.payrollStore = new PayrollStore(this.web3, this.payrollContract, () => this.storeUpdated());
 
     this.processorStore = new ProcessorStore(this.web3, this.serviceNodeAccount, this.executorContract, this.delayPeriods);
 
     await this.executorStore.startListening();
+    await this.payrollStore.startListening();
   }
 
   public async attemptTopUp(amount: BigNumber, tokenAddress: Address, stakeTokenAddress: Address, stakeContractAddress: Address) {
@@ -81,8 +82,9 @@ export default class Repeater {
     await this.eightEx.blockchain.awaitTransactionMinedAsync(topupTx);
   }
 
-  public storeUpdated(store: Store) {
-    this.processorStore.setEvents(store.getEventsArray());
+  public storeUpdated() {
+    let combinedArray = this.payrollStore.getEventsArray().concat(this.executorStore.getEventsArray());
+    this.processorStore.setEvents(combinedArray);
     this.repeaterUpdated();
   }
 
