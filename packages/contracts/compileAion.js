@@ -30,7 +30,7 @@ const result = walkSync(FLAT_DIR);
 result.forEach((file) => {
 
     let loadedFile = fs.readFileSync(file.path, "utf8");
-    web3.eth.compileSolidity(loadedFile).then((res) =>  {
+    web3.eth.compileSolidity(loadedFile).then((res, error) =>  {
         fs.writeFileSync(JSON_DIR + '/' + file.name.replace(".sol", ".json"), JSON.stringify(res, null, 2));
     });  
     

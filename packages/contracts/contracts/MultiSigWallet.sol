@@ -85,11 +85,7 @@ contract MultiSigWallet {
     }
 
     modifier validRequirement(uint256 ownerCount, uint256 _required) {
-        require(
-            ownerCount <= MAX_OWNER_COUNT
-            && _required <= ownerCount
-            && _required != 0
-            && ownerCount != 0);
+        require(ownerCount <= MAX_OWNER_COUNT && _required <= ownerCount && _required != 0 && ownerCount != 0);
         _;
     }
 
