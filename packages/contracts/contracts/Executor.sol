@@ -2,7 +2,6 @@ pragma solidity 0.4.24;
 
 import "./base/ownership/Ownable.sol";
 import "./base/token/ERC20.sol";
-import "./base/token/WETH.sol";
 import "./base/math/SafeMath.sol";
 
 import "./TransferProxy.sol";
