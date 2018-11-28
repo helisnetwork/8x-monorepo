@@ -61,7 +61,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
       * @param _tokenAddress is the address for the token.
     */
     function getRateFor(address _tokenAddress) public returns (uint256) {
-        (, uint256 rate) = kyberProxy.getExpectedRate(
+        var (, rate) = kyberProxy.getExpectedRate(
             ERC20(_tokenAddress),
             ERC20(0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee),
             10**18

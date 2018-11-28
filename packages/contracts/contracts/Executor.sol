@@ -181,10 +181,9 @@ contract Executor is Ownable {
         uint256 amountDue = subscription.getAmountDueFromPayment(_paymentIdentifier);
         uint256 fee = subscription.getPaymentFee(_paymentIdentifier);
 
-        (
-            bool paymentSuccess, 
-            bool finalPayment
-        ) = attemptProcessingWithSuccessAndLastPaymentCallback(
+        // This format is done to ensure compatibility with Solidity 0.4.15
+        // Bool, Bool
+        var (paymentSuccess, finalPayment) = attemptProcessingWithSuccessAndLastPaymentCallback(
             _paymentContract, 
             _paymentIdentifier, 
             address(transactingToken), 
@@ -244,15 +243,15 @@ contract Executor is Ownable {
         BillableInterface subscription = BillableInterface(_paymentContract);
 
         // Get the current payment registry object (if it doesn't exist execution will eventually fail)
-        (
-            address tokenAddress,
-            uint256 dueDate,
-            uint256 amount,
-            uint256 fee,
-            uint256 lastPaymentDate,
-            address claimant,
+        var (
+            tokenAddress,
+            dueDate,
+            amount,
+            fee,
+            lastPaymentDate,
+            claimant,
             ,
-            uint256 staked
+            staked
         ) = paymentRegistry.updatePaymentInformation(
             _paymentIdentifier, 
             subscription.getAmountDueFromPayment(_paymentIdentifier), 
@@ -303,15 +302,15 @@ contract Executor is Ownable {
         whenNotPaused
     {
         // Get the payment object
-        (
-            address tokenAddress,
-            uint256 dueDate,
-            uint256 amount,
-            uint256 fee,
-            uint256 lastPaymentDate,
-            address claimant,
-            uint256 executionPeriod,
-            uint256 staked
+        var (
+            tokenAddress,
+            dueDate,
+            amount,
+            fee,
+            lastPaymentDate,
+            claimant,
+            executionPeriod,
+            staked
         ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
 
         // First make sure it's past the due date and execution period
@@ -369,15 +368,15 @@ contract Executor is Ownable {
         require(_paymentIdentifier > 0, "There must be a valid subscription identifier");
 
         // Get the payment registry information
-        (
-            address tokenAddress,
-            uint256 dueDate,
+        var (
+            tokenAddress,
+            dueDate,
             ,
             ,
-            uint256 lastPaymentDate,
-            address claimant,
-            uint256 executionPeriod,
-            uint256 staked
+            lastPaymentDate,
+            claimant,
+            executionPeriod,
+            staked
         ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
 
         // Check that it belongs to the rightful claimant/service node
@@ -392,11 +391,7 @@ contract Executor is Ownable {
         uint256 interval = dueDate.sub(lastPaymentDate);
         uint256 maximumDate = minimumDate.add(interval.div(maximumIntervalDivisor));
 
-        require(
-            currentTimestamp() >= minimumDate && // Must be past last payment date and the execution period
-            currentTimestamp() < maximumDate,  // Can't be past the cancellation period
-            "The time period must not have passed"
-        );
+        require(currentTimestamp() >= minimumDate && currentTimestamp() < maximumDate, "The time period must not have passed");
 
         // Call the remove claim on payments registry
         paymentRegistry.removeClaimant(
@@ -425,9 +420,9 @@ contract Executor is Ownable {
         view
         returns (uint256)
     {
-        (uint256 gasCost, uint256 gasPrice) = BillableInterface(_contractAddress).getGasForExecution(_paymentIdentifier, 0);
+        var (gasCost, gasPrice) = BillableInterface(_contractAddress).getGasForExecution(_paymentIdentifier, 0);
+
         uint256 rate = approvedRegistry.getRateFor(_tokenAddress);
-        
         uint256 gasUsed = gasCost.mul(gasPrice.div(10**9));
         uint256 standardCost = (uint256(10**18).div(rate)).mul(10**9).mul(gasUsed);
 
@@ -464,7 +459,7 @@ contract Executor is Ownable {
         private
         returns (bool success)
     {
-        (bool result, ) = attemptProcessingWithSuccessAndLastPaymentCallback(
+        var (result, ) = attemptProcessingWithSuccessAndLastPaymentCallback(
             _paymentContract,
             _paymentIdentifier,
             _tokenAddress,
@@ -494,10 +489,7 @@ contract Executor is Ownable {
     {
        
         // Anyone who's processing a subscription should meet these guidelines
-        require(
-            _firstPayment == true ||
-            stakeContract.getAvailableStake(msg.sender, _tokenAddress) >= 1, "At least one token is required to process subscriptions"
-        );
+        require(_firstPayment == true || stakeContract.getAvailableStake(msg.sender, _tokenAddress) >= 1, "At least one token is required to process subscriptions");
 
         // Execute the actual payment
         bool paymentResult = address(this).call(
@@ -517,7 +509,7 @@ contract Executor is Ownable {
         // Update the last payment date in the volume subscription contract
         // If this reverts, that means the payment isn't ready
         BillableInterface subscription = BillableInterface(_paymentContract);
-        (bool settingLastPaymentResult, bool finalPaymentResult) = subscription.setLastestPaymentDate(_newLastPaymentDate, _paymentIdentifier);
+        var (settingLastPaymentResult, finalPaymentResult) = subscription.setLastestPaymentDate(_newLastPaymentDate, _paymentIdentifier);
 
 
         // @TODO: Add tests for this down the line
@@ -550,7 +542,7 @@ contract Executor is Ownable {
 
         BillableInterface subscription = BillableInterface(_paymentContract);
 
-        (address from, address to) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
+        var (from, to) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
 
         uint256 validSubscription = subscription.getPaymentStatus(_paymentIdentifier);
 
