@@ -50,7 +50,7 @@ module.exports = function(deployer, network, accounts) {
         await payrollSubscription.transferOwnership(multiSig.address);
 
         // Leave one token to the person who deployed
-        //await eightExToken.transfer(multiSig, 2 ** 256 - 2);
+        await eightExToken.transfer(multiSig, 2 ** 256 - 2);
         await eightExToken.transferOwnership(multiSig.address);
 
     });
