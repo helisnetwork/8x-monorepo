@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 
 import "./Authorizable.sol";
-import "./EightExToken.sol";
+import "./base/token/ERC20.sol";
 import "./base/math/SafeMath.sol";
 
 /** @title Stake Contract - Processors stake tokens to claim transactions */
@@ -24,7 +24,7 @@ contract StakeContract is Authorizable {
     mapping (address => mapping (address => Stake)) public userStakes;
     mapping (address => TokenStake) tokenStakes;
 
-    EightExToken public tokenContract;
+    ERC20 public tokenContract;
 
     event Locked(address indexed staker, address indexed tokenAddress, uint256 indexed amount);
     event Unlocked(address indexed staker, address indexed tokenAddress, uint256 indexed amount);
@@ -40,7 +40,7 @@ contract StakeContract is Authorizable {
       * PUBLIC FUNCTIONS
     */
     constructor(address _tokenAddress) public {
-        tokenContract = EightExToken(_tokenAddress);
+        tokenContract = ERC20(_tokenAddress);
     }
 
     /** @dev When the processor claims a transaction their tokens are staked.
