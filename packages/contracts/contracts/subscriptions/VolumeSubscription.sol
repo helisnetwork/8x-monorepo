@@ -399,7 +399,12 @@ contract VolumeSubscription is BillableInterface {
 
         address planTokenAddress = plans[_planHash].tokenAddress;
 
-        bytes32 subscriptionHash = keccak256(msg.sender, _planHash, _salt);
+        
+        bytes32 subscriptionHash = keccak256(
+            msg.sender, 
+            _planHash, 
+            _salt
+        );
 
         require(subscriptions[subscriptionHash].owner == 0x0);
         require(planTokenAddress != 0x0);

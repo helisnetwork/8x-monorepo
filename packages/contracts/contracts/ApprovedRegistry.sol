@@ -60,7 +60,13 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     /** @dev Get exchange rate for token.
       * @param _tokenAddress is the address for the token.
     */
-    function getRateFor(address _tokenAddress) public returns (uint256) {
+    function getRateFor(address _tokenAddress) public view returns (uint256) {
+
+        // If the token is the native currency, then the exchange rate is 1
+        if (_tokenAddress == address(wrappedEther)) {
+            return 1*10**18;
+        }
+
         var (, rate) = kyberProxy.getExpectedRate(
             ERC20(_tokenAddress),
             ERC20(0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee),
