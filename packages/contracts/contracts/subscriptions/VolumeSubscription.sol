@@ -314,15 +314,13 @@ contract VolumeSubscription is BillableInterface {
         require(approvedRegistry.isTokenAuthorised(_tokenAddress));
 
         bytes32 planHash = keccak256(
-            abi.encodePacked(
-                _owner,
-                _tokenAddress,
-                _identifier,
-                _interval,
-                _amount,
-                _fee,
-                _data
-            )
+            _owner,
+            _tokenAddress,
+            _identifier,
+            _interval,
+            _amount,
+            _fee,
+            _data
         );
 
         require(plans[planHash].owner == 0x0);
@@ -401,8 +399,7 @@ contract VolumeSubscription is BillableInterface {
 
         address planTokenAddress = plans[_planHash].tokenAddress;
 
-        bytes32 subscriptionHash =
-            keccak256(abi.encodePacked(msg.sender, _planHash, _salt));
+        bytes32 subscriptionHash = keccak256(msg.sender, _planHash, _salt);
 
         require(subscriptions[subscriptionHash].owner == 0x0);
         require(planTokenAddress != 0x0);
