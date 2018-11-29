@@ -52,3 +52,20 @@ export interface DelayPeriod {
 export interface Store {
   getEventsArray(): BasicEvent[];
 }
+
+export interface NetworkService {
+  addressBook: AddressBook;
+  delayPeriod: DelayPeriod;
+  serviceNode: Address;
+  
+  eventsUpdated: () => (any);
+
+  attemptTopUp(amount: BigNumber, stakeToken: Address): Promise<any>;
+
+  watchExecutor(fromBlock: number, toBlock: number, callback: (any) => (any));
+  watchPayroll(fromBlock: number, toBlock: number, callback: (any) => (any));
+
+  activate(events: BasicEvent[]): Promise<any>;
+  process(events: BasicEvent[]): Promise<any>;
+  catchLate(events: BasicEvent[]): Promise<any>;
+}
