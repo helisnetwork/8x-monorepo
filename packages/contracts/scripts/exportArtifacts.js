@@ -59,7 +59,6 @@ const walkSync = (dir, filelist = []) => {
 const result = walkSync(BUILD_DIR);
 
 result
-.filter((file) => artifacts.includes(file.name.replace('.json', '')))
 .forEach((file) => {
 
     console.log(file);
