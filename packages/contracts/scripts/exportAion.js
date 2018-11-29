@@ -4,7 +4,7 @@ const replace = require('replace-in-file');
 const path = require('path');
 
 // Output of truffle compile
-const PARENTS_DIR = './aion';
+const PARENTS_DIR = '../aion';
 const CONTRACTS_DIR = './contracts';
 const AION_DIR = './aion/contracts';
 
