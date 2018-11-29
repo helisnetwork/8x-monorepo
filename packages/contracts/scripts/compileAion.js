@@ -56,10 +56,10 @@ result.forEach((file) => {
         };
 
         let json = JSON.stringify(artifactExported, null, 2);
-        fs.writeFileSync(JSON_DIR + '/' + name + '.json', json);
+        fs.writeFileSync(JSON_DIR + '/' + name + '_Aion.json', json);
 
         let typescriptAbi = "export const " + name + " = \n" + json;
-        fs.writeFileSync(TS_DIR + '/' + name + '.ts', typescriptAbi);
+        fs.writeFileSync(TS_DIR + '/' + name + '_Aion.ts', typescriptAbi);
     })
     
 });
