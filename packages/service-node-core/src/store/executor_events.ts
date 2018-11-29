@@ -7,33 +7,25 @@ import {
   VolumeSubscriptionAbi,
 } from '@8xprotocol/artifacts';
 
-import { Store, SubscriptionEvent, BasicEvent } from '../types/';
+import { Store, SubscriptionEvent, BasicEvent, NetworkService } from '../types/';
 
 import { Address } from '@8xprotocol/types';
 import { AbiDefinition } from "ethereum-types";
 
 export default class ExecutorStore implements Store {
 
-  private web3: Web3;
-  private executorContract: ExecutorContract;
+  private service: NetworkService;
 
   public eventsUpdated: () => (void);
   public events: { [id: string] : SubscriptionEvent } = {};
 
-  constructor(web3: Web3, executorContract: ExecutorContract, callback: () => (void)) {
-    this.web3 = web3;
+  constructor(service: NetworkService, callback: () => (void)) {
+    this.service = service;
     this.eventsUpdated = callback;
-    this.executorContract = executorContract;
   }
 
   public async startListening() {
-    const contract = this.web3.eth.contract(ExecutorAbi.abi as AbiDefinition[]).at(this.executorContract.address);
-    const eventsWatcher = contract.allEvents({
-      fromBlock: 0,
-      toBlock: "latest",
-    });
-
-    eventsWatcher.watch((error, log) => {
+    await this.service.watchExecutor(0, -1, (log) => {
       if (log.event == 'SubscriptionActivated') {
         this.handleActivation(log);
       } else if (log.event == 'SubscriptionProcessed') {

@@ -3,33 +3,27 @@ import * as ABIDecoder from 'abi-decoder';
 
 import { PayrollSubscriptionAbi, PayrollSubscriptionContract } from '@8xprotocol/artifacts'
 
-import { Store, SubscriptionEvent, PayrollScheduleEvent, PayrollPaymentEvent, BasicEvent } from '../types';
+import { Store, SubscriptionEvent, PayrollScheduleEvent, PayrollPaymentEvent, BasicEvent, NetworkService } from '../types';
 import { Address } from '@8xprotocol/types';
 import { AbiDefinition } from "ethereum-types";
 
 export default class PayrollStore implements Store {
 
-  private web3: Web3;
-  private payrollContract: PayrollSubscriptionContract;
+  private service: NetworkService;
 
   public eventsUpdated: () => (void);
+
   public payments: { [id: string] : PayrollPaymentEvent  } = {};
   public schedules: { [id: string] : PayrollScheduleEvent } = {};
 
-  constructor(web3: Web3, payrollContract: PayrollSubscriptionContract, callback: () => (void)) {
-    this.web3 = web3;
+  constructor(service: NetworkService, callback: () => (void)) {
+    this.service = service;
     this.eventsUpdated = callback;
-    this.payrollContract = payrollContract;
   }
 
   public async startListening() {
-    const contract = this.web3.eth.contract(PayrollSubscriptionAbi.abi as AbiDefinition[]).at(this.payrollContract.address);
-    const eventsWatcher = contract.allEvents({
-      fromBlock: 0,
-      toBlock: "latest",
-    });
-
-    eventsWatcher.watch((error, log) => {
+    console.log(this.service.addressBook.payrollSubscriptionAddress);
+    await this.service.watchPayroll(0, -1, (log) => {
       if (log.event == 'CreatedSchedule') {
         this.handleCreatedSchedule(log);
       } else if (log.event == 'UpdatedSchedule') {
@@ -132,7 +126,7 @@ export default class PayrollStore implements Store {
     console.log(`Received Created Payment: ${JSON.stringify(log, null, 2)}`);
 
     let newEvent = {
-      contractAddress: this.payrollContract.address,
+      contractAddress: this.service.addressBook.payrollSubscriptionAddress,
       paymentIdentifier: log.args.paymentIdentifier,
       scheduleIdentifier: log.args.scheduleIdentifier,
       lastPaymentDate: 0,

@@ -31,6 +31,7 @@ import {
 
 import EightEx from '8x.js';
 import Repeater from '../src/';
+import EthereumService from '../src/services/ethereum_service';
 
 import { AddressBook } from '@8xprotocol/types';
 import { PayrollSubscriptionContract } from '@8xprotocol/artifacts/src';
@@ -110,16 +111,19 @@ describe('Basic', () => {
       approvedRegistryAddress: approvedRegistry.address,
       executorAddress: executor.address,
       transferProxyAddress: transferProxy.address,
-      payrollSubscriptionAddress: payrollSubscription.address
+      payrollSubscriptionAddress: payrollSubscription.address,
+      stakeContractAddress: stakeContract.address,
+      stakeTokenAddress: stakeToken.address
     };
 
-    eightEx = new EightEx(web3, addressBook);
-
-    repeater = new Repeater(web3, addressBook, serviceNode, {
+    let service = new EthereumService(provider, serviceNode, addressBook, {
       processing: 0,
       catchLate: 5,
       stopChecking: 10
     });
+
+    eightEx = new EightEx(web3, addressBook);
+    repeater = new Repeater(service);
 
     await approvedRegistry.addApprovedContract.sendTransactionAsync(volumeSubscription.address, {from: contractOwner});
     await approvedRegistry.addApprovedContract.sendTransactionAsync(payrollSubscription.address, {from: contractOwner});
@@ -128,8 +132,8 @@ describe('Basic', () => {
     await mockToken.transfer.sendTransactionAsync(business, new BigNumber(50*10**18), {from: contractOwner});
     await stakeToken.transfer.sendTransactionAsync(serviceNode, topUpAmount, {from: contractOwner});
 
-    await repeater.attemptTopUp(topUpAmount, mockToken.address, stakeToken.address, stakeContract.address);
-    await repeater.attemptTopUp(topUpAmount, mockToken.address, stakeToken.address, stakeContract.address);
+    await service.attemptTopUp(topUpAmount);
+    await service.attemptTopUp(topUpAmount);
 
     await repeater.start();
 
@@ -180,7 +184,7 @@ describe('Basic', () => {
         new BigNumber(100),
         true,
         '',
-        null
+        { from: business }
       );
     });
 
