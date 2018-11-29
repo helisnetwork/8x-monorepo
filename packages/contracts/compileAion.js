@@ -2,7 +2,8 @@ const fs = require('fs-extra');
 const path = require('path');
 
 const Web3 = require('aion-web3')
-const web3 = new Web3(new Web3.providers.HttpProvider("https://api.nodesmith.io/v1/aion/mainnet/jsonrpc?apiKey=2a11723e42314e7886056bc3f2157548"));
+//const web3 = new Web3(new Web3.providers.HttpProvider("https://api.nodesmith.io/v1/aion/mainnet/jsonrpc?apiKey=2a11723e42314e7886056bc3f2157548"));
+const web3 = new Web3(new Web3.providers.HttpProvider("http://0.0.0.0:8545"));
 
 const FLAT_DIR = './aion/flat';
 const JSON_DIR = './aion/build';
@@ -30,10 +31,8 @@ const result = walkSync(FLAT_DIR);
 result.forEach((file) => {
 
     let loadedFile = fs.readFileSync(file.path, "utf8");
-    web3.eth.compileSolidity(loadedFile).then((res, error) =>  {
+    web3.eth.compileSolidity(loadedFile).then((res) =>  {
         fs.writeFileSync(JSON_DIR + '/' + file.name.replace(".sol", ".json"), JSON.stringify(res, null, 2));
-    }).catch((error) => {
-        console.log(errror);
-    });
+    })
     
 });
