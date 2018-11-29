@@ -3,6 +3,7 @@ const path = require('path');
 const PACKAGE = require('../package.json');
 
 const Web3 = require('aion-web3')
+// const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 const web3 = new Web3(new Web3.providers.HttpProvider("https://api.nodesmith.io/v1/aion/mainnet/jsonrpc?apiKey=2a11723e42314e7886056bc3f2157548"));
 // const web3 = new Web3(new Web3.providers.HttpProvider("http://0.0.0.0:8545"));
 
