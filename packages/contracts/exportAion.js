@@ -54,7 +54,8 @@ result.forEach((file) => {
             /emit /gi,
             /(, ".*"\);)/gi,
             `pragma solidity 0.4.24`,
-            `2**256`
+            `2**256`,
+            /keccak256/
         ],
         to: [
             `function ${file.name.replace('.sol', '')}`,
@@ -63,7 +64,8 @@ result.forEach((file) => {
             ``,
             `);`,
             `pragma solidity 0.4.15`,
-            `2**128`
+            `2**128`,
+            `blake2b256`
         ],
     };
     
