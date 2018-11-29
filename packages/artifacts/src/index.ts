@@ -1,4 +1,4 @@
-// Export TypeScript ABIs
+// Export Ethereum TypeScript ABIs
 
 import { ApprovedRegistry } from './build/abi/ts/ApprovedRegistry';
 import { Executor } from './build/abi/ts/Executor';
