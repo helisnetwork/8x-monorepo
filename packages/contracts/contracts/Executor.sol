@@ -270,7 +270,7 @@ contract Executor is Ownable {
         );
 
         // Ensure it's a fresh subscription or only the claimant
-        require(claimant == 0 || claimant == msg.sender, "Cannot process someone else's payment");
+        require(claimant == address(0) || claimant == msg.sender, "Cannot process someone else's payment");
 
         // Make sure it isn't too late to process and it's the right time
         require(currentTimestamp() < dueDate.add(dueDate.sub(lastPaymentDate).div(maximumIntervalDivisor)), "Must not be greater than the due date + the interval/divisor");
@@ -351,13 +351,13 @@ contract Executor is Ownable {
 
         if (callAttemptProcessingSimple(_paymentContract, _paymentIdentifier, false) == false) {
             processingFailed(_paymentContract, _paymentIdentifier);
+        } else {
+            // Transfer claimant
+            paymentRegistry.transferClaimant(
+                _paymentIdentifier,
+                msg.sender
+            );
         }
-
-        // Transfer claimant
-        paymentRegistry.transferClaimant(
-            _paymentIdentifier,
-            msg.sender
-        );
 
         // an event to say a late payment was caught and processed
         emit SubscriptionLatePaymentCaught(
@@ -543,8 +543,8 @@ contract Executor is Ownable {
     {
         // Update the last payment date in the volume subscription contract
         // If this reverts, that means the payment isn't ready
-        uint256 nextPaymentDate = getNextPaymentDate(_paymentContract, _paymentIdentifier);
-        var (_settingLastPaymentResult, _finalPaymentResult) = BillableInterface(_paymentContract).setLastestPaymentDate(nextPaymentDate, _paymentIdentifier);
+        uint256 lastPaymentDateToSet = getLastPaymentDate(_paymentContract, _paymentIdentifier);
+        var (_settingLastPaymentResult, _finalPaymentResult) = BillableInterface(_paymentContract).setLastestPaymentDate(lastPaymentDateToSet, _paymentIdentifier);
 
         // @TODO: Add tests for this down the line
         if (_firstPayment == false) {
@@ -687,6 +687,24 @@ contract Executor is Ownable {
         }
 
         return paymentRegistryStoredDate;
+    }
+
+    function getLastPaymentDate(address _paymentContract, bytes32 _paymentIdentifier) private returns (uint256) {
+        var (
+            ,
+            dueDate,
+            ,
+            ,
+            ,
+            ,
+            ,
+        ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
+
+        if (dueDate == 0) {
+            return currentTimestamp();
+        }
+
+        return dueDate;
     }
 
 }

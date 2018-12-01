@@ -176,7 +176,7 @@ contract PaymentRegistry is Authorizable {
 
         if (_newAmount < currentPayment.amount) {
             currentPayment.staked = currentPayment.staked.div(currentPayment.amount.div(_newAmount));
-        } else {
+        } else if (currentPayment.amount > _newAmount) {
             currentPayment.staked = currentPayment.staked.mul(_newAmount.div(currentPayment.amount));
         }
 
@@ -185,7 +185,7 @@ contract PaymentRegistry is Authorizable {
 
         emit PaymentAmountUpdated(_paymentIdentifier, _newAmount, _newFee, currentPayment.staked);
 
-        return(
+        return (
             currentPayment.dueDate,
             currentPayment.lastPaymentDate,
             currentPayment.claimant
@@ -283,7 +283,7 @@ contract PaymentRegistry is Authorizable {
             payment.staked
         );
     }
-    
+
      /**
       * INTERNAL FUNCTIONS
     */
