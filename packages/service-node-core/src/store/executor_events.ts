@@ -59,6 +59,7 @@ export default class ExecutorStore implements Store {
       blockNumber: log.blockNumber,
       transactionIndex: log.transactionIndex,
       transactionHash: log.transactionHash,
+      claimant: log.args.claimant || null,
       cancelled: false,
       activated: true
     } as SubscriptionEvent

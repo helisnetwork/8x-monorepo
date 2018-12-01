@@ -33,7 +33,8 @@ contract Executor is Ownable {
         address indexed tokenAddress,
         uint256 dueDate,
         uint256 amount,
-        uint256 fee
+        uint256 fee,
+        address claimant
     );
 
     event SubscriptionProcessed(
@@ -63,8 +64,7 @@ contract Executor is Ownable {
 
     event SubscriptionCompleted(
         bytes32 indexed paymentIdentifier,
-        address indexed claimant,
-        uint256 indexed amount
+        address indexed claimant
     );
 
     event Paused(address account);
@@ -164,65 +164,84 @@ contract Executor is Ownable {
     )
         public
         whenNotPaused
-        returns (bool success)
     {
+        require(isPaymentStatus(_paymentContract, _paymentIdentifier, 1));
 
-        // Initiate an instance of the BillableInterface subscription
+        // Ensure the subscription contract is a valid one
         BillableInterface subscription = BillableInterface(_paymentContract);
+        require(approvedRegistry.isContractAuthorised(_paymentContract), "Only authorised contracts can transact");
 
-        // Check if the subscription is valid
-        require(approvedRegistry.isContractAuthorised(_paymentContract), "Unauthorised contract");
-        require(subscription.getPaymentStatus(_paymentIdentifier) == 1, "Invalid subscription");
+        var (paymentSuccess, finalPayment) = callAttemptProcessing(_paymentContract, _paymentIdentifier, true);
+        var (from, to) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
 
-        // Get the defaults of the subscription
-        ERC20 transactingToken = ERC20(subscription.getPaymentTokenAddress(_paymentIdentifier));
-        uint256 subscriptionInterval = subscription.getPaymentInterval(_paymentIdentifier);
-        uint256 amountDue = subscription.getAmountDueFromPayment(_paymentIdentifier);
-        uint256 fee = subscription.getPaymentFee(_paymentIdentifier);
+        require(paymentSuccess == true, "The payment should be able to execute successfully");
 
-        // This format is done to ensure compatibility with Solidity 0.4.15
-        // Bool, Bool
-        var (paymentSuccess, finalPayment) = attemptProcessingWithSuccessAndLastPaymentCallback(
-            _paymentContract, 
-            _paymentIdentifier, 
-            address(transactingToken), 
-            msg.sender, 
-            currentTimestamp(), 
-            amountDue, 
-            fee,
-            true
-        );
-
-        require(paymentSuccess == true, "The payment should be successfully executed");
-
-        // If it was the final payment, mark it as completed and finish execution
         if (finalPayment) {
             emit SubscriptionCompleted(
                 _paymentIdentifier,
-                msg.sender,
-                amountDue
+                msg.sender
             );
 
             return;
         }
 
+        _activatePayment(_paymentContract, _paymentIdentifier, (from != msg.sender && to != msg.sender));
+    }
+
+    function _activatePayment(
+        address _paymentContract,
+        bytes32 _paymentIdentifier,
+        bool _isAServiceNode
+    )
+        private
+    {
+        BillableInterface subscription = BillableInterface(_paymentContract);
+
+        uint256 amountDue = subscription.getAmountDueFromPayment(_paymentIdentifier);
+        address tokenAddress = subscription.getPaymentTokenAddress(_paymentIdentifier);
+        uint256 nextPayment = currentTimestamp().add(subscription.getPaymentInterval(_paymentIdentifier));
+        uint256 fee = subscription.getPaymentFee(_paymentIdentifier);
+
         // Create a new record in the payments registry
         paymentRegistry.createNewPayment(
             _paymentIdentifier, // Subscription identifier
-            address(transactingToken), // Token address
-            currentTimestamp().add(subscriptionInterval), // Next due date
+            tokenAddress, // Token address
+            nextPayment, // Next due date
             amountDue, // Amount due
             fee // Fee
         );
 
-        // Emit the appropriate event to show subscription has been activated
+        // If someone else activates the subscription then they become the claimant
+        if (_isAServiceNode == true) {
+            paymentRegistry.claimPayment(
+                _paymentIdentifier, // Identifier of subscription
+                msg.sender, // The claimant
+                nextPayment, // Next payment due date
+                0
+            );
+
+            // This will notify service nodes that there's already a claimant
+            emit SubscriptionActivated(
+                _paymentContract,
+                _paymentIdentifier,
+                tokenAddress,
+                nextPayment,
+                amountDue,
+                fee,
+                msg.sender
+            );
+
+        }
+
+        // This will notify service nodes that this is up for grabs
         emit SubscriptionActivated(
             _paymentContract,
             _paymentIdentifier,
-            address(transactingToken),
-            currentTimestamp().add(subscriptionInterval),
+            tokenAddress,
+            nextPayment,
             amountDue,
-            fee
+            fee,
+            0
         );
 
     }
@@ -238,55 +257,56 @@ contract Executor is Ownable {
         public
         whenNotPaused
     {
-
+        // Initiate an instance of the BillableInterface subscription
         BillableInterface subscription = BillableInterface(_paymentContract);
+        uint256 amountDue = subscription.getAmountDueFromPayment(_paymentIdentifier);
+        uint256 fee = subscription.getPaymentFee(_paymentIdentifier);
 
         // Get the current payment registry object (if it doesn't exist execution will eventually fail)
-        var (
-            tokenAddress,
-            dueDate,
-            amount,
-            fee,
-            lastPaymentDate,
-            claimant,
-            ,
-            staked
-        ) = paymentRegistry.updatePaymentInformation(
+        var (dueDate, lastPaymentDate, claimant) = paymentRegistry.updatePaymentInformation(
             _paymentIdentifier, 
-            subscription.getAmountDueFromPayment(_paymentIdentifier), 
-            subscription.getPaymentFee(_paymentIdentifier)
+            amountDue, 
+            fee
         );
 
         // Ensure it's a fresh subscription or only the claimant
-        require(claimant == 0 || claimant == msg.sender, "There's already a claimant for this subscription");
+        require(claimant == 0 || claimant == msg.sender, "Cannot process someone else's payment");
 
-        // Make sure it's actually due
-        require(currentTimestamp() >= dueDate, "The due date has already passed");
+        // Make sure it isn't too late to process and it's the right time
+        require(currentTimestamp() < dueDate.add(dueDate.sub(lastPaymentDate).div(maximumIntervalDivisor)), "Must not be greater than the due date + the interval/divisor");
+        require(currentTimestamp() >= dueDate, "Must be past the due date");
+        
+        _processPayment(_paymentContract, _paymentIdentifier);
+    }
 
-        // Make sure it isn't too late to process
-        uint256 interval = dueDate.sub(lastPaymentDate);
-        require(currentTimestamp() < dueDate.add(interval.div(maximumIntervalDivisor)), "The subscription has already passed the processing period");
+    function _processPayment(
+        address _paymentContract,
+        bytes32 _paymentIdentifier
+    )
+        private
+    {
 
-        if (attemptProcessingWithSuccessCallback(
-            _paymentContract, _paymentIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, false
-        ) == false) {
-            processingFailed(_paymentContract, _paymentIdentifier, tokenAddress, msg.sender, staked);
+        if (callAttemptProcessingSimple(_paymentContract, _paymentIdentifier, false) == false) {
+            processingFailed(_paymentContract, _paymentIdentifier);
             return;
         }
+
+        uint256 nextPaymentDate = getNextPaymentDate(_paymentContract, _paymentIdentifier);
 
         paymentRegistry.claimPayment(
             _paymentIdentifier, // Identifier of subscription
             msg.sender, // The claimant
-            dueDate.add(interval), // Next payment due date
+            nextPaymentDate, // Next payment due date
             0
         );
 
         emit SubscriptionProcessed(
             _paymentIdentifier,
             msg.sender,
-            dueDate.add(interval),
+            nextPaymentDate,
             0
         );
+
     }
 
      /** @dev Catch another service node who didn't process their payment on time.
@@ -300,13 +320,15 @@ contract Executor is Ownable {
         public
         whenNotPaused
     {
+        require(isPaymentStatus(_paymentContract, _paymentIdentifier, 2));
+
         // Get the payment object
         var (
             tokenAddress,
             dueDate,
-            amount,
-            fee,
-            lastPaymentDate,
+            ,
+            ,
+            ,
             claimant,
             executionPeriod,
             staked
@@ -319,11 +341,6 @@ contract Executor is Ownable {
         require(claimant != 0, "There must be a claimant in the first place");
         require(msg.sender != claimant, "The claimant cannot call catch late on himself");
 
-        // Make the payment
-        bool didProcess = attemptProcessingWithSuccessCallback(
-            _paymentContract, _paymentIdentifier, tokenAddress, msg.sender, dueDate, amount, fee, false
-        );
-
         // Slash the tokens and give them to this caller = $$$
         stakeContract.transferStake(
             claimant,
@@ -332,19 +349,17 @@ contract Executor is Ownable {
             msg.sender
         );
 
-        if (didProcess == false) {
-            // Cancel the subscription
-            processingFailed(_paymentContract, _paymentIdentifier, tokenAddress, msg.sender, staked);
-        } else {
-            // Transfer claimant
-            paymentRegistry.transferClaimant(
-                _paymentIdentifier,
-                msg.sender,
-                dueDate.add(dueDate).sub(lastPaymentDate)
-            );
+        if (callAttemptProcessingSimple(_paymentContract, _paymentIdentifier, false) == false) {
+            processingFailed(_paymentContract, _paymentIdentifier);
         }
 
-        // Emit an event to say a late payment was caught and processed
+        // Transfer claimant
+        paymentRegistry.transferClaimant(
+            _paymentIdentifier,
+            msg.sender
+        );
+
+        // an event to say a late payment was caught and processed
         emit SubscriptionLatePaymentCaught(
             _paymentIdentifier,
             claimant,
@@ -366,7 +381,9 @@ contract Executor is Ownable {
     {
         require(_paymentIdentifier > 0, "There must be a valid subscription identifier");
 
-        // Get the payment registry information
+        // Active or cancelled subscription
+        isPaymentStatusEither(_paymentContract, _paymentIdentifier, 2, 3);
+        
         var (
             tokenAddress,
             dueDate,
@@ -382,21 +399,10 @@ contract Executor is Ownable {
         // This also means we're not talking about a first time payment
         require(claimant == msg.sender, "Must be the original claimant");
 
-        // Ensure it is still active
-        require(BillableInterface(_paymentContract).getPaymentStatus(_paymentIdentifier) == 2, "The subscription must be valid");
-
         // Make sure we're within the cancellation window
         uint256 minimumDate = lastPaymentDate.add(executionPeriod);
         uint256 interval = dueDate.sub(lastPaymentDate);
         uint256 maximumDate = minimumDate.add(interval.div(maximumIntervalDivisor));
-
-        require(currentTimestamp() >= minimumDate && currentTimestamp() < maximumDate, "The time period must not have passed");
-
-        // Call the remove claim on payments registry
-        paymentRegistry.removeClaimant(
-            _paymentIdentifier,
-            msg.sender
-        );
 
         // Unstake tokens
         stakeContract.unlockTokens(
@@ -405,9 +411,29 @@ contract Executor is Ownable {
             staked
         );
 
-        // Emit the correct event
-        emit SubscriptionReleased(_paymentIdentifier, msg.sender, dueDate);
+        // If the payment is cancelled the node should be able to withdraw their stake at any time
+        require((currentTimestamp() >= minimumDate && currentTimestamp() < maximumDate) || isPaymentStatus(_paymentContract, _paymentIdentifier, 3), "Must be within the release window");
 
+        _releaseSubscription(_paymentIdentifier, minimumDate, maximumDate, dueDate);
+
+    }
+
+    function _releaseSubscription(
+        bytes32 _paymentIdentifier,
+        uint256 _minimumDate,
+        uint256 _maximumDate,
+        uint256 _dueDate
+    )
+        private
+    {
+        // Call the remove claim on payments registry
+        paymentRegistry.removeClaimant(
+            _paymentIdentifier,
+            msg.sender
+        );
+
+        // the correct event
+        emit SubscriptionReleased(_paymentIdentifier, msg.sender, _dueDate);
     }
 
     function getPricedGas(
@@ -445,120 +471,137 @@ contract Executor is Ownable {
       * PRIVATE FUNCTION
     */
 
-    function attemptProcessingWithSuccessCallback(
+    function callAttemptProcessingSimple(
         address _paymentContract,
         bytes32 _paymentIdentifier,
-        address _tokenAddress,
-        address _serviceNode,
-        uint256 _newLastPaymentDate,
-        uint256 _amount,
-        uint256 _fee,
         bool _firstPayment
     )
         private
         returns (bool success)
     {
-        var (result, ) = attemptProcessingWithSuccessAndLastPaymentCallback(
+        var (_success, ) = callAttemptProcessing(
             _paymentContract,
             _paymentIdentifier,
-            _tokenAddress,
-            _serviceNode,
-            _newLastPaymentDate,
-            _amount,
-            _fee,
             _firstPayment
         );
 
-        return (result);
-        
+        return _success;
     }
 
-    function attemptProcessingWithSuccessAndLastPaymentCallback(
+    function callAttemptProcessing(
         address _paymentContract,
         bytes32 _paymentIdentifier,
-        address _tokenAddress,
-        address _serviceNode,
-        uint256 _newLastPaymentDate,
-        uint256 _amount,
-        uint256 _fee,
         bool _firstPayment
     )
         private
         returns (bool success, bool finalPayment)
     {
+        address tokenAddress = BillableInterface(_paymentContract).getPaymentTokenAddress(_paymentIdentifier);
        
-        // Anyone who's processing a subscription should meet these guidelines
-        require(_firstPayment == true || stakeContract.getAvailableStake(msg.sender, _tokenAddress) >= 1, "At least one token is required to process subscriptions");
+        bool valid = ensureValidRequirements(_paymentContract, _paymentIdentifier, tokenAddress, _firstPayment);
 
+        attemptProcessing(_paymentContract, _paymentIdentifier, tokenAddress, msg.sender);
+
+        var (couldSetLastDate, _finalPayment) = setNextPaymentDateResult(_paymentContract, _paymentIdentifier, _firstPayment);
+
+        return (valid && couldSetLastDate, _finalPayment);
+        
         // Execute the actual payment
-        bool paymentResult = address(this).call(
-            bytes4(
-                keccak256(
-                    "attemptProcessing(address,bytes32,address,address,uint256,uint256,uint256)"
-                )
-            ), _paymentContract,
-                _paymentIdentifier,
-                _tokenAddress,
-                _serviceNode,
-                _newLastPaymentDate,
-                _amount,
-                _fee
-        );
+        // @TODO: TEMP IN ORDER TO WORK FOR AION
+        // bool paymentResult = address(this).call(
+        //     bytes4(
+        //         blake2b256(
+        //             "attemptProcessing(address,bytes32,address,address)"
+        //         )
+        //     ), _paymentContract,
+        //         _paymentIdentifier,
+        //         _tokenAddress,
+        //         _serviceNode
+        //     );
+    }
 
+    function ensureValidRequirements(
+        address _paymentContract,
+        bytes32 _paymentIdentifier,
+        address _tokenAddress,
+        bool _firstPayment
+    )
+        private
+        returns (bool)
+    {
+        require(_firstPayment == true || stakeContract.getAvailableStake(msg.sender, _tokenAddress) >= 1);
+        return isPaymentStatusEither(_paymentContract, _paymentIdentifier, 1, 2);
+    }
+
+    function setNextPaymentDateResult(
+        address _paymentContract,
+        bytes32 _paymentIdentifier,
+        bool _firstPayment
+    )
+        private
+        returns (bool settingLastPaymentResult, bool finalPaymentResult)
+    {
         // Update the last payment date in the volume subscription contract
         // If this reverts, that means the payment isn't ready
-        BillableInterface subscription = BillableInterface(_paymentContract);
-        var (settingLastPaymentResult, finalPaymentResult) = subscription.setLastestPaymentDate(_newLastPaymentDate, _paymentIdentifier);
-
+        uint256 nextPaymentDate = getNextPaymentDate(_paymentContract, _paymentIdentifier);
+        var (_settingLastPaymentResult, _finalPaymentResult) = BillableInterface(_paymentContract).setLastestPaymentDate(nextPaymentDate, _paymentIdentifier);
 
         // @TODO: Add tests for this down the line
         if (_firstPayment == false) {
-            require(_firstPayment == false || finalPaymentResult == false, "An existing payment should never be marked as the final payment. Only reserved for scheduled/first time payments.");
+            require(_firstPayment == false || _finalPaymentResult == false);
         }
 
         // The set last payment result and last payment result both have to be true.
         // The reason why we don't put a require is because setLastestPaymentDate might call an external contract
         // and we don't want a failure to stop a node from processing a payment.
-        return (paymentResult && settingLastPaymentResult, finalPaymentResult);
-        
+        return (_settingLastPaymentResult, _finalPaymentResult);
     }
-
+   
     function attemptProcessing(
         address _paymentContract,
         bytes32 _paymentIdentifier,
         address _tokenAddress,
-        address _serviceNode,
-        uint256 _newLastPaymentDate,
-        uint256 _amount,
-        uint256 _fee
+        address _serviceNode
     )
-        external
+        private
     {
         // Essentially it's a private function without the private modifier so that the
         // .call() function can be used.
 
-        require(msg.sender == address(this), "Function can only be called by this contract");
+        // @TODO: TEMP FIX FOR AION ONLY!
+        //require(msg.sender == address(this));
 
-        BillableInterface subscription = BillableInterface(_paymentContract);
+        var (from, to) = BillableInterface(_paymentContract).getPaymentFromToAddresses(_paymentIdentifier);
 
-        var (from, to) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
-
-        uint256 validSubscription = subscription.getPaymentStatus(_paymentIdentifier);
-
-        require(validSubscription == 1 || validSubscription == 2, "Subscription must be ready or active");
+        uint256 fee = BillableInterface(_paymentContract).getPaymentFee(_paymentIdentifier);
+        uint256 amount = BillableInterface(_paymentContract).getAmountDueFromPayment(_paymentIdentifier); 
 
         if (_serviceNode == from || _serviceNode == to) {
-            makePayment(ERC20(_tokenAddress), from, to, _amount);
+            makePayment(_tokenAddress, from, to, amount);
             return;
         }
 
         uint256 pricedGas = getPricedGas(_paymentContract, _paymentIdentifier, _tokenAddress);
-        makePayment(ERC20(_tokenAddress), from, to, _amount.sub(_fee).sub(pricedGas));
-        makePayment(ERC20(_tokenAddress), from, _serviceNode, _fee.add(pricedGas));
+        attemptProcessingServiceNode(_tokenAddress, from, to, _serviceNode, amount, fee, pricedGas);
+    }
+
+    function attemptProcessingServiceNode(
+        address _tokenAddress,
+        address _from,
+        address _to,
+        address _serviceNode,
+        uint256 _amount,
+        uint256 _fee,
+        uint256 _pricedGas
+    )
+        private
+    {
+        makePayment(_tokenAddress, _from, _to, _amount.sub(_fee).sub(_pricedGas));
+        makePayment(_tokenAddress, _from, _serviceNode, _fee.add(_pricedGas));
     }
 
     function makePayment(
-        ERC20 _transactingToken,
+        address _tokenAddress,
         address _from,
         address _to,
         uint256 _amount
@@ -566,42 +609,84 @@ contract Executor is Ownable {
         private
         returns (bool)
     {
+        // Instantiate the token
+        ERC20 transactingToken = ERC20(_tokenAddress);
+
         // Get the businesses balance before the transaction
-        uint256 balanceOfBusinessBeforeTransfer = _transactingToken.balanceOf(_to);
+        uint256 balanceOfBusinessBeforeTransfer = transactingToken.balanceOf(_to);
 
         // Check if the user has enough funds
-        require(_transactingToken.balanceOf(_from) >= _amount, "The user doesn't have enough tokens");
+        require(transactingToken.balanceOf(_from) >= _amount);
 
         // Send currency to the destination business
-        transferProxy.transferFrom(address(_transactingToken), _from, _to, _amount);
+        transferProxy.transferFrom(address(transactingToken), _from, _to, _amount);
 
         // Check the business actually received the funds by checking the difference
-        require((_transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount, "Before and after balances don't match up");
+        require((transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount);
     }
 
     function processingFailed(
         address _paymentContract,
-        bytes32 _paymentIdentifier,
-        address _tokenAddress,
-        address _claimant,
-        uint256 _staked
+        bytes32 _paymentIdentifier
     )
         private
     {
         // Cancel if it hasn't already
         BillableInterface(_paymentContract).cancelPayment(_paymentIdentifier);
 
+        var (
+            tokenAddress,
+            ,
+            ,
+            ,
+            ,
+            claimant,
+            ,
+            staked
+        ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
+
         // Refund the gas to the service node by freeing up storage
         paymentRegistry.deletePayment(_paymentIdentifier);
 
         // Unstake tokens
         stakeContract.unlockTokens(
-            _claimant,
-            _tokenAddress,
-            _staked
+            claimant,
+            tokenAddress,
+            staked
         );
 
         emit SubscriptionCancelled(_paymentContract, _paymentIdentifier);
+    }
+
+    function isPaymentStatus(address _paymentContract, bytes32 _paymentIdentifier, uint256 one) private returns (bool) {
+        uint256 status = BillableInterface(_paymentContract).getPaymentStatus(_paymentIdentifier);
+        return (status == one);
+    }
+
+    function isPaymentStatusEither(address _paymentContract, bytes32 _paymentIdentifier, uint256 one, uint256 two) private returns (bool) {
+        uint256 status = BillableInterface(_paymentContract).getPaymentStatus(_paymentIdentifier);
+        return (status == one || status == two);
+    }
+
+    function getNextPaymentDate(address _paymentContract, bytes32 _paymentIdentifier) private returns (uint256) {
+        var (
+            ,
+            dueDate,
+            ,
+            ,
+            lastPaymentDate,
+            ,
+            ,
+        ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
+
+        uint256 paymentRegistryStoredDate = dueDate.add(dueDate).sub(lastPaymentDate);
+
+        if (paymentRegistryStoredDate == 0) {
+            uint256 interval = BillableInterface(_paymentContract).getPaymentInterval(_paymentIdentifier);
+            return currentTimestamp() + interval;
+        }
+
+        return paymentRegistryStoredDate;
     }
 
 }

@@ -54,7 +54,7 @@ export default class EthereumService implements NetworkService {
     let approveTx = await stakeTokenContract.approve.sendTransactionAsync(
       stakeContract.address,
       amount,
-      {from: this.serviceNode}
+      this.TX_DEFAULTS
     );
 
     await this.eightEx.blockchain.awaitTransactionMinedAsync(approveTx);

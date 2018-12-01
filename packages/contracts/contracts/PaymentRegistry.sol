@@ -166,25 +166,18 @@ contract PaymentRegistry is Authorizable {
         public
         onlyAuthorized
         returns (
-            address tokenAddress,              // 0
             uint256 dueDate,                   // 1
-            uint256 amount,                    // 2
-            uint256 fee,                       // 3
-            uint256 lastPaymentDate,           // 4
-            address claimant,                  // 5
-            uint256 executionPeriod,           // 6
-            uint256 staked                     // 7
+            uint256 lastPaymentDate,           // 2
+            address claimant
         )
     { 
         
         Payment storage currentPayment = payments[_paymentIdentifier];
 
         if (_newAmount < currentPayment.amount) {
-            uint256 divisor = currentPayment.amount.div(_newAmount);
-            currentPayment.staked = currentPayment.staked.div(divisor);
+            currentPayment.staked = currentPayment.staked.div(currentPayment.amount.div(_newAmount));
         } else {
-            uint256 multiplier = _newAmount.div(currentPayment.amount);
-            currentPayment.staked = currentPayment.staked.mul(multiplier);
+            currentPayment.staked = currentPayment.staked.mul(_newAmount.div(currentPayment.amount));
         }
 
         currentPayment.amount = _newAmount;
@@ -193,14 +186,9 @@ contract PaymentRegistry is Authorizable {
         emit PaymentAmountUpdated(_paymentIdentifier, _newAmount, _newFee, currentPayment.staked);
 
         return(
-            currentPayment.tokenAddress,
             currentPayment.dueDate,
-            currentPayment.amount,
-            currentPayment.fee,
             currentPayment.lastPaymentDate,
-            currentPayment.claimant,
-            currentPayment.executionPeriod,
-            currentPayment.staked
+            currentPayment.claimant
         );
     }
 
@@ -212,24 +200,25 @@ contract PaymentRegistry is Authorizable {
     */
     function transferClaimant(
         bytes32 _paymentIdentifier,
-        address _claimant,
-        uint256 _nextPayment
+        address _claimant
     )
         public
         onlyAuthorized
         returns (bool success)
     {
         // @TODO: Write tests
-        require(_nextPayment >= currentTimestamp(), "The next payment date must be a date in the future");
-
         Payment storage currentPayment = payments[_paymentIdentifier];
+
+        uint nextPayment = currentPayment.dueDate.add(currentPayment.dueDate).sub(currentPayment.lastPaymentDate);
+
+        require(nextPayment >= currentTimestamp(), "The next payment date must be a date in the future");
 
         uint256 oldDueDate = currentPayment.dueDate;
 
         currentPayment.executionPeriod = currentTimestamp().sub(oldDueDate);
         currentPayment.claimant = _claimant;
         currentPayment.lastPaymentDate = oldDueDate;
-        currentPayment.dueDate = _nextPayment;
+        currentPayment.dueDate = nextPayment;
 
         emit PaymentClaimantTransferred(_paymentIdentifier, _claimant);
 
@@ -265,10 +254,10 @@ contract PaymentRegistry is Authorizable {
     }
 
     /** @dev Get the infromation about a payment
-      * @param _subscriptionIdenitifer is the identifier of that customer's
+      * @param _paymentIdentifier is the identifier of that customer's
       * subscription with it's relevant details.
     */
-    function getPaymentInformation(bytes32 _subscriptionIdenitifer)
+    function getPaymentInformation(bytes32 _paymentIdentifier)
         public
         view
         returns (
@@ -282,7 +271,7 @@ contract PaymentRegistry is Authorizable {
             uint256 staked                     // 7
         )
     {
-        Payment memory payment = payments[_subscriptionIdenitifer];
+        Payment memory payment = payments[_paymentIdentifier];
         return(
             payment.tokenAddress,
             payment.dueDate,
@@ -294,7 +283,7 @@ contract PaymentRegistry is Authorizable {
             payment.staked
         );
     }
-
+    
      /**
       * INTERNAL FUNCTIONS
     */

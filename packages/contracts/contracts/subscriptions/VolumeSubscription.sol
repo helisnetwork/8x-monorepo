@@ -301,7 +301,6 @@ contract VolumeSubscription is BillableInterface {
         string _data
     )
         public
-        returns (bytes32 newPlanHash)
     {
 
         require(_owner != 0x0);
@@ -325,7 +324,7 @@ contract VolumeSubscription is BillableInterface {
 
         require(plans[planHash].owner == 0x0);
 
-        Plan memory newPlan = Plan({
+        plans[planHash] = Plan({
             owner: _owner,
             tokenAddress: _tokenAddress,
             identifier: _identifier,
@@ -336,11 +335,7 @@ contract VolumeSubscription is BillableInterface {
             terminationDate: 0
         });
 
-        plans[planHash] = newPlan;
-
         emit CreatedPlan(planHash, _identifier, _owner);
-
-        return planHash;
     }
 
     /** @dev This is the function for creating a new subscription.
