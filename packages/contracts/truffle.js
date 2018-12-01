@@ -45,7 +45,9 @@ module.exports = {
             gasPrice: 21
         }
     },
-    compiler: {
-        solc: "0.4.24"       // Version. ex:  "0.4.20". (Default: truffle's installed solc)
-     }
+    compilers: {
+        solc: {
+            version:"0.4.24"       // Version. ex:  "0.4.20". (Default: truffle's installed solc)
+        }
+    }
 };
