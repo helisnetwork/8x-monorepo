@@ -13,7 +13,8 @@ const newPlan = async function(contract, token, account, identifier, interval, c
         interval || 30,
         cost || 30,
         fee || 1,
-        0, { from: account }
+        0,
+        { from: account }
     );
 
     let planHash = newPlan.logs[0].args.planIdentifier;

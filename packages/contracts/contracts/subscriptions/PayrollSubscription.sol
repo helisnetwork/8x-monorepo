@@ -242,7 +242,6 @@ contract PayrollSubscription is BillableInterface {
         string _data
     ) 
         public
-        returns (bytes32)
     {
 
         require(_startDate > 0, "You need to set a starting date");
@@ -276,7 +275,20 @@ contract PayrollSubscription is BillableInterface {
             _oneOff,
             _fee
         );
+
+        _createPayments(_ids, _amounts, _destinations, scheduleHash);
         
+    }
+
+    function _createPayments(
+        bytes32[] _ids,
+        uint256[] _amounts,
+        address[] _destinations,
+        bytes32 _scheduleHash
+    )   
+        private
+    {
+
         for (uint256 i = 0; i < _ids.length; i++)  {
             
             bytes32 id = _ids[i];
@@ -286,7 +298,7 @@ contract PayrollSubscription is BillableInterface {
                 _destinations[i],
                 0,
                 0,
-                scheduleHash
+                _scheduleHash
             );
             
             require(payments[id].scheduleIdentifier == 0);
@@ -294,12 +306,10 @@ contract PayrollSubscription is BillableInterface {
 
             emit CreatedPayment (
                 id,
-                scheduleHash,
+                _scheduleHash,
                 _amounts[i]
             );
         }
-        
-        return scheduleHash;
 
     }
 
