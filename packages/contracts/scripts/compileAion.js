@@ -3,8 +3,8 @@ const path = require('path');
 const PACKAGE = require('../package.json');
 
 const Web3 = require('aion-web3')
-// const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
-const web3 = new Web3(new Web3.providers.HttpProvider("https://api.nodesmith.io/v1/aion/mainnet/jsonrpc?apiKey=2a11723e42314e7886056bc3f2157548"));
+const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+// const web3 = new Web3(new Web3.providers.HttpProvider("https://api.nodesmith.io/v1/aion/mainnet/jsonrpc?apiKey=2a11723e42314e7886056bc3f2157548"));
 // const web3 = new Web3(new Web3.providers.HttpProvider("http://0.0.0.0:8545"));
 
 const FLAT_DIR = './aion/flat';
@@ -45,22 +45,26 @@ result.forEach((file) => {
 
     web3.eth.compileSolidity(loadedFile).then((artifact) =>  {
 
-        fs.writeFileSync(LOCAL_DIR + '/' + name + '.json', JSON.stringify(artifact, null, 2));
+        let prettyArtifact = JSON.stringify(artifact, null, 2);
+        fs.writeFileSync(LOCAL_DIR + '/' + name + '.json', prettyArtifact);
 
-        let artifactExported = {
-            contractName: name,
-            abi: artifact[name].info.abiDefinition,
-            bytecode: artifact[name].code,
-            compiler: artifact[name].info.compilerVersion,
-            version: PACKAGE.version,
-            networks: {}
-        };
+        // let artifactExported = {
+        //     contractName: name,
+        //     abi: artifact[name].info.abiDefinition,
+        //     bytecode: artifact[name].code,
+        //     compiler: artifact[name].info.compilerVersion,
+        //     version: PACKAGE.version,
+        //     networks: {}
+        // };
 
-        let json = JSON.stringify(artifactExported, null, 2);
+        let json = JSON.stringify(prettyArtifact, null, 2);
         fs.writeFileSync(JSON_DIR + '/' + name + '_Aion.json', json);
 
         let typescriptAbi = "export const " + name + " = \n" + json;
         fs.writeFileSync(TS_DIR + '/' + name + '_Aion.ts', typescriptAbi);
+    }).catch((error) => {
+        console.log("Couldn't compile " + name);
+        console.log(error);
     })
     
 });

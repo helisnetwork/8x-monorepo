@@ -3,20 +3,26 @@ const fs = require('fs-extra');
 const Web3 = require('aion-web3')
 
 // Import compiled contracts
-const ApprovedRegistry = fs.readFileSync("../flat/ApprovedRegistry_flat.sol", "utf8");
-const EightExToken = fs.readFileSync("../flat/EightExToken_flat.sol", "utf8");
-const Executor = fs.readFileSync("../flat/Executor_flat.sol", "utf8");
-const MultiSigWalletWithTimeLock = fs.readFileSync("../flat/MultiSigWalletWithTimeLock_flat.sol", "utf8");
-const PaymentRegistry = fs.readFileSync("../flat/PaymentRegistry_flat.sol", "utf8");
-const PayrollSubscription = fs.readFileSync("../flat/PayrollSubscription_flat.sol", "utf8");
-const Stake = fs.readFileSync("../flat/StakeContract_flat.sol", "utf8");
-const TransferProxy = fs.readFileSync("../flat/TransferProxy_flat.sol", "utf8");
-const VolumeSubscription = fs.readFileSync("../flat/VolumeSubscription_flat.sol", "utf8");
-const WETH = fs.readFileSync("../flat/WETH_flat.sol", "utf8");
+const ApprovedRegistry = fs.readJsonSync("../build/ApprovedRegistry.json").ApprovedRegistry;
+const EightExToken = fs.readJsonSync("../build/EightExToken.json").EightExToken;
+const Executor = fs.readJsonSync("../build/Executor.json").Executor;
+const MultiSigWalletWithTimeLock = fs.readJsonSync("../build/MultiSigWalletWithTimeLock.json").MultiSigWalletWithTimeLock;
+const PaymentRegistry = fs.readJsonSync("../build/PaymentRegistry.json").PaymentRegistry;
+const PayrollSubscription = fs.readJsonSync("../build/PayrollSubscription.json").PayrollSubscription;
+const Stake = fs.readJsonSync("../build/StakeContract.json").StakeContract;
+const TransferProxy = fs.readJsonSync("../build/TransferProxy.json").TransferProxy;
+const VolumeSubscription = fs.readJsonSync("../build/VolumeSubscription.json").VolumeSubscription;
+const WETH = fs.readJsonSync("../build/WETH.json").WETH;
 
 // Setup web3
-const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
-let deployerAccount;
+// const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
+
+// Account: 0xa0c80e6f6eef087a089ec3fcda7ba07ce6c35c5c9b3f53a1ba8c4c718d10d39a
+// Private Key: 0xcc8aed366b1e045d6aeddec5bfa7c152ff686a723ae3c98e5e6785637b451befe5ece5d4b66d6cf8654bb22b7441883b32544bc76231fee4946477d2aa90ec4f
+//https://api.nodesmith.io/v1/aion/testnet/jsonrpc?apiKey=2a11723e42314e7886056bc3f2157548
+const web3 = new Web3(new Web3.providers.HttpProvider("https://api.nodesmith.io/v1/aion/testnet/jsonrpc?apiKey=69b8c35ca8f54d8ab60831d94f3f4716"));
+
+let deployerAccount = web3.eth.accounts.privateKeyToAccount("0xcc8aed366b1e045d6aeddec5bfa7c152ff686a723ae3c98e5e6785637b451befe5ece5d4b66d6cf8654bb22b7441883b32544bc76231fee4946477d2aa90ec4f");
 
 // Contract Instances
 const ApprovedRegistryContract = new web3.eth.Contract(ApprovedRegistry.info.abiDefinition);
@@ -42,7 +48,7 @@ async function startDeployment() {
     let eightExToken = await deploy(EightExTokenContract, EightExToken.code, null, deployerAccount);
 
     // Deploy Stake Contract
-    let stakeContract = await deploy(StakeContract, Stake.code, null, deployerAccount);
+    let stakeContract = await deploy(StakeContract, Stake.code, [eightExToken], deployerAccount);
 
     // Deploy DAI or WETH
     let weth = await deploy(WETHContract, WETH.code, null, deployerAccount);
@@ -51,7 +57,7 @@ async function startDeployment() {
     let multiSig = await deploy(
         MultiSigWalletWithTimeLockContract, 
         MultiSigWalletWithTimeLock.code, 
-        [[account.address], 1, 0],
+        [[deployerAccount.address], 1, 0],
         deployerAccount
     );
 
@@ -117,27 +123,38 @@ async function startDeployment() {
 // Deploy a contract
 
 async function deploy(contract, code, arguments) {
-    const deploy = contract.deploy({
-        data: code, 
-        arguments: arguments
-    }).encodeABI();
 
-    const deployTx = { gas: 40000000, gasPrice: 10000000000, data: deploy, from: account.address };
+    const deploy = contract.deploy( {data: code, arguments: arguments} ).encodeABI();
+    const deployTx = { gas: 4000000, gasPrice: 10000000000, data: deploy, from: deployerAccount.address };
 
-    let txHash = await web3.eth.accounts.signTransaction(deployTx, account.privateKey);
+    let signedTx = await web3.eth.accounts.signTransaction(deployTx, deployerAccount.privateKey)
 
-    let contractAccount = response.address;
-    console.log("\ntransaction hash:\n\t" + txHash + "\ncontract address:\n\t" + contractAccount);
-
-    let txReceipt = web3.eth.getTransactionReceipt(txHash);
+    console.log(`Deploying...`);
     
-    while (txReceipt == null) {
-        sleep(10000);
-        txReceipt = web3.eth.getTransactionReceipt(txHash);
+    let error, txHash = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+    console.log(`Tx Hash: ${JSON.stringify(txHash, null, 2)}...`);
+
+    let resolved = false;
+    let txReceipt = web3.eth.getTransactionReceipt(txHash).then((result) => {
+        resolved = true;
+    });
+
+    while (resolved == false) {
+        await sleep(10000);
+        txReceipt = web3.eth.getTransactionReceipt(txHash).then((result) => {
+            resolved = true;
+        });
     }
 
-    console.log(txReceipt.contractAddress);
-    return txReceipt.contractAddress;
+    await Promise.resolve(txReceipt);
+
+    console.log(`Tx Receipt: ${JSON.stringify(txReceipt)}\nAddress: ${txHash.contractAddress}`);
+
+    return txHash.contractAddress;
+}
+
+async function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Add WETH to Registry
@@ -242,77 +259,8 @@ async function transferAllTokens(contract, multiSig, amount) {
     return txReceipt;
 }
 
-/*
-let transferProxy = await deployer.deploy(TransferProxy);
-let paymentRegistry = await deployer.deploy(PaymentRegistry);
-
-let eightExToken = await deployer.deploy(EightExToken);
-let stakeContract = await deployer.deploy(StakeContract, eightExToken.address);
-
-let kyberNetworkAddress = Dependencies.KyberNetwork[network] || (await deployer.deploy(MockKyberNetwork)).address;
-let daiAddress = Tokens.DAI.addresses[network] || (await deployer.deploy(MockToken)).address;
-
-// Deploy MultiSig with one owner, one confirmation and zero seconds to make a change
-// This will be changed to something else once we move past an alpha stage
-let multiSig = await deployer.deploy(MultiSigWalletWithTimeLock, [accounts[0]], 1, 0);
-
-// Deploy the Approved Registry with Kyber Network
-let approvedRegistry = await deployer.deploy(ApprovedRegistry, kyberNetworkAddress);
-
-// Deploy the Volume Subscription contract with the Approved Registry
-let volumeSubscription = await deployer.deploy(VolumeSubscription, approvedRegistry.address);
-
-// Deploy the Payroll Subscription contract with the Approved Registry
-let payrollSubscription = await deployer.deploy(PayrollSubscription, approvedRegistry.address);
-
-// Add Dai to the approved token token registry
-await approvedRegistry.addApprovedToken(daiAddress, false)
-
-// Add Volume + Payroll Subscription as an approved contract
-await approvedRegistry.addApprovedContract(volumeSubscription.address);
-await approvedRegistry.addApprovedContract(payrollSubscription.address);
-
-// Deploy the executor contract
-let executor = await deployer.deploy(
-    Executor,
-    transferProxy.address,
-    stakeContract.address,
-    paymentRegistry.address,
-    approvedRegistry.address,
-    Constants.MAXIMUM_INTERVAL_DIVISOR
-);
-
- // Add Authorized Addresses
-
-let multiSig = await MultiSigWalletWithTimeLock.deployed();
-
-let approvedRegistry = await ApprovedRegistry.deployed();
-let transferProxy = await TransferProxy.deployed();
-let stakeContract = await StakeContract.deployed();
-let paymentRegistry = await PaymentRegistry.deployed();
-let executor = await Executor.deployed();
-let volumeSubscription = await VolumeSubscription.deployed();
-let payrollSubscription = await PayrollSubscription.deployed();
-let eightExToken = await EightExToken.deployed();
-
-await transferProxy.addAuthorizedAddress(executor.address);
-await stakeContract.addAuthorizedAddress(executor.address);
-await paymentRegistry.addAuthorizedAddress(executor.address);
-await volumeSubscription.addAuthorizedAddress(executor.address);
-await payrollSubscription.addAuthorizedAddress(executor.address);
-
-// Change ownership
-
-await approvedRegistry.transferOwnership(multiSig.address);
-await transferProxy.transferOwnership(multiSig.address);
-await stakeContract.transferOwnership(multiSig.address);
-await paymentRegistry.transferOwnership(multiSig.address);
-await executor.transferOwnership(multiSig.address);
-await volumeSubscription.transferOwnership(multiSig.address);
-await payrollSubscription.transferOwnership(multiSig.address);
-
-// Leave one token to the person who deployed
-//await eightExToken.transfer(multiSig, 2 ** 256 - 2);
-await eightExToken.transferOwnership(multiSig.address);
-
-*/
+try {
+    startDeployment();
+} catch (error) {
+    console.log(error);
+}
