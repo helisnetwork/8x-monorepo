@@ -23,6 +23,8 @@ const WETH = fs.readJsonSync("../build/WETH.json").WETH;
 const web3 = new Web3(new Web3.providers.HttpProvider("https://api.nodesmith.io/v1/aion/testnet/jsonrpc?apiKey=69b8c35ca8f54d8ab60831d94f3f4716"));
 
 let deployerAccount = web3.eth.accounts.privateKeyToAccount("0xcc8aed366b1e045d6aeddec5bfa7c152ff686a723ae3c98e5e6785637b451befe5ece5d4b66d6cf8654bb22b7441883b32544bc76231fee4946477d2aa90ec4f");
+web3.eth.accounts.wallet.add(deployerAccount);
+web3.eth.defaultAccount = deployerAccount.address;
 
 // Contract Instances
 const ApprovedRegistryContract = new web3.eth.Contract(ApprovedRegistry.info.abiDefinition);
@@ -124,34 +126,81 @@ async function startDeployment() {
 
 async function deploy(contract, code, arguments) {
 
-    const deploy = contract.deploy( {data: code, arguments: arguments} ).encodeABI();
-    const deployTx = { gas: 4000000, gasPrice: 10000000000, data: deploy, from: deployerAccount.address };
+    // let instance = await contract.deploy( {data: code, arguments: arguments} ).send({
+    //     from: deployerAccount.address,
+    //     gas: 4000000,
+    //     gasPrice: 10000000000
+    // }, function(error, transactionHash){
+    //     console.log(`Callback ${error, transactionHash}`)
+    // })
+    // .on('error', function(error){ console.log(`Error ${error}`) })
+    // .on('transactionHash', (transactionHash) => { 
+    //     console.log(`Hash ${transactionHash}`) 
+    //     getTransactionReceiptMined(transactionHash, 10).then((res) => {
+    //         console.log(res);
+    //     }).catch(error => console.log(error));
+    // })
+    // .on('receipt', function(receipt){
+    //     console.log(receipt.contractAddress) // contains the new contract address
+    // })
+    // .on('confirmation', function(confirmationNumber, receipt){ console.log(`Confirmation ${transactionHash}`)})
+    // .then(function(newContractInstance){
+    //     console.log(newContractInstance.options.address) // instance with the new contract address
+    // });
 
-    let signedTx = await web3.eth.accounts.signTransaction(deployTx, deployerAccount.privateKey)
+    // const deploy = contract.deploy( {data: code, arguments: arguments} ).encodeABI();
+    // const deployTx = { gas: 4000000, gasPrice: 10000000000, data: deploy, from: deployerAccount.address };
 
-    console.log(`Deploying...`);
+    // let signedTx = await web3.eth.accounts.signTransaction(deployTx, deployerAccount.privateKey)
+
+    // console.log(`Deploying...`);
     
-    let error, txHash = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
-    console.log(`Tx Hash: ${JSON.stringify(txHash, null, 2)}...`);
+    // let error, txHash = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+    // console.log(`Tx Hash: ${JSON.stringify(txHash, null, 2)}...`);
 
-    let resolved = false;
-    let txReceipt = web3.eth.getTransactionReceipt(txHash).then((result) => {
-        resolved = true;
-    });
+    // let resolved = false;
+    // let txReceipt = web3.eth.getTransactionReceipt(txHash).then((result) => {
+    //     resolved = true;
+    // });
 
-    while (resolved == false) {
-        await sleep(10000);
-        txReceipt = web3.eth.getTransactionReceipt(txHash).then((result) => {
-            resolved = true;
-        });
-    }
+    // while (resolved == false) {
+    //     await sleep(10000);
+    //     txReceipt = web3.eth.getTransactionReceipt(txHash).then((result) => {
+    //         resolved = true;
+    //     });
+    // }
 
-    await Promise.resolve(txReceipt);
+    // await Promise.resolve(txReceipt);
 
-    console.log(`Tx Receipt: ${JSON.stringify(txReceipt)}\nAddress: ${txHash.contractAddress}`);
+    // console.log(`Tx Receipt: ${JSON.stringify(txReceipt)}\nAddress: ${txHash.contractAddress}`);
 
-    return txHash.contractAddress;
+    // return txHash.contractAddress;
 }
+
+function getTransactionReceiptMined(txHash, interval) {
+    const transactionReceiptAsync = function(resolve, reject) {
+        web3.eth.getTransactionReceipt(txHash, (error, receipt) => {
+            if (error) {
+                reject(error);
+            } else if (receipt == null) {
+                setTimeout(
+                    () => transactionReceiptAsync(resolve, reject),
+                    interval ? interval : 500);
+            } else {
+                resolve(receipt);
+            }
+        });
+    };
+
+    if (Array.isArray(txHash)) {
+        return Promise.all(txHash.map(
+            oneTxHash => getTransactionReceiptMined(oneTxHash, interval)));
+    } else if (typeof txHash === "string") {
+        return new Promise(transactionReceiptAsync);
+    } else {
+        throw new Error("Invalid Type: " + txHash);
+    }
+};
 
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
