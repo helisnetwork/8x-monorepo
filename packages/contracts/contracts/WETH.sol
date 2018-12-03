@@ -1,8 +1,10 @@
 pragma solidity ^0.4.24;
 
 import "./base/math/SafeMath.sol";
+
 import "./base/token/ERC20.sol";
 import "./base/token/ExtendedERC20.sol";
+
 import "./interfaces/WrappableInterface.sol";
 
 contract WETH is ERC20, ExtendedERC20, WrappableInterface {
