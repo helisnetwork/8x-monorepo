@@ -435,7 +435,7 @@ contract('Executor', function(accounts) {
             assert.equal(etherPaymentInfo[6], 0);
             assert.equal(etherPaymentInfo[7].toNumber(), 0);
 
-            let lastPaymentDate = await subscriptionContract.getLastSubscriptionPaymentDate(subscriptionHash);
+            let lastPaymentDate = await subscriptionContract.getLastPaymentDate(subscriptionHash);
             assert.equal(lastPaymentDate.toNumber(), details[1]);
 
             // Release subscription
@@ -719,7 +719,7 @@ contract('Executor', function(accounts) {
             assert.equal(etherPaymentInfo[6].toNumber(), 10);
             assert.equal(etherPaymentInfo[7].toNumber(), 0);
 
-            let lastPaymentDate = await subscriptionContract.getLastSubscriptionPaymentDate(catchLatesubscriptionHash);
+            let lastPaymentDate = await subscriptionContract.getLastPaymentDate(catchLatesubscriptionHash);
             assert.equal(lastPaymentDate.toNumber(), globalTime);
 
             await executorContract.releaseSubscription(subscriptionContract.address, catchLatesubscriptionHash, { from: competingServiceNode });

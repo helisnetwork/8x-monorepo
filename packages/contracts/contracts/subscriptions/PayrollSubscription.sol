@@ -88,12 +88,12 @@ contract PayrollSubscription is BillableInterface {
     /**
       * BILLABLE INTERFACE FUNCTIONS
     */
-    function getPaymentStatus(bytes32 _subscription)
+    function getPaymentStatus(bytes32 _paymentIdentifier)
         public
         view
         returns (uint256 status)
     {
-        Payment memory payment = payments[_subscription];
+        Payment memory payment = payments[_paymentIdentifier];
 
         if (
             schedules[payment.scheduleIdentifier].terminationDate > 0 || 
@@ -118,59 +118,59 @@ contract PayrollSubscription is BillableInterface {
         return 0;
     }
 
-    function getPaymentTokenAddress(bytes32 _subscription)
+    function getPaymentTokenAddress(bytes32 _paymentIdentifier)
         public
         view
         returns (address subscriptionTokenAddress)
     {
-        Payment memory payment = payments[_subscription];
+        Payment memory payment = payments[_paymentIdentifier];
         return schedules[payment.scheduleIdentifier].tokenAddress;
     }
 
-    function getPaymentFromToAddresses(bytes32 _subscription)
+    function getPaymentFromToAddresses(bytes32 _paymentIdentifier)
         public
         view
         returns (address from, address to)
     {
-        Payment memory payment = payments[_subscription];
+        Payment memory payment = payments[_paymentIdentifier];
         return (schedules[payment.scheduleIdentifier].owner, payment.destination);
     }
 
-    function getPaymentInterval(bytes32 _subscription)
+    function getPaymentInterval(bytes32 _paymentIdentifier)
         public
         view
         returns (uint256 interval)
     {
-        Payment memory payment = payments[_subscription];
+        Payment memory payment = payments[_paymentIdentifier];
         return schedules[payment.scheduleIdentifier].interval;
     }
 
-    function getAmountDueFromPayment(bytes32 _subscription)
+    function getAmountDueFromPayment(bytes32 _paymentIdentifier)
         public
         view
         returns (uint256 amount)
     {
-        return payments[_subscription].amount;
+        return payments[_paymentIdentifier].amount;
     }
 
-    function getPaymentFee(bytes32 _subscription)
+    function getPaymentFee(bytes32 _paymentIdentifier)
         public
         view
         returns (uint256 fee)
     {
-        Payment memory payment = payments[_subscription];
+        Payment memory payment = payments[_paymentIdentifier];
         return (payment.amount / schedules[payment.scheduleIdentifier].fee);
     }
 
-    function getLastSubscriptionPaymentDate(bytes32 _subscription)
+    function getLastPaymentDate(bytes32 _paymentIdentifier)
         public
         view
         returns (uint256 date)
     {
-        return payments[_subscription].lastPaymentDate;
+        return payments[_paymentIdentifier].lastPaymentDate;
     }
 
-    function getGasForExecution(bytes32 _subscription, uint256 _type)
+    function getGasForExecution(bytes32 _paymentIdentifier, uint256 _type)
         public
         view
         returns (uint256 returnedGasCost, uint256 returnedGasPrice)
@@ -178,20 +178,20 @@ contract PayrollSubscription is BillableInterface {
         return (gasCost, gasPrice);
     }
 
-    function setLastestPaymentDate(uint256 _date, bytes32 _subscription)
+    function setLastestPaymentDate(uint256 _date, bytes32 _paymentIdentifier)
         public
         onlyAuthorized
         returns (bool success, bool isFinalPayment)
     {
 
-        Payment storage payment = payments[_subscription];
+        Payment storage payment = payments[_paymentIdentifier];
 
         require(payment.lastPaymentDate <= _date, "Latest payment date is less than older date");
 
         payment.lastPaymentDate = _date;
 
         emit LastUpdatedPaymentDate(
-            _subscription,
+            _paymentIdentifier,
             payment.scheduleIdentifier,
             _date,
             schedules[payment.scheduleIdentifier].oneOff
@@ -201,12 +201,12 @@ contract PayrollSubscription is BillableInterface {
 
     }
 
-    function cancelPayment(bytes32 _subscription)
+    function cancelPayment(bytes32 _paymentIdentifier)
         public
         onlyAuthorized
     {
 
-        Payment storage payment = payments[_subscription];
+        Payment storage payment = payments[_paymentIdentifier];
         require(payment.lastPaymentDate > 0);
 
         // If it hasn't been terminated, do it. Doesn't throw in case the executor calls it without knowing the status.
@@ -215,7 +215,7 @@ contract PayrollSubscription is BillableInterface {
             payment.terminationDate = cancellationTimestamp;
 
             emit TerminatedPayment (
-                _subscription,
+                _paymentIdentifier,
                 payment.scheduleIdentifier,
                 payment.terminationDate
             );
