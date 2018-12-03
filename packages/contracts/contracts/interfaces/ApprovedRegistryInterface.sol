@@ -40,10 +40,15 @@ contract ApprovedRegistryInterface is Ownable {
     */
     function isContractAuthorised(address _contractAddress) public returns (bool);
 
-     /** @dev Check if the token is authorised.
+    /** @dev Check if the token is authorised.
       * @param _tokenAddress is the address of the token.
     */
     function isTokenAuthorised(address _tokenAddress) public returns (bool);
+
+    /** @dev Check if the token is a wrapped asset.
+      * @param _tokenAddress is the address of the token.
+    */
+    function isTokenWrapped(address _tokenAddress) public returns (bool);
 
     event ContractAdded(address indexed target);
     event ContractRemoved(address indexed target);

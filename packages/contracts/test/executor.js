@@ -1,5 +1,3 @@
-import web3 from 'web3';
-
 import assertRevert from './helpers/assert_revert.js';
 import { newPlan, newSubscription, newActiveSubscription, setTimes } from './helpers/volume_subscription.js';
 import * as Payroll from './helpers/payroll.js';
@@ -15,6 +13,7 @@ var TransferProxy = artifacts.require("./TransferProxy.sol");
 var EightExToken = artifacts.require("./EightExToken.sol");
 var StakeContract = artifacts.require("./StakeContract.sol");
 var ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
+var WETH = artifacts.require("./WETH.sol");
 
 contract('Executor', function(accounts) {
 
@@ -28,6 +27,7 @@ contract('Executor', function(accounts) {
 
     let executorContract;
     let nativeTokenContract;
+    let wethTokenContract;
     let tokenContract;
 
     let contractOwner = accounts[0]; // Admin role
@@ -65,6 +65,9 @@ contract('Executor', function(accounts) {
         // Initialise the 8x token contract, the owner has all the initial token supply.
         nativeTokenContract = await EightExToken.new({ from: contractOwner });
 
+        // Initialise the WETH token contract
+        wethTokenContract = await WETH.new({ from: contractOwner });
+
         // Initialise all the other contracts the executor needs in order to function
         subscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, { from: contractOwner });
         payrollContract = await MockPayrollSubscription.new(approvedRegistryContract.address, { from: contractOwner });
@@ -89,9 +92,11 @@ contract('Executor', function(accounts) {
         await proxyContract.addAuthorizedAddress(executorContract.address, { from: contractOwner });
         await stakeContract.addAuthorizedAddress(executorContract.address, { from: contractOwner });
         await paymentRegistryContract.addAuthorizedAddress(executorContract.address, { from: contractOwner });
+        await wethTokenContract.addAuthorizedAddress(executorContract.address, { from: contractOwner });
 
         // We need to add the token contract and token contract to the approved list
         await approvedRegistryContract.addApprovedToken(tokenContract.address, false, { from: contractOwner });
+        await approvedRegistryContract.addApprovedToken(wethTokenContract.address, true, { from: contractOwner });
 
         // Make sure the relevant contracts and tokens have been authorised
         await approvedRegistryContract.addApprovedContract(subscriptionContract.address, { from: contractOwner });
@@ -135,7 +140,7 @@ contract('Executor', function(accounts) {
 
     });
 
-    describe("when users create a scheduled payroll transaction", () => {
+    describe("when users create a one-off scheduled payroll transaction", () => {
 
         let paymentIdentifier = Payroll.identifiers()[0];
         let activationTime = parseInt(Date.now() / 1000);
@@ -147,18 +152,18 @@ contract('Executor', function(accounts) {
             await setTimes(modifyTimeContracts, activationTime);
 
             // Transfer Tokens to the business
-            await tokenContract.transfer(business, subscriptionCost, { from: contractOwner });
-            let approvalAmount = 1000000 * 10 ** 18;
+            await wethTokenContract.deposit({ from: business, value: subscriptionCost });
 
-            await tokenContract.approve(proxyContract.address, approvalAmount, { from: business });
+            let approvalAmount = 1000000 * 10 ** 18;
+            await wethTokenContract.approve(proxyContract.address, approvalAmount, { from: business });
 
             await nativeTokenContract.transfer(serviceNode, 1, { from: contractOwner });
             await nativeTokenContract.approve(stakeContract.address, 1, { from: serviceNode });
-            await stakeContract.topUpStake(1, tokenContract.address, { from: serviceNode });
+            await stakeContract.topUpStake(1, wethTokenContract.address, { from: serviceNode });
 
             scheduleIdentifier = await Payroll.createNewPayment(
                 payrollContract,
-                tokenContract,
+                wethTokenContract,
                 tokenSubscriber,
                 business,
                 activationTime + 10
@@ -180,6 +185,16 @@ contract('Executor', function(accounts) {
 
         it("should allow a service node to activate a subscription at the right time", async function() {
 
+            let fee = await payrollContract.getPaymentFee(paymentIdentifier);
+            let amount = await payrollContract.getAmountDueFromPayment(paymentIdentifier);
+            let gas = await executorContract.getPricedGas(payrollContract.address, paymentIdentifier, wethTokenContract.address);
+
+            let beforeBalance = await new Promise(resolve => {
+                web3.eth.getBalance(tokenSubscriber, (err, res) => {
+                    resolve(res);
+                });
+            });
+
             await setTimes(modifyTimeContracts, activationTime + 10);
 
             await executorContract.activateSubscription(
@@ -194,16 +209,24 @@ contract('Executor', function(accounts) {
             let status = await payrollContract.getPaymentStatus(paymentIdentifier);
             assert.equal(status, 3);
 
-            await stakeContract.withdrawStake(1, tokenContract.address, { from: serviceNode });
+            let balance = await new Promise(resolve => {
+                web3.eth.getBalance(tokenSubscriber, (err, res) => {
+                    resolve(res);
+                });
+            });
+                        
+            assert.equal(balance.toNumber(), beforeBalance.toNumber() + (amount.toNumber() - fee.toNumber() - gas.toNumber()));
 
-            // Reset balances
-            let balanceTokenHolder = await tokenContract.balanceOf(tokenSubscriber);            
-            await tokenContract.transfer(contractOwner, balanceTokenHolder, { from: tokenSubscriber });
+            await stakeContract.withdrawStake(1, wethTokenContract.address, { from: serviceNode });
+
+            // // Reset balances
+            // let balanceTokenHolder = await tokenContract.balanceOf(tokenSubscriber);            
+            // await tokenContract.transfer(contractOwner, balanceTokenHolder, { from: tokenSubscriber });
 
         });
 
     });
-
+    
     describe("when users activate subscriptions", () => {
 
         let subscriptionHash;
