@@ -1,10 +1,11 @@
 pragma solidity ^0.4.24;
 
-import "../math/SafeMath.sol";
-import "./ERC20.sol";
-import "./ExtendedERC20.sol";
+import "./base/math/SafeMath.sol";
+import "./base/token/ERC20.sol";
+import "./base/token/ExtendedERC20.sol";
+import "./interfaces/WrappableInterface.sol";
 
-contract WETH is ERC20, ExtendedERC20 {
+contract WETH is ERC20, ExtendedERC20, WrappableInterface {
 
     using SafeMath for uint256;
 
@@ -21,6 +22,7 @@ contract WETH is ERC20, ExtendedERC20 {
 
     event Deposit(address indexed _to, uint256 _value);
     event Withdrawal(address indexed _from, uint256 _value);
+    event WithdrawalOnBehalf(address indexed _of, address indexed _from, uint256 _value);
 
     function() public payable {
         deposit();
@@ -36,6 +38,14 @@ contract WETH is ERC20, ExtendedERC20 {
         balances[msg.sender] = balances[msg.sender].sub(_value);
         msg.sender.transfer(_value);
         emit Withdrawal(msg.sender, _value);
+    }
+
+    function withdrawOnBehalfOf(uint256 _value, address _owner) public onlyAuthorized {
+        require(balances[_owner] >= _value);
+        balances[_owner] = balances[_owner].sub(_value);
+        _owner.transfer(_value);
+
+        emit WithdrawalOnBehalf(_owner, msg.sender, _value);
     }
 
     function totalSupply() public view returns (uint256 tokenSupply) {

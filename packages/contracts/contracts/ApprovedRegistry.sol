@@ -4,7 +4,7 @@ import "./interfaces/ApprovedRegistryInterface.sol";
 import "./interfaces/KyberNetworkInterface.sol";
 import "./interfaces/BillableInterface.sol";
 
-import "./base/token/WETH.sol";
+import "./WETH.sol";
 import "./base/math/SafeMath.sol";
 
 /** @title Approved contract, tokens and gas prices. */
@@ -111,8 +111,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     {
         approvedTokenArray.push(_tokenAddress);
 
-        if (_isWETH == true && address(wrappedEther) == 0) {
-            // @TODO: Write tests for this
+        if (_isWETH == true && address(wrappedEther) == address(0)) {
             wrappedEther = WETH(_tokenAddress);
         }
 
@@ -217,6 +216,15 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         }
 
         return tokenFoundInRegistry;
+    }
+
+    /** @dev Check if the token is a wrapped asset.
+      * @param _tokenAddress is the address of the token.
+    */
+    function isTokenWrapped(address _tokenAddress) public returns (bool) {
+        require(_tokenAddress != 0, "An empty token address was passed");
+
+        return address(_tokenAddress) == address(wrappedEther);
     }
 
     /** @dev Force overwrite the cached price

@@ -10,6 +10,7 @@ import "./PaymentRegistry.sol";
 
 import "./interfaces/BillableInterface.sol";
 import "./interfaces/ApprovedRegistryInterface.sol";
+import "./interfaces/WrappableInterface.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
@@ -165,13 +166,13 @@ contract Executor is Ownable {
         public
         whenNotPaused
     {
-        require(isPaymentStatus(_paymentContract, _paymentIdentifier, 1));
+        require(_isPaymentStatus(_paymentContract, _paymentIdentifier, 1));
 
         // Ensure the subscription contract is a valid one
         BillableInterface subscription = BillableInterface(_paymentContract);
         require(approvedRegistry.isContractAuthorised(_paymentContract), "Only authorised contracts can transact");
 
-        var (paymentSuccess, finalPayment) = callAttemptProcessing(_paymentContract, _paymentIdentifier, true);
+        var (paymentSuccess, finalPayment) = _callAttemptProcessing(_paymentContract, _paymentIdentifier, true);
         var (from, to) = subscription.getPaymentFromToAddresses(_paymentIdentifier);
 
         require(paymentSuccess == true, "The payment should be able to execute successfully");
@@ -286,8 +287,8 @@ contract Executor is Ownable {
         private
     {
 
-        if (callAttemptProcessingSimple(_paymentContract, _paymentIdentifier, false) == false) {
-            processingFailed(_paymentContract, _paymentIdentifier);
+        if (_callAttemptProcessingSimple(_paymentContract, _paymentIdentifier, false) == false) {
+            _processingFailed(_paymentContract, _paymentIdentifier);
             return;
         }
 
@@ -320,7 +321,7 @@ contract Executor is Ownable {
         public
         whenNotPaused
     {
-        require(isPaymentStatus(_paymentContract, _paymentIdentifier, 2));
+        require(_isPaymentStatus(_paymentContract, _paymentIdentifier, 2));
 
         // Get the payment object
         var (
@@ -349,8 +350,8 @@ contract Executor is Ownable {
             msg.sender
         );
 
-        if (callAttemptProcessingSimple(_paymentContract, _paymentIdentifier, false) == false) {
-            processingFailed(_paymentContract, _paymentIdentifier);
+        if (_callAttemptProcessingSimple(_paymentContract, _paymentIdentifier, false) == false) {
+            _processingFailed(_paymentContract, _paymentIdentifier);
         } else {
             // Transfer claimant
             paymentRegistry.transferClaimant(
@@ -382,7 +383,7 @@ contract Executor is Ownable {
         require(_paymentIdentifier > 0, "There must be a valid subscription identifier");
 
         // Active or cancelled subscription
-        isPaymentStatusEither(_paymentContract, _paymentIdentifier, 2, 3);
+        _isPaymentStatusEither(_paymentContract, _paymentIdentifier, 2, 3);
         
         var (
             tokenAddress,
@@ -412,7 +413,7 @@ contract Executor is Ownable {
         );
 
         // If the payment is cancelled the node should be able to withdraw their stake at any time
-        require((currentTimestamp() >= minimumDate && currentTimestamp() < maximumDate) || isPaymentStatus(_paymentContract, _paymentIdentifier, 3), "Must be within the release window");
+        require((currentTimestamp() >= minimumDate && currentTimestamp() < maximumDate) || _isPaymentStatus(_paymentContract, _paymentIdentifier, 3), "Must be within the release window");
 
         _releaseSubscription(_paymentIdentifier, minimumDate, maximumDate, dueDate);
 
@@ -454,6 +455,45 @@ contract Executor is Ownable {
         return standardCost;
     }
 
+    function getNextPaymentDate(address _paymentContract, bytes32 _paymentIdentifier) public returns (uint256) {
+        var (
+            ,
+            dueDate,
+            ,
+            ,
+            lastPaymentDate,
+            ,
+            ,
+        ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
+
+        uint256 paymentRegistryStoredDate = dueDate.add(dueDate).sub(lastPaymentDate);
+
+        if (paymentRegistryStoredDate == 0) {
+            uint256 interval = BillableInterface(_paymentContract).getPaymentInterval(_paymentIdentifier);
+            return currentTimestamp() + interval;
+        }
+
+        return paymentRegistryStoredDate;
+    }
+
+    function getLastPaymentDate(address _paymentContract, bytes32 _paymentIdentifier) public returns (uint256) {
+        var (
+            ,
+            dueDate,
+            ,
+            ,
+            ,
+            ,
+            ,
+        ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
+
+        if (dueDate == 0) {
+            return currentTimestamp();
+        }
+
+        return dueDate;
+    }
+
     /**
       * INTERNAL FUNCTIONS
     */
@@ -471,7 +511,7 @@ contract Executor is Ownable {
       * PRIVATE FUNCTION
     */
 
-    function callAttemptProcessingSimple(
+    function _callAttemptProcessingSimple(
         address _paymentContract,
         bytes32 _paymentIdentifier,
         bool _firstPayment
@@ -479,7 +519,7 @@ contract Executor is Ownable {
         private
         returns (bool success)
     {
-        var (_success, ) = callAttemptProcessing(
+        var (_success, ) = _callAttemptProcessing(
             _paymentContract,
             _paymentIdentifier,
             _firstPayment
@@ -488,7 +528,7 @@ contract Executor is Ownable {
         return _success;
     }
 
-    function callAttemptProcessing(
+    function _callAttemptProcessing(
         address _paymentContract,
         bytes32 _paymentIdentifier,
         bool _firstPayment
@@ -498,11 +538,11 @@ contract Executor is Ownable {
     {
         address tokenAddress = BillableInterface(_paymentContract).getPaymentTokenAddress(_paymentIdentifier);
        
-        bool valid = ensureValidRequirements(_paymentContract, _paymentIdentifier, tokenAddress, _firstPayment);
+        bool valid = _ensureValidRequirements(_paymentContract, _paymentIdentifier, tokenAddress, _firstPayment);
 
-        attemptProcessing(_paymentContract, _paymentIdentifier, tokenAddress, msg.sender);
+        _attemptProcessing(_paymentContract, _paymentIdentifier, tokenAddress, msg.sender);
 
-        var (couldSetLastDate, _finalPayment) = setNextPaymentDateResult(_paymentContract, _paymentIdentifier, _firstPayment);
+        var (couldSetLastDate, _finalPayment) = _setNextPaymentDateResult(_paymentContract, _paymentIdentifier, _firstPayment);
 
         return (valid && couldSetLastDate, _finalPayment);
         
@@ -511,7 +551,7 @@ contract Executor is Ownable {
         // bool paymentResult = address(this).call(
         //     bytes4(
         //         blake2b256(
-        //             "attemptProcessing(address,bytes32,address,address)"
+        //             "_attemptProcessing(address,bytes32,address,address)"
         //         )
         //     ), _paymentContract,
         //         _paymentIdentifier,
@@ -520,7 +560,7 @@ contract Executor is Ownable {
         //     );
     }
 
-    function ensureValidRequirements(
+    function _ensureValidRequirements(
         address _paymentContract,
         bytes32 _paymentIdentifier,
         address _tokenAddress,
@@ -530,10 +570,10 @@ contract Executor is Ownable {
         returns (bool)
     {
         require(_firstPayment == true || stakeContract.getAvailableStake(msg.sender, _tokenAddress) >= 1);
-        return isPaymentStatusEither(_paymentContract, _paymentIdentifier, 1, 2);
+        return _isPaymentStatusEither(_paymentContract, _paymentIdentifier, 1, 2);
     }
 
-    function setNextPaymentDateResult(
+    function _setNextPaymentDateResult(
         address _paymentContract,
         bytes32 _paymentIdentifier,
         bool _firstPayment
@@ -557,7 +597,7 @@ contract Executor is Ownable {
         return (_settingLastPaymentResult, _finalPaymentResult);
     }
    
-    function attemptProcessing(
+    function _attemptProcessing(
         address _paymentContract,
         bytes32 _paymentIdentifier,
         address _tokenAddress,
@@ -577,15 +617,15 @@ contract Executor is Ownable {
         uint256 amount = BillableInterface(_paymentContract).getAmountDueFromPayment(_paymentIdentifier); 
 
         if (_serviceNode == from || _serviceNode == to) {
-            makePayment(_tokenAddress, from, to, amount);
+            _makePayment(_tokenAddress, from, to, amount);
             return;
         }
 
         uint256 pricedGas = getPricedGas(_paymentContract, _paymentIdentifier, _tokenAddress);
-        attemptProcessingServiceNode(_tokenAddress, from, to, _serviceNode, amount, fee, pricedGas);
+        _attemptProcessingServiceNode(_tokenAddress, from, to, _serviceNode, amount, fee, pricedGas);
     }
 
-    function attemptProcessingServiceNode(
+    function _attemptProcessingServiceNode(
         address _tokenAddress,
         address _from,
         address _to,
@@ -596,11 +636,11 @@ contract Executor is Ownable {
     )
         private
     {
-        makePayment(_tokenAddress, _from, _to, _amount.sub(_fee).sub(_pricedGas));
-        makePayment(_tokenAddress, _from, _serviceNode, _fee.add(_pricedGas));
+        _makePayment(_tokenAddress, _from, _to, _amount.sub(_fee).sub(_pricedGas));
+        _makePayment(_tokenAddress, _from, _serviceNode, _fee.add(_pricedGas));
     }
 
-    function makePayment(
+    function _makePayment(
         address _tokenAddress,
         address _from,
         address _to,
@@ -623,9 +663,14 @@ contract Executor is Ownable {
 
         // Check the business actually received the funds by checking the difference
         require((transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount);
+
+        // Unwrap the payment if it is wrapped
+        if (approvedRegistry.isTokenWrapped(_tokenAddress) == true) {
+            WrappableInterface(_tokenAddress).withdrawOnBehalfOf(_amount, _to);
+        }
     }
 
-    function processingFailed(
+    function _processingFailed(
         address _paymentContract,
         bytes32 _paymentIdentifier
     )
@@ -658,53 +703,14 @@ contract Executor is Ownable {
         emit SubscriptionCancelled(_paymentContract, _paymentIdentifier);
     }
 
-    function isPaymentStatus(address _paymentContract, bytes32 _paymentIdentifier, uint256 one) private returns (bool) {
+    function _isPaymentStatus(address _paymentContract, bytes32 _paymentIdentifier, uint256 one) private returns (bool) {
         uint256 status = BillableInterface(_paymentContract).getPaymentStatus(_paymentIdentifier);
         return (status == one);
     }
 
-    function isPaymentStatusEither(address _paymentContract, bytes32 _paymentIdentifier, uint256 one, uint256 two) private returns (bool) {
+    function _isPaymentStatusEither(address _paymentContract, bytes32 _paymentIdentifier, uint256 one, uint256 two) private returns (bool) {
         uint256 status = BillableInterface(_paymentContract).getPaymentStatus(_paymentIdentifier);
         return (status == one || status == two);
-    }
-
-    function getNextPaymentDate(address _paymentContract, bytes32 _paymentIdentifier) private returns (uint256) {
-        var (
-            ,
-            dueDate,
-            ,
-            ,
-            lastPaymentDate,
-            ,
-            ,
-        ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
-
-        uint256 paymentRegistryStoredDate = dueDate.add(dueDate).sub(lastPaymentDate);
-
-        if (paymentRegistryStoredDate == 0) {
-            uint256 interval = BillableInterface(_paymentContract).getPaymentInterval(_paymentIdentifier);
-            return currentTimestamp() + interval;
-        }
-
-        return paymentRegistryStoredDate;
-    }
-
-    function getLastPaymentDate(address _paymentContract, bytes32 _paymentIdentifier) private returns (uint256) {
-        var (
-            ,
-            dueDate,
-            ,
-            ,
-            ,
-            ,
-            ,
-        ) = paymentRegistry.getPaymentInformation(_paymentIdentifier);
-
-        if (dueDate == 0) {
-            return currentTimestamp();
-        }
-
-        return dueDate;
     }
 
 }
