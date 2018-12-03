@@ -51,10 +51,10 @@ module.exports = function(deployer, network, accounts) {
         await executor.transferOwnership(multiSig.address);
         await volumeSubscription.transferOwnership(multiSig.address);
         await payrollSubscription.transferOwnership(multiSig.address);
-        await wrappedEther.transferOwnership(multiSig.address);
 
         // Leave one token to the person who deployed
-        await eightExToken.transfer(multiSig, 2 ** 256 - 2);
+        // @TODO
+        // await eightExToken.transfer(multiSig, 2 ** 256 - 2);
         await eightExToken.transferOwnership(multiSig.address);
 
     });

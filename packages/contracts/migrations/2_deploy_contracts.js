@@ -4,6 +4,7 @@ const Tokens = require("../../artifacts/src/addresses/tokens");
 const Dependencies = require("../../artifacts/src/addresses/dependencies");
 
 const Constants = require("./migration_constants");
+const PACKAGE = require('../package.json');
 
 module.exports = function(deployer, network, accounts) {
 
@@ -11,6 +12,14 @@ module.exports = function(deployer, network, accounts) {
 
     if (!Constants.isActualDeployment(network)) {
         return;
+    }
+
+    let file = Constants.configPath();
+    fs.ensureFileSync(file)
+    const contractsJson = fs.readJsonSync(file, { throws: false }) || {};
+
+    if (contractsJson[network]) {
+        throw "You cannot redeploy on the same version. Increment package.json version."
     }
 
     const MultiSigWalletWithTimeLock = artifacts.require("./MultiSigWalletWithTimeLock.sol");
@@ -79,11 +88,6 @@ module.exports = function(deployer, network, accounts) {
         );
 
         // Export JSON
-
-        let file = Constants.configPath();
-        fs.ensureFileSync(file)
-
-        const contractsJson = fs.readJsonSync(file, { throws: false }) || {};
 
         let output = {
             'addresses': [{
