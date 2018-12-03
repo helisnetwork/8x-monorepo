@@ -369,7 +369,7 @@ contract Executor is Ownable {
         );
     }
 
-        /** @dev Release the payment/responsibility of a service node
+    /** @dev Release the payment/responsibility of a service node
       * @param _paymentContract is the contract where the details exist(adheres to Collectible contract interface).
       * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
     */
@@ -455,6 +455,10 @@ contract Executor is Ownable {
         return standardCost;
     }
 
+    /** @dev Calculate the next payment date for a subscription.
+      * @param _paymentContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
     function getNextPaymentDate(address _paymentContract, bytes32 _paymentIdentifier) public returns (uint256) {
         var (
             ,
@@ -476,6 +480,10 @@ contract Executor is Ownable {
         return paymentRegistryStoredDate;
     }
 
+    /** @dev Get the last time a payment was made.
+      * @param _paymentContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
+    */
     function getLastPaymentDate(address _paymentContract, bytes32 _paymentIdentifier) public returns (uint256) {
         var (
             ,
