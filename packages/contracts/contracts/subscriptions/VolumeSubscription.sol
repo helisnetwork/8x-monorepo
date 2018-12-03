@@ -107,14 +107,14 @@ contract VolumeSubscription is BillableInterface {
         emit UpdatedPlan(_plan, plans[_plan].identifier, plans[_plan].owner);
     }
 
-    modifier isOwnerOfSubscription(bytes32 _subscription) {
-        require(msg.sender == subscriptions[_subscription].owner);
+    modifier isOwnerOfSubscription(bytes32 _paymentIdentifier) {
+        require(msg.sender == subscriptions[_paymentIdentifier].owner);
         _;
     }
 
-    modifier shouldEmitSubscriptionChanges(bytes32 _subscription) {
+    modifier shouldEmitSubscriptionChanges(bytes32 _paymentIdentifier) {
         _;
-        emit UpdatedSubscription(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner);
+        emit UpdatedSubscription(_paymentIdentifier, subscriptions[_paymentIdentifier].planHash, subscriptions[_paymentIdentifier].owner);
     }
 
     /**
@@ -142,12 +142,12 @@ contract VolumeSubscription is BillableInterface {
     /**
       * BILLABLE INTERFACE FUNCTIONS
     */
-    function getPaymentStatus(bytes32 _subscription)
+    function getPaymentStatus(bytes32 _paymentIdentifier)
         public
         view
         returns (uint256 status)
     {
-        Subscription memory subscription = subscriptions[_subscription];
+        Subscription memory subscription = subscriptions[_paymentIdentifier];
 
         if (plans[subscription.planHash].terminationDate > 0 || subscription.terminationDate > 0) {
             // Payment terminated
@@ -163,59 +163,59 @@ contract VolumeSubscription is BillableInterface {
         return 1;
     }
 
-    function getPaymentTokenAddress(bytes32 _subscription)
+    function getPaymentTokenAddress(bytes32 _paymentIdentifier)
         public
         view
         returns (address subscriptionTokenAddress)
     {
-        return subscriptions[_subscription].tokenAddress;
+        return subscriptions[_paymentIdentifier].tokenAddress;
     }
 
-    function getPaymentFromToAddresses(bytes32 _subscription)
+    function getPaymentFromToAddresses(bytes32 _paymentIdentifier)
         public
         view
         returns (address from, address to)
     {
-        bytes32 planHash = subscriptions[_subscription].planHash;
-        return (subscriptions[_subscription].owner, plans[planHash].owner);
+        bytes32 planHash = subscriptions[_paymentIdentifier].planHash;
+        return (subscriptions[_paymentIdentifier].owner, plans[planHash].owner);
     }
 
-    function getPaymentInterval(bytes32 _subscription)
+    function getPaymentInterval(bytes32 _paymentIdentifier)
         public
         view
         returns (uint256 interval)
     {
-        bytes32 planHash = subscriptions[_subscription].planHash;
+        bytes32 planHash = subscriptions[_paymentIdentifier].planHash;
         return plans[planHash].interval;
     }
 
-    function getAmountDueFromPayment(bytes32 _subscription)
+    function getAmountDueFromPayment(bytes32 _paymentIdentifier)
         public
         view
         returns (uint256 amount)
     {
-        bytes32 planHash = subscriptions[_subscription].planHash;
+        bytes32 planHash = subscriptions[_paymentIdentifier].planHash;
         return plans[planHash].amount;
     }
 
-    function getPaymentFee(bytes32 _subscription)
+    function getPaymentFee(bytes32 _paymentIdentifier)
         public
         view
         returns (uint256 fee)
     {
-        bytes32 planHash = subscriptions[_subscription].planHash;
+        bytes32 planHash = subscriptions[_paymentIdentifier].planHash;
         return plans[planHash].fee;
     }
 
-    function getLastSubscriptionPaymentDate(bytes32 _subscription)
+    function getLastPaymentDate(bytes32 _paymentIdentifier)
         public
         view
         returns (uint256 date)
     {
-        return subscriptions[_subscription].lastPaymentDate;
+        return subscriptions[_paymentIdentifier].lastPaymentDate;
     }
 
-    function getGasForExecution(bytes32 _subscription, uint256 _type)
+    function getGasForExecution(bytes32 _paymentIdentifier, uint256 _type)
         public
         view
         returns (uint256 returnedGasCost, uint256 returnedGasPrice)
@@ -223,38 +223,38 @@ contract VolumeSubscription is BillableInterface {
         return (gasCost, gasPrice);
     }
 
-    function setLastestPaymentDate(uint256 _date, bytes32 _subscription)
+    function setLastestPaymentDate(uint256 _date, bytes32 _paymentIdentifier)
         public
         onlyAuthorized
         returns (bool success, bool isFinalPayment)
     {
-        require(subscriptions[_subscription].lastPaymentDate <= _date);
+        require(subscriptions[_paymentIdentifier].lastPaymentDate <= _date);
 
-        subscriptions[_subscription].lastPaymentDate = _date;
+        subscriptions[_paymentIdentifier].lastPaymentDate = _date;
 
-        emit LastSubscriptionPaymentDate(_subscription, subscriptions[_subscription].planHash, subscriptions[_subscription].owner, _date);
+        emit LastSubscriptionPaymentDate(_paymentIdentifier, subscriptions[_paymentIdentifier].planHash, subscriptions[_paymentIdentifier].owner, _date);
 
         return (true, false);
     }
 
-    function cancelPayment(bytes32 _subscription)
+    function cancelPayment(bytes32 _paymentIdentifier)
         public
     {
         // Either the original subscription owner can cancel or an authorized address.
-        require((msg.sender == subscriptions[_subscription].owner) || (authorized[msg.sender] == true));
+        require((msg.sender == subscriptions[_paymentIdentifier].owner) || (authorized[msg.sender] == true));
 
         // Ensure that the subscription has started;
-        require(subscriptions[_subscription].lastPaymentDate > 0);
+        require(subscriptions[_paymentIdentifier].lastPaymentDate > 0);
 
         // If it hasn't been terminated, do it. Doesn't throw in case the executor calls it without knowing the status.
-        if (subscriptions[_subscription].terminationDate == 0) {
+        if (subscriptions[_paymentIdentifier].terminationDate == 0) {
             uint256 cancellationTimestamp = currentTimestamp();
-            subscriptions[_subscription].terminationDate = cancellationTimestamp;
+            subscriptions[_paymentIdentifier].terminationDate = cancellationTimestamp;
 
             emit TerminatedSubscription(
-                _subscription,
-                subscriptions[_subscription].planHash,
-                subscriptions[_subscription].owner,
+                _paymentIdentifier,
+                subscriptions[_paymentIdentifier].planHash,
+                subscriptions[_paymentIdentifier].owner,
                 cancellationTimestamp
             );
         }
@@ -447,15 +447,15 @@ contract VolumeSubscription is BillableInterface {
     }
 
     /** @dev Updates the data field which can be used to store anything extra.
-      * @param _subscription is the hash of the user's address + identifier.
+      * @param _paymentIdentifier is the hash of the user's address + identifier.
       * @param _data the data which they want to update it to.
     */
-    function setSubscriptionData(bytes32 _subscription, string _data)
+    function setSubscriptionData(bytes32 _paymentIdentifier, string _data)
         public
-        isOwnerOfSubscription(_subscription)
-        shouldEmitSubscriptionChanges(_subscription)
+        isOwnerOfSubscription(_paymentIdentifier)
+        shouldEmitSubscriptionChanges(_paymentIdentifier)
     {
-        subscriptions[_subscription].data = _data;
+        subscriptions[_paymentIdentifier].data = _data;
     }
 
     /**

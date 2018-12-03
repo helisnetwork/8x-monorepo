@@ -156,7 +156,7 @@ contract Executor is Ownable {
     }
 
     /** @dev Active a subscription once it's been created (make the first payment) paid from wrapped Ether.
-      * @param _paymentContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _paymentContract is the contract where the details exist(adheres to Billable contract interface).
       * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function activateSubscription(
@@ -248,7 +248,7 @@ contract Executor is Ownable {
     }
 
     /** @dev Collect the payment due from the subscriber.
-      * @param _paymentContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _paymentContract is the contract where the details exist(adheres to Billable contract interface).
       * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function processSubscription(
@@ -311,7 +311,7 @@ contract Executor is Ownable {
     }
 
      /** @dev Catch another service node who didn't process their payment on time.
-      * @param _paymentContract is the contract where the details exist (adheres to Collectible contract interface).
+      * @param _paymentContract is the contract where the details exist (adheres to Billable contract interface).
       * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function catchLateSubscription(
@@ -370,7 +370,7 @@ contract Executor is Ownable {
     }
 
     /** @dev Release the payment/responsibility of a service node
-      * @param _paymentContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _paymentContract is the contract where the details exist(adheres to Billable contract interface).
       * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function releaseSubscription(
@@ -456,7 +456,7 @@ contract Executor is Ownable {
     }
 
     /** @dev Calculate the next payment date for a subscription.
-      * @param _paymentContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _paymentContract is the contract where the details exist(adheres to Billable contract interface).
       * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function getNextPaymentDate(address _paymentContract, bytes32 _paymentIdentifier) public returns (uint256) {
@@ -481,7 +481,7 @@ contract Executor is Ownable {
     }
 
     /** @dev Get the last time a payment was made.
-      * @param _paymentContract is the contract where the details exist(adheres to Collectible contract interface).
+      * @param _paymentContract is the contract where the details exist(adheres to Billable contract interface).
       * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
     */
     function getLastPaymentDate(address _paymentContract, bytes32 _paymentIdentifier) public returns (uint256) {
