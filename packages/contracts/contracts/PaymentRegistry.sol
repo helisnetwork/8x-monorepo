@@ -209,7 +209,7 @@ contract PaymentRegistry is Authorizable {
         // @TODO: Write tests
         Payment storage currentPayment = payments[_paymentIdentifier];
 
-        uint nextPayment = currentPayment.dueDate.add(currentPayment.dueDate).sub(currentPayment.lastPaymentDate);
+        uint256 nextPayment = currentPayment.dueDate.add(currentPayment.dueDate).sub(currentPayment.lastPaymentDate);
 
         require(nextPayment >= currentTimestamp(), "The next payment date must be a date in the future");
 

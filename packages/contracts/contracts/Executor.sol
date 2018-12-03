@@ -26,8 +26,6 @@ contract Executor is Ownable {
 
     uint256 public maximumIntervalDivisor; // Latest to claim a payment or cancel.
 
-    bool private paused;
-
     event SubscriptionActivated(
         address indexed contractAddress,
         bytes32 indexed paymentIdentifier,
@@ -68,28 +66,9 @@ contract Executor is Ownable {
         address indexed claimant
     );
 
-    event Paused(address account);
-    event Unpaused(address account);
-
     /**
       * MODIFIERS
     */
-
-    /**
-      * @dev Modifier to make a function callable only when the contract is not paused.
-    */
-    modifier whenNotPaused() {
-        require(!paused, "Contract is paused");
-        _;
-    }
-
-    /**
-      * @dev Modifier to make a function callable only when the contract is paused.
-    */
-    modifier whenPaused() {
-        require(paused, "Contract is not paused");
-        _;
-    }
 
     /**
       * PUBLIC FUNCTIONS
@@ -116,7 +95,6 @@ contract Executor is Ownable {
         paymentRegistry = PaymentRegistry(_paymentRegistryAddress);
         approvedRegistry = ApprovedRegistryInterface(_approvedRegistryAddress);
         maximumIntervalDivisor = _divisor;
-        paused = false;
     }
 
     /** @dev Set the maximum time for a subscription to go on unprocessed or to cancel afterwards.
@@ -128,33 +106,6 @@ contract Executor is Ownable {
         maximumIntervalDivisor = _divisor;
     }
 
-    /**
-      * @dev called by the owner to pause, triggers stopped state
-    */
-    function pause() public onlyOwner whenNotPaused {
-        paused = true;
-        emit Paused(msg.sender);
-    }
-
-    /**
-      * @dev called by the owner to unpause, returns to normal state
-    */
-    function unpause() public onlyOwner whenPaused {
-        paused = false;
-        emit Unpaused(msg.sender);
-    }
-
-    /** @dev Check if the contract is paused
-      * @return true if the contract is paused, false otherwise.
-    */
-    function isPaused()
-        public 
-        view 
-        returns (bool) 
-    {
-        return paused;
-    }
-
     /** @dev Active a subscription once it's been created (make the first payment) paid from wrapped Ether.
       * @param _paymentContract is the contract where the details exist(adheres to Billable contract interface).
       * @param _paymentIdentifier is the identifier of that customer's subscription with its relevant details.
@@ -164,7 +115,6 @@ contract Executor is Ownable {
         bytes32 _paymentIdentifier
     )
         public
-        whenNotPaused
     {
         require(_isPaymentStatus(_paymentContract, _paymentIdentifier, 1));
 
@@ -256,7 +206,6 @@ contract Executor is Ownable {
         bytes32 _paymentIdentifier
     )
         public
-        whenNotPaused
     {
         // Initiate an instance of the BillableInterface subscription
         BillableInterface subscription = BillableInterface(_paymentContract);
@@ -319,7 +268,6 @@ contract Executor is Ownable {
         bytes32 _paymentIdentifier
     )
         public
-        whenNotPaused
     {
         require(_isPaymentStatus(_paymentContract, _paymentIdentifier, 2));
 
@@ -378,7 +326,6 @@ contract Executor is Ownable {
         bytes32 _paymentIdentifier
     )
         public
-        whenNotPaused
     {
         require(_paymentIdentifier > 0, "There must be a valid subscription identifier");
 
