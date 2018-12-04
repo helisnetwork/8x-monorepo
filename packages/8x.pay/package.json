@@ -1,6 +1,10 @@
 {
     "name": "8x.pay",
+<<<<<<< HEAD
     "version": "0.5.4",
+=======
+    "version": "0.6.0",
+>>>>>>> v0.6.0
     "description": "",
     "main": "dist/index.js",
     "scripts": {
@@ -20,8 +24,8 @@
         "react-dom": ">=16.0.1"
     },
     "dependencies": {
-        "8x.js": "^0.5.2",
-        "@8xprotocol/artifacts": "^0.5.2",
+        "8x.js": "^0.6.0",
+        "@8xprotocol/artifacts": "^0.6.0",
         "@emotion/core": "^10.0.0-beta.6",
         "@ledgerhq/hw-transport-u2f": "^4.24.0",
         "@ledgerhq/web3-subprovider": "^4.24.0",

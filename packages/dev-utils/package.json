@@ -1,6 +1,6 @@
 {
     "name": "@8xprotocol/dev-utils",
-    "version": "0.5.2",
+    "version": "0.6.0",
     "description": "",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -12,8 +12,8 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@8xprotocol/artifacts": "^0.5.2",
-        "@8xprotocol/types": "^0.5.0",
+        "@8xprotocol/artifacts": "^0.6.0",
+        "@8xprotocol/types": "^0.6.0",
         "@types/lodash": "^4.14.116",
         "bignumber.js": "^4.1.0",
         "ethereum-types": "^1.0.7",
