@@ -1,3 +1,6 @@
 aion/contracts/
 aion/web3/
 aion/flat*
+
+solidity-flattener
+aion_web3
