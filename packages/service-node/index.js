@@ -15,6 +15,9 @@ PUBLIC_KEY = ""
 # Private key of the node executing
 PRIVATE_KEY = ""
 
+# Network to execute on (kovan, main etc)
+NETWORK = ""
+
 */
 
 const Web3 = require('web3');
@@ -66,11 +69,8 @@ function start() {
     repeater = new Repeater(service);
 
     service.attemptTopUp(
-        topUpAmount,
-        environment.TRANSACTING_TOKEN,
-        environment.STAKE_TOKEN,
-        environment.STAKE_CONTRACT)
-    .then(function() {
+        topUpAmount
+    ).then(function() {
         console.log('Top up successfull');
         return repeater.start()
     }).then(function() {
