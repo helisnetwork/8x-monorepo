@@ -116,7 +116,7 @@ contract Executor is Ownable {
     )
         public
     {
-        require(_isPaymentStatus(_paymentContract, _paymentIdentifier, 1));
+        require(_isPaymentStatus(_paymentContract, _paymentIdentifier, 1), "Payment must be in ready state (1)");
 
         // Ensure the subscription contract is a valid one
         BillableInterface subscription = BillableInterface(_paymentContract);
@@ -127,7 +127,7 @@ contract Executor is Ownable {
 
         require(paymentSuccess == true, "The payment should be able to execute successfully");
 
-        if (finalPayment) {
+        if (finalPayment == true) {
             emit SubscriptionCompleted(
                 _paymentIdentifier,
                 msg.sender
@@ -269,7 +269,7 @@ contract Executor is Ownable {
     )
         public
     {
-        require(_isPaymentStatus(_paymentContract, _paymentIdentifier, 2));
+        require(_isPaymentStatus(_paymentContract, _paymentIdentifier, 2), "Payment must be in active statement (2)");
 
         // Get the payment object
         var (
@@ -524,7 +524,9 @@ contract Executor is Ownable {
         private
         returns (bool)
     {
-        require(_firstPayment == true || stakeContract.getAvailableStake(msg.sender, _tokenAddress) >= 1);
+        // @TODO: Add tests
+        var (from, to) = BillableInterface(_paymentContract).getPaymentFromToAddresses(_paymentIdentifier);
+        require(msg.sender == from || msg.sender == to || stakeContract.getAvailableStake(msg.sender, _tokenAddress) >= 1, "Must have the correct stake requirements or be the first payment or be the owner");
         return _isPaymentStatusEither(_paymentContract, _paymentIdentifier, 1, 2);
     }
 
@@ -543,7 +545,7 @@ contract Executor is Ownable {
 
         // @TODO: Add tests for this down the line
         if (_firstPayment == false) {
-            require(_firstPayment == false || _finalPaymentResult == false);
+            require(_finalPaymentResult == false, "If its not the final payment, it should not be the final payment");
         }
 
         // The set last payment result and last payment result both have to be true.
@@ -611,13 +613,13 @@ contract Executor is Ownable {
         uint256 balanceOfBusinessBeforeTransfer = transactingToken.balanceOf(_to);
 
         // Check if the user has enough funds
-        require(transactingToken.balanceOf(_from) >= _amount);
+        require(transactingToken.balanceOf(_from) >= _amount, "The user must have enough funds");
 
         // Send currency to the destination business
         transferProxy.transferFrom(address(transactingToken), _from, _to, _amount);
 
         // Check the business actually received the funds by checking the difference
-        require((transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount);
+        require((transactingToken.balanceOf(_to) - balanceOfBusinessBeforeTransfer) == _amount, "They should have received the difference");
 
         // Unwrap the payment if it is wrapped
         if (approvedRegistry.isTokenWrapped(_tokenAddress) == true) {

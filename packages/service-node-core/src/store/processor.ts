@@ -50,7 +50,7 @@ export default class ProcessorStore {
       let result = (
         (now >= event.dueDate + this.service.delayPeriod.processing) &&
         (now <= (event.dueDate + (this.service.delayPeriod.catchLate))) &&
-        (!event.claimant || event.claimant == this.service.serviceNode || event.claimant == 0) &&
+        (!event.claimant || event.claimant == this.service.serviceNode || event.claimant.length == 0) &&
         event.activated == true
       );
 
