@@ -1,12 +1,11 @@
 pragma solidity 0.4.24;
 
-import "../base/ownership/Ownable.sol";
 import "./KyberNetworkInterface.sol";
 
 /** @title Approved contract, tokens and gas prices. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract ApprovedRegistryInterface is Ownable {
+interface ApprovedRegistryInterface {
 
     /** @dev Get the current ETH exchange rate.
       * @param _tokenAddress is the address for the token in question.

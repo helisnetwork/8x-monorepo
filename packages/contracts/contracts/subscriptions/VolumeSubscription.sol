@@ -4,11 +4,14 @@ import "../interfaces/BillableInterface.sol";
 import "../interfaces/ApprovedRegistryInterface.sol";
 
 import "../base/math/SafeMath.sol";
+import "../base/ownership/Ownable.sol";
+
+import "../Authorizable.sol";
 
 /** @title Contains all the data required for a user's active subscription. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract VolumeSubscription is BillableInterface {
+contract VolumeSubscription is Ownable, Authorizable, BillableInterface {
 
     using SafeMath for uint256;
 
@@ -346,7 +349,7 @@ contract VolumeSubscription is BillableInterface {
         public
         returns (bytes32 newSubscriptionHash)
     {
-        createSubscriptionWithSalt(_planHash, _data, currentTimestamp());
+        return createSubscriptionWithSalt(_planHash, _data, currentTimestamp());
     }
 
     /** @dev Create a subscription and call another contract/function
@@ -363,7 +366,7 @@ contract VolumeSubscription is BillableInterface {
         string _callbackFunction
     ) public {
         bytes32 subscriptionHash = createSubscriptionWithSalt(_planHash, _data, _salt);
-        _callbackAddress.call(
+        bool result = _callbackAddress.call(
             bytes4(
                 keccak256(_callbackFunction)
             ),
@@ -371,6 +374,8 @@ contract VolumeSubscription is BillableInterface {
             subscriptionHash,
             msg.sender
         );
+
+        require(result, "Could not activate subscription");
     }
 
      /** @dev This is the function for creating a new subscription with supplied entropy.

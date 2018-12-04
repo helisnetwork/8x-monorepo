@@ -40,6 +40,8 @@ module.exports = function(deployer, network, accounts) {
 
     return deployer.then(async() => {
 
+        // Deploy the executor contract
+
         let executor;
         let volumeSubscription;
         let payrollSubscription;

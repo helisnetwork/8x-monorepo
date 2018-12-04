@@ -1,8 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../Authorizable.sol";
-
-contract WrappableInterface is Authorizable {
+interface WrappableInterface {
 
     /** @dev Unwrap Ether on behalf of another user. Doesn't give any custody rights.
       * @param _value how much you'd like to unwrap.
