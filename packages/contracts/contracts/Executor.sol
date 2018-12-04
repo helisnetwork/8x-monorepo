@@ -61,11 +61,6 @@ contract Executor is Ownable {
         bytes32 indexed paymentIdentifier
     );
 
-    event SubscriptionCompleted(
-        bytes32 indexed paymentIdentifier,
-        address indexed claimant
-    );
-
     /**
       * MODIFIERS
     */
@@ -128,11 +123,6 @@ contract Executor is Ownable {
         require(paymentSuccess == true, "The payment should be able to execute successfully");
 
         if (finalPayment == true) {
-            // emit SubscriptionCompleted(
-            //     _paymentIdentifier,
-            //     msg.sender
-            // );
-
             return;
         }
 
