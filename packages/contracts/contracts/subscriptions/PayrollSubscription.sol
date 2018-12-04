@@ -3,10 +3,12 @@ pragma solidity 0.4.24;
 import "../interfaces/BillableInterface.sol";
 import "../interfaces/ApprovedRegistryInterface.sol";
 
+import "../Authorizable.sol";
+
 /** @title Contains all the data required for payroll subscriptions. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract PayrollSubscription is BillableInterface {
+contract PayrollSubscription is Authorizable, BillableInterface {
 
     struct Payment {
         uint256 amount;                     // Editable
@@ -228,6 +230,20 @@ contract PayrollSubscription is BillableInterface {
     */
     constructor(address _approvedRegistryAddress) public {
         approvedRegistry = ApprovedRegistryInterface(_approvedRegistryAddress);
+    }
+
+    /** @dev Update the gas price for processing a subscription.
+      * @param _gasPrice price to set.
+    */
+    function setGasPrice(uint256 _gasPrice) public onlyOwner {
+        gasPrice = _gasPrice;
+    }
+
+    /** @dev Update the gas cost for processing a subscription.
+      * @param _gasCost cost to set.
+    */
+    function setGasCost(uint256 _gasCost) public onlyOwner {
+        gasCost = _gasCost;
     }
 
     function createScheduleWithPayments(

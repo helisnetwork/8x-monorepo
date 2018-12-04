@@ -1,11 +1,9 @@
 pragma solidity 0.4.24;
 
-import "../Authorizable.sol";
-
 /** @title Gets details of the subscription and terminates it after detecting insufficient tokens */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract BillableInterface is Authorizable {
+interface BillableInterface {
 
     /**
       * PUBLIC VIEW FUNCTIONS

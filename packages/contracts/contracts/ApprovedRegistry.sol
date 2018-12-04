@@ -5,12 +5,14 @@ import "./interfaces/KyberNetworkInterface.sol";
 import "./interfaces/BillableInterface.sol";
 
 import "./WETH.sol";
+
 import "./base/math/SafeMath.sol";
+import "./base/ownership/Ownable.sol";
 
 /** @title Approved contract, tokens and gas prices. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract ApprovedRegistry is ApprovedRegistryInterface {
+contract ApprovedRegistry is ApprovedRegistryInterface, Ownable {
 
     using SafeMath for uint256;
 

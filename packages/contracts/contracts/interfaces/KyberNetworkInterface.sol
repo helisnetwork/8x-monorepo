@@ -4,7 +4,7 @@ import "../base/token/ERC20.sol";
 
 /** @title Kyber Network interface */
 
-contract KyberNetworkInterface {
+interface KyberNetworkInterface {
 
     /**
       * PUBLIC VIEW FUNCTIONS

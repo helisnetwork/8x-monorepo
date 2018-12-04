@@ -6,8 +6,9 @@ import "./base/token/ERC20.sol";
 import "./base/token/ExtendedERC20.sol";
 
 import "./interfaces/WrappableInterface.sol";
+import "./Authorizable.sol";
 
-contract WETH is ERC20, ExtendedERC20, WrappableInterface {
+contract WETH is ERC20, ExtendedERC20, WrappableInterface, Authorizable {
 
     using SafeMath for uint256;
 
