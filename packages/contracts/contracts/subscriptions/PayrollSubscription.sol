@@ -203,11 +203,11 @@ contract PayrollSubscription is BillableInterface {
 
     function cancelPayment(bytes32 _paymentIdentifier)
         public
-        onlyAuthorized
     {
 
         Payment storage payment = payments[_paymentIdentifier];
-        require(payment.lastPaymentDate > 0);
+
+        require((msg.sender == payment.destination) || authorized[msg.sender] == true || msg.sender == schedules[payment.scheduleIdentifier].owner, "Must be the owner or an authorised contract");
 
         // If it hasn't been terminated, do it. Doesn't throw in case the executor calls it without knowing the status.
         if (payment.terminationDate == 0) {

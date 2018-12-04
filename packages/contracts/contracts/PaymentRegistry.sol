@@ -176,7 +176,7 @@ contract PaymentRegistry is Authorizable {
 
         if (_newAmount < currentPayment.amount) {
             currentPayment.staked = currentPayment.staked.div(currentPayment.amount.div(_newAmount));
-        } else if (currentPayment.amount > _newAmount) {
+        } else if (_newAmount > currentPayment.amount) {
             currentPayment.staked = currentPayment.staked.mul(_newAmount.div(currentPayment.amount));
         }
 

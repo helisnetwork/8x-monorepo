@@ -264,20 +264,10 @@ contract('Executor', function(accounts) {
 
         });
 
-        it("should not be able to activate if the contract is paused", async function() {
+        it("should be able to activate via an authorized subscription and token contract", async function() {
 
             // Setup the time we want
             await setTimes(modifyTimeContracts, activationTime);
-
-            await executorContract.pause({ from: contractOwner });
-
-            await assertRevert(executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, { from: tokenSubscriber }));
-
-            await executorContract.unpause({ from: contractOwner });
-
-        });
-
-        it("should be able to activate via an authorized subscription and token contract", async function() {
 
             // Activate the subscription with enough funds in wrapper ether account
             await executorContract.activateSubscription(subscriptionContract.address, subscriptionHash, { from: tokenSubscriber });
@@ -460,21 +450,10 @@ contract('Executor', function(accounts) {
 
         });
 
-        it("should not be able to process if the contract is paused", async function() {
+        it("should be able to process a subscription the next month and free the difference", async function() {
 
             // Transfer two months' worth of Tokens to the subscriber
             await tokenContract.transfer(tokenSubscriber, subscriptionCost * 3, { from: contractOwner });
-
-            await executorContract.pause({ from: contractOwner });
-
-            let subscriptionHash = await newTokenSubscription("process.free_difference.paused");
-            await assertRevert(fastForwardSubscription(subscriptionHash, 2, false));
-
-            await executorContract.unpause({ from: contractOwner });
-
-        });
-
-        it("should be able to process a subscription the next month and free the difference", async function() {
 
             // Create a new subscription and fast forward one month
             let subscriptionHash = await newTokenSubscription("process.free_difference");
@@ -548,19 +527,9 @@ contract('Executor', function(accounts) {
 
         });
 
-        it("should not be able to release if the contract is paused", async function() {
+        it("should be able to release after the execution period but before the cancellation period", async function() {
 
             await executorContract.processSubscription(subscriptionContract.address, subscriptionHash, { from: serviceNode });
-
-            await executorContract.pause({ from: contractOwner });
-
-            await assertRevert(executorContract.releaseSubscription(subscriptionContract.address, subscriptionHash, { from: serviceNode }));
-
-            await executorContract.unpause({ from: contractOwner });
-
-        });
-
-        it("should be able to release after the execution period but before the cancellation period", async function() {
 
             await executorContract.releaseSubscription(subscriptionContract.address, subscriptionHash, { from: serviceNode });
 
@@ -685,7 +654,7 @@ contract('Executor', function(accounts) {
         let catchLatesubscriptionHash;
         let globalTime;
 
-        it("should not be able to catch late if the contract is paused", async function() {
+        it("should be able to catch a valid late payment", async function() {
 
             catchLatesubscriptionHash = await newTokenSubscription("catch.late.valid");
 
@@ -696,16 +665,6 @@ contract('Executor', function(accounts) {
             let details = await fastForwardSubscription(catchLatesubscriptionHash, 2, false);
             globalTime = details[1];
             await setTimes(modifyTimeContracts, globalTime + 10);
-
-            await executorContract.pause({ from: contractOwner });
-
-            await assertRevert(executorContract.catchLateSubscription(subscriptionContract.address, catchLatesubscriptionHash, { from: competingServiceNode }));
-
-            await executorContract.unpause({ from: contractOwner });
-
-        });
-
-        it("should be able to catch a valid late payment", async function() {
 
             await executorContract.catchLateSubscription(subscriptionContract.address, catchLatesubscriptionHash, { from: competingServiceNode });
 

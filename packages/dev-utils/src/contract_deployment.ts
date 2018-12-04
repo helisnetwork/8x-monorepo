@@ -251,10 +251,12 @@ export const deployExecutor = async(
     defaults
   );
 
-  await payrollSubscriptionInstance.addAuthorizedAddress.sendTransactionAsync(
-    executorInstance.address,
-    defaults
-  );
+  if (payrollSubscriptionInstance != null) {
+    await payrollSubscriptionInstance.addAuthorizedAddress.sendTransactionAsync(
+      executorInstance.address,
+      defaults
+    );
+  }
 
   return executorInstance;
 }

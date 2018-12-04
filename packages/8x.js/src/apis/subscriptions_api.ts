@@ -95,32 +95,32 @@ export default class SubscriptionsAPI {
 
   }
 
-  /**
-   * Subscribe and Activate
-   * 
-   * This function allows you to subscribe and activate a subscription via a single Ethereum transaction. In case you're
-   * unfamiliar with the difference between subscribing and activating, subscribing is simply an agreement to pay and
-   * activating is making the first payment and starting the flow of money.
-   * 
-   * @param planHash      Unique identifying hash of the plan.
-   * @param metaData      Any extra JSON data you'd like to pass/store on-chain (optional).
-   * @param txData        Provide signer, gas and gasPrice information (optional).
-   * 
-   * @returns             Unique subscription hash.
-   * @priority            3
-  */
+//   /**
+//    * Subscribe and Activate
+//    * 
+//    * This function allows you to subscribe and activate a subscription via a single Ethereum transaction. In case you're
+//    * unfamiliar with the difference between subscribing and activating, subscribing is simply an agreement to pay and
+//    * activating is making the first payment and starting the flow of money.
+//    * 
+//    * @param planHash      Unique identifying hash of the plan.
+//    * @param metaData      Any extra JSON data you'd like to pass/store on-chain (optional).
+//    * @param txData        Provide signer, gas and gasPrice information (optional).
+//    * 
+//    * @returns             Unique subscription hash.
+//    * @priority            3
+//   */
 
- public async subscribeAndActivate(
-  planHash: Bytes32,
-  metaData: JSON | null,
-  txData?: TxData
-): Promise<Bytes32> {
-  return await this.volumeSubscriptionWrapper.subscribeAndActivate(
-    planHash,
-    metaData,
-    txData
-  );
-}
+//  public async subscribeAndActivate(
+//   planHash: Bytes32,
+//   metaData: JSON | null,
+//   txData?: TxData
+// ): Promise<Bytes32> {
+//   return await this.volumeSubscriptionWrapper.subscribeAndActivate(
+//     planHash,
+//     metaData,
+//     txData
+//   );
+// }
 
   /**
    * Subscribe
@@ -282,6 +282,9 @@ export default class SubscriptionsAPI {
     const permissionGranted = allowanceAmount >= plan.amount;
 
     // If we're before the payment date, happy days.
+    console.log(dueDate);
+    console.log(now);
+    console.log(subscription);
     if (now < dueDate && subscription.terminationDate === 0) {
       return ['active', hasEnough, permissionGranted];
     }

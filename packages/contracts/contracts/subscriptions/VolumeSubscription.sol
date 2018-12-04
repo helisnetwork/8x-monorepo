@@ -98,7 +98,7 @@ contract VolumeSubscription is BillableInterface {
       * Modifiers
     */
     modifier isOwnerOfPlan(bytes32 _plan) {
-        require(msg.sender == plans[_plan].owner);
+        require(msg.sender == plans[_plan].owner, "You must be the owner of a plan");
         _;
     }
 
@@ -108,7 +108,7 @@ contract VolumeSubscription is BillableInterface {
     }
 
     modifier isOwnerOfSubscription(bytes32 _paymentIdentifier) {
-        require(msg.sender == subscriptions[_paymentIdentifier].owner);
+        require(msg.sender == subscriptions[_paymentIdentifier].owner, "You must be the owner of the subscription");
         _;
     }
 
@@ -129,10 +129,10 @@ contract VolumeSubscription is BillableInterface {
         external
         isOwnerOfPlan(_plan)
     {
-        require(_terminationDate >= currentTimestamp());
+        require(_terminationDate >= currentTimestamp(), "The termination date must be greater than now");
 
         // If it's already been set then we don't want it to be modified.
-        require(plans[_plan].terminationDate == 0);
+        require(plans[_plan].terminationDate == 0, "You cannot modify an already terminated plan");
 
         plans[_plan].terminationDate = _terminationDate;
 
@@ -228,7 +228,7 @@ contract VolumeSubscription is BillableInterface {
         onlyAuthorized
         returns (bool success, bool isFinalPayment)
     {
-        require(subscriptions[_paymentIdentifier].lastPaymentDate <= _date);
+        require(subscriptions[_paymentIdentifier].lastPaymentDate <= _date, "The new date must be greater than the old date");
 
         subscriptions[_paymentIdentifier].lastPaymentDate = _date;
 
@@ -241,10 +241,7 @@ contract VolumeSubscription is BillableInterface {
         public
     {
         // Either the original subscription owner can cancel or an authorized address.
-        require((msg.sender == subscriptions[_paymentIdentifier].owner) || (authorized[msg.sender] == true));
-
-        // Ensure that the subscription has started;
-        require(subscriptions[_paymentIdentifier].lastPaymentDate > 0);
+        require((msg.sender == subscriptions[_paymentIdentifier].owner) || (authorized[msg.sender] == true), "Must be the owner or an authorized address");
 
         // If it hasn't been terminated, do it. Doesn't throw in case the executor calls it without knowing the status.
         if (subscriptions[_paymentIdentifier].terminationDate == 0) {
@@ -371,7 +368,8 @@ contract VolumeSubscription is BillableInterface {
                 keccak256(_callbackFunction)
             ),
             address(this),
-            subscriptionHash
+            subscriptionHash,
+            msg.sender
         );
     }
 
@@ -390,7 +388,7 @@ contract VolumeSubscription is BillableInterface {
     {
         // @TODO: Check for overflows and underflows
 
-        require(msg.sender != 0x0);
+        require(msg.sender != 0x0, "Must have a sender");
 
         address planTokenAddress = plans[_planHash].tokenAddress;
 
@@ -401,8 +399,8 @@ contract VolumeSubscription is BillableInterface {
             _salt
         );
 
-        require(subscriptions[subscriptionHash].owner == 0x0);
-        require(planTokenAddress != 0x0);
+        require(subscriptions[subscriptionHash].owner == 0x0, "Cannot have a plan with the same hash");
+        require(planTokenAddress != 0x0, "Must have a valid token specified");
 
         Subscription memory newSubscription = Subscription({
             owner: msg.sender,

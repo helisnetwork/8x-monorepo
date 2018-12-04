@@ -522,18 +522,6 @@ contract('VolumeSubscription', function(accounts) {
 
         });
 
-        it("should not be able to cancel before the start date is set", async function() {
-
-            await assertRevert(contract.cancelPayment(subscriptionHash, { from: subscriber }));
-
-        });
-
-        it("should not be able to cancel before the start date is set", async function() {
-
-            await assertRevert(contract.cancelPayment(subscriptionHash, { from: executorContract }));
-
-        });
-
         it("should be able to cancel from the owner", async function() {
 
             await contract.setLastestPaymentDate(futureDate, subscriptionHash, { from: executorContract });
