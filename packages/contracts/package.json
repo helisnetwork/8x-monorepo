@@ -32,12 +32,11 @@
     "web3": "^1.0.0-beta.36"
   },
   "scripts": {
-    "test-contracts": "truffle test || true",
     "clean": "rimraf -rf ./build ./export",
     "lint-base": "solhint contracts/**/*.sol || true",
     "lint-test": "solhint contracts/**/**/*.sol || true",
     "lint-contracts": "solhint contracts/*.sol || true",
-    "test": "npm-run-all test-contracts lint-base lint-test lint-contracts",
+    "test": "truffle test",
     "lint": "npm-run-all lint-base lint-test lint-contracts",
     "generate-artifacts-typings": "node_modules/@0xproject/abi-gen/bin/abi-gen.js --abis '../artifacts/src/build/abi/json/**/*.json' --out '../artifacts/src/build/wrappers' --template './contract_templates/contract.mustache' --partials './contract_templates/partials/*.mustache'",
     "build:aion": "rimraf -rf ./aion/contracts ./aion/flat && node scripts/exportAion.js && bash scripts/flatten.sh && node scripts/compileAion.js",

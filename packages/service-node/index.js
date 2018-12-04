@@ -15,18 +15,6 @@ PUBLIC_KEY = ""
 # Private key of the node executing
 PRIVATE_KEY = ""
 
-# Executor contract address
-EXECUTOR = ""
-
-# Transcting token address (that you'd like to stake for)
-TRANSACTING_TOKEN = ""
-
-# Token being staked (native 8x token)
-STAKE_TOKEN = ""
-
-# Stake contract address
-STAKE_CONTRACT = ""
-
 */
 
 const Web3 = require('web3');
@@ -36,7 +24,9 @@ const Repeater = require('@8xprotocol/service-node-core').default;
 const dotenv = require('dotenv')
 const HDWalletProvider = require("truffle-hdwallet-provider-privkey");
 const BigNumber = require('bignumber.js');
+const Artifacts = require('@8xprotocol/artifacts');
 
+const config = Artifacts.ConfigAddresses[environment.network];
 const environment = dotenv.config().parsed;
 
 let provider = new Web3.providers.HttpProvider(environment.NODE_ADDRESS);
@@ -48,14 +38,34 @@ if (environment.PRIVATE_KEY) {
 
 let nonceTracker = new NonceTrackerSubprovider()
 provider.engine._providers.unshift(nonceTracker)
-nonceTracker.setEngine(provider.engine)
+nonceTracker.setEngine(provider.engine);
 
-const web3 = new Web3(provider);
-const repeater = new Repeater(web3, environment.EXECUTOR, environment.PUBLIC_KEY.toLowerCase())
+let addressBook = {
+    volumeSubscriptionAddress: getContract("VolumeSubscription"),
+    transactingTokenAddresses: [
+        getToken("DAI"), 
+        getToken("WETH")
+    ],
+    executorAddress: getContract("Executor"),
+    transferProxyAddress: getContract("TransferProxy"),
+    payrollSubscriptionAddress: getContract("PayrollSubscriptiob"),
+    stakeContractAddress: getContract("StakeContract"),
+    stakeTokenAddress: getToken("EightExToken")
+};
 
 const topUpAmount = new BigNumber(100).mul(10 ** 18);
 
-repeater.attemptTopUp(
+function start() {
+
+    let service = new EthereumService(provider, environment.PUBLIC_KEY.toLowerCase(), addressBook, {
+        processing: 0,
+        catchLate: 5,
+        stopChecking: 10
+    });
+    
+    repeater = new Repeater(service);
+
+    service.attemptTopUp(
         topUpAmount,
         environment.TRANSACTING_TOKEN,
         environment.STAKE_TOKEN,
@@ -69,6 +79,19 @@ repeater.attemptTopUp(
         console.log(error);
     })
 
-repeater.repeaterUpdated = function() {
-    console.log("Repeater events updated");
-};
+    repeater.repeaterUpdated = function() {
+        console.log("Repeater events updated");
+    };
+}
+
+function getToken(ticker) {
+    let object = config['approvedTokens'].find((item) => item.ticker == ticker) || { address: '' };
+    return object.address;
+}
+  
+function getContract(contract) {
+    let object = config['addresses'].find((item) => item.name == contract) || { address: '' };
+    return object.address;
+}
+  
+start();

@@ -98,6 +98,7 @@ export interface AddressBook {
     transferProxyAddress?: Address;
     volumeSubscriptionAddress?: Address;
     payrollSubscriptionAddress?: Address;
+    transactingTokenAddresses?: Address[];
     transactingTokenAddress?: Address;
     kyberAdress?: Address;
 }

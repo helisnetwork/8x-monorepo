@@ -43,11 +43,6 @@ let transferProxy: TransferProxyContract;
 let executor: ExecutorContract;
 
 let planHash: string;
-let planHash1: string;
-let planHash2: string;
-let planHash3: string;
-let planHash4: string;
-let planHash5: string;
 
 describe('SubscriptionAPI', () => {
 
@@ -102,112 +97,47 @@ describe('SubscriptionAPI', () => {
       {from: business},
     );
 
-    planHash1 = await eightEx.plans.create(
-      business,
-      'create.new.plan.2',
-      30,
-      Units.dollars(10),
-      Units.cents(10),
-      'Netflix',
-      'Gold Plan',
-      'http://some.cool.image',
-      null,
-      {from: business},
-    );
-    
-    planHash2 = await eightEx.plans.create(
-      business,
-      'create.new.plan.3',
-      30,
-      Units.dollars(10),
-      Units.cents(10),
-      'Netflix',
-      'Gold Plan',
-      'http://some.cool.image',
-      null,
-      {from: business},
-    );
-
-    planHash3 = await eightEx.plans.create(
-      business,
-      'create.new.plan.3',
-      30,
-      Units.dollars(10),
-      Units.cents(10),
-      'Netflix',
-      'Gold Plan',
-      'http://some.cool.image',
-      null,
-      {from: business},
-    );
-
-    planHash4 = await eightEx.plans.create(
-      business,
-      'create.new.plan.4',
-      30,
-      Units.dollars(10),
-      Units.cents(10),
-      'Netflix',
-      'Gold Plan',
-      'http://some.cool.image',
-      null,
-      {from: business},
-    );
-
-    planHash5 = await eightEx.plans.create(
-      business,
-      'create.new.plan.5',
-      30,
-      Units.dollars(10),
-      Units.cents(10),
-      'Netflix',
-      'Gold Plan',
-      'http://some.cool.image',
-      null,
-      {from: business},
-    );
-
   });
 
+  test('should be able to give allownace', async () => {
+
+    await eightEx.subscriptions.giveAuthorisation({from: consumer});
+
+    let allowance = await eightEx.subscriptions.hasGivenAuthorisation(consumer);
+    expect(allowance).to.be.true;
+
+  })
+
+  test('should be able to create a subscription and activate it', async () => {
+
+    await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
+
+    let subscriptionHash = await eightEx.subscriptions.subscribe(
+      planHash,
+      null,
+      {from: consumer}
+    );
+
+    expect(subscriptionHash).to.not.be.empty;
+
+    let subscription = await eightEx.subscriptions.get(subscriptionHash);
+
+    expect(subscription.planHash).to.equal(planHash);
+    expect(subscription.lastPaymentDate).to.equal(0);
+    expect(subscription.terminationDate).to.equal(0);
+
+    await eightEx.subscriptions.activate(
+      subscriptionHash,
+      {from: consumer}
+    );
+
+    subscription = await eightEx.subscriptions.get(subscriptionHash);
+    expect(subscription.planHash).to.equal(planHash);
+    expect(subscription.lastPaymentDate).to.be.greaterThan(0);
+
+  });
+  
   // @TODO: Fix lol.
-
-  // test('should be able to give allownace', async () => {
-
-  //   await eightEx.subscriptions.giveAuthorisation({from: consumer});
-
-  //   let allowance = await eightEx.subscriptions.hasGivenAuthorisation(consumer);
-  //   expect(allowance).to.be.true;
-
-  // })
-
-  // test('should be able to create a subscription and activate it', async () => {
-
-  //   await mockToken.transfer.sendTransactionAsync(consumer, Units.dollars(20), {from: contractOwner});
-
-  //   let subscriptionHash = await eightEx.subscriptions.subscribe(
-  //     planHash,
-  //     null,
-  //     {from: consumer}
-  //   );
-
-  //   expect(subscriptionHash).to.not.be.empty;
-
-  //   let subscription = await eightEx.subscriptions.get(subscriptionHash);
-
-  //   expect(subscription.planHash).to.equal(planHash);
-  //   expect(subscription.lastPaymentDate).to.equal(0);
-  //   expect(subscription.terminationDate).to.equal(0);
-
-  //   await eightEx.subscriptions.activate(
-  //     subscriptionHash,
-  //     {from: consumer}
-  //   );
-
-  //   subscription = await eightEx.subscriptions.get(subscriptionHash);
-  //   expect(subscription.planHash).to.equal(planHash);
-  //   expect(subscription.lastPaymentDate).to.be.greaterThan(0);
-
-  // });
   
   // test('should be able to create and subscribe to a subscription in one transaction', async ()=> {
 

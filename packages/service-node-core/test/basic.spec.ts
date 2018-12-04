@@ -41,7 +41,6 @@ const exepect = chai.expect;
 
 const provider = new Web3.providers.HttpProvider('http://localhost:8545');
 const web3 = new Web3(provider);
-
 const web3Utils = new Web3Utils(web3);
 
 let contractOwner: string;
@@ -157,19 +156,25 @@ describe('Basic', () => {
 
   test('scheduled payroll', async () => {
 
+    console.log("scheduling payroll");
+
     let now = await web3Utils.getCurrentBlockTime();
     let paymentHash = '0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37c10';
     
     await new Promise((resolve, reject) => {
       repeater.repeaterUpdated = () => {
+        console.log("Repeater updated 0");
         if (!repeater.payrollStore.payments[paymentHash]) {
           return;
         }
+        console.log("Repeater updated 1");
 
         if (repeater.payrollStore.payments[paymentHash].lastPaymentDate == 0) {
           return;
         }
           
+        console.log("Repeater updated 2");
+
         expect(repeater.payrollStore.payments[paymentHash].paymentIdentifier).toEqual(paymentHash);
         resolve();
       };
@@ -192,6 +197,9 @@ describe('Basic', () => {
 
   test('activate subscription', async () => {
 
+    console.log("activating");
+
+
     subscriptionHash = await eightEx.subscriptions.subscribe(planHash, null, {from: consumer});
 
     await new Promise((resolve, reject) => {
@@ -206,6 +214,8 @@ describe('Basic', () => {
   });
 
   test('processing subscription', async() => {
+
+    console.log("activating");
 
     let paymentInformation = await paymentRegistry.getPaymentInformation.callAsync(subscriptionHash);
     let now = await web3Utils.getCurrentBlockTime();
