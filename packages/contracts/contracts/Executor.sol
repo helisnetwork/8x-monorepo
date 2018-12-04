@@ -128,10 +128,10 @@ contract Executor is Ownable {
         require(paymentSuccess == true, "The payment should be able to execute successfully");
 
         if (finalPayment == true) {
-            emit SubscriptionCompleted(
-                _paymentIdentifier,
-                msg.sender
-            );
+            // emit SubscriptionCompleted(
+            //     _paymentIdentifier,
+            //     msg.sender
+            // );
 
             return;
         }

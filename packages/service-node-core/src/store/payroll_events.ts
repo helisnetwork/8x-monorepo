@@ -24,6 +24,7 @@ export default class PayrollStore implements Store {
   public async startListening() {
     console.log(this.service.addressBook.payrollSubscriptionAddress);
     await this.service.watchPayroll(0, -1, (log) => {
+      console.log(log.event);
       if (log.event == 'CreatedSchedule') {
         this.handleCreatedSchedule(log);
       } else if (log.event == 'UpdatedSchedule') {
@@ -59,7 +60,6 @@ export default class PayrollStore implements Store {
       } as BasicEvent
     });
 
-    console.log(`Passing events ${JSON.stringify(result, null, 2)}`)
     return result;
 
   }
@@ -145,9 +145,6 @@ export default class PayrollStore implements Store {
 
     let existingPayment = this.payments[log.args.paymentIdentifier];
 
-    console.log(log);
-    console.log(existingPayment);
-
     if (log.blockNumber <= existingPayment.blockNumber) {
       if (log.transactionIndex < existingPayment.transactionIndex) {
         return;
@@ -158,6 +155,7 @@ export default class PayrollStore implements Store {
     existingPayment.blockNumber = log.blockNumber;
     existingPayment.transactionIndex = log.blockNumber;
     existingPayment.transactionHash = log.transactionHash;
+    existingPayment.activated = true;
 
     this.payments[existingPayment.paymentIdentifier] = existingPayment;
 

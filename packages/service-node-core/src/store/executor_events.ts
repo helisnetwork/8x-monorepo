@@ -26,6 +26,7 @@ export default class ExecutorStore implements Store {
 
   public async startListening() {
     await this.service.watchExecutor(0, -1, (log) => {
+      console.log(log.event);
       if (log.event == 'SubscriptionActivated') {
         this.handleActivation(log);
       } else if (log.event == 'SubscriptionProcessed') {
@@ -84,6 +85,7 @@ export default class ExecutorStore implements Store {
     existingEvent.blockNumber = log.blockNumber;
     existingEvent.transactionIndex = log.blockNumber;
     existingEvent.transactionHash = log.transactionHash;
+    existingEvent.activated = true;
 
     this.events[existingEvent.paymentIdentifier] = existingEvent;
 

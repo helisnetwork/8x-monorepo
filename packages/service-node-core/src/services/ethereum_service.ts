@@ -44,28 +44,31 @@ export default class EthereumService implements NetworkService {
     let stakeTokenContract = await MockTokenContract.at(this.addressBook.stakeTokenAddress, this.web3, {});
 
     console.log(this.serviceNode, this.addressBook.transactingTokenAddress);
-    let existingBalance = await stakeContract.getTotalStake.callAsync(this.serviceNode, this.addressBook.transactingTokenAddress);
 
-    if (existingBalance.toNumber() == amount.toNumber()) {
-      console.log("Skipped top up");
-      return;
-    }
+    await (this.addressBook.transactingTokenAddresses || [this.addressBook.transactingTokenAddress]).forEach(async (token) => {
+      let existingBalance = await stakeContract.getTotalStake.callAsync(this.serviceNode, token);
 
-    let approveTx = await stakeTokenContract.approve.sendTransactionAsync(
-      stakeContract.address,
-      amount,
-      this.TX_DEFAULTS
-    );
+      if (existingBalance.toNumber() == amount.toNumber()) {
+        console.log("Skipped top up");
+        return;
+      }
 
-    await this.eightEx.blockchain.awaitTransactionMinedAsync(approveTx);
+      let approveTx = await stakeTokenContract.approve.sendTransactionAsync(
+        stakeContract.address,
+        amount,
+        this.TX_DEFAULTS
+      );
 
-    let topupTx = await stakeContract.topUpStake.sendTransactionAsync(
-      amount,
-      this.addressBook.transactingTokenAddress,
-      { from: this.serviceNode }
-    );
+      await this.eightEx.blockchain.awaitTransactionMinedAsync(approveTx);
 
-    await this.eightEx.blockchain.awaitTransactionMinedAsync(topupTx);
+      let topupTx = await stakeContract.topUpStake.sendTransactionAsync(
+        amount,
+        token,
+        { from: this.serviceNode }
+      );
+
+      await this.eightEx.blockchain.awaitTransactionMinedAsync(topupTx);
+    });
   }
 
   async watchExecutor(fromBlock: number, toBlock: number, callback: (any) => (any)) {
@@ -102,10 +105,7 @@ export default class EthereumService implements NetworkService {
 
     this.asyncForEach(events, async (event) => {
       console.log(`Sending activate tx ${JSON.stringify(event)}`);
-
-      let price = await this.executorContract.getPricedGas.callAsync(event.contractAddress, event.paymentIdentifier, this.addressBook.transactingTokenAddress);
-      console.log(price.toNumber());
-
+      
       try {
         await this.executorContract.activateSubscription.sendTransactionAsync(
           event.contractAddress,

@@ -47,10 +47,11 @@ export default class ProcessorStore {
     let now = (Date.now() / 1000);
 
     let toProcess = this.events.filter((event) => {
+      let claimant = parseInt(event.claimant);
       let result = (
         (now >= event.dueDate + this.service.delayPeriod.processing) &&
         (now <= (event.dueDate + (this.service.delayPeriod.catchLate))) &&
-        (!event.claimant || event.claimant == this.service.serviceNode || event.claimant.length == 0) &&
+        (!event.claimant || event.claimant == this.service.serviceNode || claimant == 0 || claimant == NaN) &&
         event.activated == true
       );
 
@@ -89,12 +90,8 @@ export default class ProcessorStore {
       }
 
       return result;
-    })
+    });
     
-    console.log(`Processing queue ${JSON.stringify(toProcess)}`);
-    console.log(`Catch queue ${JSON.stringify(toCatchLate)}`);
-    console.log(`Activate queue ${JSON.stringify(toActivate)}`);
-
     await this.service.activate(toActivate);
     await this.service.process(toProcess);
     await this.service.catchLate(toCatchLate);
