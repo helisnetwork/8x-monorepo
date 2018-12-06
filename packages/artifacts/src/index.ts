@@ -40,15 +40,15 @@ import { EightExToken_Aion } from './build/abi/ts-aion/EightExToken_Aion';
 import { WETH_Aion } from './build/abi/ts-aion/WETH_Aion';
 
 export {
-  ApprovedRegistry_Aion as ApprovedRegistryAbi_Aion,
-  Executor_Aion as ExecutorAbi_Aion,
-  PaymentRegistry_Aion as PaymentRegistryAbi_Aion,
-  StakeContract_Aion as StakeContractAbi_Aion,
-  VolumeSubscription_Aion as VolumeSubscriptionAbi_Aion,
-  TransferProxy_Aion as TransferProxyAbi_Aion,
-  PayrollSubscription_Aion as PayrollSubscriptionAbi_Aion,
-  EightExToken_Aion as EightExTokenAbi_Aion,
-  WETH_Aion as WETHAbi_Aion
+  ApprovedRegistry_Aion,
+  Executor_Aion,
+  PaymentRegistry_Aion,
+  StakeContract_Aion,
+  VolumeSubscription_Aion,
+  TransferProxy_Aion,
+  PayrollSubscription_Aion,
+  EightExToken_Aion,
+  WETH_Aion
 };
 
 // Export contract wrappers

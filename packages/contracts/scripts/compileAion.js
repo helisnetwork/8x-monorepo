@@ -43,25 +43,25 @@ result.forEach((file) => {
     let loadedFile = fs.readFileSync(file.path, "utf8");
     let name = file.name.replace(".sol", "").replace("_flat", "");
 
-    web3.eth.compileSolidity(loadedFile).then((artifact) =>  {
+    web3.eth.compileSolidity(loadedFile).then((result) =>  {
+
+        let specificArtifacts = result[name];
+        let artifact = {
+            contractName: name,
+            abi: specificArtifacts.info.abiDefinition,
+            bytecode: specificArtifacts.code,
+            compiler: specificArtifacts.info.compilerVersion,
+            version: PACKAGE.version,
+            networks: {}
+        };
 
         let prettyArtifact = JSON.stringify(artifact, null, 2);
         fs.writeFileSync(LOCAL_DIR + '/' + name + '.json', prettyArtifact);
+        fs.writeFileSync(JSON_DIR + '/' + name + '_Aion.json', prettyArtifact);
 
-        // let artifactExported = {
-        //     contractName: name,
-        //     abi: artifact[name].info.abiDefinition,
-        //     bytecode: artifact[name].code,
-        //     compiler: artifact[name].info.compilerVersion,
-        //     version: PACKAGE.version,
-        //     networks: {}
-        // };
-
-        let json = JSON.stringify(prettyArtifact, null, 2);
-        fs.writeFileSync(JSON_DIR + '/' + name + '_Aion.json', json);
-
-        let typescriptAbi = "export const " + name + "_Aion = \n" + json;
+        let typescriptAbi = "export const " + name + "_Aion = \n" + prettyArtifact;
         fs.writeFileSync(TS_DIR + '/' + name + '_Aion.ts', typescriptAbi);
+        
     }).catch((error) => {
         console.log("Couldn't compile " + name);
         console.log(error);

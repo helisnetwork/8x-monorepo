@@ -3,16 +3,16 @@ const fs = require('fs-extra');
 const Web3 = require('aion-web3')
 
 // Import compiled contracts
-const ApprovedRegistry = fs.readJsonSync("../build/ApprovedRegistry.json").ApprovedRegistry;
-const EightExToken = fs.readJsonSync("../build/EightExToken.json").EightExToken;
-const Executor = fs.readJsonSync("../build/Executor.json").Executor;
-const MultiSigWalletWithTimeLock = fs.readJsonSync("../build/MultiSigWalletWithTimeLock.json").MultiSigWalletWithTimeLock;
-const PaymentRegistry = fs.readJsonSync("../build/PaymentRegistry.json").PaymentRegistry;
-const PayrollSubscription = fs.readJsonSync("../build/PayrollSubscription.json").PayrollSubscription;
-const Stake = fs.readJsonSync("../build/StakeContract.json").StakeContract;
-const TransferProxy = fs.readJsonSync("../build/TransferProxy.json").TransferProxy;
-const VolumeSubscription = fs.readJsonSync("../build/VolumeSubscription.json").VolumeSubscription;
-const WETH = fs.readJsonSync("../build/WETH.json").WETH;
+const ApprovedRegistry = fs.readJsonSync("../build/ApprovedRegistry.json");
+const EightExToken = fs.readJsonSync("../build/EightExToken.json");
+const Executor = fs.readJsonSync("../build/Executor.json");
+const MultiSigWalletWithTimeLock = fs.readJsonSync("../build/MultiSigWalletWithTimeLock.json");
+const PaymentRegistry = fs.readJsonSync("../build/PaymentRegistry.json");
+const PayrollSubscription = fs.readJsonSync("../build/PayrollSubscription.json");
+const Stake = fs.readJsonSync("../build/StakeContract.json");
+const TransferProxy = fs.readJsonSync("../build/TransferProxy.json");
+const VolumeSubscription = fs.readJsonSync("../build/VolumeSubscription.json");
+const WETH = fs.readJsonSync("../build/WETH.json");
 
 // Setup web3
 
@@ -28,16 +28,16 @@ web3.eth.defaultAccount = deployerAccount.address;
 console.log('Account used to deploy:', web3.eth.defaultAccount);
 
 // Contract Instances
-const ApprovedRegistryContract = new web3.eth.Contract(ApprovedRegistry.info.abiDefinition);
-const EightExTokenContract = new web3.eth.Contract(EightExToken.info.abiDefinition);
-const ExecutorContract = new web3.eth.Contract(Executor.info.abiDefinition);
-const MultiSigWalletWithTimeLockContract = new web3.eth.Contract(MultiSigWalletWithTimeLock.info.abiDefinition);
-const PaymentRegistryContract = new web3.eth.Contract(PaymentRegistry.info.abiDefinition);
-const PayrollSubscriptionContract = new web3.eth.Contract(PayrollSubscription.info.abiDefinition);
-const StakeContract = new web3.eth.Contract(Stake.info.abiDefinition);
-const TransferProxyContract = new web3.eth.Contract(TransferProxy.info.abiDefinition);
-const VolumeSubscriptionContract = new web3.eth.Contract(VolumeSubscription.info.abiDefinition);
-const WETHContract = new web3.eth.Contract(WETH.info.abiDefinition);
+const ApprovedRegistryContract = new web3.eth.Contract(ApprovedRegistry.abi);
+const EightExTokenContract = new web3.eth.Contract(EightExToken.abi);
+const ExecutorContract = new web3.eth.Contract(Executor.abi);
+const MultiSigWalletWithTimeLockContract = new web3.eth.Contract(MultiSigWalletWithTimeLock.abi);
+const PaymentRegistryContract = new web3.eth.Contract(PaymentRegistry.abi);
+const PayrollSubscriptionContract = new web3.eth.Contract(PayrollSubscription.abi);
+const StakeContract = new web3.eth.Contract(Stake.abi);
+const TransferProxyContract = new web3.eth.Contract(TransferProxy.abi);
+const VolumeSubscriptionContract = new web3.eth.Contract(VolumeSubscription.abi);
+const WETHContract = new web3.eth.Contract(WETH.abi);
 
 let file = `${process.cwd()}/../../../artifacts/src/addresses/config.json`;
 fs.ensureFileSync(file)
@@ -48,44 +48,44 @@ let network = 'mastery-aion'
 async function startDeployment() {
 
     // Deploy Transfer Proxy
-    let transferProxy = await deploy(TransferProxyContract, TransferProxy.code, null, deployerAccount);
+    let transferProxy = await deploy(TransferProxyContract, TransferProxy.bytecode, null, deployerAccount);
     console.log("Deployed Transfer Proxy");
 
     // Deploy Payment Registry
-    let paymentRegistry = await deploy(PaymentRegistryContract, PaymentRegistry.code, null, deployerAccount);
+    let paymentRegistry = await deploy(PaymentRegistryContract, PaymentRegistry.bytecode, null, deployerAccount);
     console.log("Deployed Payment Registry");
 
     // Deploy Eight Ex Token
-    let eightExToken = await deploy(EightExTokenContract, EightExToken.code, null, deployerAccount);
+    let eightExToken = await deploy(EightExTokenContract, EightExToken.bytecode, null, deployerAccount);
     console.log("Deployed Eight Ex Token");
 
     // Deploy Stake Contract
-    let stakeContract = await deploy(StakeContract, Stake.code, [eightExToken], deployerAccount);
+    let stakeContract = await deploy(StakeContract, Stake.bytecode, [eightExToken], deployerAccount);
     console.log("Deployed Stake Contract");
 
     // Deploy DAI or WETH
-    let weth = await deploy(WETHContract, WETH.code, null, deployerAccount);
+    let weth = await deploy(WETHContract, WETH.bytecode, null, deployerAccount);
     console.log("Deployed WETH");
 
     // Deploy MultiSig with array of addresses, number of confirmations and time lock period
     let multiSig = await deploy(
         MultiSigWalletWithTimeLockContract, 
-        MultiSigWalletWithTimeLock.code, 
+        MultiSigWalletWithTimeLock.bytecode, 
         [[deployerAccount.address], 1, 0],
         deployerAccount
     );
     console.log("Deployed MultiSig");
 
     // Deploy Approved Registry with Kyber
-    let approvedRegistry = await deploy(ApprovedRegistryContract, ApprovedRegistry.code, [""], deployerAccount);
+    let approvedRegistry = await deploy(ApprovedRegistryContract, ApprovedRegistry.bytecode, [""], deployerAccount);
     console.log("Deployed Approved Registry");
 
     // Deploy Volume Subscroption with Approved Registry
-    let volumeSubscription = await deploy(VolumeSubscriptionContract, VolumeSubscription.code, [approvedRegistry], deployerAccount);
+    let volumeSubscription = await deploy(VolumeSubscriptionContract, VolumeSubscription.bytecode, [approvedRegistry], deployerAccount);
     console.log("Deployed Volume Subscription");
 
     // Deploy Payroll Subscription with Approved Registry
-    let payrollSubscription = await deploy(PayrollSubscriptionContract, PayrollSubscription.code, [approvedRegistry], deployerAccount);
+    let payrollSubscription = await deploy(PayrollSubscriptionContract, PayrollSubscription.bytecode, [approvedRegistry], deployerAccount);
     console.log("Deployed Payroll Subscription");
 
     // Add WETH to Approve Registry
@@ -99,7 +99,7 @@ async function startDeployment() {
     // Deploy Exeuctor with Transfer Proxy, Stake Contract, Payment Registry, Approved Registry, MAXIMUM_INTERVAL_DIVISOR
     let executor = await deploy(
         ExecutorContract,
-        Executor.code,
+        Executor.bytecode,
         [transferProxy, stakeContract, paymentRegistry, approvedRegistry, 7],
         deployerAccount
     );
