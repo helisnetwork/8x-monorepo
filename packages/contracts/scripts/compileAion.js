@@ -60,7 +60,7 @@ result.forEach((file) => {
         let json = JSON.stringify(prettyArtifact, null, 2);
         fs.writeFileSync(JSON_DIR + '/' + name + '_Aion.json', json);
 
-        let typescriptAbi = "export const " + name + " = \n" + json;
+        let typescriptAbi = "export const " + name + "_Aion = \n" + json;
         fs.writeFileSync(TS_DIR + '/' + name + '_Aion.ts', typescriptAbi);
     }).catch((error) => {
         console.log("Couldn't compile " + name);
