@@ -53,7 +53,7 @@ result.forEach((file) => {
             /pure/gi,
             /emit /gi,
             /(, ".*"\);)/gi,
-            `pragma solidity 0.4.24`,
+            `0.4.24`,
             `2**256`,
             /keccak256/
         ],
@@ -63,7 +63,7 @@ result.forEach((file) => {
             ``,
             ``,
             `);`,
-            `pragma solidity 0.4.15`,
+            `0.4.15`,
             `2**128`,
             `blake2b256`
         ],

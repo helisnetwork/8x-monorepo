@@ -15,16 +15,17 @@ const VolumeSubscription = fs.readJsonSync("../build/VolumeSubscription.json").V
 const WETH = fs.readJsonSync("../build/WETH.json").WETH;
 
 // Setup web3
-// const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
 
+// const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
 // Account: 0xa0c80e6f6eef087a089ec3fcda7ba07ce6c35c5c9b3f53a1ba8c4c718d10d39a
 // Private Key: 0xcc8aed366b1e045d6aeddec5bfa7c152ff686a723ae3c98e5e6785637b451befe5ece5d4b66d6cf8654bb22b7441883b32544bc76231fee4946477d2aa90ec4f
-//https://api.nodesmith.io/v1/aion/testnet/jsonrpc?apiKey=2a11723e42314e7886056bc3f2157548
-const web3 = new Web3(new Web3.providers.HttpProvider("https://api.nodesmith.io/v1/aion/testnet/jsonrpc?apiKey=69b8c35ca8f54d8ab60831d94f3f4716"));
 
+const web3 = new Web3(new Web3.providers.HttpProvider("https://api.nodesmith.io/v1/aion/testnet/jsonrpc?apiKey=69b8c35ca8f54d8ab60831d94f3f4716"));
 let deployerAccount = web3.eth.accounts.privateKeyToAccount("0xcc8aed366b1e045d6aeddec5bfa7c152ff686a723ae3c98e5e6785637b451befe5ece5d4b66d6cf8654bb22b7441883b32544bc76231fee4946477d2aa90ec4f");
+
 web3.eth.accounts.wallet.add(deployerAccount);
 web3.eth.defaultAccount = deployerAccount.address;
+console.log('Account used to deploy:', web3.eth.defaultAccount);
 
 // Contract Instances
 const ApprovedRegistryContract = new web3.eth.Contract(ApprovedRegistry.info.abiDefinition);
@@ -38,22 +39,33 @@ const TransferProxyContract = new web3.eth.Contract(TransferProxy.info.abiDefini
 const VolumeSubscriptionContract = new web3.eth.Contract(VolumeSubscription.info.abiDefinition);
 const WETHContract = new web3.eth.Contract(WETH.info.abiDefinition);
 
+let file = `${process.cwd()}/../../../artifacts/src/addresses/config.json`;
+fs.ensureFileSync(file)
+const contractsJson = fs.readJsonSync(file, { throws: false }) || {};
+
+let network = 'mastery-aion'
+
 async function startDeployment() {
 
     // Deploy Transfer Proxy
     let transferProxy = await deploy(TransferProxyContract, TransferProxy.code, null, deployerAccount);
+    console.log("Deployed Transfer Proxy");
 
     // Deploy Payment Registry
     let paymentRegistry = await deploy(PaymentRegistryContract, PaymentRegistry.code, null, deployerAccount);
+    console.log("Deployed Payment Registry");
 
     // Deploy Eight Ex Token
     let eightExToken = await deploy(EightExTokenContract, EightExToken.code, null, deployerAccount);
+    console.log("Deployed Eight Ex Token");
 
     // Deploy Stake Contract
     let stakeContract = await deploy(StakeContract, Stake.code, [eightExToken], deployerAccount);
+    console.log("Deployed Stake Contract");
 
     // Deploy DAI or WETH
     let weth = await deploy(WETHContract, WETH.code, null, deployerAccount);
+    console.log("Deployed WETH");
 
     // Deploy MultiSig with array of addresses, number of confirmations and time lock period
     let multiSig = await deploy(
@@ -62,21 +74,27 @@ async function startDeployment() {
         [[deployerAccount.address], 1, 0],
         deployerAccount
     );
+    console.log("Deployed MultiSig");
 
     // Deploy Approved Registry with Kyber
-    let approvedRegistry = await deploy(ApprovedRegistryContract, ApprovedRegistry.code, null, deployerAccount);
+    let approvedRegistry = await deploy(ApprovedRegistryContract, ApprovedRegistry.code, [""], deployerAccount);
+    console.log("Deployed Approved Registry");
 
     // Deploy Volume Subscroption with Approved Registry
     let volumeSubscription = await deploy(VolumeSubscriptionContract, VolumeSubscription.code, [approvedRegistry], deployerAccount);
+    console.log("Deployed Volume Subscription");
 
     // Deploy Payroll Subscription with Approved Registry
     let payrollSubscription = await deploy(PayrollSubscriptionContract, PayrollSubscription.code, [approvedRegistry], deployerAccount);
+    console.log("Deployed Payroll Subscription");
 
     // Add WETH to Approve Registry
-    await addWETHToApprovedRegistry(weth);
-    
+    await addWETHToApprovedRegistry(weth, approvedRegistry);
+    console.log("Executed WETH Approval");
+
     // Add Volume + Payroll as Approved Contracts
-    await addContractsToApprovedRegistry(volumeSubscription, payrollSubscription);
+    await addContractsToApprovedRegistry(volumeSubscription, payrollSubscription, approvedRegistry);
+    console.log("Executed Add Contracts");
 
     // Deploy Exeuctor with Transfer Proxy, Stake Contract, Payment Registry, Approved Registry, MAXIMUM_INTERVAL_DIVISOR
     let executor = await deploy(
@@ -85,6 +103,7 @@ async function startDeployment() {
         [transferProxy, stakeContract, paymentRegistry, approvedRegistry, 7],
         deployerAccount
     );
+    console.log("Deployed Executor");
 
     // Add All Addresses to Artifacts
     console.log(`
@@ -101,193 +120,244 @@ async function startDeployment() {
     `);
 
     // Add Executor as authorised
-    await addAuthorizedAddress(TransferProxyContract, executor);
-    await addAuthorizedAddress(StakeContract, executor);
-    await addAuthorizedAddress(PaymentRegistryContract, executor);
-    await addAuthorizedAddress(VolumeSubscriptionContract, executor);
-    await addAuthorizedAddress(PayrollSubscriptionContract, executor);
+    await addAuthorizedAddress(TransferProxyContract, transferProxy, executor);
+    console.log("Executed Add Authorised - Transfer Proxy");
+
+    await addAuthorizedAddress(StakeContract, stakeContract, executor);
+    console.log("Executed Add Authorised - Stake Contract");
+
+    await addAuthorizedAddress(PaymentRegistryContract, paymentRegistry, executor);
+    console.log("Executed Add Authorised - Payment Registry");
+
+    await addAuthorizedAddress(VolumeSubscriptionContract, volumeSubscription, executor);
+    console.log("Executed Add Authorised - Volume Subscription");
+
+    await addAuthorizedAddress(PayrollSubscriptionContract, payrollSubscription, executor);
+    console.log("Executed Add Authorised - Payroll Subscription");
+
+    await addAuthorizedAddress(WETHContract, weth, executor);
+    console.log("Executed Add Authorised - WETH");
 
     // Transfer Ownership to MultiSig
-    await transferOwnership(ApprovedRegistryContract, multiSig);
-    await transferOwnership(TransferProxyContract, multiSig);
-    await transferOwnership(StakeContract, multiSig);
-    await transferOwnership(PaymentRegistryContract, multiSig);
-    await transferOwnership(ExecutorContract, multiSig);
-    await transferOwnership(VolumeSubscriptionContract, multiSig);
-    await transferOwnership(PayrollSubscriptionContract, multiSig);
+    await transferOwnership(ApprovedRegistryContract, approvedRegistry, multiSig);
+    console.log("Executed Transfer Ownership - Approved Registry");
+
+    await transferOwnership(TransferProxyContract, transferProxy, multiSig);
+    console.log("Executed Transfer Ownership - Transfer Proxy");
+
+    await transferOwnership(StakeContract, stakeContract, multiSig);
+    console.log("Executed Transfer Ownership - Stake Contract");
+
+    await transferOwnership(PaymentRegistryContract, paymentRegistry, multiSig);
+    console.log("Executed Transfer Ownership - Payment Registry");
+
+    await transferOwnership(ExecutorContract, executor, multiSig);
+    console.log("Executed Transfer Ownership - Executor");
+
+    await transferOwnership(VolumeSubscriptionContract, volumeSubscription, multiSig);
+    console.log("Executed Transfer Ownership - Volume Subscription");
+
+    await transferOwnership(PayrollSubscriptionContract, payrollSubscription, multiSig);
+    console.log("Executed Transfer Ownership - Payroll Subscription");
 
     // Transfer all tokens except one to MultiSig
-    await transferAllTokens(EightExTokenContract, multiSig, 2**128 - 2);
-    await transferOwnership(EightExTokenContract, multiSig);
+    // await transferAllTokens(EightExTokenContract, multiSig, 2**128 - 2);
+    await transferOwnership(EightExTokenContract, eightExToken, multiSig);
+    console.log("Executed Transfer Ownership - Eight Ex Token");
 
+
+    // Export JSON
+
+    let output = {
+        'addresses': [{
+                'name': 'Executor',
+                'address': executor
+            },
+            {
+                'name': 'VolumeSubscription',
+                'address': volumeSubscription
+            },
+            {
+                'name': 'PayrollSubscription',
+                'address': payrollSubscription
+            },
+            {
+                'name': 'ApprovedRegistry',
+                'address': approvedRegistry
+            },
+            {
+                'name': 'TransferProxy',
+                'address': transferProxy
+            },
+            {
+                'name': 'PaymentRegistry',
+                'address': paymentRegistry
+            },
+            {
+                'name': 'EightExToken',
+                'address': eightExToken
+            },
+            {
+                'name': 'WETH',
+                'address': weth
+            },
+            {
+                'name': 'StakeContract',
+                'address': stakeContract
+            },
+            {
+                'name': 'MultSig',
+                'address': multiSig
+            }
+        ],
+        'approvedTokens': [
+            {
+                'ticker': 'WETH',
+                'address': weth,
+            }
+        ],
+        'approvedContracts': [
+            {
+                'name': 'VolumeSubscription',
+                'address': volumeSubscription
+            },
+            {
+                'name': 'PayrollSubscription',
+                'address': payrollSubscription
+            }
+        ],
+        maximumIntervalDivisor: 5,
+    };
+
+    contractsJson[network] = output;
+
+    await fs.outputFile(file, JSON.stringify(contractsJson, null, 2));
 }
 
 // Deploy a contract
 
 async function deploy(contract, code, arguments) {
 
-    // let instance = await contract.deploy( {data: code, arguments: arguments} ).send({
-    //     from: deployerAccount.address,
-    //     gas: 4000000,
-    //     gasPrice: 10000000000
-    // }, function(error, transactionHash){
-    //     console.log(`Callback ${error, transactionHash}`)
-    // })
-    // .on('error', function(error){ console.log(`Error ${error}`) })
-    // .on('transactionHash', (transactionHash) => { 
-    //     console.log(`Hash ${transactionHash}`) 
-    //     getTransactionReceiptMined(transactionHash, 10).then((res) => {
-    //         console.log(res);
-    //     }).catch(error => console.log(error));
-    // })
-    // .on('receipt', function(receipt){
-    //     console.log(receipt.contractAddress) // contains the new contract address
-    // })
-    // .on('confirmation', function(confirmationNumber, receipt){ console.log(`Confirmation ${transactionHash}`)})
-    // .then(function(newContractInstance){
-    //     console.log(newContractInstance.options.address) // instance with the new contract address
-    // });
+    const deployContract = contract.deploy({
+        data: code, 
+        arguments: arguments
+    }).encodeABI();
 
-    // const deploy = contract.deploy( {data: code, arguments: arguments} ).encodeABI();
-    // const deployTx = { gas: 4000000, gasPrice: 10000000000, data: deploy, from: deployerAccount.address };
+    return await executeDeployment(deployContract)
 
-    // let signedTx = await web3.eth.accounts.signTransaction(deployTx, deployerAccount.privateKey)
-
-    // console.log(`Deploying...`);
-    
-    // let error, txHash = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
-    // console.log(`Tx Hash: ${JSON.stringify(txHash, null, 2)}...`);
-
-    // let resolved = false;
-    // let txReceipt = web3.eth.getTransactionReceipt(txHash).then((result) => {
-    //     resolved = true;
-    // });
-
-    // while (resolved == false) {
-    //     await sleep(10000);
-    //     txReceipt = web3.eth.getTransactionReceipt(txHash).then((result) => {
-    //         resolved = true;
-    //     });
-    // }
-
-    // await Promise.resolve(txReceipt);
-
-    // console.log(`Tx Receipt: ${JSON.stringify(txReceipt)}\nAddress: ${txHash.contractAddress}`);
-
-    // return txHash.contractAddress;
 }
 
-function getTransactionReceiptMined(txHash, interval) {
-    const transactionReceiptAsync = function(resolve, reject) {
-        web3.eth.getTransactionReceipt(txHash, (error, receipt) => {
-            if (error) {
-                reject(error);
-            } else if (receipt == null) {
-                setTimeout(
-                    () => transactionReceiptAsync(resolve, reject),
-                    interval ? interval : 500);
-            } else {
-                resolve(receipt);
-            }
-        });
+async function executeDeployment(data) {
+
+    let currentNoncePending = await web3.eth.getTransactionCount(deployerAccount.address, "pending");
+    let currentNonce = await web3.eth.getTransactionCount(deployerAccount.address);
+
+    //console.log('currentNoncePending ->', currentNoncePending)
+    //.log('currentNonce ->', currentNonce)
+
+    const deployTx = {
+        gas: 4699999,
+        gasPrice: 10000000000,
+        gasLimit: 10000000000,
+        data: data,
+        from: deployerAccount.address,
+        nonce: currentNoncePending
     };
 
-    if (Array.isArray(txHash)) {
-        return Promise.all(txHash.map(
-            oneTxHash => getTransactionReceiptMined(oneTxHash, interval)));
-    } else if (typeof txHash === "string") {
-        return new Promise(transactionReceiptAsync);
-    } else {
-        throw new Error("Invalid Type: " + txHash);
-    }
-};
+    let signedTx = await web3.eth.accounts.signTransaction(deployTx, deployerAccount.privateKey)
 
-async function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    console.log(`Deploying...`);
+    
+    let txHash;
+
+    try {
+        txHash = await web3.eth.sendSignedTransaction(signedTx.rawTransaction)
+        .on('transactionHash', function(hash){
+            //console.log('prmoise tx hash ->', hash);
+        })
+
+        //console.log('txHash ->', txHash);
+    } catch (error) {
+        //console.log('General deploy error ->', error)
+    }
+
+    return txHash.contractAddress;
+}
+
+async function executeTransaction(data, address) {
+
+    let currentNoncePending = await web3.eth.getTransactionCount(deployerAccount.address, "pending");
+    let currentNonce = await web3.eth.getTransactionCount(deployerAccount.address);
+    //console.log('Nonces: ', currentNonce, currentNoncePending)
+
+    // Create the transaction object
+    var txCallIncrement = {
+        from: deployerAccount.address, 
+        to: address, 
+        gas: 2000000,
+        data: data
+        // nonce: currentNoncePending
+    };
+
+    // Sign it
+    let signedIncrementCall = await web3.eth.accounts.signTransaction(
+        txCallIncrement, deployerAccount.privateKey
+    )
+    // .then((res) => console.log())
+    // .catch(err => console.log('error')); 
+    //console.log('signedTx ->', txCallIncrement);
+    //console.log('rawTransaction', signedIncrementCall);
+
+
+    let interactionReceipt = await web3.eth.sendSignedTransaction(
+    signedIncrementCall.rawTransaction
+    ).on('transactionHash', txHash => { 
+      //console.log("txHash", txHash) 
+    }).on('receipt',
+      receipt => { //console.log("receipt", receipt) 
+    });
+
+    //console.log('interactionReceipt ->', interactionReceipt);
+    return interactionReceipt;
+
 }
 
 // Add WETH to Registry
 
-async function addWETHToApprovedRegistry(wethAddress) {
-
-    let response = ApprovedRegistryContract.addApprovedToken(wethAddress, true, {from: ownerAddress, gas: 2000000, gasPrice: 10000000000});
-    console.log("Response: " + response);
-    // get & print receipt
-    let txReceipt = web3.eth.getTransactionReceipt(rsp);
-    // repeat till tx processed
-    while (txReceipt == null) {
-        // wait 10 sec
-        sleep(10000);
-        txReceipt = web3.eth.getTransactionReceipt(rsp);
-    }
-
-    return txReceipt;
+async function addWETHToApprovedRegistry(weth, approvedRegistry) {
+    
+    let data = await ApprovedRegistryContract.methods.addApprovedToken(weth, true).encodeABI();
+    return executeTransaction(data, approvedRegistry);
 }
 
 // Add Approved Contracts
 
-async function addContractsToApprovedRegistry(volumeSubscription, payrollSubscription) {
+async function addContractsToApprovedRegistry(volumeSubscription, payrollSubscription, approvedRegistry) {
     
-    let responseVolume = ApprovedRegistryContract.addApprovedContract(volumeSubscription, {from: ownerAddress, gas: 2000000, gasPrice: 10000000000});
-    console.log("Response: " + responseVolume);
-    // get & print receipt
-    let txReceiptVolumeSub = web3.eth.getTransactionReceipt(responseVolume);
-    // repeat till tx processed
-    while (txReceiptVolumeSub == null) {
-        // wait 10 sec
-        sleep(10000);
-        txReceiptVolumeSub = web3.eth.getTransactionReceipt(responseVolume);
-    }
+    let approvedRegistryData = ApprovedRegistryContract.methods.addApprovedContract(volumeSubscription).encodeABI();
+    let approvedRegistryResponse = await executeTransaction(approvedRegistryData, approvedRegistry);
 
-    let responsePayroll = ApprovedRegistryContract.addApprovedContract(payrollSubscription, {from: ownerAddress, gas: 2000000, gasPrice: 10000000000});
-    console.log("Response: " + responsePayroll);
-    // get & print receipt
-    let txReceiptPayrollSub = web3.eth.getTransactionReceipt(responsePayroll);
-    // repeat till tx processed
-    while (txReceiptPayrollSub == null) {
-        // wait 10 sec
-        sleep(10000);
-        txReceiptPayrollSub = web3.eth.getTransactionReceipt(responsePayroll);
-    }
+    let payrollData = ApprovedRegistryContract.methods.addApprovedContract(payrollSubscription).encodeABI();
+    let payrollResponse = await executeTransaction(payrollData, approvedRegistry);
 
-    return [txReceiptVolumeSub, txReceiptPayrollSub];
+    return [approvedRegistryResponse, payrollResponse];
 }
 
 // Add Authorised Addresses
 
-async function addAuthorizedAddress(contract, executor) {
+async function addAuthorizedAddress(contract, address, executor) {
 
-    let response = contract.addAuthorizedAddress(executor, {from: ownerAddress, gas: 2000000, gasPrice: 10000000000});
-    console.log("Response: " + response);
-    // get & print receipt
-    let txReceipt = web3.eth.getTransactionReceipt(rsp);
-    // repeat till tx processed
-    while (txReceipt == null) {
-        // wait 10 sec
-        sleep(10000);
-        txReceipt = web3.eth.getTransactionReceipt(rsp);
-    }
-
-    return txReceipt;
+    let data = contract.methods.addAuthorizedAddress(executor).encodeABI();
+    return await executeTransaction(data, address);
 
 }
 
 // Transfer Ownership
 
-async function transferOwnership(contract, multiSig) {
+async function transferOwnership(contract, address, multiSig) {
 
-    let response = contract.transferOwnership(multiSig, {from: ownerAddress, gas: 2000000, gasPrice: 10000000000});
-    console.log("Response: " + response);
-    // get & print receipt
-    let txReceipt = web3.eth.getTransactionReceipt(rsp);
-    // repeat till tx processed
-    while (txReceipt == null) {
-        // wait 10 sec
-        sleep(10000);
-        txReceipt = web3.eth.getTransactionReceipt(rsp);
-    }
-
-    return txReceipt;
+    let data = contract.methods.transferOwnership(multiSig).encodeABI();
+    return await executeTransaction(data, address);
 
 }
 

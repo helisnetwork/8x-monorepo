@@ -18,10 +18,6 @@ module.exports = function(deployer, network, accounts) {
     fs.ensureFileSync(file)
     const contractsJson = fs.readJsonSync(file, { throws: false }) || {};
 
-    if (contractsJson[network]) {
-        throw "You cannot redeploy on the same version. Increment package.json version."
-    }
-
     const MultiSigWalletWithTimeLock = artifacts.require("./MultiSigWalletWithTimeLock.sol");
 
     const TransferProxy = artifacts.require("./TransferProxy.sol");
