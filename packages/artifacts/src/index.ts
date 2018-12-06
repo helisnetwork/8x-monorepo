@@ -27,6 +27,28 @@ export {
   MockPayrollSubscription as MockPayrollSubscriptionAbi
 };
 
+// Export Aion TypeScript ABIs
+
+import { ApprovedRegistry_Aion } from './build/abi/ts-aion/ApprovedRegistry_Aion';
+import { Executor_Aion } from './build/abi/ts-aion/Executor_Aion';
+import { PaymentRegistry_Aion } from './build/abi/ts-aion/PaymentRegistry_Aion';
+import { StakeContract_Aion } from './build/abi/ts-aion/StakeContract_Aion';
+import { VolumeSubscription_Aion } from './build/abi/ts-aion/VolumeSubscription_Aion';
+import { PayrollSubscription_Aion } from './build/abi/ts-aion/PayrollSubscription_Aion';
+import { TransferProxy_Aion } from './build/abi/ts-aion/TransferProxy_Aion';
+import { EightExToken_Aion } from './build/abi/ts-aion/EightExToken_Aion';
+
+export {
+  ApprovedRegistry_Aion as ApprovedRegistryAbi_Aion,
+  Executor_Aion as ExecutorAbi_Aion,
+  PaymentRegistry_Aion as PaymentRegistryAbi_Aion,
+  StakeContract_Aion as StakeContractAbi_Aion,
+  VolumeSubscription_Aion as VolumeSubscriptionAbi_Aion,
+  TransferProxy_Aion as TransferProxyAbi_Aion,
+  PayrollSubscription_Aion as PayrollSubscriptionAbi_Aion,
+  EightExToken_Aion as EightExTokenAbi_Aion
+};
+
 // Export contract wrappers
 
 import { ApprovedRegistryContract } from './build/wrappers/approved_registry';
