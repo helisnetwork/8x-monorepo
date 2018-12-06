@@ -37,6 +37,7 @@ import { VolumeSubscription_Aion } from './build/abi/ts-aion/VolumeSubscription_
 import { PayrollSubscription_Aion } from './build/abi/ts-aion/PayrollSubscription_Aion';
 import { TransferProxy_Aion } from './build/abi/ts-aion/TransferProxy_Aion';
 import { EightExToken_Aion } from './build/abi/ts-aion/EightExToken_Aion';
+import { WETH_Aion } from './build/abi/ts-aion/WETH_Aion';
 
 export {
   ApprovedRegistry_Aion as ApprovedRegistryAbi_Aion,
@@ -46,7 +47,8 @@ export {
   VolumeSubscription_Aion as VolumeSubscriptionAbi_Aion,
   TransferProxy_Aion as TransferProxyAbi_Aion,
   PayrollSubscription_Aion as PayrollSubscriptionAbi_Aion,
-  EightExToken_Aion as EightExTokenAbi_Aion
+  EightExToken_Aion as EightExTokenAbi_Aion,
+  WETH_Aion as WETHAbi_Aion
 };
 
 // Export contract wrappers
