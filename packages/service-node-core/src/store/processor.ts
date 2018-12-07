@@ -91,7 +91,11 @@ export default class ProcessorStore {
 
       return result;
     });
-    
+
+    toActivate.forEach((item) => this.executedTransactionHashes.push(item.transactionHash));
+    toProcess.forEach((item) => this.executedTransactionHashes.push(item.transactionHash));
+    toCatchLate.forEach((item) => this.executedTransactionHashes.push(item.transactionHash));
+
     await this.service.activate(toActivate);
     await this.service.process(toProcess);
     await this.service.catchLate(toCatchLate);

@@ -52,6 +52,7 @@ contract StakeContract is Authorizable {
         public
         onlyAuthorized
     {
+        // @TOOD: Use local memory variable
         require(getAvailableStake(_staker, _tokenAddress) >= _amount, "You cannot lock more tokens than you have available");
         userStakes[_staker][_tokenAddress].lockedUp = userStakes[_staker][_tokenAddress].lockedUp.add(_amount);
         tokenStakes[_tokenAddress].lockedUp = tokenStakes[_tokenAddress].lockedUp.add(_amount);

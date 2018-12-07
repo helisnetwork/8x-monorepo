@@ -82,7 +82,11 @@ export default class EthereumService implements NetworkService {
     });
 
     eventsWatcher.watch((error, log) => {
-      callback(log);
+      if (log) {  
+        callback(log);
+      } else {
+        console.log('Empty log outputted');
+      }
     });
 
   }
@@ -96,7 +100,11 @@ export default class EthereumService implements NetworkService {
     });
 
     eventsWatcher.watch((error, log) => {
-      callback(log);
+      if (log) {  
+        callback(log);
+      } else {
+        console.log('Empty log outputted');
+      }
     });
 
   }

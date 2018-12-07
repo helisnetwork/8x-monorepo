@@ -24,13 +24,15 @@ const Web3 = require('web3');
 const NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce-tracker")
 
 const Repeater = require('@8xprotocol/service-node-core').default;
+const EthereumService = require('@8xprotocol/service-node-core/dist/services/ethereum_service').default;
+
 const dotenv = require('dotenv')
 const HDWalletProvider = require("truffle-hdwallet-provider-privkey");
 const BigNumber = require('bignumber.js');
 const Artifacts = require('@8xprotocol/artifacts');
 
-const config = Artifacts.ConfigAddresses[environment.network];
 const environment = dotenv.config().parsed;
+const config = Artifacts.ConfigAddresses[environment.NETWORK];
 
 let provider = new Web3.providers.HttpProvider(environment.NODE_ADDRESS);
 
@@ -51,9 +53,9 @@ let addressBook = {
     ],
     executorAddress: getContract("Executor"),
     transferProxyAddress: getContract("TransferProxy"),
-    payrollSubscriptionAddress: getContract("PayrollSubscriptiob"),
+    payrollSubscriptionAddress: getContract("PayrollSubscription"),
     stakeContractAddress: getContract("StakeContract"),
-    stakeTokenAddress: getToken("EightExToken")
+    stakeTokenAddress: getContract("EightExToken")
 };
 
 const topUpAmount = new BigNumber(100).mul(10 ** 18);
@@ -79,9 +81,9 @@ function start() {
         console.log(error);
     })
 
-    repeater.repeaterUpdated = function() {
-        console.log("Repeater events updated");
-    };
+    // repeater.repeaterUpdated = function() {
+    //     console.log("Repeater events updated");
+    // };
 }
 
 function getToken(ticker) {
