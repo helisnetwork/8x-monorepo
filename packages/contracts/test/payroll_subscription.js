@@ -36,8 +36,8 @@ contract('PayrollSubscription', function(accounts) {
 
         kyberNetwork = await MockKyberNetwork.new({ from: contractOwner });
         approvedRegistryContract = await ApprovedRegistry.new(kyberNetwork.address, { from: contractOwner });
-
         token = await MockToken.new({ from: contractOwner });
+        await approvedRegistryContract.addApprovedToken(token.address, false);
 
     });
 

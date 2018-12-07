@@ -34,8 +34,8 @@ contract StandardToken is ERC20 {
     * @param _value The amount to be transferred.
     */
     function transfer(address _to, uint256 _value) public returns (bool success) {
-        require(_to != address(0));
-        require(_value <= balances[msg.sender]);
+        require(_to != address(0), "To field cannot be empty");
+        require(_value <= balances[msg.sender], "Cannot spend more than you have");
 
         balances[msg.sender] = balances[msg.sender].sub(_value);
         balances[_to] = balances[_to].add(_value);
@@ -59,9 +59,9 @@ contract StandardToken is ERC20 {
     * @param _value uint256 the amount of tokens to be transferred
     */
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
-        require(_to != address(0));
-        require(_value <= balances[_from]);
-        require(_value <= allowed[_from][msg.sender]);
+        require(_to != address(0), "To address cannot be empty");
+        require(_value <= balances[_from], "Cannot spend more than the user has");
+        require(_value <= allowed[_from][msg.sender], "Not enought allownace to spend");
 
         balances[_from] = balances[_from].sub(_value);
         balances[_to] = balances[_to].add(_value);

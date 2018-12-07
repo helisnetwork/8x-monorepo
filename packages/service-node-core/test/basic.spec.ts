@@ -39,7 +39,7 @@ import { deployPayrollSubscription } from '@8xprotocol/dev-utils/src';
 
 const exepect = chai.expect;
 
-const provider = new Web3.providers.HttpProvider('http://localhost:8545');
+const provider = new Web3.providers.HttpProvider('http://localhost:8500');
 const web3 = new Web3(provider);
 const web3Utils = new Web3Utils(web3);
 
@@ -127,11 +127,10 @@ describe('Basic', () => {
     await approvedRegistry.addApprovedContract.sendTransactionAsync(volumeSubscription.address, {from: contractOwner});
     await approvedRegistry.addApprovedContract.sendTransactionAsync(payrollSubscription.address, {from: contractOwner});
 
-    await mockToken.transfer.sendTransactionAsync(consumer, new BigNumber(50*10**18), {from: contractOwner});
-    await mockToken.transfer.sendTransactionAsync(business, new BigNumber(50*10**18), {from: contractOwner});
+    await mockToken.transfer.sendTransactionAsync(consumer, new BigNumber(100*10**18), {from: contractOwner});
+    await mockToken.transfer.sendTransactionAsync(business, new BigNumber(100*10**18), {from: contractOwner});
     await stakeToken.transfer.sendTransactionAsync(serviceNode, topUpAmount, {from: contractOwner});
 
-    await service.attemptTopUp(topUpAmount);
     await service.attemptTopUp(topUpAmount);
 
     await repeater.start();
@@ -185,7 +184,7 @@ describe('Basic', () => {
         [consumer],
         mockToken.address,
         new BigNumber(now + 1),
-        new BigNumber(10),
+        new BigNumber(0),
         new BigNumber(100),
         true,
         '',

@@ -303,14 +303,14 @@ contract VolumeSubscription is Ownable, Authorizable, BillableInterface {
         public
     {
 
-        require(_owner != 0x0);
-        require(_tokenAddress != 0x0);
-        require(_identifier.length > 0);
-        require(_interval > 0);
-        require(_amount > 0);
-        require(_amount > _fee);
-        require(_fee > 0);
-        require(approvedRegistry.isTokenAuthorised(_tokenAddress));
+        require(_owner != 0x0, "Owner cannot be empty");
+        require(_tokenAddress != 0x0, "Token cannot be empty");
+        require(_identifier.length > 0, "Identifier cannot be empty");
+        require(_interval > 0, "Interval cannot be 0");
+        require(_amount > 0, "Amount cannot be 0");
+        require(_amount > _fee, "Amount must be greater than the fee");
+        require(_fee > 0, "Fee cannot be zero");
+        require(approvedRegistry.isTokenAuthorised(_tokenAddress), "It must be an authorised token");
 
         bytes32 planHash = keccak256(
             _owner,
@@ -322,7 +322,7 @@ contract VolumeSubscription is Ownable, Authorizable, BillableInterface {
             _data
         );
 
-        require(plans[planHash].owner == 0x0);
+        require(plans[planHash].owner == 0x0, "Cannot overwrite a plan");
 
         plans[planHash] = Plan({
             owner: _owner,

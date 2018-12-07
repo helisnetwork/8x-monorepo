@@ -264,7 +264,10 @@ contract PayrollSubscription is Authorizable, BillableInterface {
         require(_fee > 0, "Cannot create payment with no fee");
         require((_oneOff == false && _interval > 0) || (_oneOff == true), "If the payment is not one off, it requires an interval");
 
-        // Add tests for this
+        // @TODO: Add tests for this
+        require(approvedRegistry.isTokenAuthorised(_tokenAddress), "It must be an authorised token");
+
+        // @TODO: Add tests for this
         require(_ids.length > 0, "You need to pass in at least one identifier");
     
         Schedule memory newSchedule = Schedule(
@@ -279,7 +282,7 @@ contract PayrollSubscription is Authorizable, BillableInterface {
         );
         
         bytes32 scheduleHash = keccak256(msg.sender, _tokenAddress, _oneOff, currentTimestamp());
-        require(schedules[scheduleHash].owner == 0);
+        require(schedules[scheduleHash].owner == 0, "There must not already be a schedule with the same hash");
 
         schedules[scheduleHash] = newSchedule;
 
@@ -317,7 +320,7 @@ contract PayrollSubscription is Authorizable, BillableInterface {
                 _scheduleHash
             );
             
-            require(payments[id].scheduleIdentifier == 0);
+            require(payments[id].scheduleIdentifier == 0, "There must not be a payment with an existing schedule identifier");
             payments[id] = newPayment;
 
             emit CreatedPayment (

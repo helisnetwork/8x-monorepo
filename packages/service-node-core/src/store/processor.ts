@@ -27,7 +27,7 @@ export default class ProcessorStore {
   }
 
   public setEvents(events: BasicEvent[]) {
-    this.events = events.filter((event) => event.cancelled != true);
+    this.events = events.filter((event) => event.cancelled != true && event.dueDate > ((Date.now()/1000) - (60 * 60)));
 
     console.log(`Current events are: ${JSON.stringify(this.events, null, 2)}`);
     console.log(`Executed events are: ${JSON.stringify(this.executedTransactionHashes, null, 2)}`);
