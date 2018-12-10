@@ -45,7 +45,7 @@ export default class EthereumService implements NetworkService {
 
     console.log(this.serviceNode, this.addressBook.transactingTokenAddress);
 
-    await (this.addressBook.transactingTokenAddresses || [this.addressBook.transactingTokenAddress]).forEach(async (token) => {
+    await this.asyncForEach((this.addressBook.transactingTokenAddresses || [this.addressBook.transactingTokenAddress]), async (token) => {
       let existingBalance = await stakeContract.getTotalStake.callAsync(this.serviceNode, token);
 
       if (existingBalance.toNumber() == amount.toNumber()) {
@@ -67,7 +67,7 @@ export default class EthereumService implements NetworkService {
         { from: this.serviceNode }
       );
 
-      await this.eightEx.blockchain.awaitTransactionMinedAsync(topupTx);
+      return await this.eightEx.blockchain.awaitTransactionMinedAsync(topupTx);
     });
   }
 
@@ -111,7 +111,7 @@ export default class EthereumService implements NetworkService {
 
   async activate(events: BasicEvent[]): Promise<any> {
 
-    this.asyncForEach(events, async (event) => {
+    await this.asyncForEach(events, async (event) => {
       console.log(`Sending activate tx ${JSON.stringify(event)}`);
       
       try {
@@ -129,7 +129,7 @@ export default class EthereumService implements NetworkService {
 
   async process(events: BasicEvent[]): Promise<any> {
     
-    this.asyncForEach(events, async (event) => {
+    await this.asyncForEach(events, async (event) => {
       console.log(`Sending process tx ${JSON.stringify(event)}`);
 
       try {
@@ -147,7 +147,7 @@ export default class EthereumService implements NetworkService {
 
   async catchLate(events: BasicEvent[]): Promise<any> {
 
-    this.asyncForEach(events, async (event) => {
+    await this.asyncForEach(events, async (event) => {
       console.log(`Sending catch late tx ${JSON.stringify(event)}`);
 
       try {

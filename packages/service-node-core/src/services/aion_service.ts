@@ -40,34 +40,37 @@ export default class EthereumService implements NetworkService {
 
     console.log(this.account, this.addressBook);
     
-    // await (this.addressBook.transactingTokenAddresses || [this.addressBook.transactingTokenAddress]).forEach(async (token) => {
-    //   console.log(1);
-    //   let existingBalance = await stakeContract.methods.getTotalStake(this.account.address, token).call();
-    //   console.log(existingBalance);
-    //   console.log('top up: ' + amount + ' | existing: ' + existingBalance);
-    //   if (existingBalance == amount) {
-    //     console.log("Skipped top up");
-    //     return;
-    //   }
-    //   console.log(2);
+    await this.asyncForEach((this.addressBook.transactingTokenAddresses || [this.addressBook.transactingTokenAddress]), async (token) => {
 
-    //   let approveTx = await stakeTokenContract.methods.approve(
-    //     this.addressBook.stakeContractAddress,
-    //     amount.toString(),
-    //   ).encodeABI();
-    //   console.log(amount.toString());
-    //   await this.executeTransaction(approveTx, this.addressBook.stakeTokenAddress);
-    //   console.log(3);
+      console.log(1);
+      let existingBalance = await stakeContract.methods.getTotalStake(this.account.address, token).call();
+      console.log(existingBalance);
+      console.log('top up: ' + amount + ' | existing: ' + existingBalance);
+      if (existingBalance == amount) {
+        console.log("Skipped top up");
+        return;
+      }
+      console.log(2);
 
-    //   let topupTx = await stakeContract.methods.topUpStake(
-    //     amount.toString(),
-    //     token
-    //   ).encodeABI();
+      let approveTx = await stakeTokenContract.methods.approve(
+        this.addressBook.stakeContractAddress,
+        amount.toString(),
+      ).encodeABI();
+      console.log(amount.toString());
+      await this.executeTransaction(approveTx, this.addressBook.stakeTokenAddress);
+      console.log(3);
 
-    //   await this.executeTransaction(topupTx, this.addressBook.stakeContractAddress);
-    //   console.log(4);
+      let topupTx = await stakeContract.methods.topUpStake(
+        amount.toString(),
+        token
+      ).encodeABI();
+      console.log("pls reach here");
+      console.log(topupTx);
+      let result = await this.executeTransaction(topupTx, this.addressBook.stakeContractAddress);
+      console.log(4);
+      return result;
 
-    // });
+    });
   }
 
   async watchExecutor(fromBlock: number, toBlock: number, callback: (any) => (any)) {
@@ -110,7 +113,7 @@ export default class EthereumService implements NetworkService {
 
   async activate(events: BasicEvent[]): Promise<any> {
 
-    this.asyncForEach(events, async (event) => {
+    await this.asyncForEach(events, async (event) => {
       console.log(`Sending activate tx ${JSON.stringify(event)}`);
       
       try {
@@ -128,7 +131,7 @@ export default class EthereumService implements NetworkService {
 
   async process(events: BasicEvent[]): Promise<any> {
     
-    this.asyncForEach(events, async (event) => {
+    await this.asyncForEach(events, async (event) => {
       console.log(`Sending process tx ${JSON.stringify(event)}`);
 
       try {
@@ -146,7 +149,7 @@ export default class EthereumService implements NetworkService {
 
   async catchLate(events: BasicEvent[]): Promise<any> {
 
-    this.asyncForEach(events, async (event) => {
+    await this.asyncForEach(events, async (event) => {
       console.log(`Sending catch late tx ${JSON.stringify(event)}`);
 
       try {
@@ -177,6 +180,8 @@ export default class EthereumService implements NetworkService {
     let signedIncrementCall = await this.web3.eth.accounts.signTransaction(
       txCallIncrement, this.account.privateKey
     );
+
+    console.log("Signed transaction, waiting to send...");
   
     let interactionReceipt = await this.web3.eth.sendSignedTransaction(
       signedIncrementCall.rawTransaction
