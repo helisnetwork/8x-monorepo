@@ -197,6 +197,8 @@ contract Executor is Ownable {
     )
         public
     {
+        require(_isPaymentStatus(_paymentContract, _paymentIdentifier, 2), "Payment must be in active state (2)");
+
         // Initiate an instance of the BillableInterface subscription
         BillableInterface subscription = BillableInterface(_paymentContract);
         uint256 amountDue = subscription.getAmountDueFromPayment(_paymentIdentifier);
@@ -517,7 +519,7 @@ contract Executor is Ownable {
         // @TODO: Add tests
         var (from, to) = BillableInterface(_paymentContract).getPaymentFromToAddresses(_paymentIdentifier);
         require(msg.sender == from || msg.sender == to || stakeContract.getAvailableStake(msg.sender, _tokenAddress) >= 1, "Must have the correct stake requirements or be the first payment or be the owner");
-        return _isPaymentStatusEither(_paymentContract, _paymentIdentifier, 1, 2);
+        return (_isPaymentStatus(_paymentContract, _paymentIdentifier, 3) == false);
     }
 
     function _setNextPaymentDateResult(
