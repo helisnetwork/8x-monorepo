@@ -1,99 +1,67 @@
-/*
-
-------------------------------------------------------------
-
-Create a .env file and fill in the following variables below
-
-------------------------------------------------------------
-
-# HTTP Address of Ethereum node to connect to
-NODE_ADDRESS = ""
-
-# Public key of the node executing
-PUBLIC_KEY = ""
-
-# Private key of the node executing
-PRIVATE_KEY = ""
-
-# Network to execute on (kovan, main etc)
-NETWORK = ""
-
-*/
-
-const Web3 = require('web3');
-const NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce-tracker")
-
-const Repeater = require('@8xprotocol/service-node-core').default;
-const EthereumService = require('@8xprotocol/service-node-core/dist/services/ethereum_service').default;
-
-const dotenv = require('dotenv')
-const HDWalletProvider = require("truffle-hdwallet-provider-privkey");
 const BigNumber = require('bignumber.js');
 const Artifacts = require('@8xprotocol/artifacts');
 
+const Ethereum = require('./ethereum');
+const Aion = require('./aion');
+const dotenv = require('dotenv');
+
 const environment = dotenv.config().parsed;
-const config = Artifacts.ConfigAddresses[environment.NETWORK];
-
-let provider = new Web3.providers.HttpProvider(environment.NODE_ADDRESS);
-
-if (environment.PRIVATE_KEY) {
-    provider = new HDWalletProvider([environment.PRIVATE_KEY.toLowerCase()], environment.NODE_ADDRESS);
-    console.log('Private key set sucessfully');
-}
-
-let nonceTracker = new NonceTrackerSubprovider()
-provider.engine._providers.unshift(nonceTracker)
-nonceTracker.setEngine(provider.engine);
-
-let addressBook = {
-    volumeSubscriptionAddress: getContract("VolumeSubscription"),
-    transactingTokenAddresses: [
-        getToken("DAI"), 
-        getToken("WETH")
-    ],
-    executorAddress: getContract("Executor"),
-    transferProxyAddress: getContract("TransferProxy"),
-    payrollSubscriptionAddress: getContract("PayrollSubscription"),
-    stakeContractAddress: getContract("StakeContract"),
-    stakeTokenAddress: getContract("EightExToken")
-};
-
 const topUpAmount = new BigNumber(100).mul(10 ** 18);
 
-function start() {
+function getToken(ticker, network) {
+    if (!network) {
+        return;
+    }
 
-    let service = new EthereumService(provider, environment.PUBLIC_KEY.toLowerCase(), addressBook, {
+    let object = Artifacts.ConfigAddresses[network]['approvedTokens'].find((item) => item.ticker == ticker) || { address: '' };
+    return object.address;
+}
+  
+function getContract(contract, network) {
+    if (!network) {
+        return;
+    }
+
+    let object = Artifacts.ConfigAddresses[network]['addresses'].find((item) => item.name == contract) || { address: '' };
+    return object.address;
+}
+
+function getDelayPeriod() {
+    return {
         processing: 0,
         catchLate: 5,
         stopChecking: 10
-    });
-    
-    repeater = new Repeater(service);
-
-    service.attemptTopUp(
-        topUpAmount
-    ).then(function() {
-        console.log('Top up successfull');
-        return repeater.start()
-    }).then(function() {
-        console.log("Started node");
-    }).catch(function(error) {
-        console.log(error);
-    })
-
-    // repeater.repeaterUpdated = function() {
-    //     console.log("Repeater events updated");
-    // };
+    }
 }
 
-function getToken(ticker) {
-    let object = config['approvedTokens'].find((item) => item.ticker == ticker) || { address: '' };
-    return object.address;
+function generateAddressBook(network) {
+    return {
+        volumeSubscriptionAddress: getContract("VolumeSubscription", network),
+        transactingTokenAddresses: [
+            getToken("DAI", network), 
+            getToken("WETH", network)
+        ].filter((item) => item !== ""),
+        executorAddress: getContract("Executor", network),
+        transferProxyAddress: getContract("TransferProxy", network),
+        payrollSubscriptionAddress: getContract("PayrollSubscription", network),
+        stakeContractAddress: getContract("StakeContract", network),
+        stakeTokenAddress: getContract("EightExToken", network)
+    }
 }
   
-function getContract(contract) {
-    let object = config['addresses'].find((item) => item.name == contract) || { address: '' };
-    return object.address;
-}
-  
-start();
+Ethereum.start(
+    environment.ETHEREUM_NODE_ADDRESS,
+    environment.ETHEREUM_PUBLIC_KEY,
+    environment.ETHEREUM_PRIVATE_KEY,
+    generateAddressBook(environment.ETHEREUM_NETWORK),
+    getDelayPeriod(),
+    topUpAmount
+);
+
+Aion.start(
+    environment.AION_NODE_ADDRESS,
+    environment.AION_PRIVATE_KEY,
+    generateAddressBook(environment.AION_NETWORK),
+    getDelayPeriod(),
+    topUpAmount
+);

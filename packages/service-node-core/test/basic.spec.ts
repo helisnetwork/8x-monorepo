@@ -39,7 +39,7 @@ import { deployPayrollSubscription } from '@8xprotocol/dev-utils/src';
 
 const exepect = chai.expect;
 
-const provider = new Web3.providers.HttpProvider('http://localhost:8500');
+const provider = new Web3.providers.HttpProvider('http://localhost:8545');
 const web3 = new Web3(provider);
 const web3Utils = new Web3Utils(web3);
 
