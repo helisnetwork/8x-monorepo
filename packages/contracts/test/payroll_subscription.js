@@ -360,9 +360,11 @@ contract('PayrollSubscription', function(accounts) {
 
     describe("when updating multiple payments", () => {
 
+        let otherScheduleIdentifier;
         let scheduleIdentifier;
         let firstId = identifiers()[0];
         let secondId = identifiers()[1];
+        let newId = '0xfcbaf63cb9a95a09c451e4a9943cb9b8f995ff08d6dd756944fc4437a4d37159';
 
         before(async function() {
 
@@ -377,6 +379,7 @@ contract('PayrollSubscription', function(accounts) {
                 [firstId, secondId],
                 [1, 1],
                 [destinations()[0], destinations()[1]],
+                scheduleIdentifier,
                 { from: unauthorizedAddress }
             ));
 
@@ -398,12 +401,21 @@ contract('PayrollSubscription', function(accounts) {
                 { from: unauthorizedAddress }
             );
     
-            let otherScheduleIdentifier = newSchedule.logs[0].args.scheduleIdentifier;
+            otherScheduleIdentifier = newSchedule.logs[0].args.scheduleIdentifier;
 
             await assertRevert(contract.updatePayments(
-                [otherScheduleIdentifier],
+                [id],
                 [10],
                 [receiver],
+                otherScheduleIdentifier,
+                { from: business }
+            ));
+
+            await assertRevert(contract.updatePayments(
+                [newId],
+                [10],
+                [receiver],
+                otherScheduleIdentifier,
                 { from: business }
             ));
 
@@ -415,6 +427,7 @@ contract('PayrollSubscription', function(accounts) {
                 [firstId, secondId],
                 [1, 1],
                 [receiver, receiver],
+                scheduleIdentifier,
                 { from: business }
             );
             
@@ -423,6 +436,26 @@ contract('PayrollSubscription', function(accounts) {
             assert.equal(checkOne[1], receiver);
 
             let checkTwo = await contract.payments.call(secondId);
+            assert.equal(checkTwo[0].toNumber(), 1);
+            assert.equal(checkTwo[1], receiver);
+            
+        });
+
+        it("should be able to update multiple payments and create new payments", async function() {
+
+            await contract.updatePayments(
+                [firstId, newId],
+                [1, 1],
+                [receiver, receiver],
+                scheduleIdentifier,
+                { from: business }
+            );
+            
+            let checkOne = await contract.payments.call(firstId);
+            assert.equal(checkOne[0].toNumber(), 1);
+            assert.equal(checkOne[1], receiver);
+
+            let checkTwo = await contract.payments.call(newId);
             assert.equal(checkTwo[0].toNumber(), 1);
             assert.equal(checkTwo[1], receiver);
             

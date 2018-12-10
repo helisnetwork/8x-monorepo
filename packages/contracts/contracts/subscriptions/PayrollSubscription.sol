@@ -307,29 +307,36 @@ contract PayrollSubscription is Authorizable, BillableInterface {
     )   
         private
     {
-
         for (uint256 i = 0; i < _ids.length; i++)  {
-            
-            bytes32 id = _ids[i];
-
-            Payment memory newPayment = Payment(
-                _amounts[i],
-                _destinations[i],
-                0,
-                0,
-                _scheduleHash
-            );
-            
-            require(payments[id].scheduleIdentifier == 0, "There must not be a payment with an existing schedule identifier");
-            payments[id] = newPayment;
-
-            emit CreatedPayment (
-                id,
-                _scheduleHash,
-                _amounts[i]
-            );
+            _createPayment(_ids[i], _amounts[i], _destinations[i], _scheduleHash);
         }
+    }
 
+    function _createPayment(
+        bytes32 _id,
+        uint256 _amount,
+        address _destination,
+        bytes32 _scheduleHash
+    )
+        private
+    {
+        Payment memory newPayment = Payment(
+            _amount,
+            _destination,
+            0,
+            0,
+            _scheduleHash
+        );
+        
+        require(payments[_id].scheduleIdentifier == 0, "There must not be a payment with an existing schedule identifier");
+        require(schedules[_scheduleHash].owner == msg.sender, "You cannot create a payment under someone else's schedule");
+        payments[_id] = newPayment;
+
+        emit CreatedPayment (
+            _id,
+            _scheduleHash,
+            _amount
+        );
     }
 
     function updateScheduleOwner(
@@ -435,30 +442,42 @@ contract PayrollSubscription is Authorizable, BillableInterface {
     function updatePayments(
         bytes32[] _ids,
         uint256[] _amounts,
-        address[] _destinations
+        address[] _destinations,
+        bytes32 _scheduleIdentifier
     ) 
         public
     {
-        
         for (uint256 i = 0; i < _ids.length; i++)  {
-            
             bytes32 id = _ids[i];
-            Payment storage payment = payments[id];
-            payment.amount = _amounts[i];
-            payment.destination = _destinations[i];
-
-            require(schedules[payment.scheduleIdentifier].owner == msg.sender, "You cannot update someone else's schedule");
-
-            emit UpdatedPayment(
-                id,
-                payment.amount,
-                payment.destination,
-                payment.scheduleIdentifier
-            );
-
+            if (payments[id].scheduleIdentifier != 0) {
+                _updatePayment(id, _amounts[i], _destinations[i], _scheduleIdentifier);
+            } else {
+                _createPayment(id, _amounts[i], _destinations[i], _scheduleIdentifier);
+            }
         }
-
     }   
+
+    function _updatePayment(
+        bytes32 _id,
+        uint256 _amount,
+        address _destination,
+        bytes32 _scheduleIdentifier
+    )
+        private
+    {
+        Payment storage payment = payments[_id];
+        payment.amount = _amount;
+        payment.destination = _destination;
+
+        require(schedules[_scheduleIdentifier].owner == msg.sender, "You cannot update someone else's schedule");
+
+        emit UpdatedPayment(
+            _id,
+            _amount,
+            _destination,
+            _scheduleIdentifier
+        );
+    }
 
     /** @dev Terminate multiple payments at once
       * @param _ids all the identifiers you wish to terminate.
