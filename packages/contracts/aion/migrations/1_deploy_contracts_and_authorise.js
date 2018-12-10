@@ -2,6 +2,8 @@
 const fs = require('fs-extra');
 const Web3 = require('aion-web3')
 
+require('dotenv').config({ path: '../../.env' });
+
 // Import compiled contracts
 const ApprovedRegistry = fs.readJsonSync("../build/ApprovedRegistry.json");
 const EightExToken = fs.readJsonSync("../build/EightExToken.json");
@@ -14,14 +16,11 @@ const TransferProxy = fs.readJsonSync("../build/TransferProxy.json");
 const VolumeSubscription = fs.readJsonSync("../build/VolumeSubscription.json");
 const WETH = fs.readJsonSync("../build/WETH.json");
 
+
 // Setup web3
 
-// const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
-// Account: 0xa0c80e6f6eef087a089ec3fcda7ba07ce6c35c5c9b3f53a1ba8c4c718d10d39a
-// Private Key: 0xcc8aed366b1e045d6aeddec5bfa7c152ff686a723ae3c98e5e6785637b451befe5ece5d4b66d6cf8654bb22b7441883b32544bc76231fee4946477d2aa90ec4f
-
-const web3 = new Web3(new Web3.providers.HttpProvider("https://api.nodesmith.io/v1/aion/testnet/jsonrpc?apiKey=69b8c35ca8f54d8ab60831d94f3f4716"));
-let deployerAccount = web3.eth.accounts.privateKeyToAccount("0xcc8aed366b1e045d6aeddec5bfa7c152ff686a723ae3c98e5e6785637b451befe5ece5d4b66d6cf8654bb22b7441883b32544bc76231fee4946477d2aa90ec4f");
+const web3 = new Web3(new Web3.providers.HttpProvider(process.env.AION_NODE_ADDRESS));
+let deployerAccount = web3.eth.accounts.privateKeyToAccount(process.env.AION_PRIVATE_KEY);
 
 web3.eth.accounts.wallet.add(deployerAccount);
 web3.eth.defaultAccount = deployerAccount.address;
@@ -137,6 +136,11 @@ async function startDeployment() {
 
     await addAuthorizedAddress(WETHContract, weth, executor);
     console.log("Executed Add Authorised - WETH");
+
+    // Set NRG Prices
+
+    await updateNRGPrices((10*10**9).toString(), payrollSubscription);
+    console.log("NRG Prices Set");
 
     // Transfer Ownership to MultiSig
     await transferOwnership(ApprovedRegistryContract, approvedRegistry, multiSig);
@@ -319,6 +323,15 @@ async function executeTransaction(data, address) {
 
     //console.log('interactionReceipt ->', interactionReceipt);
     return interactionReceipt;
+
+}
+
+// Update NRG Prices
+
+async function updateNRGPrices(price, payrollSubscription) {
+
+    const priceData = PayrollSubscriptionContract.methods.setGasPrice((10*10**9).toString()).encodeABI();
+    await executeTransaction(priceData, payrollSubscription);
 
 }
 
