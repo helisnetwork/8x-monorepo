@@ -43,4 +43,4 @@ This repo contains the JSON and TypeScript ABI files necessary to interact with 
 
 | Token Ticker                                                         | Address                                                      |
 | --------------------------------------------------------------- | ---------------------------------------------------------------- |
-| WETH | 0xa049496593CAdbf1542baDdabbebB46FCD00754519F6D44CE41aEE94A4ED0B25 |
+| WAION | 0xa049496593CAdbf1542baDdabbebB46FCD00754519F6D44CE41aEE94A4ED0B25 |

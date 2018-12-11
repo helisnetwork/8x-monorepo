@@ -82,7 +82,7 @@ We get it, you're just here to find the contract addresses. Luckily for you, the
 
 | Token Ticker | Address |
 | ------------ | ------- |
-| WETH | 0xa049496593CAdbf1542baDdabbebB46FCD00754519F6D44CE41aEE94A4ED0B25 |
+| WAION | 0xa049496593CAdbf1542baDdabbebB46FCD00754519F6D44CE41aEE94A4ED0B25 |
 
 
 ## Contributing :raising_hand_woman:
