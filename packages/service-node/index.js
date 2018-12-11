@@ -49,14 +49,14 @@ function generateAddressBook(network) {
     }
 }
   
-// Ethereum.start(
-//     environment.ETHEREUM_NODE_ADDRESS,
-//     environment.ETHEREUM_PUBLIC_KEY,
-//     environment.ETHEREUM_PRIVATE_KEY,
-//     generateAddressBook(environment.ETHEREUM_NETWORK),
-//     getDelayPeriod(),
-//     topUpAmount
-// );
+Ethereum.start(
+    environment.ETHEREUM_NODE_ADDRESS,
+    environment.ETHEREUM_PUBLIC_KEY,
+    environment.ETHEREUM_PRIVATE_KEY,
+    generateAddressBook(environment.ETHEREUM_NETWORK),
+    getDelayPeriod(),
+    topUpAmount
+);
 
 Aion.start(
     environment.AION_NODE_ADDRESS,
