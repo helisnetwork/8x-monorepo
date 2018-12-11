@@ -59,9 +59,9 @@ async function startDeployment() {
     let stakeContract = await deploy(StakeContract, Stake.bytecode, [eightExToken], deployerAccount);
     console.log("Deployed Stake Contract");
 
-    // Deploy DAI or WETH
-    let weth = await deploy(WETHContract, WETH.bytecode, null, deployerAccount);
-    console.log("Deployed WETH");
+    // Deploy DAI or WAION
+    let waion = await deploy(WETHContract, WETH.bytecode, null, deployerAccount);
+    console.log("Deployed WAION");
 
     // Deploy MultiSig with array of addresses, number of confirmations and time lock period
     let multiSig = await deploy(
@@ -81,7 +81,7 @@ async function startDeployment() {
     console.log("Deployed Payroll Subscription");
 
     // Add WETH to Approve Registry
-    await addWETHToApprovedRegistry(weth, approvedRegistry);
+    await addWAIONToApprovedRegistry(waion, approvedRegistry);
     console.log("Executed WETH Approval");
 
     // Add Volume + Payroll as Approved Contracts
@@ -103,7 +103,7 @@ async function startDeployment() {
         Payment Registry: ${paymentRegistry},
         EightEx Token: ${eightExToken},
         Stake Contract: ${stakeContract},
-        WETH: ${weth},
+        WETH: ${waion},
         MultiSig: ${multiSig},
         Approved Registry: ${approvedRegistry},
         Payroll Subscription: ${payrollSubscription},
@@ -123,8 +123,8 @@ async function startDeployment() {
     await addAuthorizedAddress(PayrollSubscriptionContract, payrollSubscription, executor);
     console.log("Executed Add Authorised - Payroll Subscription");
 
-    await addAuthorizedAddress(WETHContract, weth, executor);
-    console.log("Executed Add Authorised - WETH");
+    await addAuthorizedAddress(WETHContract, waion, executor);
+    console.log("Executed Add Authorised - WAION");
 
     // Set NRG Prices
 
@@ -184,8 +184,8 @@ async function startDeployment() {
                 'address': eightExToken
             },
             {
-                'name': 'WETH',
-                'address': weth
+                'name': 'WAION',
+                'address': waion
             },
             {
                 'name': 'StakeContract',
@@ -198,8 +198,8 @@ async function startDeployment() {
         ],
         'approvedTokens': [
             {
-                'ticker': 'WETH',
-                'address': weth,
+                'ticker': 'WAION',
+                'address': waion,
             }
         ],
         'approvedContracts': [
@@ -315,9 +315,9 @@ async function updateNRGPrices(price, payrollSubscription) {
 
 // Add WETH to Registry
 
-async function addWETHToApprovedRegistry(weth, approvedRegistry) {
+async function addWAIONToApprovedRegistry(waion, approvedRegistry) {
     
-    let data = ApprovedRegistryContract.methods.addApprovedToken(weth, true).encodeABI();
+    let data = ApprovedRegistryContract.methods.addApprovedToken(waion, true).encodeABI();
     return executeTransaction(data, approvedRegistry);
 }
 
