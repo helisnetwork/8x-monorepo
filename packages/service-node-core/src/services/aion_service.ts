@@ -3,6 +3,8 @@ import { AddressBook, Address } from '@8xprotocol/types';
 
 import Web3 = require('aion-web3');
 import BigNumber from 'bignumber.js';
+import interval from '../helpers/interval';
+
 import { StakeContract_Aion, WETH_Aion, Executor_Aion, PayrollSubscription_Aion } from '@8xprotocol/artifacts';
 import { AbiDefinition } from 'ethereum-types';
 
@@ -14,6 +16,7 @@ export default class EthereumService implements NetworkService {
 
   addressBook: AddressBook;
   delayPeriod: DelayPeriod;
+  refreshPeriod: 20000;
   
   eventsUpdated: (() => (any));
 
@@ -48,12 +51,18 @@ export default class EthereumService implements NetworkService {
         return;
       }
 
-      let approveTx = stakeTokenContract.methods.approve(
-        this.addressBook.stakeContractAddress,
-        amount.toString(),
-      ).encodeABI();
+      let allowanceAmount = await stakeTokenContract.methods.allowance(this.account.address, this.addressBook.stakeContractAddress).call();
 
-      await this.executeTransaction(approveTx, this.addressBook.stakeTokenAddress);
+      if (allowanceAmount < amount) {
+        let approveTx = stakeTokenContract.methods.approve(
+          this.addressBook.stakeContractAddress,
+          amount.toString(),
+        ).encodeABI();
+
+        await this.executeTransaction(approveTx, this.addressBook.stakeTokenAddress);
+      } else {
+        console.log("Allowance already given, only top up required");
+      }
 
       let topupTx = stakeContract.methods.topUpStake(
         amount.toString(),
@@ -67,22 +76,24 @@ export default class EthereumService implements NetworkService {
 
   async watchExecutor(callback: (any) => (any), fromBlock?: number, toBlock?: number) {
     console.log("Starting to watch exceutor");
-    this.executorContract = new this.web3.eth.Contract(Executor_Aion.abi, this.addressBook.executorAddress);
 
     let existingEvents = [];
-    let check = this.checkEvents(this.executorContract, existingEvents, callback, fromBlock, toBlock);
-    await this.poll(check, 2000);
+    this.executorContract = new this.web3.eth.Contract(Executor_Aion.abi, this.addressBook.executorAddress);
 
+    interval(async () => {
+      await this.checkEvents(this.executorContract, existingEvents, callback, fromBlock, toBlock);
+    }, this.refreshPeriod);
   }
 
   async watchPayroll(callback: (any) => (any), fromBlock?: number, toBlock?: number) {
     console.log("Starting to watch payroll");
 
+    let existingEvents = [];
     const contract = new this.web3.eth.Contract(PayrollSubscription_Aion.abi, this.addressBook.payrollSubscriptionAddress);
 
-    let existingEvents = [];
-    let check = this.checkEvents(contract, existingEvents, callback, fromBlock, toBlock);
-    await this.poll(check, 2000);
+    interval(async () => {
+      await this.checkEvents(contract, existingEvents, callback, fromBlock, toBlock);
+    }, this.refreshPeriod);
 
   }
 
@@ -95,7 +106,7 @@ export default class EthereumService implements NetworkService {
         let data = this.executorContract.methods.activateSubscription(
           event.contractAddress,
           event.paymentIdentifier
-        );
+        ).encodeABI();
         await this.executeTransaction(data, this.addressBook.executorAddress);
       } catch (error) {
         console.log(error);
@@ -113,7 +124,7 @@ export default class EthereumService implements NetworkService {
         let data = this.executorContract.methods.processSubscription(
           event.contractAddress,
           event.paymentIdentifier
-        );
+        ).encodeABI();
         await this.executeTransaction(data, this.addressBook.executorAddress);
       } catch (error) {
         console.log(error);
@@ -131,7 +142,7 @@ export default class EthereumService implements NetworkService {
         let data = this.executorContract.methods.catchLateSubscription(
           event.contractAddress,
           event.paymentIdentifier
-        );
+        ).encodeABI();
         await this.executeTransaction(data, this.addressBook.executorAddress);
       } catch (error) {
         console.log(error);
@@ -173,6 +184,8 @@ export default class EthereumService implements NetworkService {
   }
 
   private async checkEvents(contract: any, existingEvents: any[], callback: (any) => (any), fromBlock?: number, toBlock?: number) {
+    console.log("Checking for new events");
+
     const blockNum = await this.web3.eth.getBlockNumber();
 
     const finalFromBlock = fromBlock || (blockNum - 1000).toString();
@@ -194,15 +207,14 @@ export default class EthereumService implements NetworkService {
     });
   }
 
-  private async poll (fn, time) {
-    await fn;
-    setTimeout(() => this.poll(fn, time));
-  };
-
   private async asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {
       await callback(array[index], index, array)
     }
+  }
+
+  private async timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
 }

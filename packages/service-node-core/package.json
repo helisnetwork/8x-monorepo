@@ -15,7 +15,7 @@
     "license": "ISC",
     "dependencies": {
         "8x.js": "^0.6.0",
-        "@8xprotocol/artifacts": "^0.6.6",
+        "@8xprotocol/artifacts": "^0.6.7",
         "@8xprotocol/base-contract": "^0.6.0",
         "@8xprotocol/dev-utils": "^0.6.0",
         "@8xprotocol/types": "^0.6.0",
@@ -23,6 +23,7 @@
         "abi-decoder": "^1.2.0",
         "aion-web3": "^1.1.2",
         "async": "^2.6.1",
+        "async-polling": "^0.2.1",
         "bignumber.js": "^4.1.0",
         "circular-json": "^0.5.5",
         "dotenv": "^6.0.0",
