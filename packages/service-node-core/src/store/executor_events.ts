@@ -11,6 +11,7 @@ import { Store, SubscriptionEvent, BasicEvent, NetworkService } from '../types/'
 
 import { Address } from '@8xprotocol/types';
 import { AbiDefinition } from "ethereum-types";
+import { extractNumber } from "../helpers/numbers";
 
 export default class ExecutorStore implements Store {
 
@@ -25,7 +26,7 @@ export default class ExecutorStore implements Store {
   }
 
   public async startListening() {
-    await this.service.watchExecutor(0, -1, (log) => {
+    await this.service.watchExecutor((log) => {
       console.log(log.event);
       if (log.event == 'SubscriptionActivated') {
         this.handleActivation(log);
@@ -54,9 +55,9 @@ export default class ExecutorStore implements Store {
       contractAddress: log.args.contractAddress,
       paymentIdentifier: log.args.paymentIdentifier,
       tokenAddress: log.args.tokenAddress,
-      dueDate: log.args.dueDate.toNumber(),
-      amount: log.args.amount.toNumber(),
-      fee: log.args.fee.toNumber(),
+      dueDate: extractNumber(log.args.dueDate),
+      amount: extractNumber(log.args.amount),
+      fee: extractNumber(log.args.fee),
       blockNumber: log.blockNumber,
       transactionIndex: log.transactionIndex,
       transactionHash: log.transactionHash,
@@ -80,7 +81,7 @@ export default class ExecutorStore implements Store {
     }
 
     existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate.toNumber();
+    existingEvent.dueDate = extractNumber(log.args.dueDate);
     existingEvent.staked = log.args.staked;
     existingEvent.blockNumber = log.blockNumber;
     existingEvent.transactionIndex = log.blockNumber;
@@ -103,7 +104,7 @@ export default class ExecutorStore implements Store {
     }
 
     existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate.toNumber();
+    existingEvent.dueDate = extractNumber(log.args.dueDate);
     existingEvent.staked = log.args.staked;
     existingEvent.transactionHash = log.transactionHash;
 

@@ -71,7 +71,7 @@ export default class EthereumService implements NetworkService {
     });
   }
 
-  async watchExecutor(fromBlock: number, toBlock: number, callback: (any) => (any)) {
+  async watchExecutor(callback: (any) => (any), fromBlock: number, toBlock: number) {
 
     this.executorContract = await ExecutorContract.at(this.addressBook.executorAddress, this.web3, {});
 
@@ -91,7 +91,7 @@ export default class EthereumService implements NetworkService {
 
   }
 
-  async watchPayroll(fromBlock: number, toBlock: number, callback: (any) => (any)) {
+  async watchPayroll(callback: (any) => (any), fromBlock: number, toBlock: number) {
 
     const contract = this.web3.eth.contract(PayrollSubscriptionAbi.abi as AbiDefinition[]).at(this.addressBook.payrollSubscriptionAddress);
     const eventsWatcher = contract.allEvents({

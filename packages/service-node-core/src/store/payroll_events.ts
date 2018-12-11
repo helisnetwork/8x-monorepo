@@ -6,6 +6,7 @@ import { PayrollSubscriptionAbi, PayrollSubscriptionContract } from '@8xprotocol
 import { Store, SubscriptionEvent, PayrollScheduleEvent, PayrollPaymentEvent, BasicEvent, NetworkService } from '../types';
 import { Address } from '@8xprotocol/types';
 import { AbiDefinition } from "ethereum-types";
+import { extractNumber } from "../helpers/numbers";
 
 export default class PayrollStore implements Store {
 
@@ -23,7 +24,7 @@ export default class PayrollStore implements Store {
 
   public async startListening() {
     console.log(this.service.addressBook.payrollSubscriptionAddress);
-    await this.service.watchPayroll(0, -1, (log) => {
+    await this.service.watchPayroll((log) => {
       console.log(log.event);
       if (log.event == 'CreatedSchedule') {
         this.handleCreatedSchedule(log);
@@ -69,9 +70,9 @@ export default class PayrollStore implements Store {
 
     let newSchedule = {
       identifier: log.args.scheduleIdentifier,
-      interval: log.args.interval.toNumber(),
-      fee: log.args.fee.toNumber(),
-      startDate: log.args.startDate.toNumber(),
+      interval: extractNumber(log.args.interval),
+      fee: extractNumber(log.args.fee),
+      startDate: extractNumber(log.args.startDate),
       oneOff: log.args.oneOff,
       transactionIndex: log.transactionIndex,
       transactionHash: log.transactionHash,
@@ -93,9 +94,9 @@ export default class PayrollStore implements Store {
       }
     }
 
-    existingSchedule.fee = log.args.fee.toNumber();
-    existingSchedule.startDate = log.args.startDate.toNumber();
-    existingSchedule.interval = log.args.interval.toNumber();
+    existingSchedule.fee = extractNumber(log.args.fee);
+    existingSchedule.startDate = extractNumber(log.args.startDate);
+    existingSchedule.interval = extractNumber(log.args.interval);
     existingSchedule.blockNumber = log.blockNumber;
     existingSchedule.transactionIndex = log.blockNumber;
     existingSchedule.transactionHash = log.transactionHash;
@@ -114,7 +115,7 @@ export default class PayrollStore implements Store {
       }
     }
 
-    existingSchedule.terminationDate = log.args.terminationDate.toNumber();
+    existingSchedule.terminationDate = extractNumber(log.args.terminationDate);
     existingSchedule.blockNumber = log.blockNumber;
     existingSchedule.transactionIndex = log.blockNumber;
     existingSchedule.transactionHash = log.transactionHash;
@@ -151,7 +152,7 @@ export default class PayrollStore implements Store {
       }
     }
 
-    existingPayment.lastPaymentDate = log.args.lastPaymentDate.toNumber();
+    existingPayment.lastPaymentDate = extractNumber(log.args.lastPaymentDate);
     existingPayment.blockNumber = log.blockNumber;
     existingPayment.transactionIndex = log.blockNumber;
     existingPayment.transactionHash = log.transactionHash;
@@ -172,7 +173,7 @@ export default class PayrollStore implements Store {
       }
     }
 
-    existingPayment.terminationDate = log.args.terminationDate.toNumber();
+    existingPayment.terminationDate = extractNumber(log.args.terminationDate);
     existingPayment.blockNumber = log.blockNumber;
     existingPayment.transactionIndex = log.blockNumber;
     existingPayment.transactionHash = log.transactionHash;

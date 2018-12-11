@@ -62,8 +62,8 @@ export interface NetworkService {
 
   attemptTopUp(amount: BigNumber, stakeToken: Address): Promise<any>;
 
-  watchExecutor(fromBlock: number, toBlock: number, callback: (any) => (any));
-  watchPayroll(fromBlock: number, toBlock: number, callback: (any) => (any));
+  watchExecutor(callback: (any) => (any), fromBlock?: number, toBlock?: number);
+  watchPayroll(callback: (any) => (any), fromBlock?: number, toBlock?: number);
 
   activate(events: BasicEvent[]): Promise<any>;
   process(events: BasicEvent[]): Promise<any>;

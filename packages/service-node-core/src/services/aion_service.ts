@@ -17,7 +17,6 @@ export default class EthereumService implements NetworkService {
   
   eventsUpdated: (() => (any));
 
-  private TX_DEFAULTS: any;
   private executorContract: any;
 
   constructor(privateKey: any, nodeAddress: string, addressBook: AddressBook, delayPeriod: DelayPeriod) {
@@ -42,72 +41,48 @@ export default class EthereumService implements NetworkService {
     
     await this.asyncForEach((this.addressBook.transactingTokenAddresses || [this.addressBook.transactingTokenAddress]), async (token) => {
 
-      console.log(1);
       let existingBalance = await stakeContract.methods.getTotalStake(this.account.address, token).call();
-      console.log(existingBalance);
-      console.log('top up: ' + amount + ' | existing: ' + existingBalance);
+
       if (existingBalance == amount) {
         console.log("Skipped top up");
         return;
       }
-      console.log(2);
 
-      let approveTx = await stakeTokenContract.methods.approve(
+      let approveTx = stakeTokenContract.methods.approve(
         this.addressBook.stakeContractAddress,
         amount.toString(),
       ).encodeABI();
-      console.log(amount.toString());
-      await this.executeTransaction(approveTx, this.addressBook.stakeTokenAddress);
-      console.log(3);
 
-      let topupTx = await stakeContract.methods.topUpStake(
+      await this.executeTransaction(approveTx, this.addressBook.stakeTokenAddress);
+
+      let topupTx = stakeContract.methods.topUpStake(
         amount.toString(),
         token
       ).encodeABI();
-      console.log("pls reach here");
-      console.log(topupTx);
-      let result = await this.executeTransaction(topupTx, this.addressBook.stakeContractAddress);
-      console.log(4);
-      return result;
+
+      return await this.executeTransaction(topupTx, this.addressBook.stakeContractAddress);
 
     });
   }
 
-  async watchExecutor(fromBlock: number, toBlock: number, callback: (any) => (any)) {
+  async watchExecutor(callback: (any) => (any), fromBlock?: number, toBlock?: number) {
     console.log("Starting to watch exceutor");
     this.executorContract = new this.web3.eth.Contract(Executor_Aion.abi, this.addressBook.executorAddress);
-    this.executorContract.events.allEvents({
-      fromBlock: fromBlock,
-      toBlock: toBlock < 0 ? 'latest' : toBlock
-    }, (error, log) => {
-      if (log) {  
-        callback(log);
-      } else {
-        console.log('Empty log outputted');
-      }
-    }).on('data', function(event){
-      console.log(event); // same results as the optional callback above
-    });
+
+    let existingEvents = [];
+    let check = this.checkEvents(this.executorContract, existingEvents, callback, fromBlock, toBlock);
+    await this.poll(check, 2000);
 
   }
 
-  async watchPayroll(fromBlock: number, toBlock: number, callback: (any) => (any)) {
+  async watchPayroll(callback: (any) => (any), fromBlock?: number, toBlock?: number) {
     console.log("Starting to watch payroll");
 
     const contract = new this.web3.eth.Contract(PayrollSubscription_Aion.abi, this.addressBook.payrollSubscriptionAddress);
-    contract.events.allEvents({
-      fromBlock: fromBlock,
-      toBlock: toBlock < 0 ? 'latest' : toBlock,
-    }, (error, log) => {
-      console.log(error, log);
-      if (log) {  
-        callback(log);
-      } else {
-        console.log('Empty log outputted');
-      }
-    }).on('data', function(event){
-      console.log(event); // same results as the optional callback above
-    })
+
+    let existingEvents = [];
+    let check = this.checkEvents(contract, existingEvents, callback, fromBlock, toBlock);
+    await this.poll(check, 2000);
 
   }
 
@@ -196,6 +171,33 @@ export default class EthereumService implements NetworkService {
     console.log('Executed -> ', interactionReceipt);
     return interactionReceipt;
   }
+
+  private async checkEvents(contract: any, existingEvents: any[], callback: (any) => (any), fromBlock?: number, toBlock?: number) {
+    const blockNum = await this.web3.eth.getBlockNumber();
+
+    const finalFromBlock = fromBlock || (blockNum - 1000).toString();
+    const finalToBlock = toBlock || 'latest';
+
+    let result = await contract.getPastEvents('AllEvents', { fromBlock: fromBlock || finalFromBlock, toBlock: finalToBlock });
+
+    result
+    .filter((event) => existingEvents.includes(event.id) == false)
+    .map((event) => {
+      let newObject = event;
+      newObject['args'] = event.returnValues;
+      newObject['returnValues'] = null;
+      return newObject;
+    })
+    .forEach((event) => {
+      existingEvents.push(event.id);
+      callback(event);
+    });
+  }
+
+  private async poll (fn, time) {
+    await fn;
+    setTimeout(() => this.poll(fn, time));
+  };
 
   private async asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {

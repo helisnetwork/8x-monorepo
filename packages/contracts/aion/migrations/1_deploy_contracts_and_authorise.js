@@ -339,7 +339,7 @@ async function updateNRGPrices(price, payrollSubscription) {
 
 async function addWETHToApprovedRegistry(weth, approvedRegistry) {
     
-    let data = await ApprovedRegistryContract.methods.addApprovedToken(weth, true).encodeABI();
+    let data = ApprovedRegistryContract.methods.addApprovedToken(weth, true).encodeABI();
     return executeTransaction(data, approvedRegistry);
 }
 
