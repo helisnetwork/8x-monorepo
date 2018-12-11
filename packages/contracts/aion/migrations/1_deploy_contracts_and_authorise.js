@@ -13,9 +13,7 @@ const PaymentRegistry = fs.readJsonSync("../build/PaymentRegistry.json");
 const PayrollSubscription = fs.readJsonSync("../build/PayrollSubscription.json");
 const Stake = fs.readJsonSync("../build/StakeContract.json");
 const TransferProxy = fs.readJsonSync("../build/TransferProxy.json");
-const VolumeSubscription = fs.readJsonSync("../build/VolumeSubscription.json");
 const WETH = fs.readJsonSync("../build/WETH.json");
-
 
 // Setup web3
 
@@ -35,7 +33,6 @@ const PaymentRegistryContract = new web3.eth.Contract(PaymentRegistry.abi);
 const PayrollSubscriptionContract = new web3.eth.Contract(PayrollSubscription.abi);
 const StakeContract = new web3.eth.Contract(Stake.abi);
 const TransferProxyContract = new web3.eth.Contract(TransferProxy.abi);
-const VolumeSubscriptionContract = new web3.eth.Contract(VolumeSubscription.abi);
 const WETHContract = new web3.eth.Contract(WETH.abi);
 
 let file = `${process.cwd()}/../../../artifacts/src/addresses/config.json`;
@@ -79,10 +76,6 @@ async function startDeployment() {
     let approvedRegistry = await deploy(ApprovedRegistryContract, ApprovedRegistry.bytecode, [""], deployerAccount);
     console.log("Deployed Approved Registry");
 
-    // Deploy Volume Subscroption with Approved Registry
-    let volumeSubscription = await deploy(VolumeSubscriptionContract, VolumeSubscription.bytecode, [approvedRegistry], deployerAccount);
-    console.log("Deployed Volume Subscription");
-
     // Deploy Payroll Subscription with Approved Registry
     let payrollSubscription = await deploy(PayrollSubscriptionContract, PayrollSubscription.bytecode, [approvedRegistry], deployerAccount);
     console.log("Deployed Payroll Subscription");
@@ -92,7 +85,7 @@ async function startDeployment() {
     console.log("Executed WETH Approval");
 
     // Add Volume + Payroll as Approved Contracts
-    await addContractsToApprovedRegistry(volumeSubscription, payrollSubscription, approvedRegistry);
+    await addContractsToApprovedRegistry(payrollSubscription, approvedRegistry);
     console.log("Executed Add Contracts");
 
     // Deploy Exeuctor with Transfer Proxy, Stake Contract, Payment Registry, Approved Registry, MAXIMUM_INTERVAL_DIVISOR
@@ -113,7 +106,6 @@ async function startDeployment() {
         WETH: ${weth},
         MultiSig: ${multiSig},
         Approved Registry: ${approvedRegistry},
-        Volume Subscription: ${volumeSubscription},
         Payroll Subscription: ${payrollSubscription},
         Executor: ${executor}
     `);
@@ -127,9 +119,6 @@ async function startDeployment() {
 
     await addAuthorizedAddress(PaymentRegistryContract, paymentRegistry, executor);
     console.log("Executed Add Authorised - Payment Registry");
-
-    await addAuthorizedAddress(VolumeSubscriptionContract, volumeSubscription, executor);
-    console.log("Executed Add Authorised - Volume Subscription");
 
     await addAuthorizedAddress(PayrollSubscriptionContract, payrollSubscription, executor);
     console.log("Executed Add Authorised - Payroll Subscription");
@@ -158,9 +147,6 @@ async function startDeployment() {
     await transferOwnership(ExecutorContract, executor, multiSig);
     console.log("Executed Transfer Ownership - Executor");
 
-    await transferOwnership(VolumeSubscriptionContract, volumeSubscription, multiSig);
-    console.log("Executed Transfer Ownership - Volume Subscription");
-
     await transferOwnership(PayrollSubscriptionContract, payrollSubscription, multiSig);
     console.log("Executed Transfer Ownership - Payroll Subscription");
 
@@ -176,10 +162,6 @@ async function startDeployment() {
         'addresses': [{
                 'name': 'Executor',
                 'address': executor
-            },
-            {
-                'name': 'VolumeSubscription',
-                'address': volumeSubscription
             },
             {
                 'name': 'PayrollSubscription',
@@ -221,10 +203,6 @@ async function startDeployment() {
             }
         ],
         'approvedContracts': [
-            {
-                'name': 'VolumeSubscription',
-                'address': volumeSubscription
-            },
             {
                 'name': 'PayrollSubscription',
                 'address': payrollSubscription
@@ -345,15 +323,11 @@ async function addWETHToApprovedRegistry(weth, approvedRegistry) {
 
 // Add Approved Contracts
 
-async function addContractsToApprovedRegistry(volumeSubscription, payrollSubscription, approvedRegistry) {
-    
-    let approvedRegistryData = ApprovedRegistryContract.methods.addApprovedContract(volumeSubscription).encodeABI();
-    let approvedRegistryResponse = await executeTransaction(approvedRegistryData, approvedRegistry);
-
+async function addContractsToApprovedRegistry(payrollSubscription, approvedRegistry) {
     let payrollData = ApprovedRegistryContract.methods.addApprovedContract(payrollSubscription).encodeABI();
     let payrollResponse = await executeTransaction(payrollData, approvedRegistry);
 
-    return [approvedRegistryResponse, payrollResponse];
+    return payrollResponse;
 }
 
 // Add Authorised Addresses

@@ -33,7 +33,6 @@ import { ApprovedRegistry_Aion } from './build/abi/ts-aion/ApprovedRegistry_Aion
 import { Executor_Aion } from './build/abi/ts-aion/Executor_Aion';
 import { PaymentRegistry_Aion } from './build/abi/ts-aion/PaymentRegistry_Aion';
 import { StakeContract_Aion } from './build/abi/ts-aion/StakeContract_Aion';
-import { VolumeSubscription_Aion } from './build/abi/ts-aion/VolumeSubscription_Aion';
 import { PayrollSubscription_Aion } from './build/abi/ts-aion/PayrollSubscription_Aion';
 import { TransferProxy_Aion } from './build/abi/ts-aion/TransferProxy_Aion';
 import { EightExToken_Aion } from './build/abi/ts-aion/EightExToken_Aion';
@@ -44,7 +43,6 @@ export {
   Executor_Aion,
   PaymentRegistry_Aion,
   StakeContract_Aion,
-  VolumeSubscription_Aion,
   TransferProxy_Aion,
   PayrollSubscription_Aion,
   EightExToken_Aion,

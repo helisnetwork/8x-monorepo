@@ -8,23 +8,9 @@ const PARENTS_DIR = '../aion';
 const CONTRACTS_DIR = './contracts';
 const AION_DIR = './aion/contracts';
 
+// Copy all the files into the new AION folder
 fs.emptyDirSync(AION_DIR);
 fs.copySync(CONTRACTS_DIR, AION_DIR)
-
-// Copy all the files into the new AION folder
-try {
-
-    const options = {
-        files: `${AION_DIR}/**`,
-        from: /uint256/gi,
-        to: 'uint128',
-    };
-    
-    const changes = replace.sync(options);
-    console.log('Modified files:', changes.join(', \n'));
-} catch (error) {
-    console.error('Error occurred:', error);
-}
 
 // Function to recursively find all the files
 const walkSync = (dir, filelist = []) => {
@@ -48,6 +34,7 @@ result.forEach((file) => {
     const options = {
         files: file.path,
         from: [
+            /uint256/gi,
             /constructor/gi,
             /view/gi,
             /pure/gi,
@@ -55,9 +42,11 @@ result.forEach((file) => {
             /(, ".*"\);)/gi,
             `0.4.24`,
             `2**256`,
-            /keccak256/
+            /keccak256/gi,
+            /indexed/gi
         ],
         to: [
+            `uint128`,
             `function ${file.name.replace('.sol', '')}`,
             ``,
             ``,
@@ -65,7 +54,8 @@ result.forEach((file) => {
             `);`,
             `0.4.15`,
             `2**128`,
-            `blake2b256`
+            `blake2b256`,
+            ``
         ],
     };
     
