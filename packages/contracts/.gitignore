@@ -4,3 +4,5 @@ aion/flat*
 
 solidity-flattener
 aion_web3
+
+.env
