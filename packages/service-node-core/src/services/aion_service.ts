@@ -8,6 +8,8 @@ import interval from '../helpers/interval';
 import { StakeContract_Aion, WETH_Aion, Executor_Aion, PayrollSubscription_Aion } from '@8xprotocol/artifacts';
 import { AbiDefinition } from 'ethereum-types';
 
+const refreshPeriod = 20000;
+
 export default class EthereumService implements NetworkService {
 
   web3: Web3;
@@ -16,7 +18,6 @@ export default class EthereumService implements NetworkService {
 
   addressBook: AddressBook;
   delayPeriod: DelayPeriod;
-  refreshPeriod: 20000;
   
   eventsUpdated: (() => (any));
 
@@ -81,8 +82,9 @@ export default class EthereumService implements NetworkService {
     this.executorContract = new this.web3.eth.Contract(Executor_Aion.abi, this.addressBook.executorAddress);
 
     interval(async () => {
+      console.log("Rechecking executor events");
       await this.checkEvents(this.executorContract, existingEvents, callback, fromBlock, toBlock);
-    }, this.refreshPeriod);
+    }, refreshPeriod);
   }
 
   async watchPayroll(callback: (any) => (any), fromBlock?: number, toBlock?: number) {
@@ -92,8 +94,9 @@ export default class EthereumService implements NetworkService {
     const contract = new this.web3.eth.Contract(PayrollSubscription_Aion.abi, this.addressBook.payrollSubscriptionAddress);
 
     interval(async () => {
+      console.log("Rechecking payroll events");
       await this.checkEvents(contract, existingEvents, callback, fromBlock, toBlock);
-    }, this.refreshPeriod);
+    }, refreshPeriod);
 
   }
 
@@ -153,13 +156,15 @@ export default class EthereumService implements NetworkService {
 
   async executeTransaction(data, address) {
     console.log('Executing transaction...');
+
+    let currentNoncePending = await this.web3.eth.getTransactionCount(this.account.address, 'pending');
   
     var txCallIncrement = {
       from: this.account.address, 
       to: address, 
       gas: 2000000,
-      data: data
-      // nonce: currentNoncePending
+      data: data,
+      nonce: currentNoncePending
     };
   
     // Sign it
