@@ -120,5 +120,57 @@
       }
     ],
     "maximumIntervalDivisor": 5
+  },
+  "main-aion": {
+    "addresses": [
+      {
+        "name": "Executor",
+        "address": "0xa062670CAF57cAE986CFe9Db0f8743D7b13F75C2a17DC1110dbFA2CE1DFCa593"
+      },
+      {
+          "name": "PayrollSubscription",
+          "address": "0xa06AFBb35f8042d4CD49E81c1c7E3703121c82559C418C69Bd00F69B9C8F59fb"
+      },
+      {
+          "name": "ApprovedRegistry",
+          "address": "0xA0f83BaF0b0CAAC9ca21aDF23a4D2B9Fe0fa4C3217A32D2b4c9D18E4fE79cE8C"
+      },
+      {
+          "name": "TransferProxy",
+          "address": "0xa0bf1D70bBBd3baA7046c964E0B5Bb384206454cd4E3D5aa45E146C024146F2a"
+      },
+      {
+          "name": "PaymentRegistry",
+          "address": "0xA00F15a553032720F24aE273478bDc47b9d36769fcd64DDc8877A098647514ea"
+      },
+      {
+          "name": "EightExToken",
+          "address": "0xa0b61014dc764640ee6087095FAf68DfeB4E4B9eE681225611FeA65932c93E41"
+      },
+      {
+          "name": "WAION",
+          "address": "0xa0E0042B258f6fB5E33700811FC46E023dEAea72E9A3Cd3A69D54f4dbf9fe854"
+      },
+      {
+          "name": "StakeContract",
+          "address": "0xA0FA59fB11aC3fF3Fd8ecf54B75763E5341F14C8888beeb94b70c5501e4d8855"
+      },
+      {
+          "name": "MultSig",
+          "address": "0xA0640019bdEE623F14B9a9fD1226Cb8fFFa553ffe72Ebf5E2BAe4e449648F5CB"
+      }
+    ],
+    "approvedTokens": [
+      {
+          "ticker": "WAION",
+          "address": "0xa0E0042B258f6fB5E33700811FC46E023dEAea72E9A3Cd3A69D54f4dbf9fe854"
+      }
+    ],
+    "approvedContracts": [
+      {
+          "name": "PayrollSubscription",
+          "address": "0xa06AFBb35f8042d4CD49E81c1c7E3703121c82559C418C69Bd00F69B9C8F59fb"
+      }
+    ]
   }
 }
