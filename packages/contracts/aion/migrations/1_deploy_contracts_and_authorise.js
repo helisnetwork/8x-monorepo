@@ -39,8 +39,6 @@ let file = `${process.cwd()}/../../../artifacts/src/addresses/config.json`;
 fs.ensureFileSync(file)
 const contractsJson = fs.readJsonSync(file, { throws: false }) || {};
 
-let network = 'mastery-aion'
-
 async function startDeployment() {
 
     // Deploy Transfer Proxy
@@ -67,7 +65,7 @@ async function startDeployment() {
     let multiSig = await deploy(
         MultiSigWalletWithTimeLockContract, 
         MultiSigWalletWithTimeLock.bytecode, 
-        [[deployerAccount.address], 1, 0],
+        [[process.env.AION_FINAL_OWNER], 1, 60*60*24],
         deployerAccount
     );
     console.log("Deployed MultiSig");
@@ -151,7 +149,8 @@ async function startDeployment() {
     console.log("Executed Transfer Ownership - Payroll Subscription");
 
     // Transfer all tokens except one to MultiSig
-    // await transferAllTokens(EightExTokenContract, multiSig, 2**128 - 2);
+    // @TODO: Make this the entire supply
+    await transferAllTokens(EightExTokenContract, multiSig, parseInt(10000*10**18).toString());
     await transferOwnership(EightExTokenContract, eightExToken, multiSig);
     console.log("Executed Transfer Ownership - Eight Ex Token");
 
@@ -211,7 +210,7 @@ async function startDeployment() {
         maximumIntervalDivisor: 5,
     };
 
-    contractsJson[network] = output;
+    contractsJson[process.env.AION_EXPORT_NETWORK] = output;
 
     await fs.outputFile(file, JSON.stringify(contractsJson, null, 2));
 }
@@ -234,11 +233,11 @@ async function executeDeployment(data) {
     let currentNoncePending = await web3.eth.getTransactionCount(deployerAccount.address, "pending");
     let currentNonce = await web3.eth.getTransactionCount(deployerAccount.address);
 
-    //console.log('currentNoncePending ->', currentNoncePending)
-    //.log('currentNonce ->', currentNonce)
+    console.log('currentNoncePending ->', currentNoncePending)
+    console.log('currentNonce ->', currentNonce)
 
     const deployTx = {
-        gas: 4699999,
+        gas: 4999999,
         gasPrice: 10000000000,
         gasLimit: 10000000000,
         data: data,
@@ -255,12 +254,11 @@ async function executeDeployment(data) {
     try {
         txHash = await web3.eth.sendSignedTransaction(signedTx.rawTransaction)
         .on('transactionHash', function(hash){
-            //console.log('prmoise tx hash ->', hash);
+            console.log('prmoise tx hash ->', hash);
         })
-
-        //console.log('txHash ->', txHash);
+        console.log('txHash ->', txHash);
     } catch (error) {
-        //console.log('General deploy error ->', error)
+        console.log('General deploy error ->', error)
     }
 
     return txHash.contractAddress;
@@ -269,7 +267,7 @@ async function executeDeployment(data) {
 async function executeTransaction(data, address) {
 
     let currentNoncePending = await web3.eth.getTransactionCount(deployerAccount.address, "pending");
-    let currentNonce = await web3.eth.getTransactionCount(deployerAccount.address);
+    // let currentNonce = await web3.eth.getTransactionCount(deployerAccount.address);
     //console.log('Nonces: ', currentNonce, currentNoncePending)
 
     // Create the transaction object
@@ -277,7 +275,7 @@ async function executeTransaction(data, address) {
         from: deployerAccount.address, 
         to: address, 
         gas: 2000000,
-        data: data
+        data: data,
         // nonce: currentNoncePending
     };
 
@@ -290,13 +288,13 @@ async function executeTransaction(data, address) {
     //console.log('signedTx ->', txCallIncrement);
     //console.log('rawTransaction', signedIncrementCall);
 
-
     let interactionReceipt = await web3.eth.sendSignedTransaction(
-    signedIncrementCall.rawTransaction
+        signedIncrementCall.rawTransaction
     ).on('transactionHash', txHash => { 
-      //console.log("txHash", txHash) 
+        console.log('txHash', txHash);
     }).on('receipt',
-      receipt => { //console.log("receipt", receipt) 
+        receipt => { 
+        console.log('receipt', receipt);
     });
 
     //console.log('interactionReceipt ->', interactionReceipt);
@@ -350,19 +348,10 @@ async function transferOwnership(contract, address, multiSig) {
 
 // Transfer All Tokens
 
-async function transferAllTokens(contract, multiSig, amount) {
-    let response = contract.transfer(multiSig, amount, {from: ownerAddress, gas: 2000000, gasPrice: 10000000000});
-    console.log("Response: " + response);
-    // get & print receipt
-    let txReceipt = web3.eth.getTransactionReceipt(rsp);
-    // repeat till tx processed
-    while (txReceipt == null) {
-        // wait 10 sec
-        sleep(10000);
-        txReceipt = web3.eth.getTransactionReceipt(rsp);
-    }
+async function transferAllTokens(contract, multiSig, address, amount) {
 
-    return txReceipt;
+    let data = contract.methods.transfer(multiSig, amount).encodeABI();
+    return await executeTransaction(data, address)
 }
 
 try {
