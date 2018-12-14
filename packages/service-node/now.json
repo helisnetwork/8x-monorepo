@@ -1,9 +1,0 @@
-{
-    "version": 2,
-    "dotenv": true,
-    "dotenv": ".env",
-    "builds": [{
-        "src": "index.js",
-        "use": "@now/node-server"
-    }]
-}
