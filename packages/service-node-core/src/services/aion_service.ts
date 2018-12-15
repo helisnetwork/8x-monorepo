@@ -6,7 +6,6 @@ import BigNumber from 'bignumber.js';
 import interval from '../helpers/interval';
 
 import { StakeContract_Aion, WETH_Aion, Executor_Aion, PayrollSubscription_Aion } from '@8xprotocol/artifacts';
-import { AbiDefinition } from 'ethereum-types';
 
 const refreshPeriod = 20000;
 

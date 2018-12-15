@@ -3,7 +3,7 @@ import { AddressBook, Address } from '@8xprotocol/types';
 
 import Web3 = require("web3");
 import EightEx from '8x.js';
-import BigNumber from '@8xprotocol/artifacts/node_modules/bignumber.js';
+import BigNumber from 'bignumber.js';
 import { StakeContract, MockTokenContract, ExecutorAbi, ExecutorContract, PayrollSubscriptionContract, PayrollSubscriptionAbi } from '@8xprotocol/artifacts';
 import { AbiDefinition } from 'ethereum-types';
 
