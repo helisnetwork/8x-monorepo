@@ -37,7 +37,6 @@ contract PaymentRegistry is Authorizable {
     event PaymentCancelled(bytes32 subscriptionIdentifer);
     event PaymentDeleted(bytes32 paymentIdentifier);
 
-
     /**
       * PUBLIC FUNCTIONS
     */

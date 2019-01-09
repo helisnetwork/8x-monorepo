@@ -1,3 +1,6 @@
+require('truffle-test-utils').init();
+const truffleAssert = require('truffle-assertions'); // To test event emission
+
 import assertRevert from './helpers/assert_revert.js';
 import keccak from './helpers/keccak.js';
 
@@ -64,12 +67,18 @@ contract('MockPaymentRegistry', function(accounts) {
             let subscriptionHash = await newSubscription(subscriptionContract, tokenContract.address, accounts[0], "create.valid");
             let result = await paymentRegistry.createNewPayment(subscriptionHash, tokenContract.address, oneMonthLater, 400, 4, { from: accounts[0] });
 
+            //Check payment creation event
+            truffleAssert.eventEmitted(result, 'PaymentCreated', (_event) => {
+                return _event.subscriptionIdentifier == subscriptionHash;
+            });
+
             let firstPayment = await paymentRegistry.payments.call(subscriptionHash);
             assert.equal(firstPayment[0], tokenContract.address);
             assert.equal(firstPayment[1].toNumber(), oneMonthLater);
             assert.equal(firstPayment[2].toNumber(), 400);
             assert.equal(firstPayment[3].toNumber(), 4);
 
+            
         });
 
     });
@@ -112,7 +121,13 @@ contract('MockPaymentRegistry', function(accounts) {
             await paymentRegistry.setTime(tenSecondsfterOneMonth);
 
             // Then we process the payment by passing the subscription identifier
-            let result = await paymentRegistry.claimPayment(subscriptionHash, accounts[1], twoMonthsLater, 10, { from: accounts[0] });
+            let result = await paymentRegistry.claimPayment(subscriptionHash, accounts[1], twoMonthsLater, 10, {from: accounts[0]});
+            
+            // Check payment claim event
+            truffleAssert.eventEmitted(result, 'PaymentClaimed', (_event) => {
+                return _event.subscriptionIdentifier == subscriptionHash
+                    && _event.claimant == accounts[1];
+            });
 
             // Get the payment information to check that it's been set correctly
             let paymentInformation = await paymentRegistry.payments.call(subscriptionHash);
@@ -137,6 +152,12 @@ contract('MockPaymentRegistry', function(accounts) {
             let tenSecondsAfterTwoMonths = twoMonthsLater + 10;
             await paymentRegistry.setTime(tenSecondsAfterTwoMonths);
             let result = await paymentRegistry.claimPayment(subscriptionHash, accounts[1], threeMonthsLater, 10, { from: accounts[0] });
+
+            // Check payment claim event
+            truffleAssert.eventEmitted(result, 'PaymentClaimed', (_event) => {
+                return _event.subscriptionIdentifier == subscriptionHash
+                    && _event.claimant == accounts[1];
+            });
 
             // Get the payment information to check that it's been set correctly
             let paymentInformation = await paymentRegistry.payments.call(subscriptionHash);
@@ -235,10 +256,16 @@ contract('MockPaymentRegistry', function(accounts) {
         });
 
         it("should be able to remove a claimant", async function() {
+          
+            result = await paymentRegistry.removeClaimant(subscriptionHash, accounts[1], {from: accounts[0]});
 
-            await paymentRegistry.removeClaimant(subscriptionHash, accounts[1], { from: accounts[0] });
+            // Check claimant removal event
+            truffleAssert.eventEmitted(result, 'PaymentClaimantRemoved', (_event) => {
+                return _event.subscriptionIdentifier == subscriptionHash
+                    && _event.claimant == accounts[1];
+            });
+
             let paymentInformation = await paymentRegistry.payments.call(subscriptionHash);
-
             assert.equal(paymentInformation[5], 0);
             assert.equal(paymentInformation[6], 0);
 
@@ -263,8 +290,14 @@ contract('MockPaymentRegistry', function(accounts) {
         });
 
         it("should be able to cancel a payment", async function() {
+          
+            let result = await paymentRegistry.cancelPayment(subscriptionHash, {from: accounts[0]});
 
-            let result = await paymentRegistry.cancelPayment(subscriptionHash, { from: accounts[0] });
+            // Check payment cancellation event
+            truffleAssert.eventEmitted(result, 'PaymentCancelled', (_event) => {
+                return _event.subscriptionIdentifier == subscriptionHash;
+            });
+          
             let paymentInformation = await paymentRegistry.payments.call(subscriptionHash);
             assert.equal(paymentInformation[0], 0);
 
@@ -290,7 +323,13 @@ contract('MockPaymentRegistry', function(accounts) {
 
         it("should be able to delete a payment", async function() {
 
-            let result = await paymentRegistry.cancelPayment(subscriptionHash, { from: accounts[0] });
+            let result = await paymentRegistry.deletePayment(subscriptionHash, {from: accounts[0]});
+
+            // Check payment deletion event
+            truffleAssert.eventEmitted(result, 'PaymentDeleted', (_event) => {
+                return _event.subscriptionIdentifier == subscriptionHash;
+            });
+          
             let paymentInformation = await paymentRegistry.payments.call(subscriptionHash);
             assert.equal(paymentInformation[0], 0);
             assert.equal(paymentInformation[1], 0);
