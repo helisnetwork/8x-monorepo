@@ -8,7 +8,7 @@
 .main-content {
     align-items: center;
     text-align: center;
-    margin: 0em 6em;
+    margin: 0em 4em;
     padding: 0.5em;
 
     @include mobile {
@@ -19,14 +19,33 @@
         padding: 1em 0em;
         
         #message {
-            font-size: 1.25em;
-            font-weight: 600;
+            padding: 0.5em;
+            font-size: 1.5em;
+            font-weight: 700;
             line-height: 1.40em;
 
             @include mobile {
                 font-size: 1.15em;
             }
 
+        }
+
+        #sub-message {
+            color: #9B97B3;
+            font-size: 1em;
+            font-weight: 400;
+        }
+
+    }
+
+    .conversion-dropdown {
+        margin-left: 5em;
+        margin-right: 5em;
+        padding-bottom: 2em;
+
+        #dropdown-text {
+            padding-bottom: 0.5em;
+            color: #9B97B3;
         }
 
     }
@@ -36,6 +55,7 @@
         align-items: center;
         justify-content: center;
         padding: 1em 0em;
+        padding-bottom: 2em;
 
         img {
 
@@ -54,7 +74,8 @@
 
         p {
             color: #958DB7;
-            font-weight: 300;
+            font-weight: 400;
+            font-size: 1.25em 
         }
 
         .arrow {
@@ -69,18 +90,11 @@
     .secondary-text {
 
         .title {
-            font-size: 1em;
+            font-family: "SFMono-Regular", monospace;
+            color: #A8A6A6;
+            font-size: 1.25em;
             font-weight: 600;
             padding-bottom: 0.5em; 
-
-        }
-        
-        .paragraph {
-            color: #958DB7;
-            font-size: 0.85em;
-            font-weight: 400; 
-            padding-bottom: 1em;
-            line-height: 1.60em;
 
         }
 
@@ -91,9 +105,10 @@
     display: flex;
     justify-content: center;
     text-align: center;
-    padding-bottom: 2em;
+    padding-bottom: 0.5em;
 
     .convert {
+        cursor: pointer;
         background-color: #5944EE;
         border-radius: 0.85em;
         color: white;
@@ -108,4 +123,18 @@
     }
    
 
+}
+
+.skip-text {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 1em;
+
+    .skip {
+        cursor: pointer;
+        color: #958DB7;
+        font-weight: 400;
+        font-size: 1em;
+    }
+    
 }

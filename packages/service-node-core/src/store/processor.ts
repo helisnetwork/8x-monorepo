@@ -1,5 +1,5 @@
 import * as Web3 from 'web3';
-import SubscriptionEvent from '../types';
+import { SubscriptionEvent, BasicEvent, DelayPeriod, NetworkService } from '../types';
 
 import { ExecutorContract } from '@8xprotocol/artifacts';
 import { Address } from '@8xprotocol/types';
@@ -9,31 +9,15 @@ import BigNumber from 'bignumber.js';
 
 export default class ProcessorStore {
 
-  private web3: Web3;
-  private executorContract: ExecutorContract;
-  private serviceNodeAccount: Address;
-  private eightEx: EightEx;
-  private TX_DEFAULTS: any;
+  private service: NetworkService;
 
   public executedTransactionHashes: string[];
-  public events: SubscriptionEvent[];
+  public events: BasicEvent[];
 
-  constructor(web3: Web3, eightEx: EightEx, serviceNodeAccount: Address, executorContract: ExecutorContract) {
-    this.web3 = web3;
-    this.eightEx = eightEx;
+  constructor(service: NetworkService) {
+    this.service = service;
     this.events = [];
     this.executedTransactionHashes = [];
-    this.executorContract = executorContract;
-    this.serviceNodeAccount = serviceNodeAccount;
-
-    const DEFAULT_GAS_LIMIT: BigNumber = new BigNumber(6712390); // Default of 6.7 million gas
-    const DEFAULT_GAS_PRICE: BigNumber = new BigNumber(6000000000); // 6 gEei
-
-    this.TX_DEFAULTS = {
-      from: serviceNodeAccount, // default to first account from provider
-      gas: DEFAULT_GAS_LIMIT,
-      gasPrice: DEFAULT_GAS_PRICE
-    };
 
     this.start();
   }
@@ -42,8 +26,8 @@ export default class ProcessorStore {
     await this.checkEvents();
   }
 
-  public setEvents(events: SubscriptionEvent[]) {
-    this.events = events.filter((event) => event.cancelled == false);
+  public setEvents(events: BasicEvent[]) {
+    this.events = events.filter((event) => event.cancelled != true && event.dueDate > ((Date.now()/1000) - (60 * 60)));
 
     console.log(`Current events are: ${JSON.stringify(this.events, null, 2)}`);
     console.log(`Executed events are: ${JSON.stringify(this.executedTransactionHashes, null, 2)}`);
@@ -63,14 +47,16 @@ export default class ProcessorStore {
     let now = (Date.now() / 1000);
 
     let toProcess = this.events.filter((event) => {
+      let claimant = parseInt(event.claimant);
       let result = (
-        (now >= event.dueDate) &&
-        (now <= (event.dueDate + 120)) &&
-        (!event.claimant || event.claimant == this.serviceNodeAccount)
+        (now >= event.dueDate + this.service.delayPeriod.processing) &&
+        (now <= (event.dueDate + (this.service.delayPeriod.catchLate))) &&
+        (!event.claimant || event.claimant == this.service.serviceNode || claimant == 0 || claimant == NaN) &&
+        event.activated == true
       );
 
       if (result) {
-        console.log(`Now: ${now}, Due Date ${event.dueDate}, Claimant: ${event.claimant}, Service Node: ${this.serviceNodeAccount}`);
+        console.log(`Now: ${now}, Due Date ${event.dueDate}, Claimant: ${event.claimant}, Service Node: ${this.service.serviceNode}`);
       }
 
       return result;
@@ -79,77 +65,49 @@ export default class ProcessorStore {
 
     let toCatchLate = this.events.filter((event) => {
       let result = (
-        (now >= (event.dueDate + 120)) &&
-        (now <= (event.dueDate + 240)) &&
-        (event.claimant && event.claimant != this.serviceNodeAccount)
+        (now >= (event.dueDate + (this.service.delayPeriod.catchLate))) &&
+        (now <= (event.dueDate + (this.service.delayPeriod.stopChecking))) &&
+        (event.claimant && event.claimant != this.service.serviceNode) &&
+        (event.activated == true)
       );
 
       if (result) {
-        console.log(`Now: ${now}, Due Date ${event.dueDate}, Claimant: ${event.claimant}, Service Node: ${this.serviceNodeAccount}`);
+        console.log(`Now: ${now}, Due Date ${event.dueDate}, Claimant: ${event.claimant}, Service Node: ${this.service.serviceNode}`);
       }
 
       return result;
 
     });
 
-    console.log(`Processing queue ${JSON.stringify(toProcess)}`);
-    console.log(`Catch queue ${JSON.stringify(toCatchLate)}`);
+    let toActivate = this.events.filter((event) => {
+      let result = (
+        (now >= event.dueDate) &&
+        (event.activated == false)
+      );
 
-    await this.handleProcessing(toProcess);
-    await this.handleCatchLate(toCatchLate);
+      if (result) {
+        console.log(`Now: ${now}, Due Date ${event.dueDate}, Claimant: ${event.claimant}, Service Node: ${this.service.serviceNode}`);
+      }
+
+      return result;
+    });
+
+    toActivate.forEach((item) => this.executedTransactionHashes.push(item.transactionHash));
+    toProcess.forEach((item) => this.executedTransactionHashes.push(item.transactionHash));
+    toCatchLate.forEach((item) => this.executedTransactionHashes.push(item.transactionHash));
+
+    await this.service.activate(toActivate);
+    await this.service.process(toProcess);
+    await this.service.catchLate(toCatchLate);
 
     await this.retry();
   }
 
   public async retry() {
-    console.log('Retrying');
+    console.log(`Retrying - ${Date.now()/1000}`);
 
     await this.timeout(2000);
     await this.checkEvents();
-  }
-
-  public async handleProcessing(events: SubscriptionEvent[]) {
-
-    this.asyncForEach(events, async (event) => {
-      console.log(`Sending process tx ${JSON.stringify(event)}`);
-      this.executedTransactionHashes.push(event.transactionHash);
-
-      try {
-        await this.executorContract.processSubscription.sendTransactionAsync(
-          event.subscriptionAddress,
-          event.subscriptionIdentifier,
-          this.TX_DEFAULTS
-        );
-      } catch (error) {
-        console.log(error);
-      }
-
-    });
-
-  }
-
-  public async handleCatchLate(events: SubscriptionEvent[]) {
-
-    this.asyncForEach(events, async (event) => {
-      console.log(`Sending catch late tx ${JSON.stringify(event)}`);
-      this.executedTransactionHashes.push(event.transactionHash);
-
-      try {
-        await this.executorContract.catchLateSubscription.sendTransactionAsync(
-          event.subscriptionAddress,
-          event.subscriptionIdentifier,
-          this.TX_DEFAULTS
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    });
-  }
-
-  private async asyncForEach(array, callback) {
-    for (let index = 0; index < array.length; index++) {
-      await callback(array[index], index, array)
-    }
   }
 
   private async timeout(ms) {

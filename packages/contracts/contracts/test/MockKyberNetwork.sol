@@ -8,9 +8,9 @@ import "../base/ownership/Ownable.sol";
 
 contract MockKyberNetwork is KyberNetworkInterface, Ownable {
 
-    uint public EXPECTED_RATE = 2*10**15;
+    uint256 public EXPECTED_RATE = 2*10**15;
 
-    function setExpectedRate(uint _rate) public onlyOwner {
+    function setExpectedRate(uint256 _rate) public onlyOwner {
         EXPECTED_RATE = _rate;
     }
 
@@ -21,11 +21,11 @@ contract MockKyberNetwork is KyberNetworkInterface, Ownable {
     function getExpectedRate(
         ERC20 src,
         ERC20 dest,
-        uint srcQty
+        uint256 srcQty
     )
         public
         view
-        returns (uint expectedRate, uint slippageRate)
+        returns (uint256 expectedRate, uint256 slippageRate)
     {
         // 0.002 ETH/USD is the exchange rate we want. Assuming $500 USD/ETH.
         return (EXPECTED_RATE, EXPECTED_RATE);
@@ -34,7 +34,7 @@ contract MockKyberNetwork is KyberNetworkInterface, Ownable {
     function maxGasPrice()
         public
         view
-        returns(uint)
+        returns(uint256)
     {
         return 0;
     }
@@ -42,7 +42,7 @@ contract MockKyberNetwork is KyberNetworkInterface, Ownable {
     function getUserCapInWei(address user)
         public
         view
-        returns(uint)
+        returns(uint256)
     {
         return 0;
     }
@@ -50,7 +50,7 @@ contract MockKyberNetwork is KyberNetworkInterface, Ownable {
     function getUserCapInTokenWei(address user, ERC20 token)
         public
         view
-        returns(uint)
+        returns(uint256)
     {
         return 0;
     }
@@ -66,14 +66,14 @@ contract MockKyberNetwork is KyberNetworkInterface, Ownable {
     function info(bytes32 id)
         public
         view
-        returns(uint)
+        returns(uint256)
     {
         return 0;
     }
 
     function swapEtherToToken(
         ERC20 token,
-        uint minConversionRate
+        uint256 minConversionRate
     )
         public
         payable
@@ -85,12 +85,12 @@ contract MockKyberNetwork is KyberNetworkInterface, Ownable {
 
     function swapTokenToTokenWithChange (
         ERC20 srcToken,
-        uint srcQty,
+        uint256 srcQty,
         ERC20 destToken,
         address destAddress,
         address user,
-        uint maxDestQty,
-        uint minRate
+        uint256 maxDestQty,
+        uint256 minRate
     )
         public
     {

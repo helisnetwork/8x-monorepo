@@ -17,17 +17,17 @@ contract Authorizable is Ownable {
      * MODIFIERS
     */
     modifier onlyAuthorized {
-        require(authorized[msg.sender]);
+        require(authorized[msg.sender], "An unauthorised user called the function");
         _;
     }
 
     modifier targetAuthorized(address _target) {
-        require(authorized[_target]);
+        require(authorized[_target], "An unauthorised user called the function");
         _;
     }
 
     modifier targetNotAuthorized(address _target) {
-        require(!authorized[_target]);
+        require(!authorized[_target], "An authorised user called the function");
         _;
     }
 
@@ -57,7 +57,7 @@ contract Authorizable is Ownable {
         targetAuthorized(_target)
     {
         delete authorized[_target];
-        for (uint i = 0; i < authorities.length; i++) {
+        for (uint256 i = 0; i < authorities.length; i++) {
             if (authorities[i] == _target) {
                 authorities[i] = authorities[authorities.length - 1];
                 authorities.length -= 1;
@@ -76,7 +76,7 @@ contract Authorizable is Ownable {
     */
     function getAuthorizedAddresses()
         public
-        constant
+        view
         returns (address[])
     {
         return authorities;

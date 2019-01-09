@@ -22,3 +22,4 @@ _api.json
 
 # Environemnt files
 .env
+packages/contracts/.env

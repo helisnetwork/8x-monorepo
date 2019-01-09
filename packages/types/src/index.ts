@@ -94,8 +94,11 @@ export interface AddressBook {
     paymentRegistryAddress?: Address;
     requirementsAddress?: Address;
     stakeContractAddress?: Address;
+    stakeTokenAddress?: Address;
     transferProxyAddress?: Address;
     volumeSubscriptionAddress?: Address;
+    payrollSubscriptionAddress?: Address;
+    transactingTokenAddresses?: Address[];
     transactingTokenAddress?: Address;
     kyberAdress?: Address;
 }

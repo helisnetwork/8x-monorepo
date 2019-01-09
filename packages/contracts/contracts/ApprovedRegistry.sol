@@ -2,18 +2,21 @@ pragma solidity 0.4.24;
 
 import "./interfaces/ApprovedRegistryInterface.sol";
 import "./interfaces/KyberNetworkInterface.sol";
+import "./interfaces/BillableInterface.sol";
 
-import "./Collectable.sol";
+import "./WETH.sol";
 
-import "./base/token/WETH.sol";
+import "./base/math/SafeMath.sol";
+import "./base/ownership/Ownable.sol";
 
 /** @title Approved contract, tokens and gas prices. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract ApprovedRegistry is ApprovedRegistryInterface {
+contract ApprovedRegistry is ApprovedRegistryInterface, Ownable {
 
+    using SafeMath for uint256;
 
-    mapping (address => uint) public approvedTokenMapping; // Exchange rate cache (in case Kyber is down).
+    mapping (address => uint256) public approvedTokenMapping; // Exchange rate cache (in case Kyber is down).
     mapping (address => bool) public approvedContractMapping;
 
     KyberNetworkInterface public kyberProxy;
@@ -28,17 +31,19 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     event TokenAdded(address indexed target);
     event TokenRemoved(address indexed target);
 
+    event CachedPriceOverwritten(address indexed token, uint256 indexed price);
+
     /**
       * MODIFIERS
     */
 
     modifier hasContractBeenApproved(address _contractAddress, bool _expectedResult) {
-        require(isContractAuthorised(_contractAddress) == _expectedResult);
+        require(isContractAuthorised(_contractAddress) == _expectedResult, "The contract should be authorised");
         _;
     }
 
     modifier hasTokenBeenApproved(address _tokenAddress, bool _expectedResult) {
-        require(isTokenAuthorised(_tokenAddress) == _expectedResult);
+        require(isTokenAuthorised(_tokenAddress) == _expectedResult, "The token should be authorised");
         _;
     }
 
@@ -57,8 +62,14 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     /** @dev Get exchange rate for token.
       * @param _tokenAddress is the address for the token.
     */
-    function getRateFor(address _tokenAddress) public returns (uint) {
-        (, uint rate) = kyberProxy.getExpectedRate(
+    function getRateFor(address _tokenAddress) public view returns (uint256) {
+
+        // If the token is the native currency, then the exchange rate is 1
+        if (_tokenAddress == address(wrappedEther)) {
+            return 1*10**18;
+        }
+
+        var (, rate) = kyberProxy.getExpectedRate(
             ERC20(_tokenAddress),
             ERC20(0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee),
             10**18
@@ -70,7 +81,14 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         }
 
         // Gas spike hence return cached value
-        return approvedTokenMapping[_tokenAddress] = rate;
+        uint256 cachedRate = approvedTokenMapping[_tokenAddress];
+
+        if (cachedRate == 0) {
+            // Fail safe in case Kyber gives 0
+            cachedRate = 66*10**14;
+        }
+
+        return cachedRate;
     }
 
     /** @dev Add an approved subscription contract to be used.
@@ -95,8 +113,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     {
         approvedTokenArray.push(_tokenAddress);
 
-        if (_isWETH == true && address(wrappedEther) == 0) {
-            // @TODO: Write tests for this
+        if (_isWETH == true && address(wrappedEther) == address(0)) {
             wrappedEther = WETH(_tokenAddress);
         }
 
@@ -110,12 +127,12 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         public
         onlyOwner
     {
-        for (uint i = 0; i < approvedContractArray.length; i++) {
+        for (uint256 i = 0; i < approvedContractArray.length; i++) {
             if (approvedContractArray[i] == _contractAddress) {
                 approvedContractArray[i] = approvedContractArray[approvedContractArray.length - 1];
                 approvedContractArray.length--;
 
-                delete approvedContractMapping[_contractAddress];
+                approvedContractMapping[_contractAddress] = false;
                 emit ContractRemoved(_contractAddress);
 
                 break;
@@ -130,12 +147,12 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         public
         onlyOwner
     {
-        for (uint i = 0; i < approvedTokenArray.length; i++) {
+        for (uint256 i = 0; i < approvedTokenArray.length; i++) {
             if (approvedTokenArray[i] == _tokenAddress) {
                 approvedTokenArray[i] = approvedTokenArray[approvedTokenArray.length - 1];
                 approvedTokenArray.length--;
 
-                delete approvedTokenMapping[_tokenAddress];
+                approvedTokenMapping[_tokenAddress] = 0;
                 emit TokenRemoved(_tokenAddress);
 
                 break;
@@ -143,7 +160,6 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         }
 
         if (_tokenAddress == address(wrappedEther)) {
-            // @TODO: Write tests for this
             delete wrappedEther;
         }
     }
@@ -152,7 +168,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     */
     function getApprovedContracts()
         public
-        constant
+        view
         returns (address[])
     {
         return approvedContractArray;
@@ -162,7 +178,7 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
     */
     function getApprovedTokens()
         public
-        constant
+        view
         returns (address[])
     {
         return approvedTokenArray;
@@ -172,11 +188,11 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
       * @param _contractAddress is the address of the contract.
     */
     function isContractAuthorised(address _contractAddress) public returns (bool) {
-        require(_contractAddress != 0);
+        require(_contractAddress != 0, "A valid contract was not passed");
 
         bool contractFoundInRegistry = false;
 
-        for (uint i = 0; i < approvedContractArray.length; i++) {
+        for (uint256 i = 0; i < approvedContractArray.length; i++) {
             if (approvedContractArray[i] == _contractAddress) {
                 contractFoundInRegistry = true;
                 break;
@@ -190,11 +206,11 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
       * @param _tokenAddress is the address of the token.
     */
     function isTokenAuthorised(address _tokenAddress) public returns (bool) {
-        require(_tokenAddress != 0);
+        require(_tokenAddress != 0, "An empty token address was passed");
 
         bool tokenFoundInRegistry = false;
 
-        for (uint i = 0; i < approvedTokenArray.length; i++) {
+        for (uint256 i = 0; i < approvedTokenArray.length; i++) {
             if (approvedTokenArray[i] == _tokenAddress) {
                 tokenFoundInRegistry = true;
                 break;
@@ -204,5 +220,25 @@ contract ApprovedRegistry is ApprovedRegistryInterface {
         return tokenFoundInRegistry;
     }
 
+    /** @dev Check if the token is a wrapped asset.
+      * @param _tokenAddress is the address of the token.
+    */
+    function isTokenWrapped(address _tokenAddress) public returns (bool) {
+        require(_tokenAddress != 0, "An empty token address was passed");
+
+        return address(_tokenAddress) == address(wrappedEther);
+    }
+
+    /** @dev Force overwrite the cached price
+      * @param _tokenAddress to set for
+      * @param _price to set for
+    */
+    function forceUpdateCachedPrice(address _tokenAddress, uint256 _price) 
+        public
+        onlyOwner
+    {
+        approvedTokenMapping[_tokenAddress] = _price;
+        emit CachedPriceOverwritten(_tokenAddress, _price);
+    }
 
 }

@@ -21,7 +21,6 @@ class SubscriptionInfo extends React.Component {
       copied: false,
       selectedCurrency: '',
       selectedPeriod: '',
-      kyberConversion: '',
       logo: [],
       subscriptionName: '',
       subscriptionDetails: '',
@@ -30,7 +29,6 @@ class SubscriptionInfo extends React.Component {
       subscribe: false,
       paymentStatus: '',
       address: '',
-      ethBalance: '',
       daiBalance: '',
 
     };
@@ -39,6 +37,7 @@ class SubscriptionInfo extends React.Component {
     this.handleSelectedPeriod = this.handleSelectedPeriod.bind(this);
     this.subscriptionPlanHandler = this.subscriptionPlanHandler.bind(this);
     this.loadingStateListener = this.loadingStateListener.bind(this);
+    this.subscribeComplete = this.subscribeComplete.bind(this);
     this.userInfoListener = this.userInfoListener.bind(this);
     this.checkUserActivity = this.checkUserActivity.bind(this);
 
@@ -49,9 +48,8 @@ class SubscriptionInfo extends React.Component {
     this.initializeDropdownItems();
     this.loadingStateListener();
     this.checkUserActivity();
-    
     bus.on('subscription:plan:sent', this.subscriptionPlanHandler);
-    bus.trigger('subscription:plan:requested');
+    bus.trigger('subscription:plan:requested', 'subscription-plan-render');
     bus.on('loading:state', this.loadingStateListener());
   }
 
@@ -61,19 +59,16 @@ class SubscriptionInfo extends React.Component {
     bus.off('loading:state', this.loadingStateListener());
     bus.off('user:address:sent'); 
     bus.off('ERC20:balance:sent');
-    bus.off('ETH:balance:sent');
     bus.off('subscription:process:failed');
     bus.off('user:subscribe:completed');
-    bus.off('activation:process:failed');
-    bus.off('user:activate:completed');
     bus.off('loading:state');
   }
 
 
   checkUserActivity() {
     this.unlockInterval = setInterval(() => {   
-      bus.trigger('user:get:account:status', web3)
-    }, 500);
+      bus.trigger('user:get:account:info', ('requestedUpdate'));
+    }, 2000);
   }
 
   initializeDropdownItems() {
@@ -101,15 +96,6 @@ class SubscriptionInfo extends React.Component {
     });
 
     bus.trigger('ERC20:balance:requested');
-     
-    bus.on('ETH:balance:sent', (bal) => {
-      this.setState({
-        ethBalance: bal
-      })
-    });
-
-    bus.trigger('ETH:balance:requested');
-  
   }
 
   subscriptionPlanHandler(object) {
@@ -140,20 +126,8 @@ class SubscriptionInfo extends React.Component {
     bus.trigger('user:subscribe:requested');
   }
 
-  handleActivateSubscription() {
-    bus.on('activation:process:failed', () => {
-      this.setState({
-        paymentStatus: 'subscribed'
-      });
-    });
-
-    bus.on('user:activate:completed', () => {
-      this.setState({
-        paymentStatus: 'activated'
-      });
-    });
-
-    bus.trigger('user:activate:requested');
+  subscribeComplete() {
+    bus.trigger('modal:show', false);
   }
 
   // Gets data from selected currency of user
@@ -170,36 +144,10 @@ class SubscriptionInfo extends React.Component {
     });
   }
 
-  // Uses Kyber API to get conversion rates
-  getKyberInformation() {
-    fetch('https://tracker.kyber.network/api/tokens/pairs')
-      .then(results => {
-        return results.json();
-      }).then(data => {
-
-        // Added a factor of 1% to account for slippage
-        var currencyConversion = data.ETH_DAI.currentPrice * 1.01;
-        let roundedNumber = currencyConversion.toFixed(6);
-
-        this.setState({
-          kyberConversion: roundedNumber
-        });
-      });
-  };
-
   calculateSendAmount () {
-    //this.getKyberInformation();
     if (this.state.selectedCurrency === 'Dai') {
       return (parseFloat(this.state.selectedPeriod) * parseFloat(this.state.subscriptionAmount)).toFixed(4);
     }
-    else if (this.state.selectedCurrency === 'Ethereum') {
-      return (this.state.selectedPeriod * this.state.kyberConversion * this.state.subscriptionAmount).toFixed(4);
-    }
-
-  }
-
-  checkDaiSelected () {
-    return this.state.selectedCurrency === 'Dai' ? true : false;
   }
 
   dropdownItems() {
@@ -208,13 +156,7 @@ class SubscriptionInfo extends React.Component {
         image: Images.daiLogo,
         name: 'Dai',
         ticker: 'DAI'
-      },
-      //@TODO: Implement Kyber 
-      // {
-      //   image: Images.ethLogo,
-      //   name: 'Ethereum',
-      //   ticker: 'ETH'
-      // }
+      }
     ];
   }
 
@@ -289,12 +231,12 @@ class SubscriptionInfo extends React.Component {
       </div>
     );
 
-    const activate = (
+    const subscribeComplete = (
       <div className='activate' 
         onClick={() => {
-        this.handleActivateSubscription();
+        this.subscribeComplete();
       }}>
-        <p>Activate Subscription</p>
+        <p>Successfully subscribed</p>
       </div>
     );
 
@@ -307,24 +249,13 @@ class SubscriptionInfo extends React.Component {
       </div>
     );
 
-    //@TODOO: This will be the button that leads into Kyber Conversion process
-    if (!this.checkDaiSelected()) {
-      return (
-        <Link to='/conversion'>
-          <div className='conversion'>
-            <p>Convert</p>
-          </div>
-        </Link>
-      );
-    }
-
     if (!this.state.subscribe && this.state.paymentStatus !== 'loading') {
       return subscribe;
     }
 
     switch (this.state.paymentStatus) {
       case 'subscribed':
-        return activate;
+        return subscribeComplete;
       case 'loading':
         return loading;
       case 'authorized':
@@ -374,7 +305,7 @@ class SubscriptionInfo extends React.Component {
                 <span>${this.state.subscriptionAmount}USD billed every {this.humanizeDuration(this.state.subscriptionPeriod)}</span>
               </div>
             </div>
-            <div className='option'>
+            <div className='option' style={{display:'none'}}>
               <div className='currency'>
                 <div className='text'>
                   <p>I want to pay using</p>
@@ -389,9 +320,9 @@ class SubscriptionInfo extends React.Component {
               </div>
             </div>
             <div className='action'>
-              <p className='text'>To start your subscription, please send</p>
-              <h2>{this.calculateSendAmount()} {this.state.selectedCurrency}</h2>
-              <p className='text'>to your personal wallet</p>
+              <p className='text'>Your subscription will now begin, each {this.humanizeDuration(this.state.subscriptionPeriod)}</p>
+              <h2>{this.state.subscriptionAmount} {this.state.selectedCurrency}</h2>
+              <p className='text'>will be deducted from your authorized wallet.</p>
             </div>
             <div className='item-address'>
               <p className='text-address'>{this.state.address}</p>
@@ -413,7 +344,7 @@ class SubscriptionInfo extends React.Component {
             </div>
             <div className='balance'>
               <p>Current Balance</p>
-              <p className='currency'>{this.checkDaiSelected() ? this.state.daiBalance : this.state.ethBalance} {this.state.selectedCurrency}</p>
+              <p className='currency'>{this.state.daiBalance} {this.state.selectedCurrency}</p>
             </div>
             { this.returnPayButtonState() }
           </div>

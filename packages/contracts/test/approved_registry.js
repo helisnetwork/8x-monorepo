@@ -25,15 +25,32 @@ contract('ApprovedRegistry', function(accounts) {
     before(async function() {
 
         // Initialise all the other contracts the executor needs in order to function
-        kyberContract = await MockKyber.new({from: contractOwner});
+        kyberContract = await MockKyber.new({ from: contractOwner });
 
-        approvedRegistryContract = await ApprovedRegistry.new(kyberContract.address, {from: contractOwner});
-        subscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, {from: contractOwner});
+        approvedRegistryContract = await ApprovedRegistry.new(kyberContract.address, { from: contractOwner });
+        subscriptionContract = await MockVolumeSubscription.new(approvedRegistryContract.address, { from: contractOwner });
 
         // Initialise a mock token contract, the owner has the initial supply
         wrappedEtherContract = await WrappedEther.new();
-        transactingCurrencyContract = await MockToken.new({from: contractOwner});
+        transactingCurrencyContract = await MockToken.new({ from: contractOwner });
 
+
+    });
+
+    it("should not be able to overwrite the price as unauthorised user", async function() {
+
+        await assertRevert(approvedRegistryContract.forceUpdateCachedPrice(wrappedEtherContract.address, 10, { from: unauthorisedAddress }));
+
+    });
+
+    it("should be able to overwrite the price as the contract owner", async function() {
+
+        await approvedRegistryContract.forceUpdateCachedPrice(wrappedEtherContract.address, 10);
+
+        let price = await approvedRegistryContract.approvedTokenMapping.call(wrappedEtherContract.address, { from: contractOwner });
+        assert.equal(price.toNumber(), 10);
+
+        await approvedRegistryContract.forceUpdateCachedPrice(wrappedEtherContract.address, 0);
 
     });
 
@@ -41,13 +58,13 @@ contract('ApprovedRegistry', function(accounts) {
 
         it("should not be able to add a contract as an unauthorised address", async function() {
 
-           await assertRevert(approvedRegistryContract.addApprovedContract(subscriptionContract.address, {from: unauthorisedAddress}));
+            await assertRevert(approvedRegistryContract.addApprovedContract(subscriptionContract.address, { from: unauthorisedAddress }));
 
         });
 
         it("should be able to add a contract as the owner", async function() {
 
-            await approvedRegistryContract.addApprovedContract(subscriptionContract.address, {from: contractOwner});
+            await approvedRegistryContract.addApprovedContract(subscriptionContract.address, { from: contractOwner });
 
             let approvedArray = await approvedRegistryContract.getApprovedContracts();
             assert.equal(approvedArray.length, 1);
@@ -56,19 +73,19 @@ contract('ApprovedRegistry', function(accounts) {
 
         it("should not be able to add a duplicate contract", async function() {
 
-            await assertRevert(approvedRegistryContract.addApprovedContract(subscriptionContract.address, {from: contractOwner}));
+            await assertRevert(approvedRegistryContract.addApprovedContract(subscriptionContract.address, { from: contractOwner }));
 
         });
 
         it("should not be able to remove a contract as an unauthorised address", async function() {
 
-            await assertRevert(approvedRegistryContract.removeApprovedContract(subscriptionContract.address, {from: unauthorisedAddress}));
+            await assertRevert(approvedRegistryContract.removeApprovedContract(subscriptionContract.address, { from: unauthorisedAddress }));
 
         });
 
         it("should be able to remove a contract as the owner", async function() {
 
-            await approvedRegistryContract.removeApprovedContract(subscriptionContract.address, {from: contractOwner});
+            await approvedRegistryContract.removeApprovedContract(subscriptionContract.address, { from: contractOwner });
 
             let approvedArray = await approvedRegistryContract.getApprovedContracts();
             assert.equal(approvedArray.length, 0);
@@ -84,43 +101,53 @@ contract('ApprovedRegistry', function(accounts) {
 
         it("should not be able to add a token as an unauthorised address", async function() {
 
-            await assertRevert(approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, false, {from: unauthorisedAddress}));
+            await assertRevert(approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, true, { from: unauthorisedAddress }));
 
         });
 
         it("should be able to add a token as an authorised address", async function() {
 
             // We're only adding the token for now since we want to test duplication + other things
-            await approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, false, {from: contractOwner});
+            await approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, true, { from: contractOwner });
 
             let approvedArray = await approvedRegistryContract.getApprovedTokens();
             assert.equal(approvedArray.length, 1);
+
+            let wrappedEth = await approvedRegistryContract.wrappedEther.call();
+            assert.equal(wrappedEth, transactingCurrencyContract.address);
+
+        });
+
+        it("should return the rate as 1*10**18 when adding the native token", async function() {
+
+            let rate = await approvedRegistryContract.getRateFor(transactingCurrencyContract.address);
+            assert.equal(rate.toNumber(), 1*10**18);
 
         });
 
         it("should not be able to add a duplicate token as an authorised address", async function() {
 
-            await assertRevert(approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, false, {from: contractOwner}));
+            await assertRevert(approvedRegistryContract.addApprovedToken(transactingCurrencyContract.address, true, { from: contractOwner }));
 
         });
 
         it("should not be able to remove a token as an unauthorised address", async function() {
 
-            await assertRevert(approvedRegistryContract.removeApprovedToken(transactingCurrencyContract.address, {from: unauthorisedAddress}));
+            await assertRevert(approvedRegistryContract.removeApprovedToken(transactingCurrencyContract.address, { from: unauthorisedAddress }));
 
         });
 
         it("should be able to remove a token as an authorised address", async function() {
 
             // Remove approved tokens to reset the state
-            await approvedRegistryContract.removeApprovedToken(transactingCurrencyContract.address, {from: contractOwner});
-            await approvedRegistryContract.removeApprovedToken(wrappedEtherContract.address, {from: contractOwner});
+            await approvedRegistryContract.removeApprovedToken(transactingCurrencyContract.address, { from: contractOwner });
+            await approvedRegistryContract.removeApprovedToken(wrappedEtherContract.address, { from: contractOwner });
 
             let approvedEthObject = await approvedRegistryContract.approvedTokenMapping.call(wrappedEtherContract.address);
-            assert.equal(approvedEthObject, 0);
+            assert.equal(approvedEthObject.toNumber(), 0);
 
             let approvedTokenObject = await approvedRegistryContract.approvedTokenMapping.call(transactingCurrencyContract.address);
-            assert.equal(approvedTokenObject, 0);
+            assert.equal(approvedTokenObject.toNumber(), 0);
 
             let approvedArray = await approvedRegistryContract.getApprovedTokens();
             assert.equal(approvedArray.length, 0);

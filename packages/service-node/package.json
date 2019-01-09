@@ -1,23 +1,23 @@
 {
-  "name": "@8xprotocol/service-node",
-  "version": "0.2.1",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "index.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@8xprotocol/artifacts": "^0.2.0",
-    "@8xprotocol/service-node-core": "^0.2.1",
-    "bignumber.js": "^4.1.0",
-    "dotenv": "^6.0.0",
-    "truffle-hdwallet-provider": "0.0.6",
-    "truffle-hdwallet-provider-privkey": "^0.3.0",
-    "web3": "^0.20.0",
-    "web3-provider-engine": "^14.0.6"
-  },
-  "private": true,
-  "gitHead": "e1c728ff2dbae514c8cefa792ceea0f54f230de9"
+    "name": "@8xprotocol/service-node",
+    "version": "0.6.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "index.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@8xprotocol/artifacts": "^0.6.7",
+        "@8xprotocol/service-node-core": "^0.6.9",
+        "bignumber.js": "^4.1.0",
+        "dotenv": "^6.0.0",
+        "truffle-hdwallet-provider": "0.0.6",
+        "truffle-hdwallet-provider-privkey": "^0.3.0",
+        "web3": "^0.20.0",
+        "web3-provider-engine": "^14.0.6"
+    },
+    "private": true,
+    "gitHead": "e1c728ff2dbae514c8cefa792ceea0f54f230de9"
 }

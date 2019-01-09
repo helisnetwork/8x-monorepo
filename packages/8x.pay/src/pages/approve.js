@@ -6,6 +6,7 @@ import { Redirect } from 'react-router-dom';
 
 import { MoonLoader } from 'react-spinners';
 import SubscriptionInfo from './subscripton-info';
+import ConversionPrompt from './conversion-prompt';
 
 class Approve extends React.Component {
   constructor(props){
@@ -13,7 +14,8 @@ class Approve extends React.Component {
 
     this.state = {
       approve: false,
-      awaiting: false
+      awaiting: false,
+      conversion: ''
 
     };
 
@@ -26,6 +28,22 @@ class Approve extends React.Component {
   componentDidMount() {
     this.updateApproveState(); 
     this.catchAuthFailed();
+    this.checkConversionStatus();
+  }
+
+  componentWillUnmount() {
+    bus.off('conversion:status');
+    bus.off('authorization:process:failed');
+    bus.off('user:authorization:received');
+  }
+
+  checkConversionStatus() {
+    bus.on('conversion:status', (status) => {
+      this.setState({
+        conversion: status
+      });
+    });
+    bus.trigger('conversion:status:requested');
   }
 
   catchAuthFailed() {
@@ -77,7 +95,6 @@ class Approve extends React.Component {
         </div>
       );
     }
-
   }
 
   render() {
@@ -102,12 +119,17 @@ class Approve extends React.Component {
           </div>
         </div>
       );
-  } else {
-      return ( 
-        <SubscriptionInfo
-          status="unlocked"
-        />
-      );
+    } else {
+      if(this.state.conversion === true) {
+        return <ConversionPrompt/>;
+      } else if(this.state.conversion === false) {
+        return (
+          <SubscriptionInfo
+          status="unlocked"/>
+        )
+      } else {
+        return null;
+      }
     }
   }
 }

@@ -7,33 +7,27 @@ import {
   VolumeSubscriptionAbi,
 } from '@8xprotocol/artifacts';
 
-import SubscriptionEvent from '../types/';
+import { Store, SubscriptionEvent, BasicEvent, NetworkService } from '../types/';
 
 import { Address } from '@8xprotocol/types';
 import { AbiDefinition } from "ethereum-types";
+import { extractNumber } from "../helpers/numbers";
 
-export default class EventStore {
+export default class ExecutorStore implements Store {
 
-  private web3: Web3;
-  private executorContract: ExecutorContract;
+  private service: NetworkService;
 
   public eventsUpdated: () => (void);
   public events: { [id: string] : SubscriptionEvent } = {};
 
-  constructor(web3: Web3, executorContract: ExecutorContract, callback: () => (void)) {
-    this.web3 = web3;
+  constructor(service: NetworkService, callback: () => (void)) {
+    this.service = service;
     this.eventsUpdated = callback;
-    this.executorContract = executorContract;
   }
 
   public async startListening() {
-    const contract = this.web3.eth.contract(ExecutorAbi.abi as AbiDefinition[]).at(this.executorContract.address);
-    const eventsWatcher = contract.allEvents({
-      fromBlock: 0,
-      toBlock: "latest",
-    });
-
-    eventsWatcher.watch((error, log) => {
+    await this.service.watchExecutor((log) => {
+      console.log(log.event);
       if (log.event == 'SubscriptionActivated') {
         this.handleActivation(log);
       } else if (log.event == 'SubscriptionProcessed') {
@@ -50,29 +44,35 @@ export default class EventStore {
     });
   }
 
+  getEventsArray(): BasicEvent[] {
+    return Object.values(this.events);
+  }
+
   private handleActivation(log) {
     console.log(`Received Activated: ${JSON.stringify(log, null, 2)}`);
 
     let newEvent = {
-      subscriptionAddress: log.args.subscriptionAddress,
-      subscriptionIdentifier: log.args.subscriptionIdentifier,
+      contractAddress: log.args.contractAddress,
+      paymentIdentifier: log.args.paymentIdentifier,
       tokenAddress: log.args.tokenAddress,
-      dueDate: log.args.dueDate.toNumber(),
-      amount: log.args.amount.toNumber(),
-      fee: log.args.fee.toNumber(),
+      dueDate: extractNumber(log.args.dueDate),
+      amount: extractNumber(log.args.amount),
+      fee: extractNumber(log.args.fee),
       blockNumber: log.blockNumber,
       transactionIndex: log.transactionIndex,
       transactionHash: log.transactionHash,
-      cancelled: false
+      claimant: log.args.claimant || null,
+      cancelled: false,
+      activated: true
     } as SubscriptionEvent
 
-    this.events[newEvent.subscriptionIdentifier] = newEvent;
+    this.events[newEvent.paymentIdentifier] = newEvent;
   }
 
   private handleProcessed(log) {
     console.log(`Received Processed: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let existingEvent = this.events[log.args.paymentIdentifier];
 
     if (log.blockNumber <= existingEvent.blockNumber) {
       if (log.transactionIndex < existingEvent.transactionIndex) {
@@ -81,20 +81,21 @@ export default class EventStore {
     }
 
     existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate.toNumber();
+    existingEvent.dueDate = extractNumber(log.args.dueDate);
     existingEvent.staked = log.args.staked;
     existingEvent.blockNumber = log.blockNumber;
     existingEvent.transactionIndex = log.blockNumber;
     existingEvent.transactionHash = log.transactionHash;
+    existingEvent.activated = true;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+    this.events[existingEvent.paymentIdentifier] = existingEvent;
 
   }
 
   private handleReleased(log) {
     console.log(`Received Released: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let existingEvent = this.events[log.args.paymentIdentifier];
 
     if (log.blockNumber < existingEvent.blockNumber) {
       if (log.transactionIndex < existingEvent.transactionIndex) {
@@ -103,17 +104,17 @@ export default class EventStore {
     }
 
     existingEvent.claimant = log.args.claimant;
-    existingEvent.dueDate = log.args.dueDate.toNumber();
+    existingEvent.dueDate = extractNumber(log.args.dueDate);
     existingEvent.staked = log.args.staked;
     existingEvent.transactionHash = log.transactionHash;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+    this.events[existingEvent.paymentIdentifier] = existingEvent;
   }
 
   private handlePaymentCaught(log) {
     console.log(`Recieved Late: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let existingEvent = this.events[log.args.paymentIdentifier];
 
     if (log.blockNumber < existingEvent.blockNumber) {
       if (log.transactionIndex < existingEvent.transactionIndex) {
@@ -124,13 +125,13 @@ export default class EventStore {
     existingEvent.claimant = log.args.newClaimant;
     existingEvent.transactionHash = log.transactionHash;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+    this.events[existingEvent.paymentIdentifier] = existingEvent;
   }
 
   private handleCancelled(log) {
     console.log(`Recieved Cancelled: ${JSON.stringify(log, null, 2)}`);
 
-    let existingEvent = this.events[log.args.subscriptionIdentifier];
+    let existingEvent = this.events[log.args.paymentIdentifier];
 
     if (log.blockNumber < existingEvent.blockNumber) {
       if (log.transactionIndex < existingEvent.transactionIndex) {
@@ -140,7 +141,7 @@ export default class EventStore {
 
     existingEvent.cancelled = true;
 
-    this.events[existingEvent.subscriptionIdentifier] = existingEvent;
+    this.events[existingEvent.paymentIdentifier] = existingEvent;
   }
 
 }

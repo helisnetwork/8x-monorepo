@@ -57,6 +57,7 @@
 
                 p {
                     margin-top: 0em;
+                    margin-bottom: 1em;
                 }
 
                 span {
@@ -129,14 +130,14 @@
 
         .action {
             text-align: center;
-            margin: 1.5em 0em 2em 0em;
+            margin: 1.5em 0em 3em 0em;
             color: #958DB7;
 
             h2 {
                 color: black;
                 font-size: 1.50em;
                 font-weight: 400;
-                padding: 0.50em 0em;
+                padding: 0.75em 0em;
 
             }
 
@@ -154,7 +155,7 @@
             background-color: white;
             border-radius: 0.85em;
             box-shadow: 2px 0 20px #EFEFEF;
-            padding: 0.5em;
+            padding: 0.65em;
 
             .text-address {
                 color: #958DB7;
@@ -182,7 +183,7 @@
             display: flex;
             justify-content: space-between;
             color: #958DB7;
-            margin-bottom: 1em;
+            margin-bottom: 1.5em;
             padding-top: 0.85em;
             padding-bottom: 1em;
 

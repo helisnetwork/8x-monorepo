@@ -25,7 +25,7 @@ contract TransferProxy is Authorizable {
         address _token,
         address _from,
         address _to,
-        uint _value
+        uint256 _value
     )
         public
         onlyAuthorized
@@ -39,7 +39,7 @@ contract TransferProxy is Authorizable {
         address _from,
         address _to,
         address _original,
-        uint _value
+        uint256 _value
     )
         public
         returns (bool)

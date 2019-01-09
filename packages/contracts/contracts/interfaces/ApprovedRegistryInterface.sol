@@ -1,18 +1,17 @@
 pragma solidity 0.4.24;
 
-import "../base/ownership/Ownable.sol";
 import "./KyberNetworkInterface.sol";
 
 /** @title Approved contract, tokens and gas prices. */
 /** @author Kerman Kohli - <kerman@8xprotocol.com> */
 
-contract ApprovedRegistryInterface is Ownable {
+interface ApprovedRegistryInterface {
 
     /** @dev Get the current ETH exchange rate.
       * @param _tokenAddress is the address for the token in question.
       * @return the exchange rate.
     */
-    function getRateFor(address _tokenAddress) public returns (uint);
+    function getRateFor(address _tokenAddress) public view returns (uint256);
 
     /** @dev Add an approved contract.
       * @param _contractAddress is the address of the contract.
@@ -40,10 +39,15 @@ contract ApprovedRegistryInterface is Ownable {
     */
     function isContractAuthorised(address _contractAddress) public returns (bool);
 
-     /** @dev Check if the token is authorised.
+    /** @dev Check if the token is authorised.
       * @param _tokenAddress is the address of the token.
     */
     function isTokenAuthorised(address _tokenAddress) public returns (bool);
+
+    /** @dev Check if the token is a wrapped asset.
+      * @param _tokenAddress is the address of the token.
+    */
+    function isTokenWrapped(address _tokenAddress) public returns (bool);
 
     event ContractAdded(address indexed target);
     event ContractRemoved(address indexed target);

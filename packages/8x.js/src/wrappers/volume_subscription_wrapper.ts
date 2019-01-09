@@ -1,13 +1,14 @@
 import * as Web3 from 'web3';
 import * as _ from 'lodash';
+import * as abi from 'ethereumjs-abi';
 
 import Contracts from '../services/contracts';
 import BigNumber from 'bignumber.js';
 
-import { Web3Utils, VolumeSubscriptionAbi } from '@8xprotocol/artifacts';
+import { Web3Utils, VolumeSubscriptionAbi, ExecutorContract } from '@8xprotocol/artifacts';
 import { generateTxOpts } from '../utils/transaction_utils';
 import { Address, Bytes32, TxData, TxHash, Plan, Subscription } from '@8xprotocol/types';
-import { SECONDS_IN_DAY } from '../constants';
+import { SECONDS_IN_DAY, EXECUTOR_CACHE_KEY } from '../constants';
 
 import { getFormattedLogsFromTxHash, getFormattedLogsFromReceipt, formatLogEntry, getPastLogs } from '../utils/logs';
 
@@ -177,7 +178,7 @@ export default class VolumeSubscriptionWrapper {
       return object['args'][key] == value;
     }).map((object) => {
       let filterKey = _.get(object, `args.${key}`);
-      return filterKey == value ? _.get(object, 'args.subscriptionIdentifier') : null;
+      return filterKey == value ? _.get(object, 'args.paymentIdentifier') : null;
     }).filter((object) => object);
 
     let subscriptions = ids.map(async(id) => {
@@ -188,11 +189,40 @@ export default class VolumeSubscriptionWrapper {
 
   }
 
-  public async getPlanState(
-    identifier: Bytes32
-  ) {
+  public async subscribeAndActivate( 
+    planHash: Bytes32,
+    metaData: JSON | null,
+    txData?: TxData 
+  ): Promise<Bytes32> {
+    
+    const txSettings = await generateTxOpts(this.web3, txData);
+    const volumeSubscription = await this.contracts.loadVolumeSubscription();
+    const executor = await this.contracts.loadExecutor();
+    const salt = ((Date.now()/1000) + (Math.random() * 10000)).toFixed(); 
 
+    const computedSubscriptionHash = "0x" + abi.soliditySHA3(
+      ["address", "bytes32", "uint256"],
+      [txSettings.from, planHash, salt]
+    ).toString('hex');
+
+    let txHash = await volumeSubscription.createSubscriptionAndCall.sendTransactionAsync(
+      planHash,
+      metaData ? JSON.stringify(metaData) : '',
+      new BigNumber(salt),
+      executor.address,
+      'activateSubscription(address,bytes32)',
+      txSettings
+    );
+
+
+    let logs = await getFormattedLogsFromTxHash(this.web3, VolumeSubscriptionAbi.abi, txHash);
+
+    // @TODO: Throw error if doesn't exist
+    let subscriptionHash = _.get(logs[0].args, "paymentIdentifier") || '';
+
+    return subscriptionHash;
   }
+
   public async createSubscription(
     planHash: Bytes32,
     metaData: JSON | null,
@@ -211,13 +241,13 @@ export default class VolumeSubscriptionWrapper {
     let logs = await getFormattedLogsFromTxHash(this.web3, VolumeSubscriptionAbi.abi, txHash);
 
     // @TODO: Throw error if doesn't exist
-    let subscriptionHash = _.get(logs[0].args, "subscriptionIdentifier") || '';
+    let subscriptionHash = _.get(logs[0].args, "paymentIdentifier") || '';
 
     return subscriptionHash;
 
   }
 
-  public async cancelSubscription(
+  public async cancelPayment(
     subscriptionHash: Bytes32,
     txData?: TxData
   ): Promise<TxHash> {
@@ -225,7 +255,7 @@ export default class VolumeSubscriptionWrapper {
     const txSettings = await generateTxOpts(this.web3, txData);
     const volumeSubscription = await this.contracts.loadVolumeSubscription();
 
-    return await volumeSubscription.cancelSubscription.sendTransactionAsync(
+    return await volumeSubscription.cancelPayment.sendTransactionAsync(
       subscriptionHash,
       txSettings
     );

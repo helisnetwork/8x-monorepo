@@ -2,20 +2,23 @@
 const artifacts = [
     'Executor',
     'VolumeSubscription',
+    'PayrollSubscription',
     'ApprovedRegistry',
     'PaymentRegistry',
     'StakeContract',
     'MockKyberNetwork',
     'MockToken',
     'MockVolumeSubscription',
+    'MockPayrollSubscription',
     'TransferProxy'
 ];
 
-const PACKAGE = require('./package.json');
+const PACKAGE = require('../package.json');
 const fs = require('fs-extra');
 const assert = require('assert');
 const rimraf = require('rimraf');
 const mustache = require('mustache');
+const path = require('path');
 
 // Output of truffle compile
 const BUILD_DIR = './build/contracts/';
@@ -26,7 +29,8 @@ const EXPORT_DIR = '../artifacts/src/build/abi/';
 const JSON_DIR = '../artifacts/src/build/abi/json/';
 const TS_DIR = '../artifacts/src/build/abi/ts/';
 
-fs.emptyDirSync(EXPORT_DIR);
+fs.emptyDirSync(JSON_DIR);
+fs.emptyDirSync(TS_DIR );
 
 fs.ensureDirSync(JSON_DIR);
 fs.ensureDirSync(TS_DIR);
@@ -37,9 +41,31 @@ assert(contractHaveBeenCompiled, `No json compiled file found in ${BUILD_DIR}. D
 
 // Takes the export of `truffle compile` and add and remove some information
 // Manually executed
-artifacts.forEach(function(name) {
-    const artifact = require(BUILD_DIR + name + '.json');
 
+const walkSync = (dir, filelist = []) => {
+    fs.readdirSync(dir).forEach(file => {
+      filelist = fs.statSync(path.join(dir, file)).isDirectory()
+        ? walkSync(path.join(dir, file), filelist)
+        : filelist.concat({
+            name: file,
+            path: path.join(dir, file),
+            size: fs.statSync(path.join(dir, file)).size,
+        });
+    });
+    return filelist;
+}
+
+// Start finding all the files and replace things
+const result = walkSync(BUILD_DIR);
+
+result
+.forEach((file) => {
+
+    console.log(file);
+    
+    let artifact = fs.readJSONSync(file.path);
+    let name = file.name.replace('.json', '')
+    
     let artifactExported = {
         contractName: artifact.contractName,
         abi: artifact.abi,

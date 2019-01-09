@@ -1,23 +1,61 @@
+const Constants = require("./migration_constants");
+
 module.exports = function(deployer, network, accounts) {
 
+    if (!Constants.isActualDeployment(network)) {
+        return;
+    }
+
+    const MultiSigWalletWithTimeLock = artifacts.require("./MultiSigWalletWithTimeLock.sol");
+
+    const VolumeSubscription = artifacts.require("./subscriptions/VolumeSubscription.sol");
+    const PayrollSubscription = artifacts.require("./subscriptions/PayrollSubscription.sol");
+
+    const ApprovedRegistry = artifacts.require("./ApprovedRegistry.sol");
     const TransferProxy = artifacts.require("./TransferProxy.sol");
     const PaymentRegistry = artifacts.require("./PaymentRegistry.sol");
     const StakeContract = artifacts.require("./StakeContract.sol");
-    const VolumeSubscription = artifacts.require("./VolumeSubscription.sol");
     const Executor = artifacts.require("./Executor.sol");
+    const EightExToken = artifacts.require("./EightExToken.sol");
+    const WETH = artifacts.require("./WETH.sol");
 
-    return deployer.then(async () => {
+    return deployer.then(async() => {
 
-      let transferProxy = await TransferProxy.deployed();
-      let stakeContract = await StakeContract.deployed();
-      let paymentRegistry = await PaymentRegistry.deployed();
-      let executor = await Executor.deployed();
-      let volumeSubscription = await VolumeSubscription.deployed();
+        // Add Authorized Addresses
 
-      await transferProxy.addAuthorizedAddress(executor.address);
-      await stakeContract.addAuthorizedAddress(executor.address);
-      await paymentRegistry.addAuthorizedAddress(executor.address);
-      await volumeSubscription.addAuthorizedAddress(executor.address);
+        let multiSig = await MultiSigWalletWithTimeLock.deployed();
+
+        let approvedRegistry = await ApprovedRegistry.deployed();
+        let transferProxy = await TransferProxy.deployed();
+        let stakeContract = await StakeContract.deployed();
+        let paymentRegistry = await PaymentRegistry.deployed();
+        let executor = await Executor.deployed();
+        let volumeSubscription = await VolumeSubscription.deployed();
+        let payrollSubscription = await PayrollSubscription.deployed();
+        let eightExToken = await EightExToken.deployed();
+        let wrappedEther = await WETH.deployed();
+
+        await transferProxy.addAuthorizedAddress(executor.address);
+        await stakeContract.addAuthorizedAddress(executor.address);
+        await paymentRegistry.addAuthorizedAddress(executor.address);
+        await volumeSubscription.addAuthorizedAddress(executor.address);
+        await payrollSubscription.addAuthorizedAddress(executor.address);
+        await wrappedEther.addAuthorizedAddress(executor.address);
+
+        // Change ownership
+
+        await approvedRegistry.transferOwnership(multiSig.address);
+        await transferProxy.transferOwnership(multiSig.address);
+        await stakeContract.transferOwnership(multiSig.address);
+        await paymentRegistry.transferOwnership(multiSig.address);
+        await executor.transferOwnership(multiSig.address);
+        await volumeSubscription.transferOwnership(multiSig.address);
+        await payrollSubscription.transferOwnership(multiSig.address);
+
+        // Leave one token to the person who deployed
+        // @TODO
+        // await eightExToken.transfer(multiSig, 2 ** 256 - 2);
+        await eightExToken.transferOwnership(multiSig.address);
 
     });
 

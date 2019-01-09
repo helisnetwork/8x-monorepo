@@ -26,24 +26,22 @@ export default class SubscriptionStore {
 
       //Start subscription listener after this.address is avaliable and web3 set. 
       bus.on('user:address:sent', (address) => {
-
-        this.address = address; 
-        this.web3 = web3; 
-        // Check if user has already authorized 
-        this.checkAlreadyAuthorized();
-
-        // Start listeners for subscription process
-        this.authorizationRequestListener();
-        this.startSubscribeListener();
-        this.activateSubscriptionListener();
-
+        if(!this.address) {
+          this.address = address; 
+          this.web3 = web3; 
+          // Check if user has already authorized 
+          this.checkAlreadyAuthorized();
+          // Start listeners for subscription process
+          this.authorizationRequestListener();
+          this.startSubscribeAndActivate();
+        }
       });
     });
   }
 
   checkAlreadyAuthorized() {
-    
     bus.on('authorization:status', async () => {
+      
       let authorizedStatus = await this.eightEx.subscriptions.hasGivenAuthorisation(this.address);
         if (authorizedStatus == true) {
           bus.trigger('user:authorization', true);
@@ -51,8 +49,6 @@ export default class SubscriptionStore {
           bus.trigger('user:authorization', false);
         }
     });
-
-    // bus.trigger('authorization:status');
   }
 
   listenPlanHash() {
@@ -62,8 +58,7 @@ export default class SubscriptionStore {
   }
 
   listenPlanRequested() {
-    bus.on('subscription:plan:requested', async () => {
-      
+    bus.on('subscription:plan:requested', async (elem) => {      
       // Show dummy data if there's no plan hash
       if (!this.planHash) {
         bus.trigger('subscription:plan:sent', {
@@ -90,7 +85,13 @@ export default class SubscriptionStore {
           subscriptionAmount: amount.div(currencyBase).toNumber(),
           subscriptionPeriod: interval
         }))(planData);
-        bus.trigger('subscription:plan:sent', planObj);
+        if(elem === 'subscription-plan-render') {
+          bus.trigger('subscription:plan:sent', planObj);
+        } else if(elem === 'rates') {
+          bus.trigger('subscription:plan:for:exchange:rates', planObj);
+        } else if(elem === 'conversion') {
+          bus.trigger('subscription:plan:for:conversion', planObj);
+        }
       }
     });
   };
@@ -113,20 +114,19 @@ export default class SubscriptionStore {
         
       } catch (error) {
         bus.trigger('authorization:process:failed', error);
-        console.log(error);
+        console.log('Authorization process has failed' + ' ' + error);
       }
     });
   };
 
-  startSubscribeListener() {
+  startSubscribeAndActivate () {
     bus.on('user:subscribe:requested', async () => {
-      console.log('how many');
       bus.trigger('loading:state');
       const txData = null;
       const metaData = null;
 
       try {
-        this.subscriptionHash = await this.eightEx.subscriptions.subscribe(this.planHash, metaData, txData);
+        this.subscriptionHash = await this.eightEx.subscriptions.subscribeAndActivate(this.planHash, metaData, txData);
         
         if(this.subscriptionHash) {
           bus.trigger('user:subscribe:completed', this.subscriptionHash);
@@ -134,33 +134,10 @@ export default class SubscriptionStore {
         
       } catch (error) {
         bus.trigger('subscription:process:failed');
-        console.log(error);
+        console.log('Subscription process has failed' + ' ' + error);
       }
-    });
-  }
 
-  activateSubscriptionListener() {
-    bus.on('user:activate:requested', async () => {
-      bus.trigger('loading:state');
-      const txData = null;
-      if (this.subscriptionHash) {
-        try {
-          let activationTxHash = await this.eightEx.subscriptions.activate(this.subscriptionHash, txData);
 
-          let activationStatus = await this.eightEx.blockchain.awaitTransactionMinedAsync(
-            activationTxHash
-          ); 
-
-          if(activationStatus) {
-            bus.trigger('user:activate:completed', this.subscriptionHash);
-            console.log('Subscription receipt is' + ' ' + activationTxHash);
-          }
-          
-        } catch (error) {
-          bus.trigger('activation:process:failed'); 
-          console.log(error);
-        }
-      };
-    });
+    })
   }
 };

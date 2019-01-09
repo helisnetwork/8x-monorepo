@@ -2,6 +2,7 @@
 import React from 'react';
 import SubscriptionInfo from './subscripton-info';
 import PaymentGuide from './payment-guide';
+import ConversionPrompt from './conversion-prompt';
 
 import bus from '../bus';
 
@@ -12,6 +13,7 @@ class MetamaskHandler extends React.Component {
     this.state = {
       status: 'loading',
       authorized: '',
+      conversion: ''
 
     };
 
@@ -21,15 +23,19 @@ class MetamaskHandler extends React.Component {
     this.initialiseMetaMask();
     this.checkPreviouslyAuthorized();
     this.checkStatus();
-    
+    this.checkConversionStatus();
+
+    bus.trigger('conversion:status:requested');
     bus.trigger('metamask:approval:requested');
   }
 
   componentWillUnmount() {
     this.checkPreviouslyAuthorized();
+    this.checkConversionStatus();
     bus.off('metamask:approval:requested');
     bus.off('status');
     bus.off('user:authorization');
+    bus.off('conversion:status');
 
   }
 
@@ -51,10 +57,11 @@ class MetamaskHandler extends React.Component {
           // Request access to expose user accounts
           await ethereum.enable();
       
+          
           bus.trigger('web3:initialised', web3);
 
         } catch (error) {
-          console.log('error');
+          console.log('Metamask Approval has failed' + ' ' + error);
           // User denied account access...
         }
       }
@@ -68,6 +75,14 @@ class MetamaskHandler extends React.Component {
       else {
         this.updateStatus('not installed');
       }
+    });
+  }
+
+  checkConversionStatus() {
+    bus.on('conversion:status', (status) => {
+      this.setState({
+        conversion: status
+      });
     });
   }
 
@@ -93,16 +108,24 @@ class MetamaskHandler extends React.Component {
   render() {
     if(this.state.status === 'unlocked') {
       if(this.state.authorized === true) {
-        return (
-          <SubscriptionInfo
-            status={this.state.status}
-          />
-        ); 
+        if(this.state.conversion === false) {
+          return (
+            <SubscriptionInfo
+              status='unlocked'
+            />
+          ); 
+        } else if(this.state.conversion === true) {
+          return (
+            <ConversionPrompt/>
+          );
+        } else {
+          return null;
+        }
       } else if(this.state.authorized === false) {
         return (
           <PaymentGuide/>
         );
-      } else {
+      } else if(this.state.authorized === '') {
         return null;
       }
     } else {
