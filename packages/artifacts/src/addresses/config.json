@@ -3,47 +3,47 @@
     "addresses": [
       {
         "name": "Executor",
-        "address": "0x2cfc66eff1610a2aa3288bbe25660a1c36969342"
+        "address": "0x4efa1187e8445cc798ecd9c24831d49138cd83b7"
       },
       {
         "name": "VolumeSubscription",
-        "address": "0x683c424996e92538c50dade2f5a1702d0c215de7"
+        "address": "0x88d2376e8cfae379e46096340906a1400c07f42d"
       },
       {
         "name": "PayrollSubscription",
-        "address": "0xe52310e6d3b9cc95be1d7336a142fd77520cc4e8"
+        "address": "0x398512917185874a059b70d4130fcc2d161ad7dc"
       },
       {
         "name": "ApprovedRegistry",
-        "address": "0x976213331bfec2c9123f94f173eed9e116b1907d"
+        "address": "0x6b1ed1bd7e0550d88ad808b5dd9cc371fd909ef0"
       },
       {
         "name": "TransferProxy",
-        "address": "0x636fa4074c5c029de5358011b02dc665ae6253dd"
+        "address": "0x9225c76e678d942a1059d1926997efe8c1eaf1ac"
       },
       {
         "name": "PaymentRegistry",
-        "address": "0x5a04ed2dca463998069294cdaf275c835b2e731f"
+        "address": "0xec7329bb706bd4abac985bbbc13e5ce16b69bad7"
       },
       {
         "name": "EightExToken",
-        "address": "0xf0564376959e80657325c89a774786308649e499"
+        "address": "0x86a9e1d068f05b11f3a6c0d317882a9d7e900659"
       },
       {
         "name": "WETH",
-        "address": "0xecd1366b743e2b7e9c9ba3a7cdde6348db214653"
+        "address": "0x9e797736277007f5fa94c2da0074fb4683fe53b7"
       },
       {
         "name": "StakeContract",
-        "address": "0x587607646c1b562d0a3221fe7d3c622d9d0d47c6"
+        "address": "0xb39fb9698eadf36fe619de75936cae50a2adbe1c"
       },
       {
         "name": "KyberNetwork",
-        "address": "0x62a7fd42afd4587831d3d67e3469818863a7c48c"
+        "address": "0x81cabd4f6fa99f799e6d4340855755e6edfe6cc2"
       },
       {
         "name": "MultSig",
-        "address": "0x85c441e2e701ef5e95a1b05dd7ec23ebc5d0df5a"
+        "address": "0x7a9fa714b0ca737e0a80bc18bdbb8ffe0e5195e7"
       }
     ],
     "approvedTokens": [
@@ -53,17 +53,17 @@
       },
       {
         "ticker": "WETH",
-        "address": "0xecd1366b743e2b7e9c9ba3a7cdde6348db214653"
+        "address": "0x9e797736277007f5fa94c2da0074fb4683fe53b7"
       }
     ],
     "approvedContracts": [
       {
         "name": "VolumeSubscription",
-        "address": "0x683c424996e92538c50dade2f5a1702d0c215de7"
+        "address": "0x88d2376e8cfae379e46096340906a1400c07f42d"
       },
       {
         "name": "PayrollSubscription",
-        "address": "0xe52310e6d3b9cc95be1d7336a142fd77520cc4e8"
+        "address": "0x398512917185874a059b70d4130fcc2d161ad7dc"
       }
     ],
     "maximumIntervalDivisor": 5
@@ -128,48 +128,48 @@
         "address": "0xa062670CAF57cAE986CFe9Db0f8743D7b13F75C2a17DC1110dbFA2CE1DFCa593"
       },
       {
-          "name": "PayrollSubscription",
-          "address": "0xa06AFBb35f8042d4CD49E81c1c7E3703121c82559C418C69Bd00F69B9C8F59fb"
+        "name": "PayrollSubscription",
+        "address": "0xa06AFBb35f8042d4CD49E81c1c7E3703121c82559C418C69Bd00F69B9C8F59fb"
       },
       {
-          "name": "ApprovedRegistry",
-          "address": "0xA0f83BaF0b0CAAC9ca21aDF23a4D2B9Fe0fa4C3217A32D2b4c9D18E4fE79cE8C"
+        "name": "ApprovedRegistry",
+        "address": "0xA0f83BaF0b0CAAC9ca21aDF23a4D2B9Fe0fa4C3217A32D2b4c9D18E4fE79cE8C"
       },
       {
-          "name": "TransferProxy",
-          "address": "0xa0bf1D70bBBd3baA7046c964E0B5Bb384206454cd4E3D5aa45E146C024146F2a"
+        "name": "TransferProxy",
+        "address": "0xa0bf1D70bBBd3baA7046c964E0B5Bb384206454cd4E3D5aa45E146C024146F2a"
       },
       {
-          "name": "PaymentRegistry",
-          "address": "0xA00F15a553032720F24aE273478bDc47b9d36769fcd64DDc8877A098647514ea"
+        "name": "PaymentRegistry",
+        "address": "0xA00F15a553032720F24aE273478bDc47b9d36769fcd64DDc8877A098647514ea"
       },
       {
-          "name": "EightExToken",
-          "address": "0xa0b61014dc764640ee6087095FAf68DfeB4E4B9eE681225611FeA65932c93E41"
+        "name": "EightExToken",
+        "address": "0xa0b61014dc764640ee6087095FAf68DfeB4E4B9eE681225611FeA65932c93E41"
       },
       {
-          "name": "WAION",
-          "address": "0xa0E0042B258f6fB5E33700811FC46E023dEAea72E9A3Cd3A69D54f4dbf9fe854"
+        "name": "WAION",
+        "address": "0xa0E0042B258f6fB5E33700811FC46E023dEAea72E9A3Cd3A69D54f4dbf9fe854"
       },
       {
-          "name": "StakeContract",
-          "address": "0xA0FA59fB11aC3fF3Fd8ecf54B75763E5341F14C8888beeb94b70c5501e4d8855"
+        "name": "StakeContract",
+        "address": "0xA0FA59fB11aC3fF3Fd8ecf54B75763E5341F14C8888beeb94b70c5501e4d8855"
       },
       {
-          "name": "MultSig",
-          "address": "0xA0640019bdEE623F14B9a9fD1226Cb8fFFa553ffe72Ebf5E2BAe4e449648F5CB"
+        "name": "MultSig",
+        "address": "0xA0640019bdEE623F14B9a9fD1226Cb8fFFa553ffe72Ebf5E2BAe4e449648F5CB"
       }
     ],
     "approvedTokens": [
       {
-          "ticker": "WAION",
-          "address": "0xa0E0042B258f6fB5E33700811FC46E023dEAea72E9A3Cd3A69D54f4dbf9fe854"
+        "ticker": "WAION",
+        "address": "0xa0E0042B258f6fB5E33700811FC46E023dEAea72E9A3Cd3A69D54f4dbf9fe854"
       }
     ],
     "approvedContracts": [
       {
-          "name": "PayrollSubscription",
-          "address": "0xa06AFBb35f8042d4CD49E81c1c7E3703121c82559C418C69Bd00F69B9C8F59fb"
+        "name": "PayrollSubscription",
+        "address": "0xa06AFBb35f8042d4CD49E81c1c7E3703121c82559C418C69Bd00F69B9C8F59fb"
       }
     ]
   }

@@ -45,24 +45,24 @@ We get it, you're just here to find the contract addresses. Luckily for you, the
 
 | Contract Name | Address |
 | ------------- | ------- |
-| Executor | 0x2cfc66eff1610a2aa3288bbe25660a1c36969342 |
-| VolumeSubscription | 0x683c424996e92538c50dade2f5a1702d0c215de7 |
-| PayrollSubscription | 0xe52310e6d3b9cc95be1d7336a142fd77520cc4e8 |
-| ApprovedRegistry | 0x976213331bfec2c9123f94f173eed9e116b1907d |
-| TransferProxy | 0x636fa4074c5c029de5358011b02dc665ae6253dd |
-| PaymentRegistry | 0x5a04ed2dca463998069294cdaf275c835b2e731f |
-| EightExToken | 0xf0564376959e80657325c89a774786308649e499 |
-| WETH | 0xecd1366b743e2b7e9c9ba3a7cdde6348db214653 |
-| StakeContract | 0x587607646c1b562d0a3221fe7d3c622d9d0d47c6 |
-| KyberNetwork | 0x62a7fd42afd4587831d3d67e3469818863a7c48c |
-| MultSig | 0x85c441e2e701ef5e95a1b05dd7ec23ebc5d0df5a |
+| Executor | 0x4efa1187e8445cc798ecd9c24831d49138cd83b7 |
+| VolumeSubscription | 0x88d2376e8cfae379e46096340906a1400c07f42d |
+| PayrollSubscription | 0x398512917185874a059b70d4130fcc2d161ad7dc |
+| ApprovedRegistry | 0x6b1ed1bd7e0550d88ad808b5dd9cc371fd909ef0 |
+| TransferProxy | 0x9225c76e678d942a1059d1926997efe8c1eaf1ac |
+| PaymentRegistry | 0xec7329bb706bd4abac985bbbc13e5ce16b69bad7 |
+| EightExToken | 0x86a9e1d068f05b11f3a6c0d317882a9d7e900659 |
+| WETH | 0x9e797736277007f5fa94c2da0074fb4683fe53b7 |
+| StakeContract | 0xb39fb9698eadf36fe619de75936cae50a2adbe1c |
+| KyberNetwork | 0x81cabd4f6fa99f799e6d4340855755e6edfe6cc2 |
+| MultSig | 0x7a9fa714b0ca737e0a80bc18bdbb8ffe0e5195e7 |
 
 ### Supported Tokens (Kovan)
 
 | Token Ticker | Address |
 | ------------ | ------- |
 | DAI | 0xc4375b7de8af5a38a93548eb8453a498222c4ff2 |
-| WETH | 0xecd1366b743e2b7e9c9ba3a7cdde6348db214653 |
+| WETH | 0x9e797736277007f5fa94c2da0074fb4683fe53b7 |
 
 ### Contracts (Mastery - AION)
 
