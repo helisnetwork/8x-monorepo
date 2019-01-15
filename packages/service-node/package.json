@@ -4,7 +4,10 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "index.js"
+			"start aion:main": "ENV_NAME=.aion.main.env node index.js",
+			"start aion:test": "ENV_NAME=.aion.test.env node index.js",
+			"start ethereum:main": "ENV_NAME=.ethereum.main.env node index.js",
+			"start ethereum:test": "ENV_NAME=.ethereum.test.env node index.js"
     },
     "author": "",
     "license": "ISC",

@@ -7,6 +7,8 @@ import { Address } from '@8xprotocol/types';
 import EightEx from '8x.js';
 import BigNumber from 'bignumber.js';
 
+const refreshPeriod = 20000;
+
 export default class ProcessorStore {
 
   private service: NetworkService;
@@ -29,8 +31,8 @@ export default class ProcessorStore {
   public setEvents(events: BasicEvent[]) {
     this.events = events.filter((event) => event.cancelled != true && event.dueDate > ((Date.now()/1000) - (60 * 60)));
 
-    console.log(`Current events are: ${JSON.stringify(this.events, null, 2)}`);
-    console.log(`Executed events are: ${JSON.stringify(this.executedTransactionHashes, null, 2)}`);
+    // console.log(`Current events are: ${JSON.stringify(this.events, null, 2)}`);
+    // console.log(`Executed events are: ${JSON.stringify(this.executedTransactionHashes, null, 2)}`);
   }
 
   public async checkEvents() {
@@ -104,9 +106,9 @@ export default class ProcessorStore {
   }
 
   public async retry() {
-    console.log(`Retrying - ${Date.now()/1000}`);
+    // console.log(`Retrying - ${Date.now()/1000}`);
 
-    await this.timeout(2000);
+    await this.timeout(refreshPeriod);
     await this.checkEvents();
   }
 

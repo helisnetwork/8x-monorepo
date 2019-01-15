@@ -81,7 +81,7 @@ export default class EthereumService implements NetworkService {
     this.executorContract = new this.web3.eth.Contract(Executor_Aion.abi, this.addressBook.executorAddress);
 
     interval(async () => {
-      console.log("Rechecking executor events");
+      // console.log("Rechecking executor events");
       await this.checkEvents(this.executorContract, existingEvents, callback, fromBlock, toBlock);
     }, refreshPeriod);
   }
@@ -93,7 +93,7 @@ export default class EthereumService implements NetworkService {
     const contract = new this.web3.eth.Contract(PayrollSubscription_Aion.abi, this.addressBook.payrollSubscriptionAddress);
 
     interval(async () => {
-      console.log("Rechecking payroll events");
+      // console.log("Rechecking payroll events");
       await this.checkEvents(contract, existingEvents, callback, fromBlock, toBlock);
     }, refreshPeriod);
 
@@ -188,7 +188,7 @@ export default class EthereumService implements NetworkService {
   }
 
   private async checkEvents(contract: any, existingEvents: any[], callback: (any) => (any), fromBlock?: number, toBlock?: number) {
-    console.log("Checking for new events");
+    // console.log("Checking for new events");
 
     const blockNum = await this.web3.eth.getBlockNumber();
 

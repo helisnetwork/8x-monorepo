@@ -21,18 +21,18 @@ export default class EthereumService implements NetworkService {
   private TX_DEFAULTS: any;
   private executorContract: ExecutorContract;
 
-  constructor(provider: any, account: Address, addressBook: AddressBook, delayPeriod: DelayPeriod) {
+  constructor(provider: any, addressBook: AddressBook, delayPeriod: DelayPeriod) {
     this.web3 = new Web3(provider);
     this.eightEx = new EightEx(this.web3, {});
     this.addressBook = addressBook;
-    this.serviceNode = account;
+    this.serviceNode = this.web3.eth.defaultAccount;
     this.delayPeriod = delayPeriod;
 
     const DEFAULT_GAS_LIMIT: BigNumber = new BigNumber(6712390); // Default of 6.7 million gas
     const DEFAULT_GAS_PRICE: BigNumber = new BigNumber(6000000000); // 6 gEei
 
     this.TX_DEFAULTS = {
-      from: account, // default to first account from provider
+      from:  this.web3.eth.defaultAccount, // default to first account from provider
       gas: DEFAULT_GAS_LIMIT,
       gasPrice: DEFAULT_GAS_PRICE
     };

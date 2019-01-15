@@ -1,12 +1,12 @@
 const BigNumber = require('bignumber.js');
 const Artifacts = require('@8xprotocol/artifacts');
 
-const Ethereum = require('./ethereum');
-const Aion = require('./aion');
-const dotenv = require('dotenv');
-
-const environment = dotenv.config().parsed;
+const Ethereum = require('./src/ethereum');
+const Aion = require('./src/aion');
 const topUpAmount = new BigNumber(100).mul(10 ** 18);
+
+require('dotenv').config();
+const environment = require('dotenv').config({ path: `./secrets/${process.env.ENV_NAME}`}).parsed;
 
 function getAllTokens(network) {
   if (!network) {
@@ -45,22 +45,23 @@ function generateAddressBook(network) {
   }
 }
 
-if (environment.ETHEREUM_PRIVATE_KEY) {
+console.log(environment.BLOCKCHAIN.toUpperCase() + ' node started...');
+
+if (environment.BLOCKCHAIN == 'ethereum') {
   Ethereum.start(
-    environment.ETHEREUM_NODE_ADDRESS,
-    environment.ETHEREUM_PUBLIC_KEY,
-    environment.ETHEREUM_PRIVATE_KEY,
-    generateAddressBook(environment.ETHEREUM_NETWORK),
+    environment.NODE_ADDRESS,
+    environment.PRIVATE_KEY,
+    generateAddressBook(environment.NETWORK),
     getDelayPeriod(),
     topUpAmount
   );
 }
 
-if (environment.AION_PRIVATE_KEY) {
+if (environment.BLOCKCHAIN == 'aion') {
   Aion.start(
-    environment.AION_NODE_ADDRESS,
-    environment.AION_PRIVATE_KEY,
-    generateAddressBook(environment.AION_NETWORK),
+    environment.NODE_ADDRESS,
+    environment.PRIVATE_KEY,
+    generateAddressBook(environment.NETWORK),
     getDelayPeriod(),
     topUpAmount
   );
