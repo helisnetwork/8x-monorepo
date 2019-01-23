@@ -105,7 +105,7 @@ export default class EthereumService implements NetworkService {
     await this.asyncForEach(events, async (event) => {
       console.log(`Sending activate tx ${JSON.stringify(event)}`);
 
-      let status = this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
+      let status = await this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
       if (status != 1) {
         console.log(`Payment has already been made for: ${event.transactionHash}`);
         return;
@@ -129,7 +129,7 @@ export default class EthereumService implements NetworkService {
     await this.asyncForEach(events, async (event) => {
       console.log(`Sending process tx ${JSON.stringify(event)}`);
 
-      let status = this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
+      let status = await this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
       if (status != 2) {
         console.log(`Payment has already been made for: ${event.transactionHash}`);
         return;
@@ -153,7 +153,7 @@ export default class EthereumService implements NetworkService {
     await this.asyncForEach(events, async (event) => {
       console.log(`Sending catch late tx ${JSON.stringify(event)}`);
 
-      let status = this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
+      let status = await this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
       if (status != 2) {
         console.log(`Payment has already been made for: ${event.transactionHash}`);
         return;
