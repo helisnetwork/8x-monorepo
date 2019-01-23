@@ -21,6 +21,7 @@ export default class EthereumService implements NetworkService {
   eventsUpdated: (() => (any));
 
   private executorContract: any;
+  private payrollContract: any;
 
   constructor(privateKey: any, nodeAddress: string, addressBook: AddressBook, delayPeriod: DelayPeriod) {
 
@@ -90,11 +91,11 @@ export default class EthereumService implements NetworkService {
     console.log("Starting to watch payroll");
 
     let existingEvents = [];
-    const contract = new this.web3.eth.Contract(PayrollSubscription_Aion.abi, this.addressBook.payrollSubscriptionAddress);
+    this.payrollContract = new this.web3.eth.Contract(PayrollSubscription_Aion.abi, this.addressBook.payrollSubscriptionAddress);
 
     interval(async () => {
       // console.log("Rechecking payroll events");
-      await this.checkEvents(contract, existingEvents, callback, fromBlock, toBlock);
+      await this.checkEvents(this.payrollContract, existingEvents, callback, fromBlock, toBlock);
     }, refreshPeriod);
 
   }
@@ -103,6 +104,11 @@ export default class EthereumService implements NetworkService {
 
     await this.asyncForEach(events, async (event) => {
       console.log(`Sending activate tx ${JSON.stringify(event)}`);
+
+      let status = this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
+      if (status != 1) {
+        return;
+      }
       
       try {
         let data = this.executorContract.methods.activateSubscription(
@@ -122,6 +128,11 @@ export default class EthereumService implements NetworkService {
     await this.asyncForEach(events, async (event) => {
       console.log(`Sending process tx ${JSON.stringify(event)}`);
 
+      let status = this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
+      if (status != 2) {
+        return;
+      }
+
       try {
         let data = this.executorContract.methods.processSubscription(
           event.contractAddress,
@@ -139,6 +150,11 @@ export default class EthereumService implements NetworkService {
 
     await this.asyncForEach(events, async (event) => {
       console.log(`Sending catch late tx ${JSON.stringify(event)}`);
+
+      let status = this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
+      if (status != 2) {
+        return;
+      }
 
       try {
         let data = this.executorContract.methods.catchLateSubscription(
@@ -196,6 +212,8 @@ export default class EthereumService implements NetworkService {
     const finalToBlock = toBlock || 'latest';
 
     let result = await contract.getPastEvents('AllEvents', { fromBlock: fromBlock || finalFromBlock, toBlock: finalToBlock });
+
+    // console.log(result);
 
     result
     .filter((event) => existingEvents.includes(event.id) == false)

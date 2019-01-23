@@ -6,9 +6,9 @@ const NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce
 const EthereumService = require('@8xprotocol/service-node-core/dist/services/ethereum_service').default;
 const Repeater = require('@8xprotocol/service-node-core').default;
 
-exports.start = function(nodeAddress, publicKey, privateKey, addressBook, delayPeriods, topUpAmount) {
+exports.start = function(nodeAddress, privateKey, addressBook, delayPeriods, topUpAmount) {
 
-  if (!nodeAddress || !publicKey || !privateKey || !addressBook || !delayPeriods || !topUpAmount) {
+  if (!nodeAddress || !privateKey || !addressBook || !delayPeriods || !topUpAmount) {
     return;
   }
 
@@ -22,8 +22,8 @@ exports.start = function(nodeAddress, publicKey, privateKey, addressBook, delayP
   let nonceTracker = new NonceTrackerSubprovider()
   provider.engine._providers.unshift(nonceTracker)
   nonceTracker.setEngine(provider.engine);
-
-  let service = new EthereumService(provider, publicKey.toLowerCase(), addressBook, delayPeriods);
+  
+  let service = new EthereumService(provider, Object.keys(provider.wallets)[0], addressBook, delayPeriods);
   repeater = new Repeater(service);
 
   service.attemptTopUp(

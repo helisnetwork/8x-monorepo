@@ -21,37 +21,45 @@ export default class EthereumService implements NetworkService {
   private TX_DEFAULTS: any;
   private executorContract: ExecutorContract;
 
-  constructor(provider: any, addressBook: AddressBook, delayPeriod: DelayPeriod) {
+  constructor(provider: any, account: Address, addressBook: AddressBook, delayPeriod: DelayPeriod) {
     this.web3 = new Web3(provider);
     this.eightEx = new EightEx(this.web3, {});
     this.addressBook = addressBook;
-    this.serviceNode = this.web3.eth.defaultAccount;
+    this.serviceNode = account;
     this.delayPeriod = delayPeriod;
 
     const DEFAULT_GAS_LIMIT: BigNumber = new BigNumber(6712390); // Default of 6.7 million gas
     const DEFAULT_GAS_PRICE: BigNumber = new BigNumber(6000000000); // 6 gEei
 
     this.TX_DEFAULTS = {
-      from:  this.web3.eth.defaultAccount, // default to first account from provider
+      from: account, // default to first account from provider
       gas: DEFAULT_GAS_LIMIT,
       gasPrice: DEFAULT_GAS_PRICE
     };
+
+    console.log(this.addressBook);
   }
 
   async attemptTopUp(amount: BigNumber): Promise<any> {
     
     let stakeContract = await StakeContract.at(this.addressBook.stakeContractAddress, this.web3, {});
     let stakeTokenContract = await MockTokenContract.at(this.addressBook.stakeTokenAddress, this.web3, {});
+    let tokenAddresses = this.addressBook.transactingTokenAddresses || [this.addressBook.transactingTokenAddress];
+    
+    console.log(this.serviceNode, tokenAddresses);
 
-    console.log(this.serviceNode, this.addressBook.transactingTokenAddress);
-
-    await this.asyncForEach((this.addressBook.transactingTokenAddresses || [this.addressBook.transactingTokenAddress]), async (token) => {
+    await this.asyncForEach(tokenAddresses, async (token) => {
       let existingBalance = await stakeContract.getTotalStake.callAsync(this.serviceNode, token);
+
+      console.log(existingBalance.toNumber(), amount.toNumber());
+      console.log(this.serviceNode, token);
 
       if (existingBalance.toNumber() == amount.toNumber()) {
         console.log("Skipped top up");
         return;
       }
+
+      console.log('Approving token...');
 
       let approveTx = await stakeTokenContract.approve.sendTransactionAsync(
         stakeContract.address,
@@ -59,13 +67,19 @@ export default class EthereumService implements NetworkService {
         this.TX_DEFAULTS
       );
 
+      console.log(approveTx);
+
       await this.eightEx.blockchain.awaitTransactionMinedAsync(approveTx);
+
+      console.log('Topping up...');
 
       let topupTx = await stakeContract.topUpStake.sendTransactionAsync(
         amount,
         token,
         { from: this.serviceNode }
       );
+
+      console.log(topupTx);
 
       return await this.eightEx.blockchain.awaitTransactionMinedAsync(topupTx);
     });
