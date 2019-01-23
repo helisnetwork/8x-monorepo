@@ -107,6 +107,7 @@ export default class EthereumService implements NetworkService {
 
       let status = this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
       if (status != 1) {
+        console.log(`Payment has already been made for: ${event.transactionHash}`);
         return;
       }
       
@@ -130,6 +131,7 @@ export default class EthereumService implements NetworkService {
 
       let status = this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
       if (status != 2) {
+        console.log(`Payment has already been made for: ${event.transactionHash}`);
         return;
       }
 
@@ -153,6 +155,7 @@ export default class EthereumService implements NetworkService {
 
       let status = this.payrollContract.methods.getPaymentStatus(event.paymentIdentifier).call();
       if (status != 2) {
+        console.log(`Payment has already been made for: ${event.transactionHash}`);
         return;
       }
 
