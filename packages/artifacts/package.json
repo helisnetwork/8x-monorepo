@@ -1,6 +1,6 @@
 {
   "name": "@8xprotocol/artifacts",
-  "version": "0.7.0",
+  "version": "1.0.0-alpha.0",
   "main": "dist/index.js",
   "typings": "dist/types/index.d.ts",
   "scripts": {
