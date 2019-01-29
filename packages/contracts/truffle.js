@@ -18,10 +18,10 @@ module.exports = {
             provider: () => new HDWalletProvider([process.env.ETHEREUM_PRIVATE_KEY], "https://ropsten.infura.io/v3/" + process.env.INFURA_API_KEY),
             network_id: 3,
             gas: 6700000,
-            gasPrice: 5
+            gasPrice: 2
         },
         kovan: {
-            provider: () => {
+        provider: () => {
                 let wallet = new HDWalletProvider([process.env.ETHEREUM_PRIVATE_KEY], "https://kovan.infura.io/v3/" + process.env.INFURA_API_KEY);
                 let nonceTracker = new NonceTrackerSubprovider()
                 wallet.engine._providers.unshift(nonceTracker)
@@ -39,10 +39,16 @@ module.exports = {
             gasPrice: 5
         },
         main: {
-            provider: () => new HDWalletProvider([process.env.ETHEREUM_PRIVATE_KEY], "https://mainnet.infura.io/v3/" + process.env.INFURA_API_KEY),
+            provider: () => {
+                let wallet = new HDWalletProvider([process.env.ETHEREUM_PRIVATE_KEY], "https://mainnet.infura.io/v3/" + process.env.INFURA_API_KEY);
+                let nonceTracker = new NonceTrackerSubprovider()
+                wallet.engine._providers.unshift(nonceTracker)
+                nonceTracker.setEngine(wallet.engine)
+                return wallet
+            },
             network_id: 1,
             gas: 6700000,
-            gasPrice: 5
+            gasPrice: 2000000000
         }
     },
     compilers: {

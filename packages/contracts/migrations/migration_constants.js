@@ -1,4 +1,5 @@
 const MAXIMUM_INTERVAL_DIVISOR = 5;
+const FINAL_OWNER = '';
 
 function configPath() {
     return `${process.cwd()}/../artifacts/src/addresses/config.json`;
@@ -15,5 +16,6 @@ function isActualDeployment(network) {
 module.exports = {
     MAXIMUM_INTERVAL_DIVISOR,
     isActualDeployment,
-    configPath
+    configPath,
+    FINAL_OWNER
 }

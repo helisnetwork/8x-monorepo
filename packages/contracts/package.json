@@ -45,7 +45,7 @@
     "build": "truffle compile && node scripts/exportArtifacts && npm run generate-artifacts-typings",
     "deploy:develop": "npm run clean && truffle migrate --reset --network develop && npm run build",
     "deploy:kovan": "npm run clean && truffle migrate --reset --network kovan && npm run build",
-    "deploy:main": "npm run clean && truffle migrate --reset --network main && && npm run build",
+    "deploy:main": "npm run clean && truffle migrate --reset --network main && npm run build",
     "prepublishOnly": "npm run build"
   },
   "gitHead": "3e65b57c6dae53cbafdb02719c4087bf600a44fa"

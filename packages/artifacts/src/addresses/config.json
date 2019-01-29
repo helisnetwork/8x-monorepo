@@ -172,5 +172,74 @@
         "address": "0xa06AFBb35f8042d4CD49E81c1c7E3703121c82559C418C69Bd00F69B9C8F59fb"
       }
     ]
+  },
+  "main": {
+    "addresses": [
+      {
+        "name": "Executor",
+        "address": "0xe9a21040c509fed896830d2b8094b4ce715138d5"
+      },
+      {
+        "name": "VolumeSubscription",
+        "address": "0xe7323e22c3cd5111f7a3b96c23ffa088168f545a"
+      },
+      {
+        "name": "PayrollSubscription",
+        "address": "0x22c4046aaa3e4c917a480b78ab0539e58263cf07"
+      },
+      {
+        "name": "ApprovedRegistry",
+        "address": "0xa4b85650afeea7177c1375ebe84606bfdbb8a9be"
+      },
+      {
+        "name": "TransferProxy",
+        "address": "0x0a890f03cf67a0fd392a1320ad4572af8d05699b"
+      },
+      {
+        "name": "PaymentRegistry",
+        "address": "0x08662d37eb59071d4528e67ed3c95bea84b0c65e"
+      },
+      {
+        "name": "EightExToken",
+        "address": "0x42f71046d88e926f72d6aca4ad491786e0a826a4"
+      },
+      {
+        "name": "WETH",
+        "address": "0x5ffd8b6560821a3597eb208dd99cf3db57b67ec9"
+      },
+      {
+        "name": "StakeContract",
+        "address": "0x61fc3a2e1518e7f16d5f18e885d1f9723aed79c4"
+      },
+      {
+        "name": "KyberNetwork",
+        "address": "0x818E6FECD516Ecc3849DAf6845e3EC868087B755"
+      },
+      {
+        "name": "MultSig",
+        "address": "0x861fbac3de50783b9f7a6bd2bcc03f2298efce1c"
+      }
+    ],
+    "approvedTokens": [
+      {
+        "ticker": "DAI",
+        "address": "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359"
+      },
+      {
+        "ticker": "WETH",
+        "address": "0x5ffd8b6560821a3597eb208dd99cf3db57b67ec9"
+      }
+    ],
+    "approvedContracts": [
+      {
+        "name": "VolumeSubscription",
+        "address": "0xe7323e22c3cd5111f7a3b96c23ffa088168f545a"
+      },
+      {
+        "name": "PayrollSubscription",
+        "address": "0x22c4046aaa3e4c917a480b78ab0539e58263cf07"
+      }
+    ],
+    "maximumIntervalDivisor": 5
   }
 }

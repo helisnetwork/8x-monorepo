@@ -54,9 +54,9 @@ module.exports = function(deployer, network, accounts) {
         let kyberNetworkAddress = Dependencies.KyberNetwork[network] || (await deployer.deploy(MockKyberNetwork)).address;
         let daiAddress = Tokens.DAI.addresses[network] || (await deployer.deploy(MockToken)).address;
 
-        // Deploy MultiSig with one owner, one confirmation and zero seconds to make a change
+        // Deploy MultiSig with one owner, one confirmation and one day to make a change
         // This will be changed to something else once we move past an alpha stage
-        multiSig = await deployer.deploy(MultiSigWalletWithTimeLock, [accounts[0]], 1, 0);
+        multiSig = await deployer.deploy(MultiSigWalletWithTimeLock, [Constants.FINAL_OWNER], 1, 24*60*60);
 
         // Deploy the Approved Registry with Kyber Network
         approvedRegistry = await deployer.deploy(ApprovedRegistry, kyberNetworkAddress);
