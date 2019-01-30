@@ -38,6 +38,7 @@
         "abi-decoder": "^1.2.0",
         "bignumber.js": "^4.1.0",
         "dedent-js": "^1.0.1",
+        "ethereumjs-abi": "^0.6.6",
         "fs": "0.0.1-security",
         "fs-extra": "^7.0.1",
         "lodash": "^4.17.11",
