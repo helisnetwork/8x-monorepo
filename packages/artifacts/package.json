@@ -24,7 +24,7 @@
     "rimraf": "^2.6.2",
     "tiny-promisify": "^1.0.0",
     "typescript": "^2.6.2",
-    "web3": "0.20.0",
+    "web3": "0.20.2",
     "web3-utils": "^1.0.0-beta.36"
   },
   "publishConfig": {

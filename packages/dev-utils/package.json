@@ -20,7 +20,7 @@
         "lodash": "^4.17.11",
         "rimraf": "^2.6.2",
         "truffle-contract": "^3.0.6",
-        "web3": "0.20.0"
+        "web3": "0.20.2"
     },
     "publishConfig": {
         "access": "public"

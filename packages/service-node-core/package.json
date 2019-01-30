@@ -1,6 +1,6 @@
 {
     "name": "@8xprotocol/service-node-core",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "",
     "main": "dist/index.js",
     "typings": "dist/types/index.d.ts",
@@ -36,7 +36,7 @@
         "truffle-contract": "^3.0.6",
         "ts-jest": "^22.4.6",
         "typescript": "^2.6.2",
-        "web3": "0.20.0",
+        "web3": "0.20.2",
         "web3-utils": "^1.0.0-beta.36"
     },
     "gitHead": "3e65b57c6dae53cbafdb02719c4087bf600a44fa",

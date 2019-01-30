@@ -28,14 +28,20 @@ export default class EthereumService implements NetworkService {
     this.serviceNode = account;
     this.delayPeriod = delayPeriod;
 
-    const DEFAULT_GAS_LIMIT: BigNumber = new BigNumber(6712390); // Default of 6.7 million gas
-    const DEFAULT_GAS_PRICE: BigNumber = new BigNumber(6000000000); // 6 gEei
+    const DEFAULT_GAS_LIMIT: BigNumber = new BigNumber(1000000); // Default of 1 million gas
+    const DEFAULT_GAS_PRICE: BigNumber = new BigNumber(4000000000); // 2 gEei
 
     this.TX_DEFAULTS = {
       from: account, // default to first account from provider
       gas: DEFAULT_GAS_LIMIT,
-      gasPrice: DEFAULT_GAS_PRICE
+      // gasPrice: DEFAULT_GAS_PRICE
     };
+
+    var balance = this.web3.eth.getBalance("0x407d73d8a49eeb85d32cf465507dd71d507100c1", (error, result) => {
+      console.log('Error ' + error);
+      console.log('Account ' + account);
+      console.log('Result ' + result.toNumber()); // 1000000000000
+    });
 
     console.log(this.addressBook);
   }
