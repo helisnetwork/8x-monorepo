@@ -1,6 +1,6 @@
 {
   "name": "@8xprotocol/artifacts",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dist/index.js",
   "typings": "dist/types/index.d.ts",
   "scripts": {
@@ -12,8 +12,8 @@
     "@0xproject/types": "^1.0.1-rc.4",
     "@0xproject/typescript-typings": "^1.0.4",
     "@0xproject/utils": "^1.0.8",
-    "@8xprotocol/base-contract": "^0.7.0",
-    "@8xprotocol/types": "^0.7.0",
+    "@8xprotocol/base-contract": "^1.0.2",
+    "@8xprotocol/types": "^1.0.2",
     "@types/fs-extra": "^5.0.4",
     "@types/lodash": "^4.14.116",
     "@types/node": "^8.5.1",

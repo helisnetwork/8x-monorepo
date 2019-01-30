@@ -1,9 +1,9 @@
 {
   "name": "@8xprotocol/contracts",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "devDependencies": {
     "@0xproject/abi-gen": "^1.0.7",
-    "@8xprotocol/types": "^0.7.0",
+    "@8xprotocol/types": "^1.0.2",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.18.0",
