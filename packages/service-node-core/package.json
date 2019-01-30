@@ -39,7 +39,7 @@
         "web3": "0.20.2",
         "web3-utils": "^1.0.0-beta.36"
     },
-    "gitHead": "3e65b57c6dae53cbafdb02719c4087bf600a44fa",
+    "gitHead": "fbef3af47556282664b598246bb0ede1baeaef86",
     "publishConfig": {
         "access": "public"
     },
