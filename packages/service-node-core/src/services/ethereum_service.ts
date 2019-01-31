@@ -37,12 +37,6 @@ export default class EthereumService implements NetworkService {
       // gasPrice: DEFAULT_GAS_PRICE
     };
 
-    var balance = this.web3.eth.getBalance("0x407d73d8a49eeb85d32cf465507dd71d507100c1", (error, result) => {
-      console.log('Error ' + error);
-      console.log('Account ' + account);
-      console.log('Result ' + result.toNumber()); // 1000000000000
-    });
-
     console.log(this.addressBook);
   }
 
@@ -75,7 +69,7 @@ export default class EthereumService implements NetworkService {
 
       console.log(approveTx);
 
-      await this.eightEx.blockchain.awaitTransactionMinedAsync(approveTx);
+      await this.eightEx.blockchain.awaitTransactionMinedAsync(approveTx, 2000, 60000 * 10);
 
       console.log('Topping up...');
 
@@ -87,7 +81,7 @@ export default class EthereumService implements NetworkService {
 
       console.log(topupTx);
 
-      return await this.eightEx.blockchain.awaitTransactionMinedAsync(topupTx);
+      return await this.eightEx.blockchain.awaitTransactionMinedAsync(topupTx, 2000, 60000 * 10);
     });
   }
 
@@ -95,10 +89,25 @@ export default class EthereumService implements NetworkService {
 
     this.executorContract = await ExecutorContract.at(this.addressBook.executorAddress, this.web3, {});
 
+    const blockNum: any = await new Promise((resolve, reject) => {
+      this.web3.eth.getBlockNumber((error, result) => {
+        if (error) {
+          reject(error)
+        } {
+          resolve(result);
+        }
+      });
+    })
+
+    console.log('Block number is: ' + blockNum)
+
+    const finalFromBlock = fromBlock || (blockNum - 3000);
+    const finalToBlock = toBlock || 'latest';
+
     const contract = this.web3.eth.contract(ExecutorAbi.abi as AbiDefinition[]).at(this.addressBook.executorAddress);
     const eventsWatcher = contract.allEvents({
-      fromBlock: fromBlock,
-      toBlock: toBlock < 0 ? 'latest' : toBlock,
+      fromBlock: finalFromBlock,
+      toBlock: finalToBlock,
     });
 
     eventsWatcher.watch((error, log) => {
@@ -113,11 +122,35 @@ export default class EthereumService implements NetworkService {
 
   async watchPayroll(callback: (any) => (any), fromBlock: number, toBlock: number) {
 
+    console.log(1);
+
+    const blockNum: any = await new Promise((resolve, reject) => {
+      this.web3.eth.getBlockNumber((error, result) => {
+        if (error) {
+          reject(error)
+        } {
+          resolve(result);
+        }
+      });
+    })
+
+    console.log(2);
+
+
+    const finalFromBlock = fromBlock || (blockNum - 3000);
+    const finalToBlock = toBlock || 'latest';
+
+    console.log(3);
+
     const contract = this.web3.eth.contract(PayrollSubscriptionAbi.abi as AbiDefinition[]).at(this.addressBook.payrollSubscriptionAddress);
     const eventsWatcher = contract.allEvents({
-      fromBlock: fromBlock,
-      toBlock: toBlock < 0 ? 'latest' : toBlock,
+      fromBlock: finalFromBlock,
+      toBlock: finalToBlock,
     });
+
+    console.log('Blocks:');
+    console.log(finalFromBlock);
+    console.log(finalToBlock);
 
     eventsWatcher.watch((error, log) => {
       if (log) {  

@@ -18,8 +18,8 @@ exports.start = function(nodeAddress, privateKey, addressBook, delayPeriods, top
   }).then(function() {
       console.log("Started node");
   }).catch(function(error) {
-      console.log(error);
-  })
+    console.log('Failed to start node: ' + error);
+  });
 
   repeater.repeaterUpdated = function() {
       console.log("Aion Repeater events updated");
