@@ -1,4 +1,9 @@
-# In order to use the node, create a folder at ./secrets with the following:
+# In order to use the node, create a folder at ./secrets with the following variables in a .env file with names such as:
+
+- `.aion.main.env`
+- `.aion.test.env`
+- `.etheruem.main.env`
+- `.ethereum.test.env`
 
 ```
 # HTTP Address of  node to connect to
