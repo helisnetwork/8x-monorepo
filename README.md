@@ -39,7 +39,7 @@
 
 ## Addresses :innocent:
 
-We get it, you're just here to find the contract addresses. Luckily for you, they're all listed here.
+We get it, you're just here to find the contract addresses. Luckily for you, they're all here (latest).
 
 ### Contracts (Kovan)
 
@@ -102,10 +102,10 @@ If you would like to contribute please fork the repo, create a new branch, fix t
 
 ##### Requirements
 - Truffle ^4.1.8
-- Gananche UI
+- Gananche (no setup configs required)
 - NPM
 
-##### Pre Requisites
+##### Global Dependencies
 ```
 npm install -g lerna
 npm install -g truffle
